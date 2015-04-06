@@ -1,0 +1,8 @@
+/.svn
+__pycache__
+/bak
+/*.lwp
+/ctntCache
+/settings.py
+/*.pyc
+*.pyc
