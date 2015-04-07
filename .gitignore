@@ -6,3 +6,4 @@ __pycache__
 /settings.py
 /*.pyc
 *.pyc
+/flask
