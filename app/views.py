@@ -55,7 +55,6 @@ def internal_error(dummy_error):
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
-@app.route('/index/<int:page>', methods=['GET', 'POST'])
 # @login_required
 def index(page=1):
 	form = PostForm()
@@ -74,21 +73,6 @@ def index(page=1):
 						   title='Home',
 						   form=form,
 						   posts=[])
-
-
-@app.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
-def login():
-	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('index'))
-	form = LoginForm()
-	if form.validate_on_submit():
-		session['remember_me'] = form.remember_me.data
-		return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
-	return render_template('login.html',
-						   title='Sign In',
-						   form=form,
-						   providers=app.config['OPENID_PROVIDERS'])
 
 
 @oid.after_login
@@ -115,12 +99,6 @@ def after_login(resp):
 		session.pop('remember_me', None)
 	login_user(user, remember=remember_me)
 	return redirect(request.args.get('next') or url_for('index'))
-
-
-@app.route('/logout')
-def logout():
-	logout_user()
-	return redirect(url_for('index'))
 
 
 @app.route('/user/<nickname>')
@@ -153,62 +131,6 @@ def edit():
 		form.about_me.data = g.user.about_me
 	return render_template('edit.html', form=form)
 
-
-@app.route('/follow/<nickname>')
-# @login_required
-def follow(nickname):
-	user = User.query.filter_by(nickname=nickname).first()
-	if user is None:
-		flash('User %s not found.' % nickname)
-		return redirect(url_for('index'))
-	if user == g.user:
-		flash(gettext('You can\'t follow yourself!'))
-		return redirect(url_for('user', nickname=nickname))
-	u = g.user.follow(user)
-	if u is None:
-		flash(gettext('Cannot follow %(nickname)s.', nickname=nickname))
-		return redirect(url_for('user', nickname=nickname))
-	db.session.add(u)
-	db.session.commit()
-	flash(gettext('You are now following %(nickname)s!', nickname=nickname))
-	return redirect(url_for('user', nickname=nickname))
-
-
-@app.route('/unfollow/<nickname>')
-# @login_required
-def unfollow(nickname):
-	user = User.query.filter_by(nickname=nickname).first()
-	if user is None:
-		flash('User %s not found.' % nickname)
-		return redirect(url_for('index'))
-	if user == g.user:
-		flash(gettext('You can\'t unfollow yourself!'))
-		return redirect(url_for('user', nickname=nickname))
-	u = g.user.unfollow(user)
-	if u is None:
-		flash(gettext('Cannot unfollow %(nickname)s.', nickname=nickname))
-		return redirect(url_for('user', nickname=nickname))
-	db.session.add(u)
-	db.session.commit()
-	flash(gettext('You have stopped following %(nickname)s.',
-				  nickname=nickname))
-	return redirect(url_for('user', nickname=nickname))
-
-
-@app.route('/delete/<int:id>')
-# @login_required
-def delete(id):
-	post = Post.query.get(id)
-	if post is None:
-		flash('Post not found.')
-		return redirect(url_for('index'))
-	if post.author.id != g.user.id:
-		flash('You cannot delete this post.')
-		return redirect(url_for('index'))
-	db.session.delete(post)
-	db.session.commit()
-	flash('Your post has been deleted.')
-	return redirect(url_for('index'))
 
 
 @app.route('/search', methods=['POST'])

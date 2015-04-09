@@ -22,44 +22,59 @@ followers = db.Table(
 
 class Series(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
+    title       = db.Column(db.Text())
     description = db.Column(db.Text())
     type        = db.Column(db.Text())
     origin_loc  = db.Column(db.Text())
     demographic = db.Column(db.Text())
+    __table_args__ = (
+        db.UniqueConstraint('title'),
+        )
+
 
 class Tags(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     series      = db.Column(db.Integer, db.ForeignKey('series.id'))
     weight      = db.Column(db.Float, default=1)
     tag         = db.Column(db.Text(), nullable=False)
-    u_1         = db.UniqueConstraint('series', 'tag')
+    __table_args__ = (
+        db.UniqueConstraint('series', 'tag'),
+        )
 
 class Genres(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     series      = db.Column(db.Integer, db.ForeignKey('series.id'))
     genre       = db.Column(db.Text(), nullable=False)
 
-    u_1         = db.UniqueConstraint('series', 'genre')
+    __table_args__ = (
+        db.UniqueConstraint('series', 'genre'),
+        )
 
 class Author(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     series      = db.Column(db.Integer, db.ForeignKey('series.id'))
     author      = db.Column(db.Text(), nullable=False)
 
-    u_1         = db.UniqueConstraint('series', 'author')
+    __table_args__ = (
+        db.UniqueConstraint('series', 'author'),
+        )
 
 class Illustrators(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     series      = db.Column(db.Integer, db.ForeignKey('series.id'))
     name        = db.Column(db.Text(), nullable=False)
 
-    u_1         = db.UniqueConstraint('series', 'name')
+    __table_args__ = (
+        db.UniqueConstraint('series', 'name'),
+        )
 
 class Translators(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     group_name  = db.Column(db.Text(), nullable=False)
     group_site  = db.Column(db.Text())
-    u_1         = db.UniqueConstraint('group_name')
+    __table_args__ = (
+        db.UniqueConstraint('group_name'),
+        )
 
 class Releases(db.Model):
     id          = db.Column(db.Integer, primary_key=True)

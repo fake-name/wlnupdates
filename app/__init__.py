@@ -22,16 +22,13 @@ babel = Babel(app)
 
 
 class CustomJSONEncoder(JSONEncoder):
-    """This class adds support for lazy translation texts to Flask's
-    JSON encoder. This is necessary when flashing translated texts."""
-    def default(self, obj):
-        from speaklater import is_lazy_string
-        if is_lazy_string(obj):
-            try:
-                return unicode(obj)  # python 2
-            except NameError:
-                return str(obj)  # python 3
-        return super(CustomJSONEncoder, self).default(obj)
+	"""This class adds support for lazy translation texts to Flask's
+	JSON encoder. This is necessary when flashing translated texts."""
+	def default(self, obj):
+		from speaklater import is_lazy_string
+		if is_lazy_string(obj):
+			return str(obj)  # python 3
+		return super(CustomJSONEncoder, self).default(obj)
 
 app.json_encoder = CustomJSONEncoder
 
@@ -48,16 +45,37 @@ app.json_encoder = CustomJSONEncoder
 #     app.logger.addHandler(mail_handler)
 
 if not app.debug:
-    import logging
-    from logging.handlers import RotatingFileHandler
-    file_handler = RotatingFileHandler('tmp/microblog.log', 'a', 1 * 1024 * 1024, 10)
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.INFO)
-    app.logger.info('microblog startup')
+	import logging
+	from logging.handlers import RotatingFileHandler
+	file_handler = RotatingFileHandler('tmp/microblog.log', 'a', 1 * 1024 * 1024, 10)
+	file_handler.setLevel(logging.INFO)
+	file_handler.setFormatter(logging.Formatter(
+		'%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+	app.logger.addHandler(file_handler)
+	app.logger.setLevel(logging.INFO)
+	app.logger.info('microblog startup')
 
 app.jinja_env.globals['momentjs'] = momentjs
 
 from app import views, models
+
+
+def format_price(amount, currency=u'€'):
+	return u'{0:.2f}{1}'.format(amount, currency)
+
+def get_random_books():
+	wat = {
+		'1' : 1,
+		'2' : 2,
+		'3' : 3,
+		'4' : 4,
+	}
+	return wat
+
+@app.context_processor
+def example():
+
+	return dict(
+		format_price=format_price,
+		get_random_books=get_random_books
+		)
