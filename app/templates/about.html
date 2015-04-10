@@ -1,0 +1,58 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+	{% include 'flash.html' %}
+	<div class="well">
+		<h3>About this site</h3>
+		<p>
+			This site is a (alpha) project of <a href='https://github.com/fake-name'>Fake-Name/Connor Wolf</a>.
+			It is open source, you can find the source <a href='https://github.com/fake-name/wlnupdates'>here</a>.
+		</p>
+
+		<h3>FAQ</h3>
+		<p>
+			<strong>Why "WLN"?</strong> I initially wanted to call the site "lwnupdates.com" ("light-web-novels" flows
+			better then "web-light-novels"), but <a href='https://lwn.net/'>lwn.net</a> is already a well-established
+			thing, so I flipped the lettering to better disambiguate.
+		</p>
+		<p>
+			<strong>Are you trying to cover english-language/non-Asian web content as well?</strong> Yep. In general,
+			I'd like to just cover <strong>ALL THE THINGS</strong>, though that'll be heavily dependent on getting enough
+			people interested in them to keep things up to date in a proper manner.<br>
+			I expect to be able to get at least <em>some</em> of the update information by doing some careful parsing
+			of RSS feeds (see the <a href='https://github.com/fake-name/MangaCMS/tree/master/TextScrape'>TextScrape</a>
+			and <a href='https://github.com/fake-name/MangaCMS/tree/master/FeedScrape'>FeedScrape</a> modules of my
+			<a href='https://github.com/fake-name/MangaCMS'>MangaCMS</a> project). I should be able to pipe the update
+			info that I'm already scraping into the update system in some manner.
+
+		</p>
+		<p>
+			<strong>Isn't this basically a <a href='http://www.mangaupdates.com/'>MangaUpdates.com</a> clone?</strong>
+			Yep, pretty much. They're basically my blueprint for the overall design, through the codebase is completely
+			different (I wrote this basically as a "learn <a href='http://en.wikipedia.org/wiki/Model–view–controller'>MVC</a>"
+			excercise, which precluded using an extant complete system).<br />
+			Yes, the "updates" in the site-name is basically completely copied from MangaUpdates.
+		</p>
+		<p>
+			<strong>Why are so many of the novels missing so much data?</strong>
+			Right now, the novel names and metadata are currently populated using scraped content from both
+			<a href='http://www.mangaupdates.com/'>MangaUpdates</a> and <a href='http://lndb.info/'>LNDB.info</a>.
+			Unfortunately, these sites encompass a different set of metadata for each, so every entry is missing at
+			least <em>some</em> information. Hopefully once I get accounts and user-editing working, that will be
+			fixed in short order.
+		</p>
+		<p>
+			<strong>Is there a way to monitor certain series for changes?</strong>
+			I have plans to implement user customizable lists, but it's not done yet.
+		</p>
+		<hr>
+		<h6>Licensing:</h6>
+		<ul>
+			<li>The code for this site was initially based on the <a href='https://github.com/miguelgrinberg/microblog'>microblog</a>
+				code by <a href='https://github.com/miguelgrinberg'>@miguelgrinberg</a></li>
+			<li>Built using SQLAlchemy, Flask, Jinja2 and Python 3!</li>
+		</ul>
+	</div>
+
+{% endblock %}

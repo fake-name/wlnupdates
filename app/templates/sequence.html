@@ -16,11 +16,11 @@
 {% endmacro %}
 
 
-{% macro render_page_contents(pagination) %}
+{% macro render_page_contents(prefix, pagination, access_key) %}
 
 	{%- for page in pagination.items %}
 		<div>
-			<a href="/series-id/{{page.id}}">{{ page.title }}</a>
+			<a href="/{{prefix}}/{{page.id}}">{{ page[access_key] }}</a>
 		</div>
 	{%- endfor %}
 
@@ -32,13 +32,13 @@
 {% block content %}
 	{% include 'flash.html' %}
 	<div class="well well-large" style="min-height: 140px;">
-		<h2>Book Titles</h2>
+		<h2>{{ title }}</h2>
 
-		{{ render_pagination(series) }}
+		{{ render_pagination(sequence_item) }}
 		<div>
-			{{ render_page_contents(series) }}
+			{{ render_page_contents(page_url_prefix, sequence_item, name_key) }}
 		</div>
-		{{ render_pagination(series) }}
+		{{ render_pagination(sequence_item) }}
 
 
 

@@ -1,0 +1,94 @@
+<!-- extend base layout -->
+{% macro singleItemBlock(name, value, valId) -%}
+	<div class="well well-tiny">
+		<div class="row">
+			<div class="col-md-2">
+				{{ name }}:
+			</div>
+			<div class="col-md-4" id='{{valId}}'>
+				{{ ( value if value else "N/A" ) | safe }}
+			</div>
+		</div>
+	</div>
+	<div style="clear: both;"></div>
+{%- endmacro %}
+
+
+{% macro multiItemBlock(name, inList, itemKey, valId) -%}
+	<div class="well well-tiny">
+		<div class="row">
+			<div class="col-md-2">
+				{{ name }}:
+			</div>
+			<div class="col-md-4">
+				{% for item in inList %}
+				<span id='{{valId}}'>{{ item[itemKey] }}</span>,
+				{% else %}
+					<span id='{{valId}}'>N/A</span>
+				{% endfor %}
+
+			</div>
+		</div>
+	</div>
+	<div style="clear: both;"></div>
+{%- endmacro %}
+
+{% macro coversBlock(covers) -%}
+	<div class="well well-tiny pull-right" style='overflow: hidden'>
+		<div class="col-md-3 ">
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+			COVER<br>
+
+
+		</div>
+	</div>
+{%- endmacro %}
+
+
+{% extends "base.html" %}
+
+{% block content %}
+	{% include 'flash.html' %}
+	<div class="well well-large" style="min-height: 140px;">
+		<h2>{{ series.title }}</h2>
+
+
+			{{coversBlock(covers)}}
+
+			{{singleItemBlock("Description",       series.description, 'description'     )}}
+			{{singleItemBlock("Demographic",       series.demographic, 'demographic'     )}}
+			{{singleItemBlock("Type",              series.type,        'type'            )}}
+			{{singleItemBlock("Country of Origin", series.origin_loc,  'origin_loc'      )}}
+			{{singleItemBlock("Original Language", series.orig_lang,   'orig_lang'       )}}
+
+			{{multiItemBlock("Author(s)",          author,             'author', 'author')}}
+			{{multiItemBlock("Illustrator(s)",     illustrators,       'name',   'illustrators')}}
+
+			{{multiItemBlock("Tags",     tags,               'tag',    'tag')}}
+			{{multiItemBlock("Genres",     genres,               'genre',    'genre')}}
+
+
+	</div>
+
+	</ul>
+{% endblock %}

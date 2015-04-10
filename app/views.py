@@ -8,7 +8,7 @@ from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm
 from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
-from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, DATABASE_QUERY_TIMEOUT
+import config
 
 from sqlalchemy.sql.expression import func
 
@@ -36,7 +36,7 @@ def before_request():
 @app.after_request
 def after_request(response):
 	for query in get_debug_queries():
-		if query.duration >= DATABASE_QUERY_TIMEOUT:
+		if query.duration >= config.DATABASE_QUERY_TIMEOUT:
 			app.logger.warning(
 				"SLOW QUERY: %s\nParameters: %s\nDuration: %fs\nContext: %s\n" %
 				(query.statement, query.parameters, query.duration,
@@ -75,7 +75,7 @@ def index(page=1):
 	# 	db.session.commit()
 	# 	flash(gettext('Your post is now live!'))
 	# 	return redirect(url_for('index'))
-	# posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
+	# posts = g.user.followed_posts().paginate(page, config.POSTS_PER_PAGE, False)
 	return render_template('index.html',
 						   title='Home',
 						   random_series=get_random_books(),
@@ -116,7 +116,7 @@ def user(nickname, page=1):
 	if user is None:
 		flash(gettext('User %(nickname)s not found.', nickname=nickname))
 		return redirect(url_for('index'))
-	posts = user.posts.paginate(page, POSTS_PER_PAGE, False)
+	posts = user.posts.paginate(page, config.POSTS_PER_PAGE, False)
 	return render_template('user.html',
 						   user=user,
 						   posts=posts)
@@ -134,7 +134,7 @@ def renderSeriesId(sid):
 		flash(gettext('Series %(sid)s not found.', sid=sid))
 		return redirect(url_for('index'))
 
-	return render_template('series.html',
+	return render_template('series-id.html',
 						series       = series,
 						tags         = tags,
 						genres       = genres,
@@ -150,9 +150,145 @@ def renderSeriesId(sid):
 @app.route('/series/')
 def renderSeriesTable(letter=None, page=1):
 
-	return render_template('allseries.html',
-							page=page,
-							letter=letter)
+	if letter:
+		series = Series.query                                \
+			.filter(Series.title.like("{}%".format(letter))) \
+			.order_by(Series.title)
+	else:
+		series = Series.query       \
+			.order_by(Series.title)
+	if series is None:
+		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
+		return redirect(url_for('series'))
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	return render_template('sequence.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   name_key        = "title",
+						   letter          = letter,
+						   page_url_prefix = 'series-id',
+						   title           = 'Book Titles')
+
+
+
+@app.route('/authors/<letter>/<int:page>')
+@app.route('/authors/<page>')
+@app.route('/authors/<int:page>')
+@app.route('/authors/')
+def renderAuthorTable(letter=None, page=1):
+
+	if letter:
+		series = Author.query                                 \
+			.filter(Author.author.like("{}%".format(letter))) \
+			.order_by(Author.author)                          \
+			.distinct(Author.author)
+	else:
+		series = Author.query       \
+			.order_by(Author.author)\
+			.distinct(Author.author)
+	if series is None:
+		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
+		return redirect(url_for('series'))
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+
+	return render_template('sequence.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   letter          = letter,
+						   name_key        = "author",
+						   page_url_prefix = 'author-id',
+						   title           = 'Authors')
+
+
+@app.route('/artists/<letter>/<int:page>')
+@app.route('/artists/<page>')
+@app.route('/artists/<int:page>')
+@app.route('/artists/')
+def renderArtistTable(letter=None, page=1):
+
+	if letter:
+		series = Illustrators.query                                 \
+			.filter(Illustrators.name.like("{}%".format(letter))) \
+			.order_by(Illustrators.name)                          \
+			.distinct(Illustrators.name)
+	else:
+		series = Illustrators.query       \
+			.order_by(Illustrators.name)\
+			.distinct(Illustrators.name)
+	if series is None:
+		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
+		return redirect(url_for('series'))
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+
+	return render_template('sequence.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   letter          = letter,
+						   name_key        = "name",
+						   page_url_prefix = 'artist-id',
+						   title           = 'Artists')
+
+
+
+@app.route('/tags/<letter>/<int:page>')
+@app.route('/tags/<page>')
+@app.route('/tags/<int:page>')
+@app.route('/tags/')
+def renderTagTable(letter=None, page=1):
+
+	if letter:
+		series = Tags.query                                 \
+			.filter(Tags.tag.like("{}%".format(letter))) \
+			.order_by(Tags.tag)                          \
+			.distinct(Tags.tag)
+	else:
+		series = Tags.query       \
+			.order_by(Tags.tag)\
+			.distinct(Tags.tag)
+	if series is None:
+		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
+		return redirect(url_for('series'))
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+
+	return render_template('sequence.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   letter          = letter,
+						   name_key        = "tag",
+						   page_url_prefix = 'tag-id',
+						   title           = 'Tags')
+
+
+@app.route('/genres/<letter>/<int:page>')
+@app.route('/genres/<page>')
+@app.route('/genres/<int:page>')
+@app.route('/genres/')
+def renderGenreTable(letter=None, page=1):
+
+	if letter:
+		series = Genres.query                                \
+			.filter(Genres.genre.like("{}%".format(letter))) \
+			.order_by(Genres.genre)                          \
+			.distinct(Genres.genre)
+	else:
+		series = Genres.query       \
+			.order_by(Genres.genre) \
+			.distinct(Genres.genre)
+	if series is None:
+		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
+		return redirect(url_for('series'))
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+
+	return render_template('sequence.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   letter          = letter,
+						   name_key        = "genre",
+						   page_url_prefix = 'genre-id',
+						   title           = 'Genres')
+
+
+
 
 
 @app.route('/edit', methods=['GET', 'POST'])
@@ -184,8 +320,12 @@ def search():
 @app.route('/search_results/<query>')
 # @login_required
 def search_results(query):
-	results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
+	results = Post.query.whoosh_search(query, config.MAX_SEARCH_RESULTS).all()
 	return render_template('search_results.html',
 						   query=query,
 						   results=results)
+
+@app.route('/about')
+def about_site():
+	return render_template('about.html')
 
