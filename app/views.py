@@ -6,7 +6,8 @@ from datetime import datetime
 from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm
-from .models import User, Post, Series
+from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, DATABASE_QUERY_TIMEOUT
 
 from sqlalchemy.sql.expression import func
@@ -120,16 +121,27 @@ def user(nickname, page=1):
 						   user=user,
 						   posts=posts)
 
-@app.route('/series/id/<sid>')
+@app.route('/series-id/<sid>')
 def renderSeriesId(sid):
-	series = Series.query.filter_by(id=sid).first()
-	print(dir(series))
+	series       =       Series.query.filter(Series.id==sid).first()
+	tags         =         Tags.query.filter(Tags.series==sid).all()
+	genres       =       Genres.query.filter(Genres.series==sid).all()
+	author       =       Author.query.filter(Author.series==sid).all()
+	illustrators = Illustrators.query.filter(Illustrators.series==sid).all()
+	releases     =     Releases.query.filter(Releases.series==sid).all()
+	covers       =       Covers.query.filter(Releases.series==sid).all()
 	if series is None:
 		flash(gettext('Series %(sid)s not found.', sid=sid))
 		return redirect(url_for('index'))
 
 	return render_template('series.html',
-						   series=series)
+						series       = series,
+						tags         = tags,
+						genres       = genres,
+						author       = author,
+						illustrators = illustrators,
+						covers       = covers,
+						releases     = releases)
 
 
 @app.route('/series/<letter>/<int:page>')

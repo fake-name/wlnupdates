@@ -27,6 +27,7 @@ class Series(db.Model):
 	type        = db.Column(db.Text())
 	origin_loc  = db.Column(db.Text())
 	demographic = db.Column(db.Text())
+	orig_lang   = db.Column(db.Text())
 	__table_args__ = (
 		db.UniqueConstraint('title'),
 		)
@@ -82,6 +83,17 @@ class Releases(db.Model):
 	volume      = db.Column(db.Float(), nullable=False)
 	chapter     = db.Column(db.Float(), nullable=False)
 	tlgroup     = db.Column(db.Integer, db.ForeignKey('translators.id'))
+
+
+
+class Covers(db.Model):
+	id          = db.Column(db.Integer, primary_key=True)
+	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	volume      = db.Column(db.Float(), nullable=False)
+	chapter     = db.Column(db.Float(), nullable=False)
+	desc        = db.Column(db.Text)
+	fsPath      = db.Column(db.Text)
+	hash        = db.Column(db.Text, nullable=False)
 
 
 
