@@ -1,0 +1,48 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+	{% include 'flash.html' %}
+	<div class="well well-large" style="min-height: 140px;">
+		<h2>{{ series.title }}</h2>
+
+
+			<div class="well well-tiny">
+				<div class="container-fluid">
+					<div class="span2">
+						Description:
+					</div>
+					<div class="span6" id='description'>
+						{{ ( series.description if series.description else "N/A" ) | safe }}
+					</div>
+				</div>
+			</div>
+
+
+			<div class="well well-tiny">
+				<div class="container-fluid">
+					<div class="span2">
+						Demographic:
+					</div>
+					<div class="span6" id='demographic'>
+						{{ ( series.demographic if series.demographic else "N/A" ) | safe }}
+					</div>
+				</div>
+			</div>
+
+
+			<div class="well well-tiny">
+				<div class="container-fluid">
+					<div class="span2">
+						Type:
+					</div>
+					<div class="span6" id='demographic'>
+						{{ ( series.type if series.type else "N/A" ) | safe }}
+					</div>
+				</div>
+			</div>
+	</div>
+
+
+	</ul>
+{% endblock %}

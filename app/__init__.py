@@ -63,19 +63,10 @@ from app import views, models
 def format_price(amount, currency=u'€'):
 	return u'{0:.2f}{1}'.format(amount, currency)
 
-def get_random_books():
-	wat = {
-		'1' : 1,
-		'2' : 2,
-		'3' : 3,
-		'4' : 4,
-	}
-	return wat
 
 @app.context_processor
 def example():
 
 	return dict(
-		format_price=format_price,
-		get_random_books=get_random_books
+		format_price=format_price
 		)

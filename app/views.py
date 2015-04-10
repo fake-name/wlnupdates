@@ -6,9 +6,10 @@ from datetime import datetime
 from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm
-from .models import User, Post
+from .models import User, Post, Series
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, DATABASE_QUERY_TIMEOUT
 
+from sqlalchemy.sql.expression import func
 
 @lm.user_loader
 def load_user(id):
@@ -53,25 +54,30 @@ def internal_error(dummy_error):
 	return render_template('500.html'), 500
 
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/index', methods=['GET', 'POST'])
+def get_random_books():
+	items = Series.query.order_by(func.random()).limit(4)
+	print(list(items))
+	return items
+
+@app.route('/', methods=['GET'])
+@app.route('/index', methods=['GET'])
 # @login_required
 def index(page=1):
-	form = PostForm()
-	if form.validate_on_submit():
-		language = guess_language(form.post.data)
-		if language == 'UNKNOWN' or len(language) > 5:
-			language = ''
-		post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-					author=g.user, language=language)
-		db.session.add(post)
-		db.session.commit()
-		flash(gettext('Your post is now live!'))
-		return redirect(url_for('index'))
+	# form = PostForm()
+	# if form.validate_on_submit():
+	# 	language = guess_language(form.post.data)
+	# 	if language == 'UNKNOWN' or len(language) > 5:
+	# 		language = ''
+	# 	post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+	# 				author=g.user, language=language)
+	# 	db.session.add(post)
+	# 	db.session.commit()
+	# 	flash(gettext('Your post is now live!'))
+	# 	return redirect(url_for('index'))
 	# posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
 	return render_template('index.html',
 						   title='Home',
-						   form=form,
+						   random_series=get_random_books(),
 						   posts=[])
 
 
@@ -113,6 +119,28 @@ def user(nickname, page=1):
 	return render_template('user.html',
 						   user=user,
 						   posts=posts)
+
+@app.route('/series/id/<sid>')
+def renderSeriesId(sid):
+	series = Series.query.filter_by(id=sid).first()
+	print(dir(series))
+	if series is None:
+		flash(gettext('Series %(sid)s not found.', sid=sid))
+		return redirect(url_for('index'))
+
+	return render_template('series.html',
+						   series=series)
+
+
+@app.route('/series/<letter>/<int:page>')
+@app.route('/series/<page>')
+@app.route('/series/<int:page>')
+@app.route('/series/')
+def renderSeriesTable(letter=None, page=1):
+
+	return render_template('allseries.html',
+							page=page,
+							letter=letter)
 
 
 @app.route('/edit', methods=['GET', 'POST'])

@@ -1,0 +1,12 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+	{% include 'flash.html' %}
+	<div class="well">
+	Page: {{page}}<br>
+	Letter: {{letter}}
+
+	</div>
+
+{% endblock %}
