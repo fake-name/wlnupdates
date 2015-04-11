@@ -1,26 +1,25 @@
 <!-- extend base layout -->
 {% macro singleItemBlock(name, value, valId) -%}
-	<div class="well well-tiny">
+	<div class="well well-tny info-item">
 		<div class="row">
-			<div class="col-md-2">
+			<div class="col-md-3">
 				{{ name }}:
 			</div>
-			<div class="col-md-4" id='{{valId}}'>
+			<div class="col-md-9" id='{{valId}}'>
 				{{ ( value if value else "N/A" ) | safe }}
 			</div>
 		</div>
 	</div>
-	<div style="clear: both;"></div>
 {%- endmacro %}
 
 
 {% macro multiItemBlock(name, inList, itemKey, valId) -%}
-	<div class="well well-tiny">
+	<div class="well well-tny info-item">
 		<div class="row">
-			<div class="col-md-2">
+			<div class="col-md-3">
 				{{ name }}:
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-9">
 				{% for item in inList %}
 				<span id='{{valId}}'>{{ item[itemKey] }}</span>,
 				{% else %}
@@ -30,38 +29,14 @@
 			</div>
 		</div>
 	</div>
-	<div style="clear: both;"></div>
 {%- endmacro %}
 
 {% macro coversBlock(covers) -%}
-	<div  style='overflow: hidden; float:right; display:inline-block;'>
-		<div class="col-md-3 ">
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
-			COVER<br>
 
-
-		</div>
+	<div class='imgDiv'>
+			Cover goes here!
 	</div>
+
 {%- endmacro %}
 
 
@@ -69,7 +44,49 @@
 
 {% block content %}
 	{% include 'flash.html' %}
-	<div class="well well-large" style="min-height: 140px;">
+
+	<style type="text/css">
+		<!--
+			@media (min-width: 768px)
+			{
+				.imgDiv {
+					height     : 600px !important;
+					width      : 400px !important;
+					max-height : 600px !important;
+					max-width  : 400px !important;
+					float      : right;
+
+					display: inline-block;
+					margin-left: 10px;
+				}
+				.info-item
+				{
+					overflow : hidden;
+				}
+			}
+
+			@media (max-width: 767px)
+			{
+				.imgDiv {
+					display: block;
+					height     : 400px !important;
+
+				}
+				.info-item
+				{
+					/*overflow : hidden;*/
+				}
+			}
+			.imgDiv
+			{
+				border: 2px solid #000;
+				vertical-align : middle;
+				text-align: center;
+			}
+		-->
+	</style>
+
+	<div class="well well-large">
 		<h2>{{ series.title }}</h2>
 
 
@@ -87,6 +104,7 @@
 			{{multiItemBlock("Tags",     tags,               'tag',    'tag')}}
 			{{multiItemBlock("Genres",     genres,               'genre',    'genre')}}
 
+			<div style="clear: both;"></div>
 
 	</div>
 
