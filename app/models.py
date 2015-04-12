@@ -1,5 +1,6 @@
 
 
+from citext import CIText
 from hashlib import md5
 import re
 from app import db
@@ -31,7 +32,6 @@ class Series(db.Model):
 	__table_args__ = (
 		db.UniqueConstraint('title'),
 		)
-
 
 class Tags(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -68,6 +68,11 @@ class Illustrators(db.Model):
 	__table_args__ = (
 		db.UniqueConstraint('series', 'name'),
 		)
+
+class AlternateNames(db.Model):
+	id          = db.Column(db.Integer, primary_key=True)
+	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	name        = db.Column(db.Text(), nullable=False)
 
 class Translators(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)

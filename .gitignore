@@ -9,3 +9,5 @@ __pycache__
 /flask
 /tmp/associations
 /tmp
+/migrations/README
+/migrations
