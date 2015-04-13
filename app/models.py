@@ -6,12 +6,6 @@ import re
 from app import db
 from app import app
 
-import sys
-if sys.version_info >= (3, 0):
-	enable_search = False
-else:
-	enable_search = True
-	import flask.ext.whooshalchemy as whooshalchemy
 
 
 followers = db.Table(
@@ -45,7 +39,7 @@ class Tags(db.Model):
 class Genres(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
-	genre       = db.Column(db.Text(), nullable=False)
+	genre       = db.Column(CIText(), nullable=False)
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'genre'),
@@ -73,6 +67,7 @@ class AlternateNames(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
 	name        = db.Column(db.Text(), nullable=False)
+	cleanname   = db.Column(CIText(), nullable=False)
 
 class Translators(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -119,7 +114,7 @@ class User(db.Model):
 
 	@staticmethod
 	def make_valid_nickname(nickname):
-		return re.sub('[^a-zA-Z0-9_\.]', '', nickname)
+		return re.sub(r'[^a-zA-Z0-9_\.]', '', nickname)
 
 	@staticmethod
 	def make_unique_nickname(nickname):
@@ -187,9 +182,6 @@ class Post(db.Model):
 	def __repr__(self):  # pragma: no cover
 		return '<Post %r>' % (self.body)
 
-
-if enable_search:
-	whooshalchemy.whoosh_index(app, Post)
 
 
 # DROP TABLE author;

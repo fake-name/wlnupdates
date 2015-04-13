@@ -12,12 +12,12 @@
 # DROP TABLE "user" CASCADE;
 
 
-
+import app.nameTools as nt
 import settings
 import psycopg2
 
-loc_con = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-imp_con = psycopg2.connect(host=settings.IMPORT_DATABASE_IP, dbname=settings.IMPORT_DATABASE_DB_NAME, user=settings.IMPORT_DATABASE_USER,password=settings.IMPORT_DATABASE_PASS)
+move_to_con = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+import_con = psycopg2.connect(host=settings.IMPORT_DATABASE_IP, dbname=settings.IMPORT_DATABASE_DB_NAME, user=settings.IMPORT_DATABASE_USER,password=settings.IMPORT_DATABASE_PASS)
 
 def getItemEntry():
 	item = {
@@ -99,6 +99,20 @@ def processMngSeries(cur, name, srcTable):
 	item['genre']  = row['bugenre'].split(" ")
 	item['author'] = row['buauthor']
 	item['illust'] = row['buartist']
+
+
+	cur.execute("""SELECT name FROM munamelist WHERE buid=%s""", (row['buid'], ))
+
+	alts =[item['name']]
+	for alt, in cur.fetchall():
+		if alt.endswith("(Novel)"):
+			alt = alt.replace("(Novel)", "").strip()
+		alts.append(alt)
+
+	item['altnames'] = alts
+
+	item['covers'] = []
+
 	return item
 
 def processBookTbl(cur, name, srcTable):
@@ -178,6 +192,10 @@ def processBookTbl(cur, name, srcTable):
 	item['genre']  = []
 	item['author'] = row['author']
 	item['illust'] = row['illust']
+	item['altnames'] = [item['name']]
+
+	item['covers'] = []
+
 	return item
 
 # --------+---------------------+----------+---------
@@ -211,7 +229,6 @@ def processBookTbl(cur, name, srcTable):
 
 
 def insertItem(cur, item):
-	print(item)
 	cur.execute('''INSERT INTO series (title, description, type, demographic) VALUES (%s, %s, %s, %s) RETURNING id;''',
 			(
 				item['name'],
@@ -230,20 +247,37 @@ def insertItem(cur, item):
 	for genre in item['genre']:
 		cur.execute('''INSERT INTO genres (genre, series) VALUES (%s, %s);''', (genre, pkid))
 
-def insertData(data):
-	cur = loc_con.cursor()
-	inserted = []
-	for item in data:
-		if not item['name'] in inserted:
-			insertItem(cur, item)
-			inserted.append(item['name'])
+	for altn in item['altnames']:
+		cur.execute('''INSERT INTO alternate_names (series, name, cleanname) VALUES (%s, %s, %s);''', (pkid, altn, nt.prepFilenameForMatching(altn)))
 
-	cur.execute('''COMMIT;''')
+
+def insertData(data):
+	print("Inserting!")
+	cur = move_to_con.cursor()
+	cur.execute("BEGIN;")
+	for item in data:
+		insertItem(cur, item)
+
+	cur.execute("SELECT COUNT(*) FROM series;")
+	print("Total inserted items:", cur.fetchone())
+
+
+	cur.execute("SELECT COUNT(*) FROM alternate_names;")
+	print("Assoreted titles:", cur.fetchone())
+
+	cur.execute("SELECT COUNT(*) FROM covers;")
+	print("Covers:", cur.fetchone())
+
+
+	cur.execute('''ROLLBACK;''')
+
+def consolidate(inDat):
+	return inDat
 
 def go():
-	print(imp_con)
+	print(import_con)
 
-	cur = imp_con.cursor()
+	cur = import_con.cursor()
 	cur.execute("""
 		SELECT
 			book_series.itemname,
@@ -268,6 +302,9 @@ def go():
 
 		if item:
 			data.append(item)
+
+
+	consolidate(data)
 	insertData(data)
 
 
