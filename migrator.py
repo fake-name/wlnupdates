@@ -1,14 +1,16 @@
 
-# DROP TABLE author CASCADE;
-# DROP TABLE followers CASCADE;
-# DROP TABLE genres CASCADE;
-# DROP TABLE illustrators CASCADE;
-# DROP TABLE migrate_version CASCADE;
-# DROP TABLE post CASCADE;
-# DROP TABLE releases CASCADE;
-# DROP TABLE series CASCADE;
-# DROP TABLE tags CASCADE;
-# DROP TABLE translators CASCADE;
+# DROP TABLE "alembic_version" CASCADE;
+# DROP TABLE "alternate_names" CASCADE;
+# DROP TABLE "author" CASCADE;
+# DROP TABLE "covers" CASCADE;
+# DROP TABLE "followers" CASCADE;
+# DROP TABLE "genres" CASCADE;
+# DROP TABLE "illustrators" CASCADE;
+# DROP TABLE "post" CASCADE;
+# DROP TABLE "releases" CASCADE;
+# DROP TABLE "series" CASCADE;
+# DROP TABLE "tags" CASCADE;
+# DROP TABLE "translators" CASCADE;
 # DROP TABLE "user" CASCADE;
 
 
@@ -101,6 +103,9 @@ def processMngSeries(cur, name, srcTable):
 	item['illust'] = row['buartist']
 
 
+	while "" in item['genre']: item['genre'].remove("")
+	while "" in item['tags']: item['tags'].remove("")
+
 	cur.execute("""SELECT name FROM munamelist WHERE buid=%s""", (row['buid'], ))
 
 	alts =[item['name']]
@@ -111,7 +116,24 @@ def processMngSeries(cur, name, srcTable):
 
 	item['altnames'] = alts
 
-	item['covers'] = []
+
+	cur.execute("""
+		SELECT
+			filename, vol, chapter, description, relpath, filehash
+		FROM
+			series_covers
+		WHERE
+				srctable=%s
+			AND
+				srcid=%s
+		ORDER BY
+			vol, chapter, filename
+		;
+		""", (srcTable, row['dbid']))
+
+	covers = cur.fetchall()
+
+	item['covers'] = covers
 
 	return item
 
@@ -194,7 +216,22 @@ def processBookTbl(cur, name, srcTable):
 	item['illust'] = row['illust']
 	item['altnames'] = [item['name']]
 
-	item['covers'] = []
+
+	cur.execute("""
+		SELECT
+			filename, vol, chapter, description, relpath, filehash
+		FROM
+			series_covers
+		WHERE
+				srctable=%s
+			AND
+				srcid=%s
+		;
+		""", (srcTable, row['dbid']))
+
+	covers = cur.fetchall()
+
+	item['covers'] = covers
 
 	return item
 
@@ -250,6 +287,17 @@ def insertItem(cur, item):
 	for altn in item['altnames']:
 		cur.execute('''INSERT INTO alternate_names (series, name, cleanname) VALUES (%s, %s, %s);''', (pkid, altn, nt.prepFilenameForMatching(altn)))
 
+	for filename, vol, chapter, description, relpath, filehash in item['covers']:
+
+
+		cur.execute("""
+			INSERT INTO
+				covers (srcFname, series, volume, chapter, description, fsPath, hash)
+			VALUES
+				(%s, %s, %s, %s, %s, %s, %s)
+			;
+			""", (filename, pkid, vol, chapter, description, relpath, filehash))
+
 
 def insertData(data):
 	print("Inserting!")
@@ -258,21 +306,75 @@ def insertData(data):
 	for item in data:
 		insertItem(cur, item)
 
-	cur.execute("SELECT COUNT(*) FROM series;")
-	print("Total inserted items:", cur.fetchone())
+
+	print("Gross rowcounts:")
+	for table in ["alembic_version", "alternate_names", "author", "covers", "followers", "genres", "illustrators", "post", "releases", "series", "tags", "translators", "user"]:
+
+		cur.execute("SELECT COUNT(*) FROM {table};".format(table=table))
+		print("Rows in {table}: {count}".format(table=table, count=cur.fetchone()))
 
 
-	cur.execute("SELECT COUNT(*) FROM alternate_names;")
-	print("Assoreted titles:", cur.fetchone())
-
-	cur.execute("SELECT COUNT(*) FROM covers;")
-	print("Covers:", cur.fetchone())
-
-
-	cur.execute('''ROLLBACK;''')
+	cur.execute("COMMIT;")
+	# cur.execute('''ROLLBACK;''')
 
 def consolidate(inDat):
-	return inDat
+
+	# item['name']   =
+	# item['desc']   =
+	# item['type']   =
+	# item['demo']   =
+	# item['tags']   =
+	# item['genre']  =
+	# item['author'] =
+	# item['illust'] =
+	# item['altnames']
+	# item['covers'] =
+
+	out = {}
+	titles = []
+	for item in inDat:
+		title = item['name'].lower()
+
+		if not title in out:
+			out[title] = item
+		else:
+			for key in [key for key in item.keys() if item[key]]:
+				if not out[title][key]:
+					out[title][key] = item[key]
+				elif key == 'covers':
+					out[title][key] += item[key]
+				elif key == 'altnames':
+					out[title][key] = list(set(out[title][key] + item[key]))
+				elif str(out[title][key]).lower() == str(item[key]).lower():
+					# print(key, "Match", str(out[title][key]).lower(), str(item[key]).lower())
+					pass
+				elif key == "illust" or key == "author":
+					a1 = out[title][key].lower()
+					a2 = item[key].lower()
+
+					a1 = a1.replace("\xa0", " ")
+					a2 = a2.replace("\xa0", " ")
+
+					a1 = a1.replace("[, add, ]", "")
+					a2 = a2.replace("[, add, ]", "")
+
+					a1 = a1.strip()
+					a2 = a2.strip()
+
+
+					if set(a1.split(" ")) == set(a2.split(" ")):
+						pass
+					else:
+						print(set(a1.split(" ")) == set(a2.split(" ")), a1.split(" "), a2.split(" "))
+						print("'%s', '%s'" % (a1, a2))
+					# print("wat?")
+				else:
+					print(out[title][key], item[key])
+					print('wat', key)
+			# print("Dup:", title)
+
+
+	return list(out.values())
 
 def go():
 	print(import_con)
@@ -295,6 +397,7 @@ def go():
 
 	data = []
 	for name, srcTable in items:
+
 		if 'book' in srcTable:
 			item = processBookTbl(cur, name, srcTable)
 		else:
@@ -304,8 +407,8 @@ def go():
 			data.append(item)
 
 
-	consolidate(data)
-	insertData(data)
+	proc = consolidate(data)
+	insertData(proc)
 
 
 if __name__ == "__main__":

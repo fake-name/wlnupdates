@@ -11,3 +11,5 @@ __pycache__
 /tmp
 /migrations/README
 /migrations
+/covers/000
+/covers

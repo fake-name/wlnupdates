@@ -17,7 +17,7 @@ followers = db.Table(
 
 class Series(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
-	title       = db.Column(db.Text())
+	title       = db.Column(CIText())
 	description = db.Column(db.Text())
 	type        = db.Column(db.Text())
 	origin_loc  = db.Column(db.Text())
@@ -88,11 +88,12 @@ class Releases(db.Model):
 
 class Covers(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
+	srcfname    = db.Column(db.Text)
 	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
-	volume      = db.Column(db.Float(), nullable=False)
-	chapter     = db.Column(db.Float(), nullable=False)
-	desc        = db.Column(db.Text)
-	fsPath      = db.Column(db.Text)
+	volume      = db.Column(db.Float())
+	chapter     = db.Column(db.Float())
+	description = db.Column(db.Text)
+	fspath      = db.Column(db.Text)
 	hash        = db.Column(db.Text, nullable=False)
 
 
