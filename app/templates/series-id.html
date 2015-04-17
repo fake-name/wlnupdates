@@ -21,7 +21,8 @@
 			</div>
 			<div class="col-md-9">
 				{% for item in inList %}
-				<span id='{{valId}}'>{{ item[itemKey] }}</span>,
+					<span id='{{valId}}'>{{ item[itemKey] }}{% if not loop.last %},{% endif %}</span>
+
 				{% else %}
 					<span id='{{valId}}'>N/A</span>
 				{% endfor %}
@@ -43,7 +44,6 @@
 					{% else %}
 						<h5>No Description</h5>
 					{% endif %}
-
 				</div>
 			{% endfor %}
 		<p id='cover-offset' style=""></p>
@@ -193,11 +193,11 @@
 			{{singleItemBlock("Country of Origin", series.origin_loc,  'origin_loc'      )}}
 			{{singleItemBlock("Original Language", series.orig_lang,   'orig_lang'       )}}
 
-			{{multiItemBlock("Author(s)",          author,             'author', 'author')}}
-			{{multiItemBlock("Illustrator(s)",     illustrators,       'name',   'illustrators')}}
+			{{multiItemBlock("Author(s)",          author,             'author',   'author')}}
+			{{multiItemBlock("Illustrator(s)",     illustrators,       'name',     'illustrators')}}
 
-			{{multiItemBlock("Tags",     tags,               'tag',    'tag')}}
-			{{multiItemBlock("Genres",     genres,               'genre',    'genre')}}
+			{{multiItemBlock("Tags",               tags,               'tag',      'tag')}}
+			{{multiItemBlock("Genres",             genres,             'genre',    'genre')}}
 
 			<div style="clear: both;"></div>
 
