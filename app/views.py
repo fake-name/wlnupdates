@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
+from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_file
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flask.ext.sqlalchemy import get_debug_queries
 from flask.ext.babel import gettext
@@ -9,7 +9,7 @@ from .forms import LoginForm, EditForm, PostForm, SearchForm
 from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
 import config
-
+import os.path
 from sqlalchemy.sql.expression import func
 
 @lm.user_loader
@@ -129,7 +129,9 @@ def renderSeriesId(sid):
 	author       =       Author.query.filter(Author.series==sid).all()
 	illustrators = Illustrators.query.filter(Illustrators.series==sid).all()
 	releases     =     Releases.query.filter(Releases.series==sid).all()
-	covers       =       Covers.query.filter(Releases.series==sid).all()
+	covers       =       Covers.query.filter(Covers.series==sid).all()
+
+
 	if series is None:
 		flash(gettext('Series %(sid)s not found.', sid=sid))
 		return redirect(url_for('index'))
@@ -142,6 +144,43 @@ def renderSeriesId(sid):
 						illustrators = illustrators,
 						covers       = covers,
 						releases     = releases)
+
+
+@app.route('/author-id/<sid>')
+def renderAuthorId(sid):
+	flash(gettext('Author views not implemented yet!.'))
+	return redirect(url_for('index'))
+
+@app.route('/artist-id/<sid>')
+def renderArtistId(sid):
+	flash(gettext('Artist views not implemented yet!.'))
+	return redirect(url_for('index'))
+
+@app.route('/tag-id/<sid>')
+def renderTagId(sid):
+	flash(gettext('Tag views not implemented yet!.'))
+	return redirect(url_for('index'))
+
+@app.route('/genre-id/<sid>')
+def renderGenreId(sid):
+	flash(gettext('Genre views not implemented yet!.'))
+	return redirect(url_for('index'))
+
+
+@app.route('/cover-img/<cid>')
+def renderCoverImage(cid):
+	cover = Covers.query.filter(Covers.id==cid).first()
+	if not cover:
+		flash(gettext('Cover not found!'))
+		return redirect(url_for('index'))
+
+	covpath = os.path.join(config.COVER_DIR_BASE, cover.fspath)
+	if not os.path.exists(covpath):
+		flash(gettext('Cover file is missing!'))
+		return redirect(url_for('index'))
+
+	return send_file(covpath)
+
 
 
 @app.route('/series/<letter>/<int:page>')

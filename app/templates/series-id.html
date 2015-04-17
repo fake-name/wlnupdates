@@ -33,10 +33,107 @@
 
 {% macro coversBlock(covers) -%}
 
-	<div class='imgDiv'>
-			Cover goes here!
-	</div>
+	{% if covers %}
+		<div class='imgDiv'>
+			{% for cover in covers %}
+				<div id="cover-item" style="display: none;">
+					<img src='/cover-img/{{ cover.id }}'>
+					{% if cover.description %}
+						<h4>{{cover.description}}</h4>
+					{% else %}
+						<h5>No Description</h5>
+					{% endif %}
 
+				</div>
+			{% endfor %}
+		<p id='cover-offset' style=""></p>
+
+		</div>
+	{% else %}
+		<style>
+
+			#x{
+/*			    width: 20px;
+				height: 20px;*/
+				/*background-color:orange;*/
+				position:relative;
+				border-radius:2px;
+			}
+			#x::after,#x::before{
+				position:absolute;
+				top:200px;
+				left:0px;
+				content:'';
+				display:block;
+				width:400px;
+				height:10px;
+				background-color:red;
+
+			}
+			#x::after{
+				-webkit-transform: rotate(45deg);
+				-moz-transform: rotate(45deg);
+				-ms-transform: rotate(45deg);
+				-o-transform: rotate(45deg);
+				transform: rotate(45deg);
+			}
+			#x::before{
+				-webkit-transform: rotate(-45deg);
+				-moz-transform: rotate(-45deg);
+				-ms-transform: rotate(-45deg);
+				-o-transform: rotate(-45deg);
+				transform: rotate(-45deg);
+			}
+			#x-content {
+				width: 400px;
+				text-align: center !important ;
+			}
+			#x-desc-div {
+				position: absolute;
+				bottom: 0;
+				margin-right:auto;
+				margin-left:auto;
+			}
+
+		</style>
+		<div class='imgDiv' id='x'>
+			<div id='x-desc-div'>
+				<p id='x-content'>No covers! Add one, maybe?</p>
+			</div>
+		</div>
+	{% endif %}
+	<script>
+
+		var pos_text = $('p[id="cover-offset"]');
+		var divs = $('div[id="cover-item"]');
+		if (divs.length == 1)
+		{
+			console.log("Divs:", divs)
+			console.log("ThisDiv:", divs.eq(0))
+			divs.eq(0).fadeIn(400);
+		}
+		else if (divs.length > 1)
+		{
+			divs.hide();
+			var i = 0;
+
+			(function cycle() {
+				divs.eq(i).fadeIn(400)
+						  .delay(5000)
+						  .fadeOut(400, cycle);
+
+				i = ++i % divs.length;
+
+				pos_text.html("Cover " + (i+1) + " of " + divs.length);
+
+
+			})();
+		}
+		else
+		{
+			// No images?
+		}
+	</script>
 {%- endmacro %}
 
 
@@ -58,6 +155,7 @@
 
 					display: inline-block;
 					margin-left: 10px;
+					padding-top: 10px;
 				}
 				.info-item
 				{
