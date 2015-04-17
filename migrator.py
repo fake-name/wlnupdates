@@ -14,6 +14,11 @@
 # DROP TABLE "user" CASCADE;
 
 
+# DROP SEQUENCE alternate_names_id_seq;
+# DROP SEQUENCE genres_id_seq;
+# DROP SEQUENCE series_id_seq;
+
+
 import app.nameTools as nt
 import settings
 import psycopg2

@@ -1,10 +1,54 @@
 <!-- extend base layout -->
+{% macro render_pagination(pagination) %}
+	<div class=pagination>
+	{%- for page in pagination.iter_pages() %}
+		{% if page %}
+			{% if page != pagination.page %}
+				<a href="{{ page }}">{{ page }}</a>
+			{% else %}
+				<strong>{{ page }}</strong>
+			{% endif %}
+		{% else %}
+			<span class=ellipsis>…</span>
+		{% endif %}
+	{%- endfor %}
+	</div>
+{% endmacro %}
+
+
+{% macro render_page_contents(prefix, pagination, access_key) %}
+
+	<table class='table-striped table table-bordered table-condensed fullwidth'>
+		{%- for page in pagination.items %}
+			<tr>
+				<td>
+					<a href="/{{prefix}}/{{page.id}}">{{ page[access_key] }}</a>
+				</td>
+
+			</tr>
+		{%- endfor %}
+	</table>
+
+{% endmacro %}
+
+
+
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ _('Search results for "%(query)s":', query = query) }}</h1>
-{% include 'flash.html' %}
-{% for post in results %}
-    {% include 'post.html' %}
-{% endfor %}
+	{% include 'flash.html' %}
+	<div class="well well-large" style="min-height: 140px;">
+		<h2>Search of {{ searchTarget }} for {{ searchValue }}</h2>
+
+		{{ render_pagination(sequence_item) }}
+		<div>
+			{{ render_page_contents(page_url_prefix, sequence_item, name_key) }}
+		</div>
+		{{ render_pagination(sequence_item) }}
+
+
+
+	</div>
+
+	</ul>
 {% endblock %}

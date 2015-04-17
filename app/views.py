@@ -52,6 +52,7 @@ def not_found_error(dummy_error):
 @app.errorhandler(500)
 def internal_error(dummy_error):
 	db.session.rollback()
+	print("500 error!")
 	return render_template('500.html'), 500
 
 

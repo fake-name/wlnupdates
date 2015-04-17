@@ -18,13 +18,19 @@
 
 {% macro render_page_contents(prefix, pagination, access_key) %}
 
-	{%- for page in pagination.items %}
-		<div>
-			<a href="/{{prefix}}/{{page.id}}">{{ page[access_key] }}</a>
-		</div>
-	{%- endfor %}
+	<table class='table-striped table table-bordered table-condensed fullwidth'>
+		{%- for page in pagination.items %}
+			<tr>
+				<td>
+					<a href="/{{prefix}}/{{page.id}}">{{ page[access_key] }}</a>
+				</td>
+
+			</tr>
+		{%- endfor %}
+	</table>
 
 {% endmacro %}
+
 
 
 {% extends "base.html" %}
