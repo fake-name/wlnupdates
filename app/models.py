@@ -5,7 +5,7 @@ from hashlib import md5
 import re
 from app import db
 from app import app
-
+from sqlalchemy.orm import relationship
 
 
 followers = db.Table(
@@ -26,12 +26,18 @@ class Series(db.Model):
 	__table_args__ = (
 		db.UniqueConstraint('title'),
 		)
+	tags           = relationship("Tags")
+	genres         = relationship("Genres")
+	author         = relationship("Author")
+	illustrators   = relationship("Illustrators")
+	alternatenames = relationship("AlternateNames")
+
 
 class Tags(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
 	weight      = db.Column(db.Float, default=1)
-	tag         = db.Column(db.Text(), nullable=False)
+	tag         = db.Column(CIText(), nullable=False, index=True)
 	__table_args__ = (
 		db.UniqueConstraint('series', 'tag'),
 		)
@@ -39,7 +45,7 @@ class Tags(db.Model):
 class Genres(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
-	genre       = db.Column(CIText(), nullable=False)
+	genre       = db.Column(CIText(), nullable=False, index=True)
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'genre'),
@@ -48,7 +54,7 @@ class Genres(db.Model):
 class Author(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
-	author      = db.Column(db.Text(), nullable=False)
+	author      = db.Column(CIText(), nullable=False, index=True)
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'author'),
@@ -57,7 +63,7 @@ class Author(db.Model):
 class Illustrators(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
-	name        = db.Column(db.Text(), nullable=False)
+	name        = db.Column(CIText(), nullable=False, index=True)
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'name'),
@@ -66,8 +72,8 @@ class Illustrators(db.Model):
 class AlternateNames(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
-	name        = db.Column(db.Text(), nullable=False)
-	cleanname   = db.Column(CIText(), nullable=False)
+	name        = db.Column(db.Text(), nullable=False, index=True)
+	cleanname   = db.Column(CIText(), nullable=False, index=True)
 
 class Translators(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)

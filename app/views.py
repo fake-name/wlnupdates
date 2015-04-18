@@ -122,7 +122,7 @@ def user(nickname, page=1):
 						   user=user,
 						   posts=posts)
 
-@app.route('/series-id/<sid>')
+@app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
 	series       =       Series.query.filter(Series.id==sid).first()
 	tags         =         Tags.query.filter(Tags.series==sid).all()
@@ -147,26 +147,84 @@ def renderSeriesId(sid):
 						releases     = releases)
 
 
-@app.route('/author-id/<sid>')
+@app.route('/author-id/<sid>/<int:page>')
+@app.route('/author-id/<sid>/')
 def renderAuthorId(sid):
 	flash(gettext('Author views not implemented yet!.'))
 	return redirect(url_for('index'))
 
-@app.route('/artist-id/<sid>')
+@app.route('/artist-id/<sid>/<int:page>')
+@app.route('/artist-id/<sid>/')
 def renderArtistId(sid):
 	flash(gettext('Artist views not implemented yet!.'))
 	return redirect(url_for('index'))
 
-@app.route('/tag-id/<sid>')
-def renderTagId(sid):
-	flash(gettext('Tag views not implemented yet!.'))
-	return redirect(url_for('index'))
+@app.route('/tag-id/<sid>/<int:page>')
+@app.route('/tag-id/<sid>/')
+def renderTagId(sid, page=1):
 
-@app.route('/genre-id/<sid>')
-def renderGenreId(sid):
-	flash(gettext('Genre views not implemented yet!.'))
-	return redirect(url_for('index'))
+	tag = Tags.query.filter(Tags.id==sid).first()
 
+	if tag is None:
+		flash(gettext('Tag not found? This is probably a error!'))
+		return redirect(url_for('renderTagTable'))
+
+	# Look up the ascii value of the tag, and then find
+	# all the links containing it.
+	# Table is CITEXT, so we don't care about case.
+
+	# this should REALLY have another indirection table.
+
+	items = Tags.query.filter(Tags.tag==tag.tag).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	return render_template('search_results.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   name_key        = "title",
+						   page_url_prefix = 'series-id',
+						   searchTarget    = 'Tags',
+						   searchValue     = tag.tag
+						   )
+
+
+@app.route('/genre-id/<sid>/<int:page>')
+@app.route('/genre-id/<sid>/')
+def renderGenreId(sid, page=1):
+
+	genre = Genres.query.filter(Genres.id==sid).first()
+
+	if genre is None:
+		flash(gettext('Genre not found? This is probably a error!'))
+		return redirect(url_for('renderGenreTable'))
+
+	# Look up the ascii value of the tag, and then find
+	# all the links containing it.
+	# Table is CITEXT, so we don't care about case.
+
+	# this should REALLY have another indirection table.
+
+	items = Genres.query.filter(Genres.genre==genre.genre).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	return render_template('search_results.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   name_key        = "title",
+						   page_url_prefix = 'series-id',
+						   searchTarget    = 'Genres',
+						   searchValue     = genre.genre
+						   )
 
 @app.route('/cover-img/<cid>')
 def renderCoverImage(cid):
@@ -189,7 +247,6 @@ def renderCoverImage(cid):
 @app.route('/series/<int:page>')
 @app.route('/series/')
 def renderSeriesTable(letter=None, page=1):
-
 	if letter:
 		series = Series.query                                \
 			.filter(Series.title.like("{}%".format(letter))) \
@@ -199,7 +256,7 @@ def renderSeriesTable(letter=None, page=1):
 			.order_by(Series.title)
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('series'))
+		return redirect(url_for('renderSeriesTable'))
 	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
 	return render_template('sequence.html',
 						   sequence_item   = series_entries,
@@ -228,7 +285,7 @@ def renderAuthorTable(letter=None, page=1):
 			.distinct(Author.author)
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('series'))
+		return redirect(url_for('renderAuthorTable'))
 	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
 
 	return render_template('sequence.html',
@@ -328,9 +385,6 @@ def renderGenreTable(letter=None, page=1):
 						   title           = 'Genres')
 
 
-
-
-
 @app.route('/edit', methods=['GET', 'POST'])
 # @login_required
 def edit():
@@ -368,4 +422,12 @@ def search_results(query):
 @app.route('/about')
 def about_site():
 	return render_template('about.html')
+
+@app.route('/user-cp')
+def renderUserCp():
+	return render_template('not-implemented-yet.html')
+
+@app.route('/custom-lists')
+def renderUserLists():
+	return render_template('not-implemented-yet.html')
 
