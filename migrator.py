@@ -28,16 +28,19 @@ import_con = psycopg2.connect(host=settings.IMPORT_DATABASE_IP, dbname=settings.
 
 def getItemEntry():
 	item = {
-		'name'   : [],
-		'desc'   : [],
-		'type'   : [],
-		'demo'   : [],
-		'tags'   : [],
-		'genre'  : [],
-		'author' : [],
-		'illust' : [],
+		'name'     : '',
+		'desc'     : '',
+		'type'     : '',
+		'demo'     : '',
+		'author'   : [],
+		'illust'   : [],
+		'tags'     : [],
+		'genre'    : [],
+		'altnames' : [],
+		'covers'   : [],
 	}
 	return item
+
 
 def processMngSeries(cur, name, srcTable):
 	cur.execute("""
@@ -279,6 +282,7 @@ def insertItem(cur, item):
 				item['demo']
 			)
 		)
+
 	pkid = cur.fetchone()[0]
 	for author in item['author']:
 		cur.execute('''INSERT INTO author (author, series) VALUES (%s, %s);''', (author, pkid))
@@ -322,72 +326,112 @@ def insertData(data):
 		print("Rows in {table}: {count}".format(table=table, count=cur.fetchone()))
 
 
-	# cur.execute("COMMIT;")
-	cur.execute('''ROLLBACK;''')
+	cur.execute("COMMIT;")
+	# cur.execute('''ROLLBACK;''')
+
+def cleanItem(inStr):
+	inStr = inStr.replace("\xa0[", "").replace("\xa0", " ").strip()
+	while "  " in inStr:
+		inStr = inStr.replace("  ", " ")
+	return inStr
+
+def mergeItem(inOne, inTwo):
+
+
+	try:
+		# Trick the merge logic into working by copying things across if needed.
+		inTwo.setdefault('name',     inOne['name'])
+		inTwo.setdefault('desc',     inOne['desc'])
+		inTwo.setdefault('type',     inOne['type'])
+		inTwo.setdefault('demo',     inOne['demo'])
+		inTwo.setdefault('author',   inOne['author'])
+		inTwo.setdefault('illust',   inOne['illust'])
+		inTwo.setdefault('tags',     inOne['tags'])
+		inTwo.setdefault('genre',    inOne['genre'])
+		inTwo.setdefault('altnames', inOne['altnames'])
+		inTwo.setdefault('covers',   inOne['covers'])
+	except KeyError:
+		print("Wat?", inOne)
+		raise
+
+	ret = {}
+	for key in inOne.keys():
+
+		if key == "illust" or key == "author":
+			inNames = set(inOne[key]) | set(inTwo[key])
+
+			bad = ["", "n/a", "N/A", "Key", "[", "]", "Add"]
+			for badVal in bad:
+				if badVal in inNames:
+					# print("Removing", badVal)
+					inNames.remove(badVal)
+			inNames = set([name.replace("\xa0[", "").replace("\xa0", " ").strip() for name in inNames])
+			tmpDict = {}
+			for name in inNames:
+				if name.lower() in tmpDict:
+					print("Duplicate names?", name, tmpDict[name.lower()])
+				tmpDict[name.lower()] = name
+
+			inNames = set(tmpDict.values())
+
+			ret[key] = inNames
+			# print("After filtering:", title, key, inNames)
+
+		elif inOne[key] == inTwo[key]:
+			ret[key] = inOne[key]
+		elif not inOne[key] and not inTwo[key]:
+			ret[key] = inOne[key]
+		elif not inOne[key]:
+			ret[key] = inTwo[key]
+		elif not inTwo[key]:
+			ret[key] = inOne[key]
+		elif isinstance(inOne[key], (list, set)):
+			ret[key] = set(inOne[key]) | set(inTwo[key])
+		else:
+			ret[key] = inOne[key]
+			print("Lol? %s '%s', '%s'" % (key, inOne[key], inTwo[key]))
+
+	assert 'name'     in ret
+	assert 'desc'     in ret
+	assert 'type'     in ret
+	assert 'demo'     in ret
+	assert 'author'   in ret
+	assert 'illust'   in ret
+	assert 'tags'     in ret
+	assert 'genre'    in ret
+	assert 'altnames' in ret
+	assert 'covers'   in ret
+
+
+	return ret
+
 
 def consolidate(inDat):
 
-	# item['name']   =
-	# item['desc']   =
-	# item['type']   =
-	# item['demo']   =
-	# item['tags']   =
-	# item['genre']  =
-	# item['author'] =
-	# item['illust'] =
-	# item['altnames']
-	# item['covers'] =
-
 	out = {}
-	titles = []
+
 	for item in inDat:
-		title = item['name'].lower()
+
+		title = item['name'].lower().strip().replace("\xa0", " ")
+
+
 
 		if not title in out:
-			out[title] = item
+			out[title] = mergeItem(item, {})
 		else:
-			for key in [key for key in item.keys() if item[key]]:
-				if not out[title][key]:
-					out[title][key] = item[key]
-				elif key == 'covers':
-					out[title][key] += item[key]
-				elif key == 'altnames':
-					out[title][key] = list(set(out[title][key] + item[key]))
-				elif str(out[title][key]).lower() == str(item[key]).lower():
-					# print(key, "Match", str(out[title][key]).lower(), str(item[key]).lower())
-					pass
-				elif key == "illust" or key == "author":
+			out[title] = mergeItem(out[title], item)
 
-					if out[title][key] == [""] or out[title][key] == ["n/a"]:
-						out[title][key] = []
-
-
-					out[title][key] = [lval.replace("\xa0", " ").strip() for lval in out[title][key]]
-					inData = [lval.lower().replace("\xa0", " ").strip() for lval in item[key]]
-					outData = [lval.lower() for lval in out[title][key]]
-
-					outData = set([frozenset(val.split(" ")) for val in outData])
-					inData = set([frozenset(val.split(" ")) for val in inData])
-
-					extra = [inval for inval in inData if inval not in outData]
-					if extra:
-						print(extra)
-						print(inData)
-						print(outData)
-						print()
-					# if outData == inData:
-					# 	pass
-					# else:
-					# 	print(outData, inData)
-					# 	print("'%s', '%s'" % (outData, inData))
-					# # print("wat?")
-				else:
-					print(out[title][key], item[key])
-					print('wat', key)
 			# print("Dup:", title)
 
 
-	return list(out.values())
+
+	out = list(out.values())
+
+	bad = [[loltmp['illust'], loltmp['name']] for loltmp in out if 'add' in str(loltmp['illust']).lower()]
+	for badIllust, badName in bad:
+		print(badIllust)
+
+	return out
 
 def go():
 	print(import_con)
