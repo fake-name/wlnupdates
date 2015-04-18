@@ -1,4 +1,3 @@
-/.svn
 __pycache__
 /bak
 /*.lwp
@@ -7,9 +6,6 @@ __pycache__
 /*.pyc
 *.pyc
 /flask
-/tmp/associations
 /tmp
-/migrations/README
-/migrations
-/covers/000
+/migrations/versions
 /covers
