@@ -13,7 +13,7 @@
 {%- endmacro %}
 
 
-{% macro multiItemBlock(name, inList, itemKey, valId) -%}
+{% macro multiItemBlock(name, inList, itemKey, valId, link_base) -%}
 	<div class="well well-tny info-item">
 		<div class="row">
 			<div class="col-md-3">
@@ -21,7 +21,7 @@
 			</div>
 			<div class="col-md-9">
 				{% for item in inList %}
-					<span id='{{valId}}'>{{ item[itemKey] }}{% if not loop.last %},{% endif %}</span>
+					<span id='{{valId}}'><a href="/{{link_base}}/{{item.id}}">{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
 
 				{% else %}
 					<span id='{{valId}}'>N/A</span>
@@ -193,11 +193,11 @@
 			{{singleItemBlock("Country of Origin", series.origin_loc,  'origin_loc'      )}}
 			{{singleItemBlock("Original Language", series.orig_lang,   'orig_lang'       )}}
 
-			{{multiItemBlock("Author(s)",          author,             'author',   'author')}}
-			{{multiItemBlock("Illustrator(s)",     illustrators,       'name',     'illustrators')}}
+			{{multiItemBlock("Author(s)",          author,             'author',   'author',       'author-id')}}
+			{{multiItemBlock("Illustrator(s)",     illustrators,       'name',     'illustrators', 'artist-id')}}
 
-			{{multiItemBlock("Tags",               tags,               'tag',      'tag')}}
-			{{multiItemBlock("Genres",             genres,             'genre',    'genre')}}
+			{{multiItemBlock("Tags",               tags,               'tag',      'tag',          'tag-id')}}
+			{{multiItemBlock("Genres",             genres,             'genre',    'genre',        'genre-id')}}
 
 			<div style="clear: both;"></div>
 

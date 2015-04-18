@@ -109,8 +109,8 @@ def after_login(resp):
 	return redirect(request.args.get('next') or url_for('index'))
 
 
-@app.route('/user/<nickname>')
 @app.route('/user/<nickname>/<int:page>')
+@app.route('/user/<nickname>')
 # @login_required
 def user(nickname, page=1):
 	user = User.query.filter_by(nickname=nickname).first()
@@ -149,15 +149,60 @@ def renderSeriesId(sid):
 
 @app.route('/author-id/<sid>/<int:page>')
 @app.route('/author-id/<sid>/')
-def renderAuthorId(sid):
-	flash(gettext('Author views not implemented yet!.'))
-	return redirect(url_for('index'))
+def renderAuthorId(sid, page=1):
+	author = Author.query.filter(Author.id==sid).first()
+	print("Author search result: ", author)
+
+	if author is None:
+		flash(gettext('Author not found? This is probably a error!'))
+		return redirect(url_for('renderAuthorTable'))
+
+	items = Author.query.filter(Author.author==author.author).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+
+	return render_template('search_results.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   name_key        = "title",
+						   page_url_prefix = 'series-id',
+						   searchTarget    = 'Authors',
+						   searchValue     = author.author
+						   )
 
 @app.route('/artist-id/<sid>/<int:page>')
 @app.route('/artist-id/<sid>/')
-def renderArtistId(sid):
-	flash(gettext('Artist views not implemented yet!.'))
-	return redirect(url_for('index'))
+def renderArtistId(sid, page=1):
+	artist = Illustrators.query.filter(Illustrators.id==sid).first()
+	print("Artist search result: ", artist)
+
+	if artist is None:
+		flash(gettext('Tag not found? This is probably a error!'))
+		return redirect(url_for('renderArtistTable'))
+
+	items = Illustrators.query.filter(Illustrators.name==artist.name).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+
+	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+
+	return render_template('search_results.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   name_key        = "title",
+						   page_url_prefix = 'series-id',
+						   searchTarget    = 'Artists',
+						   searchValue     = artist.name
+						   )
+
 
 @app.route('/tag-id/<sid>/<int:page>')
 @app.route('/tag-id/<sid>/')
