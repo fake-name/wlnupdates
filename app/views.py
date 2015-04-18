@@ -52,13 +52,13 @@ def not_found_error(dummy_error):
 @app.errorhandler(500)
 def internal_error(dummy_error):
 	db.session.rollback()
-	print("500 error!")
+	# print("500 error!")
 	return render_template('500.html'), 500
 
 
 def get_random_books():
 	items = Series.query.order_by(func.random()).limit(4)
-	print(list(items))
+	# print(list(items))
 	return items
 
 @app.route('/', methods=['GET'])
@@ -151,7 +151,7 @@ def renderSeriesId(sid):
 @app.route('/author-id/<sid>/')
 def renderAuthorId(sid, page=1):
 	author = Author.query.filter(Author.id==sid).first()
-	print("Author search result: ", author)
+	# print("Author search result: ", author)
 
 	if author is None:
 		flash(gettext('Author not found? This is probably a error!'))
@@ -179,7 +179,7 @@ def renderAuthorId(sid, page=1):
 @app.route('/artist-id/<sid>/')
 def renderArtistId(sid, page=1):
 	artist = Illustrators.query.filter(Illustrators.id==sid).first()
-	print("Artist search result: ", artist)
+	# print("Artist search result: ", artist)
 
 	if artist is None:
 		flash(gettext('Tag not found? This is probably a error!'))
