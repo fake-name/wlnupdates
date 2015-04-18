@@ -104,8 +104,8 @@ def processMngSeries(cur, name, srcTable):
 	item['demo']   = ''
 	item['tags']   = row['butags'].split(" ")
 	item['genre']  = row['bugenre'].split(" ")
-	item['author'] = row['buauthor']
-	item['illust'] = row['buartist']
+	item['author'] = row['buauthor'].split(", ")
+	item['illust'] = row['buartist'].split(", ")
 
 
 	while "" in item['genre']: item['genre'].remove("")
@@ -217,8 +217,8 @@ def processBookTbl(cur, name, srcTable):
 	item['demo']   = row['target']
 	item['tags']   = []
 	item['genre']  = []
-	item['author'] = row['author']
-	item['illust'] = row['illust']
+	item['author'] = row['author'].split(", ")
+	item['illust'] = row['illust'].split(", ")
 	item['altnames'] = [item['name']]
 
 
@@ -280,9 +280,12 @@ def insertItem(cur, item):
 			)
 		)
 	pkid = cur.fetchone()[0]
+	for author in item['author']:
+		cur.execute('''INSERT INTO author (author, series) VALUES (%s, %s);''', (author, pkid))
 
-	cur.execute('''INSERT INTO author (author, series) VALUES (%s, %s);''', (item['author'], pkid))
-	cur.execute('''INSERT INTO illustrators (name, series) VALUES (%s, %s);''', (item['illust'], pkid))
+	for illust in item['illust']:
+		cur.execute('''INSERT INTO illustrators (name, series) VALUES (%s, %s);''', (illust, pkid))
+
 	for tag in item['tags']:
 		cur.execute('''INSERT INTO tags (tag, series) VALUES (%s, %s);''', (tag, pkid))
 
@@ -319,8 +322,8 @@ def insertData(data):
 		print("Rows in {table}: {count}".format(table=table, count=cur.fetchone()))
 
 
-	cur.execute("COMMIT;")
-	# cur.execute('''ROLLBACK;''')
+	# cur.execute("COMMIT;")
+	cur.execute('''ROLLBACK;''')
 
 def consolidate(inDat):
 
@@ -354,25 +357,30 @@ def consolidate(inDat):
 					# print(key, "Match", str(out[title][key]).lower(), str(item[key]).lower())
 					pass
 				elif key == "illust" or key == "author":
-					a1 = out[title][key].lower()
-					a2 = item[key].lower()
 
-					a1 = a1.replace("\xa0", " ")
-					a2 = a2.replace("\xa0", " ")
-
-					a1 = a1.replace("[, add, ]", "")
-					a2 = a2.replace("[, add, ]", "")
-
-					a1 = a1.strip()
-					a2 = a2.strip()
+					if out[title][key] == [""] or out[title][key] == ["n/a"]:
+						out[title][key] = []
 
 
-					if set(a1.split(" ")) == set(a2.split(" ")):
-						pass
-					else:
-						print(set(a1.split(" ")) == set(a2.split(" ")), a1.split(" "), a2.split(" "))
-						print("'%s', '%s'" % (a1, a2))
-					# print("wat?")
+					out[title][key] = [lval.replace("\xa0", " ").strip() for lval in out[title][key]]
+					inData = [lval.lower().replace("\xa0", " ").strip() for lval in item[key]]
+					outData = [lval.lower() for lval in out[title][key]]
+
+					outData = set([frozenset(val.split(" ")) for val in outData])
+					inData = set([frozenset(val.split(" ")) for val in inData])
+
+					extra = [inval for inval in inData if inval not in outData]
+					if extra:
+						print(extra)
+						print(inData)
+						print(outData)
+						print()
+					# if outData == inData:
+					# 	pass
+					# else:
+					# 	print(outData, inData)
+					# 	print("'%s', '%s'" % (outData, inData))
+					# # print("wat?")
 				else:
 					print(out[title][key], item[key])
 					print('wat', key)
