@@ -1,3 +1,46 @@
 .fullwidth {
   width: 100%;
 }
+@media (min-width: 768px)
+{
+	.imgDiv {
+		height     : 600px !important;
+		width      : 400px !important;
+		max-height : 600px !important;
+		max-width  : 400px !important;
+		float      : right;
+
+		display: inline-block;
+		margin-left: 10px;
+		padding: 10px;
+	}
+	.info-item
+	{
+		overflow : hidden;
+	}
+}
+
+@media (max-width: 767px)
+{
+	.imgDiv {
+		display: block;
+		height     : 400px !important;
+
+	}
+	.info-item
+	{
+		/*overflow : hidden;*/
+	}
+}
+.imgDiv
+{
+	border: 2px solid #000;
+	vertical-align : middle;
+	text-align: center;
+}
+
+a#editlink
+{
+	color: #999;
+	font-size: 75%;
+}

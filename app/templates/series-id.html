@@ -1,12 +1,12 @@
 <!-- extend base layout -->
 {% macro singleItemBlock(name, value, valId) -%}
 	<div class="well well-tny info-item">
-		<div class="row">
-			<div class="col-md-3">
-				{{ name }}:
+		<div class="row"  id="{{valId}}-container">
+			<div class="col-md-3 rowTitle">
+				{{ name }}: <a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 			</div>
-			<div class="col-md-9" id='{{valId}}'>
-				{{ ( value if value else "N/A" ) | safe }}
+			<div class="col-md-9 rowContents" id='{{valId}}'>
+				<span class='singleitem'>{{ ( value if value else "N/A" ) | safe }}</span>
 			</div>
 		</div>
 	</div>
@@ -15,16 +15,16 @@
 
 {% macro multiItemBlock(name, inList, itemKey, valId, link_base) -%}
 	<div class="well well-tny info-item">
-		<div class="row">
-			<div class="col-md-3">
-				{{ name }}:
+		<div class="row" id="{{valId}}-container">
+			<div class="col-md-3 rowTitle">
+				{{ name }}: <a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 			</div>
-			<div class="col-md-9">
+			<div class="col-md-9 rowContents" id='{{valId}}'>
 				{% for item in inList %}
-					<span id='{{valId}}'><a href="/{{link_base}}/{{item.id}}">{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
+					<span class='multiitem' id='{{valId}}'><a href="/{{link_base}}/{{item.id}}">{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
 
 				{% else %}
-					<span id='{{valId}}'>N/A</span>
+					<span class='multiitem' id='{{valId}}'>N/A</span>
 				{% endfor %}
 
 			</div>
@@ -139,47 +139,6 @@
 {% block content %}
 	{% include 'flash.html' %}
 
-	<style type="text/css">
-		<!--
-			@media (min-width: 768px)
-			{
-				.imgDiv {
-					height     : 600px !important;
-					width      : 400px !important;
-					max-height : 600px !important;
-					max-width  : 400px !important;
-					float      : right;
-
-					display: inline-block;
-					margin-left: 10px;
-					padding: 10px;
-				}
-				.info-item
-				{
-					overflow : hidden;
-				}
-			}
-
-			@media (max-width: 767px)
-			{
-				.imgDiv {
-					display: block;
-					height     : 400px !important;
-
-				}
-				.info-item
-				{
-					/*overflow : hidden;*/
-				}
-			}
-			.imgDiv
-			{
-				border: 2px solid #000;
-				vertical-align : middle;
-				text-align: center;
-			}
-		-->
-	</style>
 
 	<div class="well well-large">
 		<h2>{{ series.title }}</h2>

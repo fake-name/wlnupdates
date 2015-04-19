@@ -8,6 +8,8 @@ from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm
 from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
+from .apiview import handleApiPost, handleApiGet
+
 import config
 import os.path
 from sqlalchemy.sql.expression import func
@@ -431,7 +433,7 @@ def renderGenreTable(letter=None, page=1):
 
 
 @app.route('/edit', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def edit():
 	form = EditForm(g.user.nickname)
 	if form.validate_on_submit():
@@ -449,7 +451,7 @@ def edit():
 
 
 @app.route('/search', methods=['POST'])
-# @login_required
+@login_required
 def search():
 	if not g.search_form.validate_on_submit():
 		return redirect(url_for('index'))
@@ -457,7 +459,7 @@ def search():
 
 
 @app.route('/search_results/<query>')
-# @login_required
+@login_required
 def search_results(query):
 	results = Post.query.whoosh_search(query, config.MAX_SEARCH_RESULTS).all()
 	return render_template('search_results.html',
