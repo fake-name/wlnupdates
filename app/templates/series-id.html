@@ -1,7 +1,7 @@
 <!-- extend base layout -->
 {% macro singleItemBlock(name, value, valId) -%}
 	<div class="well well-tny info-item">
-		<div class="row"  id="{{valId}}-container">
+		<div class="row singleitem"  id="{{valId}}-container">
 			<div class="col-md-3 rowTitle">
 				{{ name }}: <a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 			</div>
@@ -15,7 +15,7 @@
 
 {% macro multiItemBlock(name, inList, itemKey, valId, link_base) -%}
 	<div class="well well-tny info-item">
-		<div class="row" id="{{valId}}-container">
+		<div class="row multiitem" id="{{valId}}-container">
 			<div class="col-md-3 rowTitle">
 				{{ name }}: <a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 			</div>
@@ -136,13 +136,20 @@
 
 {% extends "base.html" %}
 
+{% block header %}
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="manga-id" content="{{ series_id }}">
+
+	<script src="/static/js/editable.js"></script>
+	<script src="/static/js/autogrow.js"></script>
+{% endblock %}
+
 {% block content %}
 	{% include 'flash.html' %}
 
 
 	<div class="well well-large">
 		<h2>{{ series.title }}</h2>
-
 
 			{{coversBlock(covers)}}
 

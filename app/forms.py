@@ -4,6 +4,7 @@ from wtforms import StringField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length
 from .models import User
 
+import wtforms
 
 class LoginForm(Form):
 	openid = StringField('openid', validators=[DataRequired()])
@@ -43,3 +44,12 @@ class PostForm(Form):
 
 class SearchForm(Form):
 	search = StringField('search', validators=[DataRequired()])
+
+
+class SeriesUpdate(Form):
+	sid    = wtforms.IntegerField('mangaId', validators=[DataRequired()])
+	target = wtforms.StringField('c-type',   validators=[DataRequired()])
+	value  = wtforms.StringField('contents')
+	type   = wtforms.StringField('type',     validators=[DataRequired()])
+	mode   = wtforms.StringField('mode',     validators=[DataRequired()])
+	# blah   = wtforms.StringField('blah',     validators=[DataRequired()])

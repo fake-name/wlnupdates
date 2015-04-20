@@ -6,6 +6,7 @@ from flask.ext.login import LoginManager
 from flask.ext.openid import OpenID
 from flask.ext.mail import Mail
 from flask.ext.babel import Babel, lazy_gettext
+from flask_wtf.csrf import CsrfProtect
 from config import basedir # , ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 
 app = Flask(__name__)
@@ -19,6 +20,8 @@ oid = OpenID(app, os.path.join(basedir, 'tmp'))
 mail = Mail(app)
 babel = Babel(app)
 
+csrf = CsrfProtect()
+csrf.init_app(app)
 
 if not app.debug:
 	import logging

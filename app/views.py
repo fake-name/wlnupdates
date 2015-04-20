@@ -140,6 +140,7 @@ def renderSeriesId(sid):
 		return redirect(url_for('index'))
 
 	return render_template('series-id.html',
+						series_id       = sid,
 						series       = series,
 						tags         = tags,
 						genres       = genres,
