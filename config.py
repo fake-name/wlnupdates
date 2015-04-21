@@ -1,6 +1,6 @@
 
 
-from settings import DATABASE_IP, DATABASE_DB_NAME, DATABASE_USER, DATABASE_PASS, SECRET_KEY
+from settings import DATABASE_IP, DATABASE_DB_NAME, DATABASE_USER, DATABASE_PASS, SECRET_KEY, WTF_CSRF_SECRET_KEY
 
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -13,6 +13,7 @@ if len(sys.argv) > 1 and "debug" in sys.argv:
 	SQLALCHEMY_ECHO = True
 
 CSRF_ENABLED = True
+WTF_CSRF_ENABLED = True
 
 COVER_DIR_BASE = os.path.join(basedir, "./covers/")
 

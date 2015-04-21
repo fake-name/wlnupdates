@@ -68,8 +68,37 @@ function edit(containerId){
 
 function saveEdits(containerId)
 {
-	var container = $('#'+containerId).first();
+	// var containers = $('.info-item');
 
+	var data = [];
+	$('.info-item').each(function()
+	{
+		// Iterate over the info-item wells, extract the textarea if it's present.
+		var member = $(this);
+		var textarea = member.find("textarea").first();
+		if (textarea.length > 0)
+		{
+			var entryKey  = member.find(".row").first().attr('id');
+			var entryType = member.find("textarea").first().attr('id');
+			var entryArea = member.find("textarea").first().val();
+
+			var entry = {};
+			entry['key'] = entryKey;
+			entry['type'] = entryType;
+			entry['value'] = entryArea;
+
+			data.push(entry);
+
+		}
+	}
+	)
+
+	console.log("Data:", data)
+
+
+	var mangaId = $('meta[name=manga-id]').attr('content')
+
+	var container = $('#'+containerId).first();
 	var editLink = container.find("#editlink").first();
 	editLink.attr('onclick', "return false;");
 	editLink.html('[saving]');
@@ -77,14 +106,11 @@ function saveEdits(containerId)
 
 	var entryType = container.find("textarea").attr('id');
 	var entryArea = container.find("textarea").first().val();
-	var mangaId = $('meta[name=manga-id]').attr('content')
 
 	var params = {
 		"mode"      : "manga-update",
 		"mangaId"   : mangaId,
-		"type"      : entryType,
-		"contents"  : entryArea,
-		"c-type"    : containerId,
+		"entries"   : data,
 	}
 
 
@@ -115,7 +141,7 @@ function saveCallback(containerId)
 		}
 		else
 		{
-			location.reload();
+			// location.reload();
 		}
 		console.log(result)
 

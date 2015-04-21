@@ -19,9 +19,7 @@ lm.login_message = lazy_gettext('Please log in to access this page.')
 oid = OpenID(app, os.path.join(basedir, 'tmp'))
 mail = Mail(app)
 babel = Babel(app)
-
-csrf = CsrfProtect()
-csrf.init_app(app)
+CsrfProtect(app)
 
 if not app.debug:
 	import logging

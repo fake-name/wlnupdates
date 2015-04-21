@@ -47,9 +47,9 @@ class SearchForm(Form):
 
 
 class SeriesUpdate(Form):
-	sid    = wtforms.IntegerField('mangaId', validators=[DataRequired()])
-	target = wtforms.StringField('c-type',   validators=[DataRequired()])
-	value  = wtforms.StringField('contents')
-	type   = wtforms.StringField('type',     validators=[DataRequired()])
-	mode   = wtforms.StringField('mode',     validators=[DataRequired()])
+	mangaId  = wtforms.IntegerField('mangaId', validators=[DataRequired()])
+	ctype    = wtforms.StringField('ctype',   validators=[DataRequired()])
+	contents = wtforms.StringField('contents')
+	type     = wtforms.StringField('type',     validators=[DataRequired()])
+	mode     = wtforms.StringField('mode',     validators=[DataRequired()])
 	# blah   = wtforms.StringField('blah',     validators=[DataRequired()])

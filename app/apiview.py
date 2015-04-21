@@ -58,10 +58,13 @@ def dispatchApiCall(reqJson):
 	if not mode in DISPATCH_TABLE:
 		return getError("Invalid mode in API Request!")
 
+	print("Json: ", reqJson)
+
 	decoder = DISPATCH_TABLE[mode]
 	decoded = decoder.from_json(reqJson)
 	if not decoded.validate():
 		print("Validation error for API Request!")
+		print(decoded.errors)
 		return getError("API Request failed to validate!")
 
 	print(decoded)
