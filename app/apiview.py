@@ -5,6 +5,8 @@ from app import app, db, lm, oid, babel
 from . import forms
 from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
+import traceback
+
 import wtforms_json
 wtforms_json.init()
 
@@ -46,7 +48,7 @@ def getError(message):
 	return ret
 
 DISPATCH_TABLE = {
-	'manga-update' : forms.SeriesUpdate
+	'manga-update' : forms.processMangaUpdateJson
 
 }
 
@@ -58,24 +60,18 @@ def dispatchApiCall(reqJson):
 	if not mode in DISPATCH_TABLE:
 		return getError("Invalid mode in API Request!")
 
-	print("Json: ", reqJson)
-
 	decoder = DISPATCH_TABLE[mode]
-	decoded = decoder.from_json(reqJson)
-	if not decoded.validate():
-		print("Validation error for API Request!")
-		print(decoded.errors)
-		return getError("API Request failed to validate!")
+	try:
+		response = decoder(reqJson)
+	except AssertionError:
+		traceback.print_exc()
+		return getError("Invalid data in API request!")
 
-	print(decoded)
-	print(dir(decoded))
-
-	print("Request JSON:", reqJson)
 	ret = {
 			"error"   : False,
-			"message" : "Wattttt?"
-
+			"message" : "Wat?!"
 	}
 
 	return ret
+
 
