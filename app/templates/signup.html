@@ -1,0 +1,112 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+	<style>
+		div.error
+		{
+			background-color: #Fcc !important;
+		}
+	</style>
+	{% include 'flash.html' %}
+	<div class="well">
+		<h3>{{ _('Create an account:') }}</h3>
+		<form class="form" action="" method="post" name="login">
+			{{ form.hidden_tag() }}
+
+			<div class="well">
+
+				<div class="well-tny control-group{% if form.username.errors %} error{% endif %}">
+					<div class="controls row">
+						<div class='col-md-2'>
+							<label class="control-label" for="login">{{ _('Username:') }}</label>
+						</div>
+						<div class='col-md-9'>
+							{{ form.username(size=80, class="span4") }}
+						</div>
+
+					</div>
+					{% if form.username.errors %}
+						<div class='row'>
+							<div class='col-md-2'> </div>
+							<div class='col-md-9'>
+								{% for error in form.username.errors %}
+									<span class="help-inline">[{{ error }}]</span><br>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+				</div>
+				<div class="well-tny control-group{% if form.password.errors %} error{% endif %}">
+					<div class="controls row">
+						<div class='col-md-2'>
+							<label class="control-label" for="password">{{ _('Password:') }}</label>
+						</div>
+						<div class='col-md-9'>
+							{{ form.password(size=80, class="span4") }}
+						</div>
+
+					</div>
+					{% if form.password.errors %}
+						<div class='row'>
+							<div class='col-md-2'> </div>
+							<div class='col-md-9'>
+								{% for error in form.password.errors %}
+									<span class="help-inline">[{{ error }}]</span><br>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+				</div>
+				<div class="well-tny control-group{% if form.pconfirm.errors %} error{% endif %}">
+					<div class="controls row">
+						<div class='col-md-2'>
+							<label class="control-label" for="pconfirm">{{ _('Confirm Pass:') }}</label>
+						</div>
+						<div class='col-md-9'>
+							{{ form.pconfirm(size=80, class="span4") }}
+						</div>
+
+					</div>
+					{% if form.pconfirm.errors %}
+						<div class='row'>
+							<div class='col-md-2'> </div>
+							<div class='col-md-9'>
+								{% for error in form.pconfirm.errors %}
+									<span class="help-inline">[{{ error }}]</span><br>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+				</div>
+				<div class="well-tny control-group{% if form.email.errors %} error{% endif %}">
+					<div class="controls row">
+						<div class='col-md-2'>
+							<label class="control-label" for="email">{{ _('Email Address:') }}</label>
+						</div>
+						<div class='col-md-9'>
+							{{ form.email(size=80, class="span4") }}
+						</div>
+
+					</div>
+					{% if form.email.errors %}
+						<div class='row'>
+							<div class='col-md-2'> </div>
+							<div class='col-md-9'>
+								{% for error in form.email.errors %}
+									<span class="help-inline">[{{ error }}]</span><br>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+				</div>
+				<br>
+				<div class="control-group">
+					<div class="controls">
+						<input class="btn btn-primary" type="submit" value="{{ _('Sign Up') }}">
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+{% endblock %}

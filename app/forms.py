@@ -1,14 +1,24 @@
 from flask.ext.wtf import Form
 from flask.ext.babel import gettext
-from wtforms import StringField, BooleanField, TextAreaField, FormField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, BooleanField, TextAreaField, FormField, PasswordField
+from wtforms.validators import DataRequired, Length, Email, EqualTo
 from .models import User
 
 import wtforms
 
 class LoginForm(Form):
-	openid = StringField('openid', validators=[DataRequired()])
+	username =   StringField('Username', validators=[DataRequired(), Length(min=6)])
+	password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
 	remember_me = BooleanField('remember_me', default=False)
+
+class SignupForm(Form):
+	username  =   StringField('Username', validators=[DataRequired(), Length(min=6)])
+	password  = PasswordField('Password', validators=[DataRequired(), Length(min=8), EqualTo('pconfirm', "Your passwords must match")])
+	pconfirm  = PasswordField('Repeat Password', validators=[DataRequired(), Length(min=8)])
+	email     =   StringField('Email Address', validators=[DataRequired(), Email()])
+
+
+
 
 
 class EditForm(Form):

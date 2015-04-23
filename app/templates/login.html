@@ -2,51 +2,46 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <script type="text/javascript">
-    function set_openid(openid, pr)
-    {
-        u = openid.search('<username>');
-        if (u != -1) {
-            // openid requires username
-            user = prompt('Enter your ' + pr + ' username:');
-            openid = openid.substr(0, u) + user;
-        }
-        form = document.forms['login'];
-        form.elements['openid'].value = openid;
-    }
-    </script>
-    {% include 'flash.html' %}
-    <div class="well">
-        <h3>{{ _('Please Sign In') }}</h3>
-        <form class="form" action="" method="post" name="login">
-            {{ form.hidden_tag() }}
-            <div class="help-block">{{ _('Click on your OpenID provider below:') }}</div>
-            <div class="control-group">
-                {% for pr in providers %}
-                <a href="javascript:set_openid('{{ pr.url }}', '{{ pr.name }}');"><img src="/static/img/{{ pr.name.lower() }}.png" class="img-polaroid" style="margin:2px;" /></a>
-                {% endfor %}
-            </div>
-            <div class="control-group{% if form.openid.errors %} error{% endif %}">
-                <label class="control-label" for="openid">{{ _('Or enter your OpenID here:') }}</label>
-                <div class="controls">
-                    {{ form.openid(size=80, class="span4") }}
-                    {% for error in form.openid.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="control-group">
-                <div class="controls">
-                    <label class="checkbox" for="remember_me">
-                        {{ form.remember_me }} {{ _('Remember Me') }}
-                    </label>
-                </div>
-            </div>
-            <div class="control-group">
-                <div class="controls">
-                    <input class="btn btn-primary" type="submit" value="{{ _('Sign In') }}">
-                </div>
-            </div>
-        </form>
-    </div>
+	{% include 'flash.html' %}
+	<div class="well">
+		<h3>{{ _('Please Sign In') }}</h3>
+		<form class="form" action="" method="post" name="login">
+			{{ form.hidden_tag() }}
+
+			<div class="well">
+
+				<div class="control-group{% if form.username.errors %} error{% endif %}">
+					<label class="control-label" for="login">{{ _('Username:') }}</label>
+					<div class="controls">
+						{{ form.username(size=80, class="span4") }}
+						{% for error in form.username.errors %}
+							<span class="help-inline">[{{ error }}]</span><br>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="control-group{% if form.password.errors %} error{% endif %}">
+					<label class="control-label" for="password">{{ _('Password:') }}</label>
+					<div class="controls">
+						{{ form.password(size=80, class="span4") }}
+						{% for error in form.password.errors %}
+							<span class="help-inline">[{{ error }}]</span><br>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="controls">
+						<label class="checkbox" for="remember_me">
+							<div style='margin-left: 20px'>{{ form.remember_me }} {{ _('Remember Me') }}</div>
+						</label>
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="controls">
+						<input class="btn btn-primary" type="submit" value="{{ _('Sign In') }}">
+					</div>
+				</div>
+			</div>
+		</form>
+		Don't have an account? <a href='signup'>Create one!</a>
+	</div>
 {% endblock %}

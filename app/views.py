@@ -1,11 +1,12 @@
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_file
+from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_file, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
+from itsdangerous import URLSafeSerializer, BadSignature
 from flask.ext.sqlalchemy import get_debug_queries
 from flask.ext.babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
-from .forms import LoginForm, EditForm, PostForm, SearchForm
+from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
 from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
 from .apiview import handleApiPost, handleApiGet
@@ -459,14 +460,6 @@ def search():
 	return redirect(url_for('search_results', query=g.search_form.search.data))
 
 
-@app.route('/search_results/<query>')
-@login_required
-def search_results(query):
-	results = Post.query.whoosh_search(query, config.MAX_SEARCH_RESULTS).all()
-	return render_template('search_results.html',
-						   query=query,
-						   results=results)
-
 @app.route('/about')
 def about_site():
 	return render_template('about.html')
@@ -479,3 +472,58 @@ def renderUserCp():
 def renderUserLists():
 	return render_template('not-implemented-yet.html')
 
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	if g.user is not None and g.user.is_authenticated():
+		return redirect(url_for('index'))
+	form = LoginForm()
+	if form.validate_on_submit():
+		session['remember_me'] = form.remember_me.data
+		# return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
+	return render_template('login.html',
+						   title='Sign In',
+						   form=form,
+						   providers=app.config['OPENID_PROVIDERS'])
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+	if g.user is not None and g.user.is_authenticated():
+		return redirect(url_for('index'))
+	form = SignupForm()
+	if form.validate_on_submit():
+		session['remember_me'] = form.remember_me.data
+		# return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
+	return render_template('signup.html',
+						   title='Sign In',
+						   form=form,
+						   providers=app.config['OPENID_PROVIDERS'])
+
+
+
+def get_serializer(secret_key=None):
+	if secret_key is None:
+		secret_key = app.secret_key
+	return URLSafeSerializer(secret_key)
+
+
+
+def get_activation_link(user):
+	s = get_serializer()
+	payload = s.dumps(user.id)
+	return url_for('activate_user', payload=payload, _external=True)
+
+@app.route('/users/activate/<payload>')
+def activate_user(payload):
+	s = get_serializer()
+	try:
+		user_id = s.loads(payload)
+	except BadSignature:
+		abort(404)
