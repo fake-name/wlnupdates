@@ -1,7 +1,7 @@
 from flask.ext.wtf import Form
 from flask.ext.babel import gettext
 from wtforms import StringField, BooleanField, TextAreaField, FormField, PasswordField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from .models import User
 
 import wtforms
@@ -13,11 +13,14 @@ class LoginForm(Form):
 
 class SignupForm(Form):
 	username  =   StringField('Username', validators=[DataRequired(), Length(min=6)])
-	password  = PasswordField('Password', validators=[DataRequired(), Length(min=8), EqualTo('pconfirm', "Your passwords must match")])
+	password  = PasswordField('Password', validators=[DataRequired(), Length(min=8), EqualTo('pconfirm', "Your passwords must match!")])
 	pconfirm  = PasswordField('Repeat Password', validators=[DataRequired(), Length(min=8)])
 	email     =   StringField('Email Address', validators=[DataRequired(), Email()])
 
-
+	def validate_username(form, field):
+		user = User.query.filter_by(nickname=field.data).first()
+		if user is not None:
+			raise ValidationError("That username is already used! Please choose another.")
 
 
 

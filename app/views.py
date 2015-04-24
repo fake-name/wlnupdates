@@ -499,12 +499,25 @@ def signup():
 		return redirect(url_for('index'))
 	form = SignupForm()
 	if form.validate_on_submit():
-		session['remember_me'] = form.remember_me.data
+		user = User(
+			nickname  = form.username.data,
+			password  = form.password.data,
+			email     = form.email.data,
+			confirmed = 0
+		)
+		print(user)
+		print(user.password)
+		# db.session.add(user)
+		# db.session.commit()
+
+		return render_template('confirm.html')
+
+
+		# session['remember_me'] = form.remember_me.data
 		# return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
 	return render_template('signup.html',
 						   title='Sign In',
-						   form=form,
-						   providers=app.config['OPENID_PROVIDERS'])
+						   form=form)
 
 
 
