@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_file, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from itsdangerous import URLSafeSerializer, BadSignature
+from itsdangerous import URLSafeTimedSerializer, BadSignature
 from flask.ext.sqlalchemy import get_debug_queries
 from flask.ext.babel import gettext
 from datetime import datetime
@@ -8,6 +8,8 @@ from datetime import datetime
 from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
 from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+
+from .confirm import send_email
 
 from .apiview import handleApiPost, handleApiGet
 
@@ -28,18 +30,18 @@ def get_locale():
 @app.before_request
 def before_request():
 	g.user = current_user
+	g.search_form = SearchForm()
 	if g.user.is_authenticated():
 		g.user.last_seen = datetime.utcnow()
 		db.session.add(g.user)
 		db.session.commit()
-		g.search_form = SearchForm()
 	g.locale = get_locale()
 
 
 @app.after_request
 def after_request(response):
 	for query in get_debug_queries():
-		if query.duration >= config.DATABASE_QUERY_TIMEOUT:
+		if query.duration >= app.config['DATABASE_QUERY_TIMEOUT']:
 			app.logger.warning(
 				"SLOW QUERY: %s\nParameters: %s\nDuration: %fs\nContext: %s\n" %
 				(query.statement, query.parameters, query.duration,
@@ -68,48 +70,37 @@ def get_random_books():
 @app.route('/index', methods=['GET'])
 # @login_required
 def index(page=1):
-	# form = PostForm()
-	# if form.validate_on_submit():
-	# 	language = guess_language(form.post.data)
-	# 	if language == 'UNKNOWN' or len(language) > 5:
-	# 		language = ''
-	# 	post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-	# 				author=g.user, language=language)
-	# 	db.session.add(post)
-	# 	db.session.commit()
-	# 	flash(gettext('Your post is now live!'))
-	# 	return redirect(url_for('index'))
-	# posts = g.user.followed_posts().paginate(page, config.POSTS_PER_PAGE, False)
 	return render_template('index.html',
 						   title='Home',
 						   random_series=get_random_books(),
 						   posts=[])
 
 
-@oid.after_login
-def after_login(resp):
-	if resp.email is None or resp.email == "":
-		flash(gettext('Invalid login. Please try again.'))
-		return redirect(url_for('login'))
-	user = User.query.filter_by(email=resp.email).first()
-	if user is None:
-		nickname = resp.nickname
-		if nickname is None or nickname == "":
-			nickname = resp.email.split('@')[0]
-		nickname = User.make_valid_nickname(nickname)
-		nickname = User.make_unique_nickname(nickname)
-		user = User(nickname=nickname, email=resp.email)
-		db.session.add(user)
-		db.session.commit()
-		# make the user follow him/herself
-		db.session.add(user.follow(user))
-		db.session.commit()
-	remember_me = False
-	if 'remember_me' in session:
-		remember_me = session['remember_me']
-		session.pop('remember_me', None)
-	login_user(user, remember=remember_me)
-	return redirect(request.args.get('next') or url_for('index'))
+# @oid.after_login
+# def after_login(resp):
+# 	print("After login?")
+# 	if resp.email is None or resp.email == "":
+# 		flash(gettext('Invalid login. Please try again.'))
+# 		return redirect(url_for('login'))
+# 	user = User.query.filter_by(email=resp.email).first()
+# 	if user is None:
+# 		nickname = resp.nickname
+# 		if nickname is None or nickname == "":
+# 			nickname = resp.email.split('@')[0]
+# 		nickname = User.make_valid_nickname(nickname)
+# 		nickname = User.make_unique_nickname(nickname)
+# 		user = User(nickname=nickname, email=resp.email)
+# 		db.session.add(user)
+# 		db.session.commit()
+# 		# make the user follow him/herself
+# 		db.session.add(user.follow(user))
+# 		db.session.commit()
+# 	remember_me = False
+# 	if 'remember_me' in session:
+# 		remember_me = session['remember_me']
+# 		session.pop('remember_me', None)
+# 	login_user(user, remember=remember_me)
+# 	return redirect(request.args.get('next') or url_for('index'))
 
 
 @app.route('/user/<nickname>/<int:page>')
@@ -120,7 +111,7 @@ def user(nickname, page=1):
 	if user is None:
 		flash(gettext('User %(nickname)s not found.', nickname=nickname))
 		return redirect(url_for('index'))
-	posts = user.posts.paginate(page, config.POSTS_PER_PAGE, False)
+	posts = user.posts.paginate(page, app.config['POSTS_PER_PAGE'], False)
 	return render_template('user.html',
 						   user=user,
 						   posts=posts)
@@ -168,7 +159,7 @@ def renderAuthorId(sid, page=1):
 
 	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('search_results.html',
 						   sequence_item   = series_entries,
@@ -196,7 +187,7 @@ def renderArtistId(sid, page=1):
 
 	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('search_results.html',
 						   sequence_item   = series_entries,
@@ -231,7 +222,7 @@ def renderTagId(sid, page=1):
 
 	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return render_template('search_results.html',
 						   sequence_item   = series_entries,
 						   page            = page,
@@ -265,7 +256,7 @@ def renderGenreId(sid, page=1):
 
 	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return render_template('search_results.html',
 						   sequence_item   = series_entries,
 						   page            = page,
@@ -282,7 +273,7 @@ def renderCoverImage(cid):
 		flash(gettext('Cover not found!'))
 		return redirect(url_for('index'))
 
-	covpath = os.path.join(config.COVER_DIR_BASE, cover.fspath)
+	covpath = os.path.join(app.config['COVER_DIR_BASE'], cover.fspath)
 	if not os.path.exists(covpath):
 		flash(gettext('Cover file is missing!'))
 		return redirect(url_for('index'))
@@ -306,7 +297,7 @@ def renderSeriesTable(letter=None, page=1):
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('renderSeriesTable'))
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return render_template('sequence.html',
 						   sequence_item   = series_entries,
 						   page            = page,
@@ -335,7 +326,7 @@ def renderAuthorTable(letter=None, page=1):
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('renderAuthorTable'))
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('sequence.html',
 						   sequence_item   = series_entries,
@@ -364,7 +355,7 @@ def renderArtistTable(letter=None, page=1):
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('series'))
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('sequence.html',
 						   sequence_item   = series_entries,
@@ -394,7 +385,7 @@ def renderTagTable(letter=None, page=1):
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('series'))
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('sequence.html',
 						   sequence_item   = series_entries,
@@ -423,7 +414,7 @@ def renderGenreTable(letter=None, page=1):
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('series'))
-	series_entries = series.paginate(page, config.SERIES_PER_PAGE, False)
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('sequence.html',
 						   sequence_item   = series_entries,
@@ -478,19 +469,28 @@ def renderUserLists():
 #################################################################################################################################
 #################################################################################################################################
 
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+	logout_user()
+	flash(gettext('You have been logged out.'))
+	return redirect(url_for('index'))
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	if g.user is not None and g.user.is_authenticated():
+		flash(gettext('You are already logged in.'))
 		return redirect(url_for('index'))
 	form = LoginForm()
 	if form.validate_on_submit():
-		session['remember_me'] = form.remember_me.data
-		# return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
+		user = User.query.filter_by(nickname=form.username.data).first()
+		login_user(user, remember=bool(form.remember_me.data))
+		flash(gettext('You have logged in successfully.'))
+		return redirect(url_for('index'))
+
 	return render_template('login.html',
 						   title='Sign In',
-						   form=form,
-						   providers=app.config['OPENID_PROVIDERS'])
+						   form=form)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -503,40 +503,51 @@ def signup():
 			nickname  = form.username.data,
 			password  = form.password.data,
 			email     = form.email.data,
-			confirmed = 0
+			verified  = 0
 		)
-		print(user)
-		print(user.password)
-		# db.session.add(user)
-		# db.session.commit()
+		db.session.add(user)
+		db.session.commit()
+		send_email(form.email.data,
+				"Please confirm your account for WLNUpdates.com",
+				render_template('mail.html',
+								confirm_url=get_activation_link(user))
+				)
+
+		print("Sent")
 
 		return render_template('confirm.html')
 
 
 		# session['remember_me'] = form.remember_me.data
-		# return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
 	return render_template('signup.html',
 						   title='Sign In',
 						   form=form)
 
 
 
-def get_serializer(secret_key=None):
-	if secret_key is None:
-		secret_key = app.secret_key
-	return URLSafeSerializer(secret_key)
+def get_serializer():
+	return URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 
 
 def get_activation_link(user):
 	s = get_serializer()
-	payload = s.dumps(user.id)
+	payload = s.dumps(user.id, salt=app.config['SECURITY_PASSWORD_SALT'])
 	return url_for('activate_user', payload=payload, _external=True)
 
 @app.route('/users/activate/<payload>')
-def activate_user(payload):
+def activate_user(payload, expiration=60*60*24):
 	s = get_serializer()
 	try:
-		user_id = s.loads(payload)
+		user_id = s.loads(payload, salt=app.config['SECURITY_PASSWORD_SALT'], max_age=expiration)
+		user = User.query.get(int(user_id))
+		if user.verified:
+			flash(gettext('Your account has already been activated. Stop that.'))
+		else:
+			user.verified = 1
+			db.session.commit()
+			flash(gettext('Your account has been activated. Please log in.'))
+		return index(1)
+
 	except BadSignature:
-		abort(404)
+		return render_template('not-implemented-yet.html', message='Invalid activation link.')

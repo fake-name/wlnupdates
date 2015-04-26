@@ -10,7 +10,7 @@ from flask_wtf.csrf import CsrfProtect
 from config import basedir # , ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 
 app = Flask(__name__)
-app.config.from_object('config')
+app.config.from_object('config.BaseConfig')
 db = SQLAlchemy(app)
 lm = LoginManager()
 lm.init_app(app)
@@ -39,10 +39,3 @@ from app import views, models
 def format_price(amount, currency=u'€'):
 	return u'{0:.2f}{1}'.format(amount, currency)
 
-
-@app.context_processor
-def example():
-
-	return dict(
-		format_price=format_price
-		)

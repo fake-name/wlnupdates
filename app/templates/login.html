@@ -10,6 +10,10 @@
 
 			<div class="well">
 
+				{% if login_error %}
+				<h4>{{ login_error }} </h4>
+				{% endif %}
+
 				<div class="control-group{% if form.username.errors %} error{% endif %}">
 					<label class="control-label" for="login">{{ _('Username:') }}</label>
 					<div class="controls">

@@ -3,16 +3,33 @@ from flask.ext.babel import gettext
 from wtforms import StringField, BooleanField, TextAreaField, FormField, PasswordField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from .models import User
+from flask.ext.bcrypt import check_password_hash
 
 import wtforms
 
+def loginError():
+	raise ValidationError("Your username or password is incorrect.")
+
 class LoginForm(Form):
-	username =   StringField('Username', validators=[DataRequired(), Length(min=6)])
+	username =   StringField('Username', validators=[DataRequired(), Length(min=5)])
 	password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
 	remember_me = BooleanField('remember_me', default=False)
 
+	# Validate on both the username and password,
+	# because we don't want to accidentally leak if a user
+	# exists or not
+	def validate_password(form, field):
+		user = User.query.filter_by(nickname=form.username.data).first()
+		if user is None:
+			loginError()
+		if not check_password_hash(user.password, form.password.data):
+			loginError()
+
+
+
+
 class SignupForm(Form):
-	username  =   StringField('Username', validators=[DataRequired(), Length(min=6)])
+	username  =   StringField('Username', validators=[DataRequired(), Length(min=5)])
 	password  = PasswordField('Password', validators=[DataRequired(), Length(min=8), EqualTo('pconfirm', "Your passwords must match!")])
 	pconfirm  = PasswordField('Repeat Password', validators=[DataRequired(), Length(min=8)])
 	email     =   StringField('Email Address', validators=[DataRequired(), Email()])

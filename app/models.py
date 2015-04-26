@@ -7,7 +7,6 @@ from app import db
 from app import app
 from sqlalchemy.orm import relationship
 from flask.ext.bcrypt import generate_password_hash
-from flask.ext.bcrypt import check_password_hash
 
 
 followers = db.Table(
@@ -178,11 +177,11 @@ class User(db.Model):
 	def __repr__(self):  # pragma: no cover
 		return '<User %r>' % (self.nickname)
 
-	def __init__(self, nickname, email, password, confirmed):
+	def __init__(self, nickname, email, password, verified):
 		self.nickname  = nickname
 		self.email     = email
 		self.password  = generate_password_hash(password)
-		self.confirmed = confirmed
+		self.verified  = verified
 
 
 class Post(db.Model):
