@@ -7,7 +7,7 @@ from app import db
 from app import app
 from sqlalchemy.orm import relationship
 from flask.ext.bcrypt import generate_password_hash
-
+from sqlalchemy.ext.declarative import declared_attr
 
 followers = db.Table(
 	'followers',
@@ -16,7 +16,7 @@ followers = db.Table(
 )
 
 
-class Series(db.Model):
+class SeriesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
 	title       = db.Column(CIText())
 	description = db.Column(db.Text())
@@ -24,59 +24,58 @@ class Series(db.Model):
 	origin_loc  = db.Column(db.Text())
 	demographic = db.Column(db.Text())
 	orig_lang   = db.Column(db.Text())
-	__table_args__ = (
-		db.UniqueConstraint('title'),
-		)
-	tags           = relationship("Tags")
-	genres         = relationship("Genres")
-	author         = relationship("Author")
-	illustrators   = relationship("Illustrators")
-	alternatenames = relationship("AlternateNames")
 
 
-class Tags(db.Model):
+class TagsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	@declared_attr
+	def series(cls):
+		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	weight      = db.Column(db.Float, default=1)
 	tag         = db.Column(CIText(), nullable=False, index=True)
 	__table_args__ = (
 		db.UniqueConstraint('series', 'tag'),
 		)
 
-class Genres(db.Model):
+class GenresBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	@declared_attr
+	def series(cls):
+		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	genre       = db.Column(CIText(), nullable=False, index=True)
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'genre'),
 		)
 
-class Author(db.Model):
+class AuthorBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	@declared_attr
+	def series(cls):
+		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	author      = db.Column(CIText(), nullable=False, index=True)
 
-	__table_args__ = (
-		db.UniqueConstraint('series', 'author'),
-		)
 
-class Illustrators(db.Model):
+class IllustratorsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	@declared_attr
+	def series(cls):
+		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	name        = db.Column(CIText(), nullable=False, index=True)
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'name'),
 		)
 
-class AlternateNames(db.Model):
+class AlternateNamesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	@declared_attr
+	def series(cls):
+		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	name        = db.Column(db.Text(), nullable=False, index=True)
 	cleanname   = db.Column(CIText(), nullable=False, index=True)
 
-class Translators(db.Model):
+class TranslatorsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
 	group_name  = db.Column(db.Text(), nullable=False)
 	group_site  = db.Column(db.Text())
@@ -84,24 +83,190 @@ class Translators(db.Model):
 		db.UniqueConstraint('group_name'),
 		)
 
-class Releases(db.Model):
+class ReleasesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	@declared_attr
+	def series(cls):
+		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	volume      = db.Column(db.Float(), nullable=False)
 	chapter     = db.Column(db.Float(), nullable=False)
-	tlgroup     = db.Column(db.Integer, db.ForeignKey('translators.id'))
+	@declared_attr
+	def tlgroup(cls):
+		return db.Column(db.Integer, db.ForeignKey('translators.id'))
 
 
 
-class Covers(db.Model):
+class CoversBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
 	srcfname    = db.Column(db.Text)
-	series      = db.Column(db.Integer, db.ForeignKey('series.id'))
+	@declared_attr
+	def series(cls):
+		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	volume      = db.Column(db.Float())
 	chapter     = db.Column(db.Float())
 	description = db.Column(db.Text)
 	fspath      = db.Column(db.Text)
 	hash        = db.Column(db.Text, nullable=False)
+
+
+
+class ChangeLogMixin(object):
+	@declared_attr
+	def changetime(cls):
+		return db.Column(db.DateTime, nullable=False, index=True)
+
+	@declared_attr
+	def changeuser(cls):
+		return db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Series(db.Model, SeriesBase):
+	__tablename__ = 'series'
+	__table_args__ = (
+		db.UniqueConstraint('title'),
+		)
+	tags           = relationship("tags")
+	genres         = relationship("genres")
+	author         = relationship("author")
+	illustrators   = relationship("illustrators")
+	alternatenames = relationship("alternatenames")
+
+
+class Tags(db.Model, TagsBase):
+	__tablename__ = 'tags'
+	__table_args__ = (
+		db.UniqueConstraint('series', 'tag'),
+		)
+
+class Genres(db.Model, GenresBase):
+	__tablename__ = 'genres'
+
+	__table_args__ = (
+		db.UniqueConstraint('series', 'genre'),
+		)
+
+class Author(db.Model, AuthorBase):
+	__tablename__ = 'author'
+
+	__table_args__ = (
+		db.UniqueConstraint('series', 'author'),
+		)
+
+class Illustrators(db.Model, IllustratorsBase):
+	__tablename__ = 'illustrators'
+
+	__table_args__ = (
+		db.UniqueConstraint('series', 'name'),
+		)
+
+class AlternateNames(db.Model, AlternateNamesBase):
+	__tablename__ = 'alternatenames'
+
+
+class Translators(db.Model, TranslatorsBase):
+	__tablename__ = 'translators'
+
+	__table_args__ = (
+		db.UniqueConstraint('group_name'),
+		)
+
+class Releases(db.Model, ReleasesBase):
+	__tablename__ = 'releases'
+
+
+class Covers(db.Model, CoversBase):
+	__tablename__ = 'covers'
+
+
+
+class SeriesChanges(db.Model, SeriesBase, ChangeLogMixin):
+	__tablename__ = "serieschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('series.id'), index=True)
+
+class TagsChanges(db.Model, TagsBase, ChangeLogMixin):
+	__tablename__ = "tagschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('tags.id'), index=True)
+
+class GenresChanges(db.Model, GenresBase, ChangeLogMixin):
+	__tablename__ = "genreschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('genres.id'), index=True)
+
+class AuthorChanges(db.Model, AuthorBase, ChangeLogMixin):
+	__tablename__ = "authorchanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('author.id'), index=True)
+
+class IllustratorsChanges(db.Model, IllustratorsBase, ChangeLogMixin):
+	__tablename__ = "illustratorschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('illustrators.id'), index=True)
+
+class TranslatorsChanges(db.Model, TranslatorsBase, ChangeLogMixin):
+	__tablename__ = "translatorschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('translators.id'), index=True)
+
+class ReleasesChanges(db.Model, ReleasesBase, ChangeLogMixin):
+	__tablename__ = "releaseschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('releases.id'), index=True)
+
+class CoversChanges(db.Model, CoversBase, ChangeLogMixin):
+	__tablename__ = "coverschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('covers.id'), index=True)
+
+class AlternateNamesChanges(db.Model, AlternateNamesBase, ChangeLogMixin):
+	__tablename__ = "alternatenameschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('alternatenames.id'), index=True)
+
+
+'''
+
+DROP TABLE "alembic_version" CASCADE;
+DROP TABLE "alternatenames" CASCADE;
+DROP TABLE "alternatenameschanges" CASCADE;
+DROP TABLE "author" CASCADE;
+DROP TABLE "authorchanges" CASCADE;
+DROP TABLE "covers" CASCADE;
+DROP TABLE "coverschanges" CASCADE;
+DROP TABLE "followers" CASCADE;
+DROP TABLE "genres" CASCADE;
+DROP TABLE "genreschanges" CASCADE;
+DROP TABLE "illustrators" CASCADE;
+DROP TABLE "illustratorschanges" CASCADE;
+DROP TABLE "post" CASCADE;
+DROP TABLE "releases" CASCADE;
+DROP TABLE "releaseschanges" CASCADE;
+DROP TABLE "series" CASCADE;
+DROP TABLE "serieschanges" CASCADE;
+DROP TABLE "tags" CASCADE;
+DROP TABLE "tagschanges" CASCADE;
+DROP TABLE "translators" CASCADE;
+DROP TABLE "translatorschanges" CASCADE;
+DROP TABLE "user" CASCADE;
+
+'''
+
+
+# class PostChanges(Post, ChangeCols):
+# 	srccol   = db.Column(db.Integer, db.ForeignKey('post.id'), index=True)
+
+
+
+class Post(db.Model):
+	__searchable__ = ['body']
+
+	id          = db.Column(db.Integer, primary_key=True)
+	body        = db.Column(db.Text)
+	timestamp   = db.Column(db.DateTime)
+	user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+	seriesTopic = db.Column(db.Integer)
+
+
+	def __repr__(self):  # pragma: no cover
+		return '<Post %r>' % (self.body)
+
 
 
 
@@ -182,29 +347,3 @@ class User(db.Model):
 		self.email     = email
 		self.password  = generate_password_hash(password)
 		self.verified  = verified
-
-
-class Post(db.Model):
-	__searchable__ = ['body']
-
-	id          = db.Column(db.Integer, primary_key=True)
-	body        = db.Column(db.Text)
-	timestamp   = db.Column(db.DateTime)
-	user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-	seriesTopic = db.Column(db.Integer)
-
-
-	def __repr__(self):  # pragma: no cover
-		return '<Post %r>' % (self.body)
-
-
-
-# DROP TABLE author;
-# DROP TABLE genres;
-# DROP TABLE illustrators;
-# DROP TABLE migrate_version;
-# DROP TABLE releases;
-# DROP TABLE series;
-# DROP TABLE tags;
-# DROP TABLE translators;
