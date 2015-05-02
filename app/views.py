@@ -7,7 +7,7 @@ from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
-from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
 from .confirm import send_email
 
@@ -19,7 +19,7 @@ from sqlalchemy.sql.expression import func
 
 @lm.user_loader
 def load_user(id):
-	return User.query.get(int(id))
+	return Users.query.get(int(id))
 
 
 @babel.localeselector
@@ -76,38 +76,11 @@ def index(page=1):
 						   posts=[])
 
 
-# @oid.after_login
-# def after_login(resp):
-# 	print("After login?")
-# 	if resp.email is None or resp.email == "":
-# 		flash(gettext('Invalid login. Please try again.'))
-# 		return redirect(url_for('login'))
-# 	user = User.query.filter_by(email=resp.email).first()
-# 	if user is None:
-# 		nickname = resp.nickname
-# 		if nickname is None or nickname == "":
-# 			nickname = resp.email.split('@')[0]
-# 		nickname = User.make_valid_nickname(nickname)
-# 		nickname = User.make_unique_nickname(nickname)
-# 		user = User(nickname=nickname, email=resp.email)
-# 		db.session.add(user)
-# 		db.session.commit()
-# 		# make the user follow him/herself
-# 		db.session.add(user.follow(user))
-# 		db.session.commit()
-# 	remember_me = False
-# 	if 'remember_me' in session:
-# 		remember_me = session['remember_me']
-# 		session.pop('remember_me', None)
-# 	login_user(user, remember=remember_me)
-# 	return redirect(request.args.get('next') or url_for('index'))
-
-
 @app.route('/user/<nickname>/<int:page>')
 @app.route('/user/<nickname>')
 # @login_required
 def user(nickname, page=1):
-	user = User.query.filter_by(nickname=nickname).first()
+	user = Users.query.filter_by(nickname=nickname).first()
 	if user is None:
 		flash(gettext('User %(nickname)s not found.', nickname=nickname))
 		return redirect(url_for('index'))
@@ -463,6 +436,14 @@ def renderUserCp():
 def renderUserLists():
 	return render_template('not-implemented-yet.html')
 
+@app.route('/groups')
+def renderGroups():
+	return render_template('not-implemented-yet.html')
+
+@app.route('/releases')
+def renderReleases():
+	return render_template('not-implemented-yet.html')
+
 
 #################################################################################################################################
 #################################################################################################################################
@@ -483,10 +464,15 @@ def login():
 		return redirect(url_for('index'))
 	form = LoginForm()
 	if form.validate_on_submit():
-		user = User.query.filter_by(nickname=form.username.data).first()
-		login_user(user, remember=bool(form.remember_me.data))
-		flash(gettext('You have logged in successfully.'))
-		return redirect(url_for('index'))
+		user = Users.query.filter_by(nickname=form.username.data).first()
+		if user.verified:
+			login_user(user, remember=bool(form.remember_me.data))
+			flash(gettext('You have logged in successfully.'))
+			return redirect(url_for('index'))
+		else:
+			flash(gettext('Please confirm your account first.'))
+			return redirect(url_for('index'))
+
 
 	return render_template('login.html',
 						   title='Sign In',
@@ -499,7 +485,7 @@ def signup():
 		return redirect(url_for('index'))
 	form = SignupForm()
 	if form.validate_on_submit():
-		user = User(
+		user = Users(
 			nickname  = form.username.data,
 			password  = form.password.data,
 			email     = form.email.data,
@@ -540,7 +526,7 @@ def activate_user(payload, expiration=60*60*24):
 	s = get_serializer()
 	try:
 		user_id = s.loads(payload, salt=app.config['SECURITY_PASSWORD_SALT'], max_age=expiration)
-		user = User.query.get(int(user_id))
+		user = Users.query.get(int(user_id))
 		if user.verified:
 			flash(gettext('Your account has already been activated. Stop that.'))
 		else:

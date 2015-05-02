@@ -17,7 +17,8 @@
 # DROP SEQUENCE alternate_names_id_seq;
 # DROP SEQUENCE genres_id_seq;
 # DROP SEQUENCE series_id_seq;
-
+import time
+import datetime
 
 import app.nameTools as nt
 import settings
@@ -274,41 +275,43 @@ def processBookTbl(cur, name, srcTable):
 
 
 def insertItem(cur, item):
-	cur.execute('''INSERT INTO series (title, description, type, demographic) VALUES (%s, %s, %s, %s) RETURNING id;''',
+	cur.execute('''INSERT INTO series (title, description, type, demographic, changeuser, changetime) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id;''',
 			(
 				item['name'],
 				item['desc'],
 				item['type'],
-				item['demo']
+				item['demo'],
+				1,
+				datetime.datetime.now()
 			)
 		)
 
 	pkid = cur.fetchone()[0]
 	for author in item['author']:
-		cur.execute('''INSERT INTO author (author, series) VALUES (%s, %s);''', (author, pkid))
+		cur.execute('''INSERT INTO author (author, series, changeuser, changetime) VALUES (%s, %s, %s, %s);''', (author, pkid, 1, datetime.datetime.now()))
 
 	for illust in item['illust']:
-		cur.execute('''INSERT INTO illustrators (name, series) VALUES (%s, %s);''', (illust, pkid))
+		cur.execute('''INSERT INTO illustrators (name, series, changeuser, changetime) VALUES (%s, %s, %s, %s);''', (illust, pkid, 1, datetime.datetime.now()))
 
 	for tag in item['tags']:
-		cur.execute('''INSERT INTO tags (tag, series) VALUES (%s, %s);''', (tag, pkid))
+		cur.execute('''INSERT INTO tags (tag, series, changeuser, changetime) VALUES (%s, %s, %s, %s);''', (tag, pkid, 1, datetime.datetime.now()))
 
 	for genre in item['genre']:
-		cur.execute('''INSERT INTO genres (genre, series) VALUES (%s, %s);''', (genre, pkid))
+		cur.execute('''INSERT INTO genres (genre, series, changeuser, changetime) VALUES (%s, %s, %s, %s);''', (genre, pkid, 1, datetime.datetime.now()))
 
 	for altn in item['altnames']:
-		cur.execute('''INSERT INTO alternate_names (series, name, cleanname) VALUES (%s, %s, %s);''', (pkid, altn, nt.prepFilenameForMatching(altn)))
+		cur.execute('''INSERT INTO alternatenames (series, name, cleanname, changeuser, changetime) VALUES (%s, %s, %s, %s, %s);''', (pkid, altn, nt.prepFilenameForMatching(altn), 1, datetime.datetime.now()))
 
 	for filename, vol, chapter, description, relpath, filehash in item['covers']:
 
 
 		cur.execute("""
 			INSERT INTO
-				covers (srcFname, series, volume, chapter, description, fsPath, hash)
+				covers (srcFname, series, volume, chapter, description, fsPath, hash, changeuser, changetime)
 			VALUES
-				(%s, %s, %s, %s, %s, %s, %s)
+				(%s, %s, %s, %s, %s, %s, %s, %s, %s)
 			;
-			""", (filename, pkid, vol, chapter, description, relpath, filehash))
+			""", (filename, pkid, vol, chapter, description, relpath, filehash, 1, datetime.datetime.now()))
 
 
 def insertData(data):
@@ -320,7 +323,28 @@ def insertData(data):
 
 
 	print("Gross rowcounts:")
-	for table in ["alembic_version", "alternate_names", "author", "covers", "followers", "genres", "illustrators", "post", "releases", "series", "tags", "translators", "user"]:
+	for table in ["alembic_version",
+					"alternatenames",
+					"author",
+					"covers",
+					"genres",
+					"illustrators",
+					"post",
+					"releases",
+					"series",
+					"tags",
+					"translators",
+					"user",
+					'alternatenameschanges',
+					'authorchanges',
+					'coverschanges',
+					'genreschanges',
+					'illustratorschanges',
+					'releaseschanges',
+					'serieschanges',
+					'tagschanges',
+					'translatorschanges',
+					]:
 
 		cur.execute("SELECT COUNT(*) FROM {table};".format(table=table))
 		print("Rows in {table}: {count}".format(table=table, count=cur.fetchone()))

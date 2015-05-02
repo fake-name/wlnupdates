@@ -4,16 +4,16 @@ from citext import CIText
 from hashlib import md5
 import re
 from app import db
-from app import app
 from sqlalchemy.orm import relationship
 from flask.ext.bcrypt import generate_password_hash
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy import event
+from sqlalchemy.schema import DDL
 
-followers = db.Table(
-	'followers',
-	db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-	db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
-)
+# Some of the metaclass hijinks make pylint confused,
+# so disable the warnings for those aspects of things
+# pylint: disable=E0213, R0903
+
 
 
 class SeriesBase(object):
@@ -111,111 +111,183 @@ class CoversBase(object):
 
 
 class ChangeLogMixin(object):
+	operation      = db.Column(db.Text())
+
+
+class ModificationInfoMixin(object):
+
 	@declared_attr
 	def changetime(cls):
 		return db.Column(db.DateTime, nullable=False, index=True)
 
 	@declared_attr
 	def changeuser(cls):
-		return db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+		return db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+
+
+	@classmethod
+	def __declare_last__(cls):
+		# get called after mappings are completed
+		# http://docs.sqlalchemy.org/en/rel_0_7/orm/extensions/declarative.html#declare-last
+		if cls.__tablename__.endswith("changes"):
+			print("Not creating triggers on chagetable {name}.".format(name=cls.__tablename__))
+			return
+
+		print("Checking triggers exist on table {name}.".format(name=cls.__tablename__))
+
+		# So this is fairly complex. We know that all the local colums (excepting "id") are
+		# present in the changes table, however we can't simply say `INSERT INTO changes VALUES SELECT OLD.*`, because
+		# we're adding some more cols, and I don't know if I trust any assumptions I make about the ordering anyways.
+
+		colNames = []
+		for column in cls.__table__.columns:
+			if column.description != "id":
+				colNames.append(column.description)
+
+		# id -> srccol, so the backlink works.
+		intoCols = ", ".join(colNames+['srccol', 'operation'])
+		oldFromCols = ", ".join(["OLD."+item for item in colNames+['id', ]])
+		newFromCols = ", ".join(["NEW."+item for item in colNames+['id', ]])
+
+
+		rawTrigger = """
+			CREATE OR REPLACE FUNCTION {name}_update_func() RETURNS TRIGGER AS ${name}changes$
+				BEGIN
+					--
+					-- Create a row in {name}changes to reflect the operation performed on emp,
+					-- make use of the special variable TG_OP to work out the operation.
+					--
+					IF (TG_OP = 'DELETE') THEN
+						INSERT INTO {name}changes ({intoCols}) SELECT {oldFromCols}, 'D';
+						RETURN OLD;
+					ELSIF (TG_OP = 'UPDATE') THEN
+						INSERT INTO {name}changes ({intoCols}) SELECT {oldFromCols}, 'U';
+						RETURN OLD;
+					ELSIF (TG_OP = 'INSERT') THEN
+						INSERT INTO {name}changes ({intoCols}) SELECT {newFromCols}, 'I';
+						RETURN NEW;
+					END IF;
+					RETURN NULL; -- result is ignored since this is an AFTER trigger
+				END;
+			${name}changes$ LANGUAGE plpgsql;
+
+			DROP TRIGGER IF EXISTS {name}_change_trigger ON {name};
+			CREATE TRIGGER {name}_change_trigger
+			AFTER INSERT OR UPDATE OR DELETE ON {name}
+				FOR EACH ROW EXECUTE PROCEDURE {name}_update_func();
+
+			""".format(
+					name        = cls.__tablename__,
+					intoCols    = intoCols,
+					oldFromCols = oldFromCols,
+					newFromCols = newFromCols
+					)
+		db.engine.execute(
+			DDL(
+				rawTrigger
+			)
+		)
+		# print(rawTrigger)
+
+
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Series(db.Model, SeriesBase):
+class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	__tablename__ = 'series'
 	__table_args__ = (
 		db.UniqueConstraint('title'),
 		)
-	tags           = relationship("tags")
-	genres         = relationship("genres")
-	author         = relationship("author")
-	illustrators   = relationship("illustrators")
-	alternatenames = relationship("alternatenames")
+	tags           = relationship("Tags")
+	genres         = relationship("Genres")
+	author         = relationship("Author")
+	illustrators   = relationship("Illustrators")
+	alternatenames = relationship("AlternateNames")
 
 
-class Tags(db.Model, TagsBase):
+class Tags(db.Model, TagsBase, ModificationInfoMixin):
 	__tablename__ = 'tags'
 	__table_args__ = (
 		db.UniqueConstraint('series', 'tag'),
 		)
 
-class Genres(db.Model, GenresBase):
+class Genres(db.Model, GenresBase, ModificationInfoMixin):
 	__tablename__ = 'genres'
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'genre'),
 		)
 
-class Author(db.Model, AuthorBase):
+class Author(db.Model, AuthorBase, ModificationInfoMixin):
 	__tablename__ = 'author'
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'author'),
 		)
 
-class Illustrators(db.Model, IllustratorsBase):
+class Illustrators(db.Model, IllustratorsBase, ModificationInfoMixin):
 	__tablename__ = 'illustrators'
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'name'),
 		)
 
-class AlternateNames(db.Model, AlternateNamesBase):
+class AlternateNames(db.Model, AlternateNamesBase, ModificationInfoMixin):
 	__tablename__ = 'alternatenames'
 
 
-class Translators(db.Model, TranslatorsBase):
+class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
 	__tablename__ = 'translators'
 
 	__table_args__ = (
 		db.UniqueConstraint('group_name'),
 		)
 
-class Releases(db.Model, ReleasesBase):
+class Releases(db.Model, ReleasesBase, ModificationInfoMixin):
 	__tablename__ = 'releases'
 
 
-class Covers(db.Model, CoversBase):
+class Covers(db.Model, CoversBase, ModificationInfoMixin):
 	__tablename__ = 'covers'
 
 
 
-class SeriesChanges(db.Model, SeriesBase, ChangeLogMixin):
+class SeriesChanges(db.Model, SeriesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "serieschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('series.id'), index=True)
 
-class TagsChanges(db.Model, TagsBase, ChangeLogMixin):
+class TagsChanges(db.Model, TagsBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "tagschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('tags.id'), index=True)
 
-class GenresChanges(db.Model, GenresBase, ChangeLogMixin):
+class GenresChanges(db.Model, GenresBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "genreschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('genres.id'), index=True)
 
-class AuthorChanges(db.Model, AuthorBase, ChangeLogMixin):
+class AuthorChanges(db.Model, AuthorBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "authorchanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('author.id'), index=True)
 
-class IllustratorsChanges(db.Model, IllustratorsBase, ChangeLogMixin):
+class IllustratorsChanges(db.Model, IllustratorsBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "illustratorschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('illustrators.id'), index=True)
 
-class TranslatorsChanges(db.Model, TranslatorsBase, ChangeLogMixin):
+class TranslatorsChanges(db.Model, TranslatorsBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "translatorschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('translators.id'), index=True)
 
-class ReleasesChanges(db.Model, ReleasesBase, ChangeLogMixin):
+class ReleasesChanges(db.Model, ReleasesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "releaseschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('releases.id'), index=True)
 
-class CoversChanges(db.Model, CoversBase, ChangeLogMixin):
+class CoversChanges(db.Model, CoversBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "coverschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('covers.id'), index=True)
 
-class AlternateNamesChanges(db.Model, AlternateNamesBase, ChangeLogMixin):
+class AlternateNamesChanges(db.Model, AlternateNamesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "alternatenameschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('alternatenames.id'), index=True)
 
@@ -243,7 +315,12 @@ DROP TABLE "tags" CASCADE;
 DROP TABLE "tagschanges" CASCADE;
 DROP TABLE "translators" CASCADE;
 DROP TABLE "translatorschanges" CASCADE;
-DROP TABLE "user" CASCADE;
+DROP TABLE "users" CASCADE;
+
+
+python db_migrate.py db init &&
+
+python db_migrate.py db migrate && python db_migrate.py db upgrade
 
 '''
 
@@ -259,8 +336,7 @@ class Post(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	body        = db.Column(db.Text)
 	timestamp   = db.Column(db.DateTime)
-	user_id     = db.Column(db.Integer, db.ForeignKey('user.id'))
-
+	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'))
 	seriesTopic = db.Column(db.Integer)
 
 
@@ -270,7 +346,7 @@ class Post(db.Model):
 
 
 
-class User(db.Model):
+class Users(db.Model):
 	id        = db.Column(db.Integer, primary_key=True)
 	nickname  = db.Column(db.String,  index=True, unique=True)
 	password  = db.Column(db.String,  index=True, unique=True)
@@ -279,13 +355,9 @@ class User(db.Model):
 
 	last_seen = db.Column(db.DateTime)
 
-	posts     = db.relationship('Post', backref='author', lazy='dynamic')
-	followed  = db.relationship('User',
-							   secondary=followers,
-							   primaryjoin=(followers.c.follower_id == id),
-							   secondaryjoin=(followers.c.followed_id == id),
-							   backref=db.backref('followers', lazy='dynamic'),
-							   lazy='dynamic')
+	posts     = db.relationship('Post')
+	# posts     = db.relationship('Post', backref='author', lazy='dynamic')
+
 
 	@staticmethod
 	def make_valid_nickname(nickname):
@@ -293,12 +365,12 @@ class User(db.Model):
 
 	@staticmethod
 	def make_unique_nickname(nickname):
-		if User.query.filter_by(nickname=nickname).first() is None:
+		if Users.query.filter_by(nickname=nickname).first() is None:
 			return nickname
 		version = 2
 		while True:
 			new_nickname = nickname + str(version)
-			if User.query.filter_by(nickname=new_nickname).first() is None:
+			if Users.query.filter_by(nickname=new_nickname).first() is None:
 				break
 			version += 1
 		return new_nickname
@@ -319,25 +391,6 @@ class User(db.Model):
 		return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' % \
 			(md5(self.email.encode('utf-8')).hexdigest(), size)
 
-	def follow(self, user):
-		if not self.is_following(user):
-			self.followed.append(user)
-			return self
-
-	def unfollow(self, user):
-		if self.is_following(user):
-			self.followed.remove(user)
-			return self
-
-	def is_following(self, user):
-		return self.followed.filter(
-			followers.c.followed_id == user.id).count() > 0
-
-	def followed_posts(self):
-		return Post.query.join(
-			followers, (followers.c.followed_id == Post.user_id)).filter(
-				followers.c.follower_id == self.id).order_by(
-					Post.timestamp.desc())
 
 	def __repr__(self):  # pragma: no cover
 		return '<User %r>' % (self.nickname)

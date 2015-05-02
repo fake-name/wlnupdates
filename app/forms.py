@@ -2,7 +2,7 @@ from flask.ext.wtf import Form
 from flask.ext.babel import gettext
 from wtforms import StringField, BooleanField, TextAreaField, FormField, PasswordField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from .models import User
+from .models import Users
 from flask.ext.bcrypt import check_password_hash
 
 import wtforms
@@ -19,7 +19,7 @@ class LoginForm(Form):
 	# because we don't want to accidentally leak if a user
 	# exists or not
 	def validate_password(form, field):
-		user = User.query.filter_by(nickname=form.username.data).first()
+		user = Users.query.filter_by(nickname=form.username.data).first()
 		if user is None:
 			loginError()
 		if not check_password_hash(user.password, form.password.data):
@@ -35,7 +35,7 @@ class SignupForm(Form):
 	email     =   StringField('Email Address', validators=[DataRequired(), Email()])
 
 	def validate_username(form, field):
-		user = User.query.filter_by(nickname=field.data).first()
+		user = Users.query.filter_by(nickname=field.data).first()
 		if user is not None:
 			raise ValidationError("That username is already used! Please choose another.")
 
@@ -54,12 +54,12 @@ class EditForm(Form):
 			return False
 		if self.nickname.data == self.original_nickname:
 			return True
-		if self.nickname.data != User.make_valid_nickname(self.nickname.data):
+		if self.nickname.data != Users.make_valid_nickname(self.nickname.data):
 			self.nickname.errors.append(gettext(
 				'This nickname has invalid characters. '
 				'Please use letters, numbers, dots and underscores only.'))
 			return False
-		user = User.query.filter_by(nickname=self.nickname.data).first()
+		user = Users.query.filter_by(nickname=self.nickname.data).first()
 		if user is not None:
 			self.nickname.errors.append(gettext(
 				'This nickname is already in use. '

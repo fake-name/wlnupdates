@@ -3,7 +3,7 @@ from flask.ext.login import login_required
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from . import forms
-from .models import User, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
 import traceback
 
