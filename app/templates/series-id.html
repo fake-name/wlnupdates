@@ -3,7 +3,9 @@
 	<div class="well well-tny info-item">
 		<div class="row singleitem"  id="{{valId}}-container">
 			<div class="col-md-3 rowTitle">
-				{{ name }}: <a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+				{{ name }}:
+				<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+				<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
 			</div>
 			<div class="col-md-9 rowContents" id='{{valId}}'>
 				<span class='singleitem'>{{ ( value if value else "N/A" ) | safe }}</span>
@@ -17,7 +19,9 @@
 	<div class="well well-tny info-item">
 		<div class="row multiitem" id="{{valId}}-container">
 			<div class="col-md-3 rowTitle">
-				{{ name }}: <a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+				{{ name }}:
+				<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+				<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
 			</div>
 			<div class="col-md-9 rowContents" id='{{valId}}'>
 				{% for item in inList %}

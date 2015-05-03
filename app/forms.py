@@ -4,8 +4,12 @@ from wtforms import StringField, BooleanField, TextAreaField, FormField, Passwor
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from .models import Users
 from flask.ext.bcrypt import check_password_hash
-
+from app import db
+from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+import markdown
+import bleach
 import wtforms
+from flask.ext.login import current_user
 
 def loginError():
 	raise ValidationError("Your username or password is incorrect.")
@@ -138,10 +142,81 @@ def validateMangaData(data):
 	# Return the processed output.
 	return update
 
+
+	#
+	# releases     =     Releases.query.filter(Releases.series==sid).all()
+	# covers       =       Covers.query.filter(Covers.series==sid).all()
+
+
+
+
 def processMangaUpdateJson(data):
-	validateMangaData(data)
+	validated = validateMangaData(data)
+
+	sid = validated['id']
+	series = Series.query.filter(Series.id==sid).one()
+
+	for entry in validated['entries']:
+		print(entry)
+		if entry['type'] == 'description':
+			processedData = markdown.markdown(bleach.clean(entry['data'], strip=True))
+			if series.description == processedData:
+				print("No change?")
+			else:
+				series.description = processedData
+				series.changeuser = current_user.id
 
 
+		elif entry['type'] == 'demographic':
+			processedData = bleach.clean(entry['data'], strip=True)
+			if series.demographic == processedData:
+				print("No change?")
+			else:
+				series.demographic = processedData
+				series.changeuser = current_user.id
+
+		elif entry['type'] == 'type':
+			processedData = bleach.clean(entry['data'], strip=True)
+			if series.type == processedData:
+				print("No change?")
+			else:
+				series.type = processedData
+				series.changeuser = current_user.id
+
+		elif entry['type'] == 'origin_loc':
+			processedData = bleach.clean(entry['data'], strip=True)
+			if series.origin_loc == processedData:
+				print("No change?")
+			else:
+				series.origin_loc = processedData
+				series.changeuser = current_user.id
+
+		elif entry['type'] == 'orig_lang':
+			processedData = bleach.clean(entry['data'], strip=True)
+			if series.orig_lang == processedData:
+				print("No change?")
+			else:
+				series.orig_lang = processedData
+				series.changeuser = current_user.id
+
+		elif entry['type'] == 'author':
+			# author       =       Author.query.filter(Author.series==sid).all()
+			pass
+		elif entry['type'] == 'illustrators':
+			# illustrators = Illustrators.query.filter(Illustrators.series==sid).all()
+			pass
+		elif entry['type'] == 'tag':
+			tags = entry['data']
+			print("tags:", tags)
+			# tags         =         Tags.query.filter(Tags.series==sid).all()
+			pass
+		elif entry['type'] == 'genre':
+			# genres       =       Genres.query.filter(Genres.series==sid).all()
+			pass
+		else:
+			raise AssertionError("Unknown modifification type!")
+
+	db.session.commit()
 
 # {'value': '',
 # 'type': 'singleitem',

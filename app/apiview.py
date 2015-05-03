@@ -1,5 +1,5 @@
 from flask import g, jsonify, send_file, render_template, request
-from flask.ext.login import login_required
+from flask.ext.login import login_required, current_user
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from . import forms
@@ -12,7 +12,21 @@ wtforms_json.init()
 
 @app.route('/api', methods=['POST'])
 def handleApiPost():
-	print("API Call!")
+	if not current_user.is_authenticated():
+		js = {
+			"error"   : True,
+			"message" : """
+API Calls can only be made by a logged in user!
+
+If you are not logged in, please log in.
+
+If you do not have an account, you must create one in order to edit things."""
+		}
+		resp = jsonify(js)
+		resp.status_code = 200
+		resp.mimetype="application/json"
+		return resp
+
 	if not request.json:
 		print("Non-JSON request!")
 		js = {
@@ -60,9 +74,9 @@ def dispatchApiCall(reqJson):
 	if not mode in DISPATCH_TABLE:
 		return getError("Invalid mode in API Request!")
 
-	decoder = DISPATCH_TABLE[mode]
+	dispatch_method = DISPATCH_TABLE[mode]
 	try:
-		response = decoder(reqJson)
+		dispatch_method(reqJson)
 	except AssertionError:
 		traceback.print_exc()
 		return getError("Invalid data in API request!")

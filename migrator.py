@@ -19,7 +19,7 @@
 # DROP SEQUENCE series_id_seq;
 import time
 import datetime
-
+import bleach
 import app.nameTools as nt
 import settings
 import psycopg2
@@ -103,7 +103,7 @@ def processMngSeries(cur, name, srcTable):
 
 
 	item['name']   = row['buname'].replace('(Novel)', '').strip()
-	item['desc']   = row['budescription']
+	item['desc']   = bleach.clean(row['budescription'], strip=True)
 	item['type']   = row['butype']
 	item['demo']   = ''
 	item['tags']   = row['butags'].split(" ")

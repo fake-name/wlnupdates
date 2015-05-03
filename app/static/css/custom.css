@@ -24,7 +24,8 @@
 {
 	.imgDiv {
 		display: block;
-		height     : 400px !important;
+		height     : 600px !important;
+		padding-top: 10px;
 
 	}
 	.info-item
@@ -37,9 +38,15 @@
 	border: 2px solid #000;
 	vertical-align : middle;
 	text-align: center;
+	margin-bottom: 10px;
 }
 
 a#editlink
+{
+	color: #999;
+	font-size: 75%;
+}
+a#historylink
 {
 	color: #999;
 	font-size: 75%;

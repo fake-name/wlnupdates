@@ -5,7 +5,10 @@
 
 function singleEditable(spans, contentDiv, containerId)
 {
-	var content = spans.first().text()
+	var content = spans.first().html()
+	content = content.replace(/(<br>)/g, "\n");
+	content = content.replace(/(<p>)/g, "");
+	content = content.replace(/(<\/p>)/g, "\n\n");
 	if (content == 'N/A') content = ""
 	var contentArr = [
 		"<textarea name='input-" + containerId + "' rows='2' id='singleitem'>"+content.trim()+"\n</textarea>",
@@ -137,7 +140,7 @@ function saveCallback(containerId)
 		}
 		if (result['error'])
 		{
-			alert("Error on update!\n\nMessage from server:\n"+result["message"])
+			alert("Error on update!\n\n"+result["message"])
 		}
 		else
 		{
