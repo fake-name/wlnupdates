@@ -34,7 +34,24 @@ if not app.debug:
 
 
 from app import views, models
+from .views import Users
 
+idCache = {}
+
+@app.context_processor
+def utility_processor():
+	def getUserId(idNo):
+		if idNo in idCache:
+			return idCache[idNo]
+		user = Users.query.filter_by(id=idNo).one()
+		idCache[user.id] = user.nickname
+
+		# Truncate the cache if it's getting too large
+		if len(idCache) > 500:
+			idCache.popitem()
+
+		return idCache[user.id]
+	return dict(getUserId=getUserId)
 
 def format_price(amount, currency=u'€'):
 	return u'{0:.2f}{1}'.format(amount, currency)

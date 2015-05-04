@@ -13,7 +13,8 @@ from .confirm import send_email
 
 from .apiview import handleApiPost, handleApiGet
 
-import config
+
+from .historyController import renderHistory
 import os.path
 from sqlalchemy.sql.expression import func
 
@@ -125,7 +126,7 @@ def renderAuthorId(sid, page=1):
 		flash(gettext('Author not found? This is probably a error!'))
 		return redirect(url_for('renderAuthorTable'))
 
-	items = Author.query.filter(Author.author==author.author).all()
+	items = Author.query.filter(Author.name==author.name).all()
 	ids = []
 	for item in items:
 		ids.append(item.series)
@@ -140,7 +141,7 @@ def renderAuthorId(sid, page=1):
 						   name_key        = "title",
 						   page_url_prefix = 'series-id',
 						   searchTarget    = 'Authors',
-						   searchValue     = author.author
+						   searchValue     = author.name
 						   )
 
 @app.route('/artist-id/<sid>/<int:page>')
@@ -289,13 +290,13 @@ def renderAuthorTable(letter=None, page=1):
 
 	if letter:
 		series = Author.query                                 \
-			.filter(Author.author.like("{}%".format(letter))) \
-			.order_by(Author.author)                          \
-			.distinct(Author.author)
+			.filter(Author.name.like("{}%".format(letter))) \
+			.order_by(Author.name)                          \
+			.distinct(Author.name)
 	else:
 		series = Author.query       \
-			.order_by(Author.author)\
-			.distinct(Author.author)
+			.order_by(Author.name)\
+			.distinct(Author.name)
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('renderAuthorTable'))
@@ -396,6 +397,11 @@ def renderGenreTable(letter=None, page=1):
 						   name_key        = "genre",
 						   page_url_prefix = 'genre-id',
 						   title           = 'Genres')
+
+
+@app.route('/history/<topic>/<int:srcId>')
+def history_route(topic, srcId):
+	return renderHistory(topic, srcId)
 
 
 @app.route('/edit', methods=['GET', 'POST'])

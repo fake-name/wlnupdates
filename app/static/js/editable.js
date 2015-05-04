@@ -144,7 +144,7 @@ function saveCallback(containerId)
 		}
 		else
 		{
-			// location.reload();
+			location.reload();
 		}
 		console.log(result)
 

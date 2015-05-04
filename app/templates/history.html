@@ -1,0 +1,95 @@
+<!-- extend base layout -->
+
+{% macro createRow(entry1, entry2, entry3, entry4) -%}
+	<div class="well well-tny info-item">
+		<div class="row multiitem">
+			<div class="col-md-3 rowTitle">
+				{{entry1}}
+			</div>
+			<div class="col-md-2 rowContents">
+				{{entry2}}
+			</div>
+			<div class="col-md-6 rowContents">
+				{{entry3}}
+			</div>
+			<div class="col-md-1 rowContents">
+				{{entry4}}
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+
+{% macro legendRow() -%}
+	{{ createRow("Time of change", "Change type", "Change value", "User") }}
+{%- endmacro %}
+
+{% macro multiItemHistory(cType, rows, accesskey) -%}
+	{{ cType }}
+	{{ legendRow() }}
+	{% for row in rows %}
+		{% if row.operation == "I" %}
+			{% set op = "Added:" %}
+		{% elif row.operation == "U" %}
+			{% set op = "Modified:" %}
+		{% elif row.operation == "D" %}
+			{% set op = "Deleted:" %}
+		{% endif %}
+
+		{{ createRow(row.changetime, op, row[accesskey], getUserId(idNo=row.changeuser)) }}
+	{% endfor %}
+{%- endmacro %}
+
+
+{% macro creatorHistory(cType, rows) -%}
+	{{ cType }}
+	{{ legendRow() }}
+	{% for row in rows %}
+		{% if row.operation == "I" %}
+			{% set op = "Added:" %}
+		{% elif row.operation == "U" %}
+			{% set op = "Modified:" %}
+		{% elif row.operation == "D" %}
+			{% set op = "Deleted:" %}
+		{% endif %}
+		{{ createRow(row.changetime, op, row.name, getUserId(idNo=row.changeuser)) }}
+	{% endfor %}
+{%- endmacro %}
+
+
+
+{% extends "base.html" %}
+
+{% block header %}
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="manga-id" content="{{ series_id }}">
+
+	<script src="/static/js/editable.js"></script>
+	<script src="/static/js/autogrow.js"></script>
+{% endblock %}
+
+{% block content %}
+	{% include 'flash.html' %}
+
+
+	<div class="well well-large">
+		<h2>Edit History:</h2>
+
+			{% if seriesHist   %}
+				Sorry, that's still under construction a bit.
+			{% elif authorHist %}
+				{{ creatorHistory("Author entries history:",      authorHist) }}
+			{% elif illustHist %}
+				{{ creatorHistory("Illustrator entries history:", illustHist) }}
+			{% elif tagHist    %}
+				{{ multiItemHistory("", tagHist,   'tag') }}
+			{% elif genreHist  %}
+				{{ multiItemHistory("", genreHist, 'genre') }}
+			{% endif %}
+
+			<div style="clear: both;"></div>
+
+	</div>
+
+	</ul>
+{% endblock %}

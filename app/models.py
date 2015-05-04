@@ -53,7 +53,7 @@ class AuthorBase(object):
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
-	author      = db.Column(CIText(), nullable=False, index=True)
+	name       = db.Column(CIText(), nullable=False, index=True)
 
 
 class IllustratorsBase(object):
@@ -225,7 +225,7 @@ class Author(db.Model, AuthorBase, ModificationInfoMixin):
 	__tablename__ = 'author'
 
 	__table_args__ = (
-		db.UniqueConstraint('series', 'author'),
+		db.UniqueConstraint('series', 'name'),
 		)
 
 class Illustrators(db.Model, IllustratorsBase, ModificationInfoMixin):
