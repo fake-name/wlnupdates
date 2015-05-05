@@ -306,7 +306,7 @@ def renderAuthorTable(letter=None, page=1):
 						   sequence_item   = series_entries,
 						   page            = page,
 						   letter          = letter,
-						   name_key        = "author",
+						   name_key        = "name",
 						   page_url_prefix = 'author-id',
 						   title           = 'Authors')
 

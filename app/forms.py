@@ -10,6 +10,7 @@ import markdown
 import bleach
 import wtforms
 from flask.ext.login import current_user
+import datetime
 
 def loginError():
 	raise ValidationError("Your username or password is incorrect.")
@@ -165,6 +166,7 @@ def processMangaUpdateJson(data):
 			else:
 				series.description = processedData
 				series.changeuser = current_user.id
+				series.changetime = datetime.datetime.now()
 
 
 		elif entry['type'] == 'demographic':
@@ -174,6 +176,7 @@ def processMangaUpdateJson(data):
 			else:
 				series.demographic = processedData
 				series.changeuser = current_user.id
+				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'type':
 			processedData = bleach.clean(entry['data'], strip=True)
@@ -182,6 +185,7 @@ def processMangaUpdateJson(data):
 			else:
 				series.type = processedData
 				series.changeuser = current_user.id
+				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'origin_loc':
 			processedData = bleach.clean(entry['data'], strip=True)
@@ -190,6 +194,7 @@ def processMangaUpdateJson(data):
 			else:
 				series.origin_loc = processedData
 				series.changeuser = current_user.id
+				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'orig_lang':
 			processedData = bleach.clean(entry['data'], strip=True)
@@ -198,6 +203,7 @@ def processMangaUpdateJson(data):
 			else:
 				series.orig_lang = processedData
 				series.changeuser = current_user.id
+				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'author':
 			# author       =       Author.query.filter(Author.series==sid).all()

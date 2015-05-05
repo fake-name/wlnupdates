@@ -30,7 +30,61 @@ dispatch_table = {
 	'genre'        : GenresChanges,
 }
 
+def rowToDict(row):
+	return {x.name: getattr(row, x.name) for x in row.__table__.columns}
 
+maskedRows = ['id', 'operation', 'srccol', 'changeuser', 'changetime']
+
+
+def generateSeriesHistArray(inRows):
+	inRows = [rowToDict(row) for row in inRows]
+	inRows.sort(key = lambda x: x['id'])
+
+	# Generate the list of rows we actually want to process by extracting out
+	# the keys in the passed row, and masking out the ones we specifically don't want.
+	processKeys = [key for key in inRows[0].keys() if key not in maskedRows]
+	processKeys.sort()
+
+	# Prime the loop by building an empty dict to compare against
+	previous = {key: None for key in processKeys}
+
+
+	ret = []
+	for row in inRows:
+		rowUpdate = []
+		for key in processKeys:
+			if (row[key] != previous[key]) and (row[key] or previous[key]):
+				item = {
+					'changetime' : row['changetime'],
+					'changeuser' : row['changeuser'],
+					'operation'  : row['operation'],
+					'item'       : key,
+					'value'      : row[key]
+					}
+				previous[key] = row[key]
+				# print(item)
+				rowUpdate.append(item)
+		if rowUpdate:
+			ret.append(rowUpdate)
+
+	return ret
+
+
+
+# {
+# 	'id': 2299,
+# 	'changeuser': 2,
+# 	'operation': 'U',
+# 	'srccol': 2200,
+# 	'changetime': datetime.datetime(2015, 5, 4, 19, 53, 6, 993234),
+
+# 	'origin_loc': 'Japan',
+# 	'demographic': '',
+# 	'orig_lang': None,
+# 	'title': 'Jinsei Reset Button',
+# 	'type': 'Novel',
+# 	'description': '<p>Based on the popular Vocaloid song "<a href="http://vocadb.net/S/8250">\nJinsei Reset Button</a>" by kemu.</p>'
+# }
 
 
 def renderHistory(histType, contentId):
@@ -57,7 +111,7 @@ def renderHistory(histType, contentId):
 	genreHist  = None
 
 	if table == SeriesChanges:
-		seriesHist = data
+		seriesHist = generateSeriesHistArray(data)
 	if table == AuthorChanges:
 		authorHist = data
 	if table == IllustratorsChanges:
@@ -66,8 +120,6 @@ def renderHistory(histType, contentId):
 		tagHist = data
 	if table == GenresChanges:
 		genreHist = data
-
-	print(data)
 
 	return render_template('history.html',
 			seriesHist = seriesHist,

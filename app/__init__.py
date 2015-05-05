@@ -34,24 +34,39 @@ if not app.debug:
 
 
 from app import views, models
-from .views import Users
+from .views import Users, Translators
 
-idCache = {}
+CACHE_SIZE = 5000
+userIdCache = {}
+tlGroupIdCache = {}
 
 @app.context_processor
 def utility_processor():
 	def getUserId(idNo):
-		if idNo in idCache:
-			return idCache[idNo]
+		if idNo in userIdCache:
+			return userIdCache[idNo]
 		user = Users.query.filter_by(id=idNo).one()
-		idCache[user.id] = user.nickname
+		userIdCache[user.id] = user.nickname
 
 		# Truncate the cache if it's getting too large
-		if len(idCache) > 500:
-			idCache.popitem()
+		if len(userIdCache) > CACHE_SIZE:
+			userIdCache.popitem()
 
-		return idCache[user.id]
-	return dict(getUserId=getUserId)
+		return userIdCache[user.id]
+
+	def getTlGroupId(idNo):
+		if idNo in tlGroupIdCache:
+			return tlGroupIdCache[idNo]
+		user = Translators.query.filter_by(id=idNo).one()
+		tlGroupIdCache[user.id] = user.group_name
+
+		# Truncate the cache if it's getting too large
+		if len(tlGroupIdCache) > CACHE_SIZE:
+			tlGroupIdCache.popitem()
+
+		return tlGroupIdCache[user.id]
+
+	return dict(getUserId=getUserId, getTlGroupId=getTlGroupId)
 
 def format_price(amount, currency=u'€'):
 	return u'{0:.2f}{1}'.format(amount, currency)

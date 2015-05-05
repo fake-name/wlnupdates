@@ -18,6 +18,50 @@
 		</div>
 	</div>
 {%- endmacro %}
+->
+
+{% macro createMultiRow(entry1, entry2, entry3, entry4, entry5) -%}
+		<div class="row multiitem">
+			<div class="col-md-3 rowTitle">
+				{{entry1}}
+			</div>
+			<div class="col-md-2 rowContents">
+				{{entry2}}
+			</div>
+			<div class="col-md-2 rowContents">
+				{{entry3}}
+			</div>
+			<div class="col-md-4 rowContents">
+				{{entry4}}
+			</div>
+			<div class="col-md-1 rowContents">
+				{{entry5}}
+			</div>
+		</div>
+{%- endmacro %}
+
+
+
+{% macro mainHistory(cType, rows) -%}
+	<p>{{ cType }}</p>
+	{{ legendRow() }}
+	{% for changeset in rows %}
+		<div class="well well-tny info-item">
+			{% for change in changeset %}
+
+				{% if change.operation == "I" %}
+					{% set op = "Added:" %}
+				{% elif change.operation == "U" %}
+					{% set op = "Modified:" %}
+				{% elif change.operation == "D" %}
+					{% set op = "Deleted:" %}
+				{% endif %}
+				{{ createMultiRow(change.changetime, op, change.item, change.value, getUserId(idNo=change['changeuser'])) }}
+			{% endfor %}
+		</div>
+	{% endfor %}
+{%- endmacro %}
+
 
 
 {% macro legendRow() -%}
@@ -25,7 +69,7 @@
 {%- endmacro %}
 
 {% macro multiItemHistory(cType, rows, accesskey) -%}
-	{{ cType }}
+	<p>{{ cType }}</p>
 	{{ legendRow() }}
 	{% for row in rows %}
 		{% if row.operation == "I" %}
@@ -42,7 +86,7 @@
 
 
 {% macro creatorHistory(cType, rows) -%}
-	{{ cType }}
+	<p>{{ cType }}</p>
 	{{ legendRow() }}
 	{% for row in rows %}
 		{% if row.operation == "I" %}
@@ -76,7 +120,7 @@
 		<h2>Edit History:</h2>
 
 			{% if seriesHist   %}
-				Sorry, that's still under construction a bit.
+				{{ mainHistory("Entry data history:",      seriesHist) }}
 			{% elif authorHist %}
 				{{ creatorHistory("Author entries history:",      authorHist) }}
 			{% elif illustHist %}
@@ -91,5 +135,4 @@
 
 	</div>
 
-	</ul>
 {% endblock %}
