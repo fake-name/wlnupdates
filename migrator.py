@@ -1,25 +1,8 @@
 
-# DROP TABLE "alembic_version" CASCADE;
-# DROP TABLE "alternate_names" CASCADE;
-# DROP TABLE "author" CASCADE;
-# DROP TABLE "covers" CASCADE;
-# DROP TABLE "followers" CASCADE;
-# DROP TABLE "genres" CASCADE;
-# DROP TABLE "illustrators" CASCADE;
-# DROP TABLE "post" CASCADE;
-# DROP TABLE "releases" CASCADE;
-# DROP TABLE "series" CASCADE;
-# DROP TABLE "tags" CASCADE;
-# DROP TABLE "translators" CASCADE;
-# DROP TABLE "user" CASCADE;
-
-
-# DROP SEQUENCE alternate_names_id_seq;
-# DROP SEQUENCE genres_id_seq;
-# DROP SEQUENCE series_id_seq;
 import time
 import datetime
 import bleach
+import markdown
 import app.nameTools as nt
 import settings
 import psycopg2
@@ -103,7 +86,7 @@ def processMngSeries(cur, name, srcTable):
 
 
 	item['name']   = row['buname'].replace('(Novel)', '').strip()
-	item['desc']   = bleach.clean(row['budescription'], strip=True)
+	item['desc']   = markdown.markdown(bleach.clean(row['budescription'], strip=True))
 	item['type']   = row['butype']
 	item['demo']   = ''
 	item['tags']   = row['butags'].split(" ")
@@ -288,7 +271,7 @@ def insertItem(cur, item):
 
 	pkid = cur.fetchone()[0]
 	for author in item['author']:
-		cur.execute('''INSERT INTO author (author, series, changeuser, changetime) VALUES (%s, %s, %s, %s);''', (author, pkid, 1, datetime.datetime.now()))
+		cur.execute('''INSERT INTO author (name, series, changeuser, changetime) VALUES (%s, %s, %s, %s);''', (author, pkid, 1, datetime.datetime.now()))
 
 	for illust in item['illust']:
 		cur.execute('''INSERT INTO illustrators (name, series, changeuser, changetime) VALUES (%s, %s, %s, %s);''', (illust, pkid, 1, datetime.datetime.now()))
@@ -317,7 +300,12 @@ def insertItem(cur, item):
 def insertData(data):
 	print("Inserting!")
 	cur = move_to_con.cursor()
+
+
 	cur.execute("BEGIN;")
+
+	base_setup(cur)
+
 	for item in data:
 		insertItem(cur, item)
 
@@ -457,6 +445,23 @@ def consolidate(inDat):
 
 	return out
 
+
+def base_setup(cur):
+
+	cur.execute("INSERT INTO users (id, nickname, verified) VALUES (%s, %s, %s) RETURNING id", (1, "system-migrator", 1))
+	ret = cur.fetchall()
+	print("New user ID = ", ret)
+
+	languages = [
+		"English",
+		"Japanese",
+		"Chinese",
+		"Korean",
+	]
+	for language in languages:
+		cur.execute("INSERT INTO language (language, changetime) VALUES (%s, %s)", (language, datetime.datetime.now()))
+
+
 def go():
 	print(import_con)
 
@@ -494,3 +499,30 @@ def go():
 
 if __name__ == "__main__":
 	go()
+
+'''
+DROP TABLE "alembic_version" CASCADE;
+DROP TABLE "alternatenames" CASCADE;
+DROP TABLE "alternatenameschanges" CASCADE;
+DROP TABLE "author" CASCADE;
+DROP TABLE "authorchanges" CASCADE;
+DROP TABLE "covers" CASCADE;
+DROP TABLE "coverschanges" CASCADE;
+DROP TABLE "genres" CASCADE;
+DROP TABLE "genreschanges" CASCADE;
+DROP TABLE "illustrators" CASCADE;
+DROP TABLE "illustratorschanges" CASCADE;
+DROP TABLE "language" CASCADE;
+DROP TABLE "languagechanges" CASCADE;
+DROP TABLE "post" CASCADE;
+DROP TABLE "releases" CASCADE;
+DROP TABLE "releaseschanges" CASCADE;
+DROP TABLE "series" CASCADE;
+DROP TABLE "serieschanges" CASCADE;
+DROP TABLE "tags" CASCADE;
+DROP TABLE "tagschanges" CASCADE;
+DROP TABLE "translators" CASCADE;
+DROP TABLE "translatorschanges" CASCADE;
+DROP TABLE "users" CASCADE;
+
+'''

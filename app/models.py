@@ -9,7 +9,7 @@ from flask.ext.bcrypt import generate_password_hash
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import event
 from sqlalchemy.schema import DDL
-
+from sqlalchemy import Table
 # Some of the metaclass hijinks make pylint confused,
 # so disable the warnings for those aspects of things
 # pylint: disable=E0213, R0903
@@ -33,9 +33,6 @@ class TagsBase(object):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	weight      = db.Column(db.Float, default=1)
 	tag         = db.Column(CIText(), nullable=False, index=True)
-	__table_args__ = (
-		db.UniqueConstraint('series', 'tag'),
-		)
 
 class GenresBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -44,9 +41,6 @@ class GenresBase(object):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	genre       = db.Column(CIText(), nullable=False, index=True)
 
-	__table_args__ = (
-		db.UniqueConstraint('series', 'genre'),
-		)
 
 class AuthorBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -63,9 +57,6 @@ class IllustratorsBase(object):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	name        = db.Column(CIText(), nullable=False, index=True)
 
-	__table_args__ = (
-		db.UniqueConstraint('series', 'name'),
-		)
 
 class AlternateNamesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -79,9 +70,6 @@ class TranslatorsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
 	group_name  = db.Column(db.Text(), nullable=False)
 	group_site  = db.Column(db.Text())
-	__table_args__ = (
-		db.UniqueConstraint('group_name'),
-		)
 
 class ReleasesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -94,7 +82,13 @@ class ReleasesBase(object):
 	def tlgroup(cls):
 		return db.Column(db.Integer, db.ForeignKey('translators.id'))
 
+	@declared_attr
+	def lang(cls):
+		return db.Column(db.Integer, db.ForeignKey('language.id'))
 
+class LanguageBase(object):
+	id              = db.Column(db.Integer, primary_key=True)
+	language   = db.Column(CIText(), nullable=False, index=True)
 
 class CoversBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -107,7 +101,6 @@ class CoversBase(object):
 	description = db.Column(db.Text)
 	fspath      = db.Column(db.Text)
 	hash        = db.Column(db.Text, nullable=False)
-
 
 
 class ChangeLogMixin(object):
@@ -125,69 +118,7 @@ class ModificationInfoMixin(object):
 		return db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
 
 
-	@classmethod
-	def __declare_last__(cls):
-		# get called after mappings are completed
-		# http://docs.sqlalchemy.org/en/rel_0_7/orm/extensions/declarative.html#declare-last
-		if cls.__tablename__.endswith("changes"):
-			print("Not creating triggers on chagetable {name}.".format(name=cls.__tablename__))
-			return
 
-		print("Checking triggers exist on table {name}.".format(name=cls.__tablename__))
-
-		# So this is fairly complex. We know that all the local colums (excepting "id") are
-		# present in the changes table, however we can't simply say `INSERT INTO changes VALUES SELECT OLD.*`, because
-		# we're adding some more cols, and I don't know if I trust any assumptions I make about the ordering anyways.
-
-		colNames = []
-		for column in cls.__table__.columns:
-			if column.description != "id":
-				colNames.append(column.description)
-
-		# id -> srccol, so the backlink works.
-		intoCols = ", ".join(colNames+['srccol', 'operation'])
-		oldFromCols = ", ".join(["OLD."+item for item in colNames+['id', ]])
-		newFromCols = ", ".join(["NEW."+item for item in colNames+['id', ]])
-
-
-		rawTrigger = """
-			CREATE OR REPLACE FUNCTION {name}_update_func() RETURNS TRIGGER AS ${name}changes$
-				BEGIN
-					--
-					-- Create a row in {name}changes to reflect the operation performed on emp,
-					-- make use of the special variable TG_OP to work out the operation.
-					--
-					IF (TG_OP = 'DELETE') THEN
-						INSERT INTO {name}changes ({intoCols}) SELECT {oldFromCols}, 'D';
-						RETURN OLD;
-					ELSIF (TG_OP = 'UPDATE') THEN
-						INSERT INTO {name}changes ({intoCols}) SELECT {oldFromCols}, 'U';
-						RETURN OLD;
-					ELSIF (TG_OP = 'INSERT') THEN
-						INSERT INTO {name}changes ({intoCols}) SELECT {newFromCols}, 'I';
-						RETURN NEW;
-					END IF;
-					RETURN NULL; -- result is ignored since this is an AFTER trigger
-				END;
-			${name}changes$ LANGUAGE plpgsql;
-
-			DROP TRIGGER IF EXISTS {name}_change_trigger ON {name};
-			CREATE TRIGGER {name}_change_trigger
-			AFTER INSERT OR UPDATE OR DELETE ON {name}
-				FOR EACH ROW EXECUTE PROCEDURE {name}_update_func();
-
-			""".format(
-					name        = cls.__tablename__,
-					intoCols    = intoCols,
-					oldFromCols = oldFromCols,
-					newFromCols = newFromCols
-					)
-		db.engine.execute(
-			DDL(
-				rawTrigger
-			)
-		)
-		# print(rawTrigger)
 
 
 
@@ -249,6 +180,11 @@ class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
 class Releases(db.Model, ReleasesBase, ModificationInfoMixin):
 	__tablename__ = 'releases'
 
+class Language(db.Model, LanguageBase, ModificationInfoMixin):
+	__tablename__ = 'language'
+	__table_args__ = (
+		db.UniqueConstraint('language'),
+		)
 
 class Covers(db.Model, CoversBase, ModificationInfoMixin):
 	__tablename__ = 'covers'
@@ -291,6 +227,103 @@ class AlternateNamesChanges(db.Model, AlternateNamesBase, ModificationInfoMixin,
 	__tablename__ = "alternatenameschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('alternatenames.id'), index=True)
 
+class LanguageChanges(db.Model, LanguageBase, ModificationInfoMixin, ChangeLogMixin):
+	__tablename__ = "languagechanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('language.id'), index=True)
+
+
+def create_trigger(connection, cls):
+	# get called after mappings are completed
+	# http://docs.sqlalchemy.org/en/rel_0_7/orm/extensions/declarative.html#declare-last
+	if cls.__tablename__.endswith("changes"):
+		print("Not creating triggers on chagetable {name}.".format(name=cls.__tablename__))
+		return
+
+	print("Checking triggers exist on table {name}.".format(name=cls.__tablename__))
+
+	# So this is fairly complex. We know that all the local colums (excepting "id") are
+	# present in the changes table, however we can't simply say `INSERT INTO changes VALUES SELECT OLD.*`, because
+	# we're adding some more cols, and I don't know if I trust any assumptions I make about the ordering anyways.
+
+	colNames = []
+	for column in cls.__table__.columns:
+		if column.description != "id":
+			colNames.append(column.description)
+
+	# id -> srccol, so the backlink works.
+	intoCols = ", ".join(colNames+['srccol', 'operation'])
+	oldFromCols = ", ".join(["OLD."+item for item in colNames+['id', ]])
+	newFromCols = ", ".join(["NEW."+item for item in colNames+['id', ]])
+
+
+	rawTrigger = """
+		CREATE OR REPLACE FUNCTION {name}_update_func() RETURNS TRIGGER AS ${name}changes$
+			BEGIN
+				--
+				-- Create a row in {name}changes to reflect the operation performed on emp,
+				-- make use of the special variable TG_OP to work out the operation.
+				--
+				IF (TG_OP = 'DELETE') THEN
+					INSERT INTO {name}changes ({intoCols}) SELECT {oldFromCols}, 'D';
+					RETURN OLD;
+				ELSIF (TG_OP = 'UPDATE') THEN
+					INSERT INTO {name}changes ({intoCols}) SELECT {oldFromCols}, 'U';
+					RETURN OLD;
+				ELSIF (TG_OP = 'INSERT') THEN
+					INSERT INTO {name}changes ({intoCols}) SELECT {newFromCols}, 'I';
+					RETURN NEW;
+				END IF;
+				RETURN NULL; -- result is ignored since this is an AFTER trigger
+			END;
+		${name}changes$ LANGUAGE plpgsql;
+
+		DROP TRIGGER IF EXISTS {name}_change_trigger ON {name};
+		CREATE TRIGGER {name}_change_trigger
+		AFTER INSERT OR UPDATE OR DELETE ON {name}
+			FOR EACH ROW EXECUTE PROCEDURE {name}_update_func();
+
+		""".format(
+				name        = cls.__tablename__,
+				intoCols    = intoCols,
+				oldFromCols = oldFromCols,
+				newFromCols = newFromCols
+				)
+	connection.execute(
+		DDL(
+			rawTrigger
+		)
+	)
+	# print(rawTrigger)
+
+trigger_on = [
+	Series,
+	Tags,
+	Genres,
+	Author,
+	Illustrators,
+	AlternateNames,
+	Translators,
+	Releases,
+	Language,
+	Covers,
+]
+
+def iife_capture(func, param):
+	print("Registering table creation callback on class:", param)
+	def callee(table, connection, **kwargs):
+		print("table after_create trigger call for class:", param)
+		print("Called with table:", table)
+		print("Called with connection:", connection)
+		print("Called with kwargs:", kwargs)
+		return func(connection, param)
+	return callee
+
+for classDefinition in trigger_on:
+	event.listen(
+		classDefinition.__table__,
+		'after_create',
+		iife_capture(create_trigger, classDefinition)
+		)
 
 '''
 
