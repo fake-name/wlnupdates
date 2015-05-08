@@ -232,7 +232,7 @@ class LanguageChanges(db.Model, LanguageBase, ModificationInfoMixin, ChangeLogMi
 	srccol   = db.Column(db.Integer, db.ForeignKey('language.id'), index=True)
 
 
-def create_trigger(connection, cls):
+def create_trigger(cls):
 	# get called after mappings are completed
 	# http://docs.sqlalchemy.org/en/rel_0_7/orm/extensions/declarative.html#declare-last
 	if cls.__tablename__.endswith("changes"):
@@ -288,7 +288,7 @@ def create_trigger(connection, cls):
 				oldFromCols = oldFromCols,
 				newFromCols = newFromCols
 				)
-	connection.execute(
+	db.engine.execute(
 		DDL(
 			rawTrigger
 		)
@@ -308,26 +308,14 @@ trigger_on = [
 	Covers,
 ]
 
-def iife_capture(func, param):
-	print("Registering table creation callback on class:", param)
-	def callee(table, connection, **kwargs):
-		print("table after_create trigger call for class:", param)
-		print("Called with table:", table)
-		print("Called with connection:", connection)
-		print("Called with kwargs:", kwargs)
-		return func(connection, param)
-	return callee
-
-for classDefinition in trigger_on:
-	event.listen(
-		classDefinition.__table__,
-		'after_create',
-		iife_capture(create_trigger, classDefinition)
-		)
+def install_triggers():
+	print("Installing triggers!")
+	for classDefinition in trigger_on:
+		create_trigger(classDefinition)
 
 '''
 
-DROP TABLE "alembic_version" CASCADE;
+DELETE FROM "alembic_version";
 DROP TABLE "alternatenames" CASCADE;
 DROP TABLE "alternatenameschanges" CASCADE;
 DROP TABLE "author" CASCADE;
@@ -349,6 +337,9 @@ DROP TABLE "tagschanges" CASCADE;
 DROP TABLE "translators" CASCADE;
 DROP TABLE "translatorschanges" CASCADE;
 DROP TABLE "users" CASCADE;
+DROP TABLE "language" CASCADE;
+DROP TABLE "languagechanges" CASCADE;
+
 
 
 python db_migrate.py db init &&
