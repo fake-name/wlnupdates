@@ -13,6 +13,8 @@ from sqlalchemy import Table
 from citext import CIText
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
+import sqlalchemy.exc
+from settings import DATABASE_DB_NAME
 
 # Some of the metaclass hijinks make pylint confused,
 # so disable the warnings for those aspects of things
@@ -32,7 +34,6 @@ class SeriesBase(object):
 
 class TagsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	__searchable__ = ['genres']
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
@@ -41,7 +42,6 @@ class TagsBase(object):
 
 class GenresBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	__searchable__ = ['author']
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
@@ -50,7 +50,6 @@ class GenresBase(object):
 
 class AuthorBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	__searchable__ = ['illustrators']
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
@@ -59,7 +58,6 @@ class AuthorBase(object):
 
 class IllustratorsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	__searchable__ = ['alternatenames']
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
@@ -68,7 +66,6 @@ class IllustratorsBase(object):
 
 class AlternateNamesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	__searchable__ = ['name', 'cleanname']
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
@@ -77,7 +74,6 @@ class AlternateNamesBase(object):
 
 class TranslatorsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	__searchable__ = ['group_name']
 	group_name  = db.Column(db.Text(), nullable=False)
 	group_site  = db.Column(db.Text())
 
@@ -132,14 +128,13 @@ class ModificationInfoMixin(object):
 
 
 
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	__tablename__ = 'series'
-	__searchable__ = ['title']
+
 	__table_args__ = (
 		db.UniqueConstraint('title'),
 		)
@@ -152,6 +147,7 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 
 class Tags(db.Model, TagsBase, ModificationInfoMixin):
 	__tablename__ = 'tags'
+	__searchable__ = ['tag']
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'tag'),
@@ -159,7 +155,7 @@ class Tags(db.Model, TagsBase, ModificationInfoMixin):
 
 class Genres(db.Model, GenresBase, ModificationInfoMixin):
 	__tablename__ = 'genres'
-
+	__searchable__ = ['genre']
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'genre'),
@@ -167,7 +163,7 @@ class Genres(db.Model, GenresBase, ModificationInfoMixin):
 
 class Author(db.Model, AuthorBase, ModificationInfoMixin):
 	__tablename__ = 'author'
-
+	__searchable__ = ['name']
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'name'),
@@ -175,7 +171,7 @@ class Author(db.Model, AuthorBase, ModificationInfoMixin):
 
 class Illustrators(db.Model, IllustratorsBase, ModificationInfoMixin):
 	__tablename__ = 'illustrators'
-
+	__searchable__ = ['name']
 
 	__table_args__ = (
 		db.UniqueConstraint('series', 'name'),
@@ -183,11 +179,12 @@ class Illustrators(db.Model, IllustratorsBase, ModificationInfoMixin):
 
 class AlternateNames(db.Model, AlternateNamesBase, ModificationInfoMixin):
 	__tablename__ = 'alternatenames'
-
+	__searchable__ = ['name', 'cleanname']
 
 
 class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
 	__tablename__ = 'translators'
+	__searchable__ = ['group_name']
 
 	__table_args__ = (
 		db.UniqueConstraint('group_name'),
@@ -324,17 +321,44 @@ trigger_on = [
 	Covers,
 ]
 
+def install_trigram_indice_on_column(table, column):
+
+	idx_name = '{table}_{column}_trigram_idx'.format(table = table.__tablename__, column = column)
+	create_idx_sql = '''
+	CREATE INDEX
+		{idx_name}
+	ON
+		{table}
+	USING
+		gin ({column} gin_trgm_ops)'''.format(idx_name=idx_name, table=table.__tablename__, column=column)
+
+	try:
+		db.engine.execute('''SELECT '{schema}.{idx}'::regclass;'''.format(schema='public', idx=idx_name))
+		print("Do not need to create index", idx_name)
+	except sqlalchemy.exc.ProgrammingError:
+		# index doesn't exist, need to create it.
+		print("Creating index {idx} on table {tbl}".format(idx=idx_name, tbl=table.__tablename__))
+		db.engine.execute(
+				DDL(
+					create_idx_sql
+				)
+			)
+
 def install_triggers():
 	print("Installing triggers!")
 	for classDefinition in trigger_on:
 		create_trigger(classDefinition)
 
-def install_tsvector_indices():
+
+
+def install_trigram_indices():
 	import sys, inspect
 	classes = inspect.getmembers(sys.modules[__name__], lambda member: inspect.isclass(member) and member.__module__ == __name__ )
 	for classname, classtype in classes:
-		if hasattr(classtype, "__searchable__"):
-			print(classname, classtype)
+		if hasattr(classtype, "__searchable__") and issubclass(classtype, db.Model):
+			for column in classtype.__searchable__:
+
+				install_trigram_indice_on_column(classtype, column)
 '''
 
 DELETE FROM "alembic_version";
@@ -406,8 +430,6 @@ class Watches(db.Model):
 
 	def __repr__(self):  # pragma: no cover
 		return '<Post %r>' % (self.body)
-
-
 
 
 class Users(db.Model):

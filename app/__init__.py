@@ -34,7 +34,7 @@ if not app.debug:
 
 
 from app import views, models
-from .views import Users, Translators
+from .models import Users, Translators
 
 CACHE_SIZE = 5000
 userIdCache = {}

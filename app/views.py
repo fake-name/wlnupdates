@@ -13,6 +13,7 @@ from .confirm import send_email
 
 from .apiview import handleApiPost, handleApiGet
 
+from app.sub_views.search import execute_search
 
 from .historyController import renderHistory
 import os.path
@@ -52,6 +53,7 @@ def after_request(response):
 
 @app.errorhandler(404)
 def not_found_error(dummy_error):
+	print("404. Wat?")
 	return render_template('404.html'), 404
 
 
@@ -422,12 +424,10 @@ def edit():
 
 
 
+# @login_required
 @app.route('/search', methods=['GET', 'POST'])
-@login_required
 def search():
-	if not g.search_form.validate_on_submit():
-		return redirect(url_for('index'))
-	return redirect(url_for('search_results', query=g.search_form.search.data))
+	execute_search()
 
 
 @app.route('/about')
