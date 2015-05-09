@@ -69,6 +69,65 @@ function edit(containerId){
 
 }
 
+function toggle_watch(containerId){
+
+	var container = $('#watch-link').first();
+	console.log("Contents: ", container.text())
+
+	var watch = false;
+	if (container.text().indexOf('No') > -1)
+		watch = true;
+
+	container.html("[Working]")
+
+
+	var data = [];
+	var mangaId = $('meta[name=manga-id]').attr('content')
+
+	var params = {
+		"mode"      : "set-watch",
+		"mangaId"   : mangaId,
+		"watch"     : watch,
+		"list"      : "watched"
+	}
+
+	$.ajax({
+		url : "/api",
+		success : watchCalback,
+		data: JSON.stringify(params),
+		method: "POST",
+		dataType: 'json',
+		contentType: "application/json;",
+	});
+}
+
+
+function watchCalback(result)
+{
+	console.log(result)
+	console.log("Watch callback!")
+	if (!result.hasOwnProperty("error"))
+	{
+		console.log("No error result?")
+	}
+	if (!result.hasOwnProperty("watch_str"))
+	{
+		console.log("No watch_str result?")
+	}
+	if (result['error'])
+	{
+		alert("Error on update!\n\n"+result["message"])
+	}
+	else
+	{
+		console.log("Message:", result['message'])
+		console.log("watch_str:", result['watch_str'])
+		var container = $('#watch-link').first();
+		container.text(result['watch_str'])
+	}
+}
+
+
 function saveEdits(containerId)
 {
 	// var containers = $('.info-item');
@@ -148,30 +207,7 @@ function saveCallback(containerId)
 		}
 		console.log(result)
 
-		// var container = $('#'+containerId).first();
-		// var editLink = container.find("#editlink").first()
-		// editLink.attr('onclick', "edit('" + containerId + "'); return false;")
-		// editLink.html('[edit]')
 
-
-		// var container = $('#'+containerId).first();
-		// var contentDiv = container.find(".rowContents");
-
-		// var spantype = container.attr('class')
-
-		// if (spantype.indexOf("singleitem") >= 0)
-		// {
-		// 	singleStatic(spans, contentDiv, containerId);
-		// }
-		// else if (spantype.indexOf("multiitem") >= 0)
-		// {
-		// 	console.log("Multi-item span!")
-		// }
-		// else
-		// {
-		// 	console.log("Unknown span type! Wat?")
-		// 	return;
-		// }
 
 
 	}

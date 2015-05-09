@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from .models import Users
 from flask.ext.bcrypt import check_password_hash
 from app import db
-from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches
 import markdown
 import bleach
 import wtforms
@@ -223,6 +223,102 @@ def processMangaUpdateJson(data):
 			raise AssertionError("Unknown modifification type!")
 
 	db.session.commit()
+	ret = {
+			"error"   : False,
+			"message" : "Wat?!"
+	}
+	return ret
+
+# {'watch': True, 'mode': 'set-watch', 'mangaId': '1857', 'list': 'watched'}
+
+def validateWatchedData(data):
+	assert "watch" in data
+	assert "list" in data
+	assert "mangaId" in data
+
+	update = {}
+	try:
+		update['watch'] = bool(data['watch'])
+	except ValueError:
+		raise AssertionError
+
+	try:
+		update['mangaId'] = int(data['mangaId'])
+	except ValueError:
+		raise AssertionError
+
+
+	try:
+		update['listName'] = bleach.clean(str(data['list']), strip=True)
+	except ValueError:
+		raise AssertionError
+	if len(update['listName']) > 256:
+		raise AssertionError
+
+	# Ok, the JSON is valid, and we've more or less sanitized it.
+	# Return the processed output.
+	return update
+
+def setSeriesWatchJson(data):
+	cleaned = validateWatchedData(data)
+
+	watch_row = Watches.query.filter(
+			(Watches.user_id==current_user.id) &
+			(Watches.series_id==cleaned['mangaId'])
+		).scalar()
+
+	# There are 5 possible permutations here:
+	# Want to watch item, item not in any extant list:
+	# 	- Add item to list
+	# Want to watch item, item in extant list:
+	# 	- Update item
+	# Want to stop watching item, item in a list:
+	# 	- Delete item
+	# Want to stop watching item, item not in list
+	# 	- Do nothing (how did that happen?)
+	# Want to watch item, item already watched and in correct list
+	# 	- Do nothing (how did that happen?)
+
+	if not watch_row and cleaned['watch']:
+		# Want to watch item, item not in any extant list:
+
+		newWatch = Watches(
+			user_id   = current_user.id,
+			series_id = cleaned['mangaId'],
+			listname  = cleaned['listName'],
+		)
+
+		db.session.add(newWatch)
+		db.session.commit()
+		watch_str = "Yes"
+
+	elif watch_row and cleaned['watch'] and cleaned['listName'] != watch_row.listname:
+		# Want to watch item, item in extant list:
+		watch_row.listname = cleaned['listName']
+		db.session.commit()
+		watch_str = "Yes"
+
+	elif watch_row and not cleaned['watch']:
+		# Want to stop watching item, item in a list:
+		db.session.delete(watch_row)
+		db.session.commit()
+		watch_str = "No"
+
+	else:
+		# Want to stop watching item, item not in list
+		# Want to watch item, item already watched and in correct list
+		watch_str = "Wat?"
+
+
+
+	ret = {
+			"error"     : False,
+			"message"   : "Watch Updated",
+			'watch_str' : watch_str
+
+	}
+	return ret
+
 
 # {'value': '',
 # 'type': 'singleitem',

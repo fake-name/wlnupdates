@@ -384,6 +384,7 @@ DROP TABLE "translators" CASCADE;
 DROP TABLE "translatorschanges" CASCADE;
 DROP TABLE "users" CASCADE;
 DROP TABLE "language" CASCADE;
+DROP TABLE "watches" CASCADE;
 DROP TABLE "languagechanges" CASCADE;
 
 
@@ -419,17 +420,15 @@ class Post(db.Model):
 		return '<Post %r>' % (self.body)
 
 class Watches(db.Model):
-
-
 	id          = db.Column(db.Integer, primary_key=True)
-	body        = db.Column(db.Text)
-	timestamp   = db.Column(db.DateTime)
 	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'))
-	seriesTopic = db.Column(db.Integer)
+	series_id   = db.Column(db.Integer, db.ForeignKey('series.id'))
+	listname    = db.Column(db.Text, nullable=False, default='', server_default='')
 
+	__table_args__ = (
+		db.UniqueConstraint('user_id', 'series_id'),
+		)
 
-	def __repr__(self):  # pragma: no cover
-		return '<Post %r>' % (self.body)
 
 
 class Users(db.Model):

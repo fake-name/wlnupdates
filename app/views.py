@@ -7,7 +7,7 @@ from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
-from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches
 
 from .confirm import send_email
 
@@ -102,20 +102,24 @@ def renderSeriesId(sid):
 	releases     =     Releases.query.filter(Releases.series==sid).all()
 	covers       =       Covers.query.filter(Covers.series==sid).all()
 
+	watches      =       Watches.query.filter(Watches.series_id==sid).scalar()
+
+
 
 	if series is None:
 		flash(gettext('Series %(sid)s not found.', sid=sid))
 		return redirect(url_for('index'))
 
 	return render_template('series-id.html',
-						series_id       = sid,
+						series_id    = sid,
 						series       = series,
 						tags         = tags,
 						genres       = genres,
 						author       = author,
 						illustrators = illustrators,
 						covers       = covers,
-						releases     = releases)
+						releases     = releases,
+						watches      = watches)
 
 
 @app.route('/author-id/<sid>/<int:page>')

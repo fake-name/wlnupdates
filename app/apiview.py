@@ -62,8 +62,8 @@ def getError(message):
 	return ret
 
 DISPATCH_TABLE = {
-	'manga-update' : forms.processMangaUpdateJson
-
+	'manga-update' : forms.processMangaUpdateJson,
+	'set-watch'    : forms.setSeriesWatchJson,
 }
 
 def dispatchApiCall(reqJson):
@@ -76,15 +76,13 @@ def dispatchApiCall(reqJson):
 
 	dispatch_method = DISPATCH_TABLE[mode]
 	try:
-		dispatch_method(reqJson)
+		ret = dispatch_method(reqJson)
+
 	except AssertionError:
 		traceback.print_exc()
 		return getError("Invalid data in API request!")
 
-	ret = {
-			"error"   : False,
-			"message" : "Wat?!"
-	}
+
 
 	return ret
 

@@ -138,6 +138,24 @@
 {%- endmacro %}
 
 
+{% macro watchBlock(watches) -%}
+	<div class="well well-tny info-item">
+		<div class="row multiitem" id="watch-container">
+			<div class="col-md-3 rowTitle">
+				Watching item:
+			</div>
+			<div class="col-md-9 rowContents" id='watch'>
+				{% if watches %}
+					<a href="#" id="watch-link" onclick="toggle_watch();return false;">Yes</a>
+				{% else %}
+					<a href="#" id="watch-link" onclick="toggle_watch();return false;">No</a>
+				{% endif %}
+
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
 {% extends "base.html" %}
 
 {% block header %}
@@ -154,7 +172,7 @@
 
 	<div class="well well-large">
 		<h2>{{ series.title }}</h2>
-
+			{{watchBlock(watches)}}
 			{{coversBlock(covers)}}
 
 			{{singleItemBlock("Description",       series.description, 'description'     )}}
