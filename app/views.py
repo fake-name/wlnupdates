@@ -422,7 +422,7 @@ def edit():
 
 
 
-@app.route('/search', methods=['POST'])
+@app.route('/search', methods=['GET', 'POST'])
 @login_required
 def search():
 	if not g.search_form.validate_on_submit():
@@ -438,7 +438,7 @@ def about_site():
 def renderUserCp():
 	return render_template('not-implemented-yet.html')
 
-@app.route('/custom-lists')
+@app.route('/watches')
 def renderUserLists():
 	return render_template('not-implemented-yet.html')
 
@@ -497,6 +497,7 @@ def signup():
 			email     = form.email.data,
 			verified  = 0
 		)
+		print("User:", user)
 		db.session.add(user)
 		db.session.commit()
 		send_email(form.email.data,
