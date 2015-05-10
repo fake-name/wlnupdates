@@ -1,4 +1,5 @@
 #!python
+import sys
 import time
 import datetime
 import bleach
@@ -297,6 +298,20 @@ def insertItem(cur, item):
 			""", (filename, pkid, vol, chapter, description, relpath, filehash, 1, datetime.datetime.now()))
 
 
+def install_news(cur):
+	article = '''
+	<p>This site is currently a bit of a work-in-progress.</p>
+	<p>Yes, I know there is some (slightly) garbled data, and a lot of functionality is not
+	quite complete yet. Please bear with it, much of the planned functionality has not
+	been implemented yet.</p>
+	'''
+	title = 'Hey There!'
+
+	# userid 2 is admin
+	cur.execute("""INSERT INTO posts (title, body, timestamp, user_id) VALUES (%s, %s, %s, %s);""",
+			(title, article, datetime.datetime.now(), 2)
+		)
+
 def insertData(data):
 	print("Inserting!")
 	cur = move_to_con.cursor()
@@ -309,6 +324,7 @@ def insertData(data):
 	for item in data:
 		insertItem(cur, item)
 
+	install_news(cur)
 
 	print("Gross rowcounts:")
 	for table in ["alembic_version",
@@ -317,7 +333,7 @@ def insertData(data):
 					"covers",
 					"genres",
 					"illustrators",
-					"post",
+					"posts",
 					"releases",
 					"series",
 					"tags",
@@ -448,9 +464,16 @@ def consolidate(inDat):
 
 def base_setup(cur):
 
-	cur.execute("INSERT INTO users (id, nickname, verified) VALUES (%s, %s, %s) RETURNING id", (1, "system-migrator", 1))
+	cur.execute("INSERT INTO users (nickname, verified) VALUES (%s, %s) RETURNING id", ("system-migrator", 1))
 	ret = cur.fetchall()
-	print("New user ID = ", ret)
+	print("System user ID = ", ret)
+	# Install my user ID (since the pasword is hashed AND salted, it should be safe. If not, it's not like I can't recover anyways.)
+	cur.execute("INSERT INTO users (nickname, email, password, verified, has_admin, has_mod) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
+			("admin", "lemuix@gmail.com", "$2a$12$31.y.Bj9Pr705daMQFi/3.EjT0LkT80E7TJhlDqib/h5TUY0ukJU.", 1, True, True)
+		)
+	ret = cur.fetchall()
+	print("Admin ID = ", ret)
+
 
 	languages = [
 		"English",
@@ -497,8 +520,53 @@ def go():
 	insertData(proc)
 
 
+def reset_db():
+
+	cur = move_to_con.cursor()
+	print("Dropping all tables!")
+
+	commands = [
+		'''DROP TABLE "users" CASCADE;''',
+		'''DELETE FROM "alembic_version";''',
+		'''DROP TABLE "alternatenames" CASCADE;''',
+		'''DROP TABLE "author" CASCADE;''',
+		'''DROP TABLE "covers" CASCADE;''',
+		'''DROP TABLE "followers" CASCADE;''',
+		'''DROP TABLE "genres" CASCADE;''',
+		'''DROP TABLE "illustrators" CASCADE;''',
+		'''DROP TABLE "posts" CASCADE;''',
+		'''DROP TABLE "releases" CASCADE;''',
+		'''DROP TABLE "series" CASCADE;''',
+		'''DROP TABLE "tags" CASCADE;''',
+		'''DROP TABLE "translators" CASCADE;''',
+		'''DROP TABLE "language" CASCADE;''',
+		'''DROP TABLE "watches" CASCADE;''',
+		'''DROP TABLE "alternatenameschanges" CASCADE;''',
+		'''DROP TABLE "authorchanges" CASCADE;''',
+		'''DROP TABLE "coverschanges" CASCADE;''',
+		'''DROP TABLE "genreschanges" CASCADE;''',
+		'''DROP TABLE "illustratorschanges" CASCADE;''',
+		'''DROP TABLE "releaseschanges" CASCADE;''',
+		'''DROP TABLE "serieschanges" CASCADE;''',
+		'''DROP TABLE "tagschanges" CASCADE;''',
+		'''DROP TABLE "translatorschanges" CASCADE;''',
+		'''DROP TABLE "languagechanges" CASCADE;''',
+	]
+	for command in commands:
+		try:
+			cur.execute("BEGIN;")
+			cur.execute(command)
+			cur.execute('COMMIT;')
+		except psycopg2.ProgrammingError as e:
+			cur.execute("ROLLBACK")
+			print("Error:", str(e).strip())
+
 if __name__ == "__main__":
-	go()
+	if "destroy" in sys.argv:
+		print("DESTROYING DATABASE! WARNING! WARNING!")
+		reset_db()
+	else:
+		go()
 
 '''
 DROP TABLE "alembic_version" CASCADE;

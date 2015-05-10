@@ -1,0 +1,60 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% macro singleItemBlock(watch) -%}
+	<tr class="row singleitem">
+		<td class="col-md-8 rowTitle">
+			<a href='/series-id/{{ watch.id }}/'>
+				{{ watch.title }}
+			</a>
+		</td>
+		<td class="col-md-2 rowContents" id='{{valId}}'>
+			TBD
+		</td>
+		<td class="col-md-2 rowContents" id='{{valId}}'>
+			TBD
+		</td>
+	</tr>
+{%- endmacro %}
+
+{% macro headerBlock() -%}
+
+	<tr class="row singleitem">
+		<td class="col-md-8 rowTitle">
+			Series
+
+		</td>
+		<td class="col-md-2 rowContents" id='{{valId}}'>
+			Available
+		</td>
+		<td class="col-md-2 rowContents" id='{{valId}}'>
+			Read
+		</td>
+	</tr>
+{%- endmacro %}
+
+{% block content %}
+	{% include 'flash.html' %}
+
+	<div class="well well-large">
+		<h2>Watched items:</h2>
+
+		{% if watches %}
+
+			<table class='table-striped table table-bordered table-condensed fullwidth'>
+				{{ headerBlock() }}
+				{% for watch in watches %}
+					{{singleItemBlock(watch)}}
+				{% endfor %}
+			</table>
+		{% else %}
+			<p>No watched items? <a href='/series/'>Add a few?</a></p>
+		{% endif %}
+
+		<div style="clear: both;"></div>
+
+	</div>
+
+
+	</ul>
+{% endblock %}

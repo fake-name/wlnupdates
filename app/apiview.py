@@ -3,7 +3,7 @@ from flask.ext.login import login_required, current_user
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from . import forms
-from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+from .models import Users, Posts, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
 import traceback
 
@@ -20,7 +20,7 @@ API Calls can only be made by a logged in user!
 
 If you are not logged in, please log in.
 
-If you do not have an account, you must create one in order to edit things."""
+If you do not have an account, you must create one in order to edit things or watch series."""
 		}
 		resp = jsonify(js)
 		resp.status_code = 200

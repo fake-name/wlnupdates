@@ -82,8 +82,8 @@ class ReleasesBase(object):
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
-	volume      = db.Column(db.Float(), nullable=False)
-	chapter     = db.Column(db.Float(), nullable=False)
+	volume      = db.Column(db.Float(), nullable=False, index=True)
+	chapter     = db.Column(db.Float(), nullable=False, index=True)
 	@declared_attr
 	def tlgroup(cls):
 		return db.Column(db.Integer, db.ForeignKey('translators.id'))
@@ -373,7 +373,7 @@ DROP TABLE "covers" CASCADE;
 DROP TABLE "followers" CASCADE;
 DROP TABLE "genres" CASCADE;
 DROP TABLE "illustrators" CASCADE;
-DROP TABLE "post" CASCADE;
+DROP TABLE "posts" CASCADE;
 DROP TABLE "releases" CASCADE;
 DROP TABLE "series" CASCADE;
 DROP TABLE "tags" CASCADE;
@@ -410,12 +410,13 @@ python db_migrate.py db migrate && python db_migrate.py db upgrade
 ################################################################################################################################################################
 ################################################################################################################################################################
 
-class Post(db.Model):
+class Posts(db.Model):
 	__searchable__ = ['body']
 
 	id          = db.Column(db.Integer, primary_key=True)
+	title       = db.Column(db.Text)
 	body        = db.Column(db.Text)
-	timestamp   = db.Column(db.DateTime)
+	timestamp   = db.Column(db.DateTime, index=True)
 	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'))
 	seriesTopic = db.Column(db.Integer)
 
@@ -423,11 +424,16 @@ class Post(db.Model):
 	def __repr__(self):  # pragma: no cover
 		return '<Post %r>' % (self.body)
 
+
 class Watches(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
 	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'))
 	series_id   = db.Column(db.Integer, db.ForeignKey('series.id'))
 	listname    = db.Column(db.Text, nullable=False, default='', server_default='')
+
+
+	volume      = db.Column(db.Float(), default=-1)
+	chapter     = db.Column(db.Float(), default=-1)
 
 	__table_args__ = (
 		db.UniqueConstraint('user_id', 'series_id'),
@@ -444,13 +450,16 @@ class Users(db.Model):
 
 	last_seen = db.Column(db.DateTime)
 
-	posts     = db.relationship('Post')
+	has_admin = db.Column(db.Boolean, default=False)
+	has_mod   = db.Column(db.Boolean, default=False)
+
+	posts     = db.relationship('Posts')
 	# posts     = db.relationship('Post', backref='author', lazy='dynamic')
 
 
 	@staticmethod
 	def make_valid_nickname(nickname):
-		return re.sub(r'[^a-zA-Z0-9_\.]', '', nickname)
+		return re.sub(r'[^a-zA-Z0-9_\.\-]', '', nickname)
 
 	@staticmethod
 	def make_unique_nickname(nickname):
@@ -465,10 +474,10 @@ class Users(db.Model):
 		return new_nickname
 
 	def is_authenticated(self):
-		return True
+		return self.verified
 
 	def is_active(self):
-		return True
+		return self.verified
 
 	def is_anonymous(self):
 		return False

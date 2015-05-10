@@ -7,7 +7,7 @@ from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
-from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches, AlternateNames
+from .models import Users, Posts, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches, AlternateNames
 
 from .confirm import send_email
 
@@ -18,6 +18,8 @@ from app.sub_views.search import execute_search
 from .historyController import renderHistory
 import os.path
 from sqlalchemy.sql.expression import func
+from app.sub_views import stub_views
+from app.sub_views import watched_view
 
 @lm.user_loader
 def load_user(id):
@@ -429,32 +431,11 @@ def edit():
 	return render_template('edit.html', form=form)
 
 
-@app.route('/watches')
-def renderUserLists():
-	return render_template('not-implemented-yet.html')
-
 # @login_required
 @app.route('/search', methods=['GET', 'POST'])
 def search():
 	return execute_search()
 
-
-@app.route('/about')
-def about_site():
-	return render_template('about.html')
-
-@app.route('/user-cp')
-def renderUserCp():
-	return render_template('not-implemented-yet.html')
-
-
-@app.route('/groups')
-def renderGroups():
-	return render_template('not-implemented-yet.html')
-
-@app.route('/releases')
-def renderReleases():
-	return render_template('not-implemented-yet.html')
 
 
 #################################################################################################################################

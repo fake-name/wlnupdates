@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from .models import Users
 from flask.ext.bcrypt import check_password_hash
 from app import db
-from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches, AlternateNames
+from .models import Users, Posts, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches, AlternateNames
 import markdown
 import bleach
 import wtforms
