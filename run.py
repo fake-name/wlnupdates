@@ -4,9 +4,9 @@ def go():
 	import sys
 	if "debug" in sys.argv:
 		print("Running in debug mode.")
-		app.run(debug=True, host='0.0.0.0')
+		app.run(host='0.0.0.0')
 	elif "all" in sys.argv:
-		print("Running in debug mode.")
+		print("Running in all IP mode.")
 		app.run(host='0.0.0.0')
 	else:
 		print("Running in normal mode.")

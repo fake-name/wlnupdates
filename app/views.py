@@ -436,7 +436,7 @@ def renderUserLists():
 # @login_required
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-	execute_search()
+	return execute_search()
 
 
 @app.route('/about')

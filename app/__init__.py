@@ -7,9 +7,14 @@ from flask.ext.openid import OpenID
 from flask.ext.mail import Mail
 from flask.ext.babel import Babel, lazy_gettext
 from flask_wtf.csrf import CsrfProtect
-from config import basedir # , ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
+from flask_debugtoolbar import DebugToolbarExtension
+from config import basedir
 
 app = Flask(__name__)
+
+import sys
+if "debug" in sys.argv:
+	app.debug = True
 app.config.from_object('config.BaseConfig')
 db = SQLAlchemy(app)
 lm = LoginManager()
@@ -20,6 +25,7 @@ oid = OpenID(app, os.path.join(basedir, 'tmp'))
 mail = Mail(app)
 babel = Babel(app)
 CsrfProtect(app)
+toolbar = DebugToolbarExtension(app)
 
 if not app.debug:
 	import logging

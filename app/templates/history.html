@@ -40,11 +40,22 @@
 		</div>
 {%- endmacro %}
 
+{% macro legendRowShort() -%}
+	{{ createRow("Time of change", "Change type", "Change value", "User") }}
+{%- endmacro %}
 
+{% macro legendRowLong() -%}
+	<div class="well well-tny info-item">
+		{{ createMultiRow("Time of change", "Change type", "Item", "Change value", "User") }}
+	</div>
+{%- endmacro %}
 
 {% macro mainHistory(cType, rows) -%}
 	<p>{{ cType }}</p>
 	{{ legendRowLong() }}
+	{% if not rows %}
+		<div>No history for item!</div>
+	{% endif %}
 	{% for changeset in rows %}
 		<div class="well well-tny info-item">
 			{% for change in changeset %}
@@ -63,19 +74,13 @@
 {%- endmacro %}
 
 
-
-{% macro legendRowShort() -%}
-	{{ createRow("Time of change", "Change type", "Change value", "User") }}
-{%- endmacro %}
-{% macro legendRowLong() -%}
-	<div class="well well-tny info-item">
-		{{ createMultiRow("Time of change", "Change type", "Item", "Change value", "User") }}
-	</div>
-{%- endmacro %}
-
 {% macro multiItemHistory(cType, rows, accesskey) -%}
 	<p>{{ cType }}</p>
 	{{ legendRowShort() }}
+
+	{% if not rows %}
+		<div>No history for item!</div>
+	{% endif %}
 	{% for row in rows %}
 		{% if row.operation == "I" %}
 			{% set op = "Added:" %}
@@ -93,6 +98,10 @@
 {% macro creatorHistory(cType, rows) -%}
 	<p>{{ cType }}</p>
 	{{ legendRowShort() }}
+
+	{% if not rows %}
+		<div>No history for item!</div>
+	{% endif %}
 	{% for row in rows %}
 		{% if row.operation == "I" %}
 			{% set op = "Added:" %}
@@ -134,6 +143,10 @@
 				{{ multiItemHistory("", tagHist,   'tag') }}
 			{% elif genreHist  %}
 				{{ multiItemHistory("", genreHist, 'genre') }}
+			{% elif nameHist  %}
+				{{ multiItemHistory("", nameHist, 'name') }}
+			{% else %}
+				<div>No history log for item!</div>
 			{% endif %}
 
 			<div style="clear: both;"></div>

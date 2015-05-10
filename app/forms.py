@@ -131,7 +131,8 @@ def validateMangaData(data):
 		if itemType == 'singleitem':
 			val['data'] = item['value'].strip()
 		elif itemType == 'multiitem':
-			val['data'] = [entry.strip() for entry in item['value'].strip().split("\n")]
+			tmp         = [entry.strip() for entry in item['value'].strip().split("\n")]
+			val['data'] = [entry for entry in tmp if entry]
 		else:
 			raise AssertionError("Invalid item type!")
 
@@ -212,6 +213,45 @@ def updateAltNames(series, altnames):
 	db.session.commit()
 
 
+
+def setAuthorIllust(series, author=None, illust=None):
+	if author and illust:
+		return {'error' : True, 'message' : "How did both author and illustrator get passed here?"}
+	elif author:
+		table = Author
+		values = author
+	elif illust:
+		table = Illustrators
+		values = illust
+	else:
+		return {'error' : True, 'message' : "No parameters?"}
+
+	have = table.query.filter(table.series==series.id).all()
+	print(have)
+
+	haveitems = {item.name.lower().strip() : item for item in have}
+	initems   = {    value.lower().strip() : value for value in values}
+
+
+	for name in initems.keys():
+		if name in haveitems:
+			haveitems.pop(name)
+		else:
+			newentry = table(
+					series     = series.id,
+					name       = initems[name],
+					changetime = datetime.datetime.now(),
+					changeuser = current_user.id
+				)
+			db.session.add(newentry)
+
+	for key, value in haveitems.items():
+		db.session.delete(value)
+
+	db.session.commit()
+
+
+
 def processMangaUpdateJson(data):
 	validated = validateMangaData(data)
 
@@ -267,11 +307,15 @@ def processMangaUpdateJson(data):
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'author':
-			# author       =       Author.query.filter(Author.series==sid).all()
-			pass
+			ret = setAuthorIllust(series, author=entry['data'])
+			if ret:
+				return ret
+
 		elif entry['type'] == 'illustrators':
-			# illustrators = Illustrators.query.filter(Illustrators.series==sid).all()
-			pass
+			ret = setAuthorIllust(series, illust=entry['data'])
+			if ret:
+				return ret
+
 		elif entry['type'] == 'tag':
 			updateTags(series, entry['data'])
 

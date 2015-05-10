@@ -7,7 +7,7 @@ from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
-from .models import Users, Post, SeriesChanges, TagsChanges, GenresChanges, AuthorChanges, IllustratorsChanges, TranslatorsChanges, ReleasesChanges, Covers
+from .models import Users, Post, SeriesChanges, TagsChanges, GenresChanges, AuthorChanges, IllustratorsChanges, TranslatorsChanges, ReleasesChanges, Covers, AlternateNamesChanges
 
 from .confirm import send_email
 
@@ -28,6 +28,7 @@ dispatch_table = {
 	'illustrators' : IllustratorsChanges,
 	'tag'          : TagsChanges,
 	'genre'        : GenresChanges,
+	'altnames'     : AlternateNamesChanges,
 }
 
 def rowToDict(row):
@@ -42,8 +43,11 @@ def generateSeriesHistArray(inRows):
 
 	# Generate the list of rows we actually want to process by extracting out
 	# the keys in the passed row, and masking out the ones we specifically don't want.
-	processKeys = [key for key in inRows[0].keys() if key not in maskedRows]
-	processKeys.sort()
+	if inRows:
+		processKeys = [key for key in inRows[0].keys() if key not in maskedRows]
+		processKeys.sort()
+	else:
+		processKeys = []
 
 	# Prime the loop by building an empty dict to compare against
 	previous = {key: None for key in processKeys}
@@ -92,23 +96,28 @@ def renderHistory(histType, contentId):
 		return render_template('not-implemented-yet.html', message='Error! Invalid history type.')
 
 	table = dispatch_table[histType]
+	print("Dispatch table:", table)
 
 	if table == SeriesChanges:
 		conditional = (table.srccol==contentId)
 	else:
 		conditional = (table.series==contentId)
 
+	print("Conditional:", conditional)
+
 	data = table                                   \
 			.query                                 \
 			.filter(conditional)                   \
 			.order_by(table.changetime).all()
 
+	print("data:", data)
 
 	seriesHist = None
 	authorHist = None
 	illustHist = None
 	tagHist    = None
 	genreHist  = None
+	nameHist   = None
 
 	if table == SeriesChanges:
 		seriesHist = generateSeriesHistArray(data)
@@ -120,10 +129,13 @@ def renderHistory(histType, contentId):
 		tagHist = data
 	if table == GenresChanges:
 		genreHist = data
+	if table == AlternateNamesChanges:
+		nameHist = data
 
 	return render_template('history.html',
 			seriesHist = seriesHist,
 			authorHist = authorHist,
 			illustHist = illustHist,
 			tagHist    = tagHist,
-			genreHist  = genreHist)
+			genreHist  = genreHist,
+			nameHist   = nameHist)
