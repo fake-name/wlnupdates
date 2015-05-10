@@ -18,6 +18,7 @@ from app.sub_views.search import execute_search
 from .historyController import renderHistory
 import os.path
 from sqlalchemy.sql.expression import func
+from sqlalchemy import desc
 from app.sub_views import stub_views
 from app.sub_views import watched_view
 
@@ -71,13 +72,22 @@ def get_random_books():
 	# print(list(items))
 	return items
 
+
+def get_news():
+	# User ID 2 is the admin acct, as created by the db migrator script
+	# Probably shouldn't be hardcoded, works for the moment.
+	newsPost = Posts.query.filter(Posts.user_id == 2).order_by(desc(Posts.timestamp)).limit(1).one()
+	return newsPost
+
+
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
 # @login_required
 def index(page=1):
 	return render_template('index.html',
 						   title='Home',
-						   random_series=get_random_books(),
+						   random_series = get_random_books(),
+						   news = get_news(),
 						   posts=[])
 
 
