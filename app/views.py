@@ -7,7 +7,7 @@ from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, oid, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
-from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches
+from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches, AlternateNames
 
 from .confirm import send_email
 
@@ -103,6 +103,7 @@ def renderSeriesId(sid):
 	covers       =       Covers.query.filter(Covers.series==sid).all()
 
 	watches      =       Watches.query.filter(Watches.series_id==sid).scalar()
+	altnames     =       AlternateNames.query.filter(AlternateNames.series==sid).order_by(AlternateNames.name).all()
 
 
 
@@ -119,7 +120,8 @@ def renderSeriesId(sid):
 						illustrators = illustrators,
 						covers       = covers,
 						releases     = releases,
-						watches      = watches)
+						watches      = watches,
+						altnames     = altnames)
 
 
 @app.route('/author-id/<sid>/<int:page>')
@@ -427,6 +429,9 @@ def edit():
 	return render_template('edit.html', form=form)
 
 
+@app.route('/watches')
+def renderUserLists():
+	return render_template('not-implemented-yet.html')
 
 # @login_required
 @app.route('/search', methods=['GET', 'POST'])
@@ -442,9 +447,6 @@ def about_site():
 def renderUserCp():
 	return render_template('not-implemented-yet.html')
 
-@app.route('/watches')
-def renderUserLists():
-	return render_template('not-implemented-yet.html')
 
 @app.route('/groups')
 def renderGroups():

@@ -26,10 +26,33 @@
 			<div class="col-md-9 rowContents" id='{{valId}}'>
 				{% for item in inList %}
 					<span class='multiitem' id='{{valId}}'><a href="/{{link_base}}/{{item.id}}">{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
-
 				{% else %}
 					<span class='multiitem' id='{{valId}}'>N/A</span>
 				{% endfor %}
+
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+
+
+{% macro multiItemList(name, inList, itemKey, valId, link_base, link=True) -%}
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-3 rowTitle">
+				{{ name }}:
+				<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+				<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+			</div>
+			<div class="col-md-9 rowContents" id='{{valId}}'>
+
+				<ul>
+
+					{% for item in inList %}
+					<li><span class='multilist' id='{{valId}}'>{{ item[itemKey] }}</span></li>
+					{% endfor %}
+				</ul>
 
 			</div>
 		</div>
@@ -184,6 +207,7 @@
 			{{multiItemBlock("Illustrator(s)",     illustrators,       'name',           'illustrators', 'artist-id')}}
 			{{multiItemBlock("Tags",               tags,               'tag',            'tag',          'tag-id')}}
 			{{multiItemBlock("Genres",             genres,             'genre',          'genre',        'genre-id')}}
+			{{multiItemList("Alternate Names",     altnames,           'name',           'altnames',     'altnames-id')}}
 
 			<div style="clear: both;"></div>
 

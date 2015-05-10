@@ -33,6 +33,22 @@ function multiEditable(spans, contentDiv, containerId)
 	contentDiv.html(contentArr.join("\n"))
 }
 
+function listEditable(spans, contentDiv, containerId)
+{
+	var content = ""
+	spans.each(function(){
+		content += $(this).text() + "\n"
+	})
+	// console.log(content)
+	if (content == 'N/A') content = ""
+	var contentArr = [
+		"<p>One entry per line, please.</p>",
+		"<textarea name='input-" + containerId + "' rows='2' id='multiitem'>"+content+"</textarea>",
+		"<script>$('textarea').autogrow({onInitialize:true});</script>"
+	]
+	contentDiv.html(contentArr.join("\n"))
+}
+
 
 
 function edit(containerId){
@@ -54,6 +70,10 @@ function edit(containerId){
 	else if (spantype.indexOf("multiitem") >= 0)
 	{
 		multiEditable(spans, contentDiv, containerId);
+	}
+	else if (spantype.indexOf("multilist") >= 0)
+	{
+		listEditable(spans, contentDiv, containerId);
 	}
 	else
 	{

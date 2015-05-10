@@ -206,43 +206,43 @@ class Covers(db.Model, CoversBase, ModificationInfoMixin):
 
 class SeriesChanges(db.Model, SeriesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "serieschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('series.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('series.id', ondelete="SET NULL"), index=True)
 
 class TagsChanges(db.Model, TagsBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "tagschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('tags.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete="SET NULL"), index=True)
 
 class GenresChanges(db.Model, GenresBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "genreschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('genres.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('genres.id', ondelete="SET NULL"), index=True)
 
 class AuthorChanges(db.Model, AuthorBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "authorchanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('author.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('author.id', ondelete="SET NULL"), index=True)
 
 class IllustratorsChanges(db.Model, IllustratorsBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "illustratorschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('illustrators.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('illustrators.id', ondelete="SET NULL"), index=True)
 
 class TranslatorsChanges(db.Model, TranslatorsBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "translatorschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('translators.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('translators.id', ondelete="SET NULL"), index=True)
 
 class ReleasesChanges(db.Model, ReleasesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "releaseschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('releases.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('releases.id', ondelete="SET NULL"), index=True)
 
 class CoversChanges(db.Model, CoversBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "coverschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('covers.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('covers.id', ondelete="SET NULL"), index=True)
 
 class AlternateNamesChanges(db.Model, AlternateNamesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "alternatenameschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('alternatenames.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('alternatenames.id', ondelete="SET NULL"), index=True)
 
 class LanguageChanges(db.Model, LanguageBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "languagechanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('language.id'), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('language.id', ondelete="SET NULL"), index=True)
 
 
 def create_trigger(cls):
@@ -265,8 +265,11 @@ def create_trigger(cls):
 
 	# id -> srccol, so the backlink works.
 	intoCols = ", ".join(colNames+['srccol', 'operation'])
-	oldFromCols = ", ".join(["OLD."+item for item in colNames+['id', ]])
-	newFromCols = ", ".join(["NEW."+item for item in colNames+['id', ]])
+
+	# The Foreign key is null when we delete
+	deleteFromCols = ", ".join(["OLD."+item for item in colNames]+['NULL', ])
+	oldFromCols    = ", ".join(["OLD."+item for item in colNames+['id', ]])
+	newFromCols    = ", ".join(["NEW."+item for item in colNames+['id', ]])
 
 
 	rawTrigger = """
@@ -277,7 +280,7 @@ def create_trigger(cls):
 				-- make use of the special variable TG_OP to work out the operation.
 				--
 				IF (TG_OP = 'DELETE') THEN
-					INSERT INTO {name}changes ({intoCols}) SELECT {oldFromCols}, 'D';
+					INSERT INTO {name}changes ({intoCols}) SELECT {deleteFromCols}, 'D';
 					RETURN OLD;
 				ELSIF (TG_OP = 'UPDATE') THEN
 					INSERT INTO {name}changes ({intoCols}) SELECT {oldFromCols}, 'U';
@@ -296,10 +299,11 @@ def create_trigger(cls):
 			FOR EACH ROW EXECUTE PROCEDURE {name}_update_func();
 
 		""".format(
-				name        = cls.__tablename__,
-				intoCols    = intoCols,
-				oldFromCols = oldFromCols,
-				newFromCols = newFromCols
+				name           = cls.__tablename__,
+				intoCols       = intoCols,
+				deleteFromCols = deleteFromCols,
+				oldFromCols    = oldFromCols,
+				newFromCols    = newFromCols
 				)
 	db.engine.execute(
 		DDL(
@@ -361,32 +365,32 @@ def install_trigram_indices():
 				install_trigram_indice_on_column(classtype, column)
 '''
 
+DROP TABLE "users" CASCADE;
 DELETE FROM "alembic_version";
 DROP TABLE "alternatenames" CASCADE;
-DROP TABLE "alternatenameschanges" CASCADE;
 DROP TABLE "author" CASCADE;
-DROP TABLE "authorchanges" CASCADE;
 DROP TABLE "covers" CASCADE;
-DROP TABLE "coverschanges" CASCADE;
 DROP TABLE "followers" CASCADE;
 DROP TABLE "genres" CASCADE;
-DROP TABLE "genreschanges" CASCADE;
 DROP TABLE "illustrators" CASCADE;
-DROP TABLE "illustratorschanges" CASCADE;
 DROP TABLE "post" CASCADE;
 DROP TABLE "releases" CASCADE;
-DROP TABLE "releaseschanges" CASCADE;
 DROP TABLE "series" CASCADE;
-DROP TABLE "serieschanges" CASCADE;
 DROP TABLE "tags" CASCADE;
-DROP TABLE "tagschanges" CASCADE;
 DROP TABLE "translators" CASCADE;
-DROP TABLE "translatorschanges" CASCADE;
-DROP TABLE "users" CASCADE;
 DROP TABLE "language" CASCADE;
 DROP TABLE "watches" CASCADE;
-DROP TABLE "languagechanges" CASCADE;
 
+DROP TABLE "alternatenameschanges" CASCADE;
+DROP TABLE "authorchanges" CASCADE;
+DROP TABLE "coverschanges" CASCADE;
+DROP TABLE "genreschanges" CASCADE;
+DROP TABLE "illustratorschanges" CASCADE;
+DROP TABLE "releaseschanges" CASCADE;
+DROP TABLE "serieschanges" CASCADE;
+DROP TABLE "tagschanges" CASCADE;
+DROP TABLE "translatorschanges" CASCADE;
+DROP TABLE "languagechanges" CASCADE;
 
 
 python db_migrate.py db init &&

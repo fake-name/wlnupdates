@@ -5,12 +5,13 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from .models import Users
 from flask.ext.bcrypt import check_password_hash
 from app import db
-from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches
+from .models import Users, Post, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches, AlternateNames
 import markdown
 import bleach
 import wtforms
 from flask.ext.login import current_user
 import datetime
+import app.nameTools as nt
 
 def loginError():
 	raise ValidationError("Your username or password is incorrect.")
@@ -99,9 +100,11 @@ VALID_KEYS = {
 	'illustrators-container' : 'illustrators',
 	'tag-container'          : 'tag',
 	'genre-container'        : 'genre',
+	'altnames-container'     : 'alternate-names',
 	}
 
 def validateMangaData(data):
+	print("Manga Data:", data)
 	assert "entries" in data
 	assert "mangaId" in data
 
@@ -144,11 +147,69 @@ def validateMangaData(data):
 	return update
 
 
-	#
-	# releases     =     Releases.query.filter(Releases.series==sid).all()
-	# covers       =       Covers.query.filter(Covers.series==sid).all()
+
+def updateTags(series, tags):
+	havetags = Tags.query.filter((Tags.series==series.id)).all()
+	havetags = {item.tag.lower() : item for item in havetags}
+
+	tags = [tag.lower().strip().replace(" ", "-") for tag in tags]
+	tags = [tag for tag in tags if tag.strip()]
+	for tag in tags:
+		if tag in havetags:
+			havetags.pop(tag)
+		else:
+			newtag = Tags(series=series.id, tag=tag, changetime=datetime.datetime.now(), changeuser=current_user.id)
+			db.session.add(newtag)
+
+	for key, value in havetags.items():
+		db.session.delete(value)
+	db.session.commit()
+
+def updateGenres(series, genres):
+	havegenres = Genres.query.filter((Genres.series==series.id)).all()
+	havegenres = {item.genre.lower() : item for item in havegenres}
+
+	genres = [genre.lower().strip().replace(" ", "-") for genre in genres]
+	genres = [genre for genre in genres if genre.strip()]
+	for genre in genres:
+		if genre in havegenres:
+			havegenres.pop(genre)
+		else:
+			newgenre = Genres(series=series.id, genre=genre, changetime=datetime.datetime.now(), changeuser=current_user.id)
+			db.session.add(newgenre)
+
+	for key, value in havegenres.items():
+		db.session.delete(value)
+	db.session.commit()
 
 
+def updateAltNames(series, altnames):
+	print("Alt names:", altnames)
+	altnames = [name.strip() for name in altnames]
+	cleaned = {}
+	for name in altnames:
+		if name.lower().strip():
+			cleaned[name.lower().strip()] = name
+
+	havenames = AlternateNames.query.filter(AlternateNames.series==series.id).order_by(AlternateNames.name).all()
+	havenames = {name.name.lower().strip() : name for name in havenames}
+
+	for name in cleaned.keys():
+		if name in havenames:
+			havenames.pop(name)
+		else:
+			newname = AlternateNames(
+					name       = cleaned[name],
+					cleanname  = nt.prepFilenameForMatching(cleaned[name]),
+					series     = series.id,
+					changetime = datetime.datetime.now(),
+					changeuser = current_user.id
+				)
+			db.session.add(newname)
+
+	for key, value in havenames.items():
+		db.session.delete(value)
+	db.session.commit()
 
 
 def processMangaUpdateJson(data):
@@ -212,13 +273,13 @@ def processMangaUpdateJson(data):
 			# illustrators = Illustrators.query.filter(Illustrators.series==sid).all()
 			pass
 		elif entry['type'] == 'tag':
-			tags = entry['data']
-			print("tags:", tags)
-			# tags         =         Tags.query.filter(Tags.series==sid).all()
-			pass
+			updateTags(series, entry['data'])
+
 		elif entry['type'] == 'genre':
-			# genres       =       Genres.query.filter(Genres.series==sid).all()
-			pass
+			updateGenres(series, entry['data'])
+
+		elif entry['type'] == 'alternate-names':
+			updateAltNames(series, entry['data'])
 		else:
 			raise AssertionError("Unknown modifification type!")
 
