@@ -5,7 +5,7 @@ from flask.ext.sqlalchemy import get_debug_queries
 from flask.ext.babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
-from app import app, db, lm, oid, babel
+from app import app, db, lm, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
 from .models import Users, Posts, SeriesChanges, TagsChanges, GenresChanges, AuthorChanges, IllustratorsChanges, TranslatorsChanges, ReleasesChanges, Covers, AlternateNamesChanges
 

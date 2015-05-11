@@ -3,7 +3,6 @@ from flask import Flask
 from flask.json import JSONEncoder
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
-from flask.ext.openid import OpenID
 from flask.ext.mail import Mail
 from flask.ext.babel import Babel, lazy_gettext
 from flask_wtf.csrf import CsrfProtect
@@ -21,7 +20,6 @@ lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
 lm.login_message = lazy_gettext('Please log in to access this page.')
-oid = OpenID(app, os.path.join(basedir, 'tmp'))
 mail = Mail(app)
 babel = Babel(app)
 CsrfProtect(app)

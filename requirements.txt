@@ -15,12 +15,10 @@ Flask-Migrate==1.3.1
 Flask-OpenID==1.2.4
 Flask-Script==2.0.5
 Flask-SQLAlchemy==1.0
-Flask-WhooshAlchemy==0.6
 Flask-WTF==0.11
 flipflop==1.0
 guess-language==0.2
 guess-language-spirit==0.5.1
-gunicorn==19.3.0
 html5lib==0.99999
 itsdangerous==0.24
 Jinja2==2.7.3
@@ -33,8 +31,6 @@ psutil==2.2.1
 psycopg2==2.6
 pyparsing==2.0.3
 python-bcrypt==0.3.1
-python-openid==2.2.5
-python3-openid==3.0.5
 pytz==2015.2
 six==1.9.0
 speaklater==1.3
@@ -47,7 +43,5 @@ sqlparse==0.1.14
 Tempita==0.5.2
 validators==0.7
 Werkzeug==0.10.4
-Whoosh==2.6.0
-WhooshAlchemy==0.1.4
 WTForms==2.0.2
 WTForms-JSON==0.2.10

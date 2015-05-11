@@ -1,7 +1,7 @@
 from flask import g, jsonify, send_file, render_template, request
 from flask.ext.login import login_required, current_user
 # from guess_language import guess_language
-from app import app, db, lm, oid, babel
+from app import app, db, lm, babel
 from . import forms
 from .models import Users, Posts, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
