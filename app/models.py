@@ -15,12 +15,13 @@ from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 import sqlalchemy.exc
 from settings import DATABASE_DB_NAME
+from sqlalchemy.dialects.postgresql import ENUM
 
 # Some of the metaclass hijinks make pylint confused,
 # so disable the warnings for those aspects of things
 # pylint: disable=E0213, R0903
 
-
+region_enum = ENUM('western', 'eastern', 'unknown', name='region_enum')
 
 class SeriesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -31,6 +32,10 @@ class SeriesBase(object):
 	demographic = db.Column(db.Text())
 	orig_lang   = db.Column(db.Text())
 
+	volume      = db.Column(db.Float(), default=-1)
+	chapter     = db.Column(db.Float(), default=-1)
+
+	region      = db.Column(region_enum, default='unknown')
 
 class TagsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -82,8 +87,19 @@ class ReleasesBase(object):
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
+
 	volume      = db.Column(db.Float(), nullable=False, index=True)
 	chapter     = db.Column(db.Float(), nullable=False, index=True)
+
+	# We need to be able to filter the chapters to include in the logic for
+	# determining the translation progress, because some annoying people
+	# release things massively out of order. As such, we don't want someone
+	# translating chapter 200 first to prevent the release of 0 - 199 from
+	# showing up as progress.
+	# As such, if include is false, the release is just ignored when looking for
+	# the furthest chapter.
+	include     = db.Column(db.Boolean, nullable=False, index=True, default=False)
+
 	@declared_attr
 	def tlgroup(cls):
 		return db.Column(db.Integer, db.ForeignKey('translators.id'))
@@ -354,6 +370,11 @@ def install_triggers():
 		create_trigger(classDefinition)
 
 
+def install_enum():
+	print("Installing enum type!")
+	region_enum.create(bind=db.engine)
+
+
 
 def install_trigram_indices():
 	import sys, inspect
@@ -363,41 +384,6 @@ def install_trigram_indices():
 			for column in classtype.__searchable__:
 
 				install_trigram_indice_on_column(classtype, column)
-'''
-
-DROP TABLE "users" CASCADE;
-DELETE FROM "alembic_version";
-DROP TABLE "alternatenames" CASCADE;
-DROP TABLE "author" CASCADE;
-DROP TABLE "covers" CASCADE;
-DROP TABLE "followers" CASCADE;
-DROP TABLE "genres" CASCADE;
-DROP TABLE "illustrators" CASCADE;
-DROP TABLE "posts" CASCADE;
-DROP TABLE "releases" CASCADE;
-DROP TABLE "series" CASCADE;
-DROP TABLE "tags" CASCADE;
-DROP TABLE "translators" CASCADE;
-DROP TABLE "language" CASCADE;
-DROP TABLE "watches" CASCADE;
-
-DROP TABLE "alternatenameschanges" CASCADE;
-DROP TABLE "authorchanges" CASCADE;
-DROP TABLE "coverschanges" CASCADE;
-DROP TABLE "genreschanges" CASCADE;
-DROP TABLE "illustratorschanges" CASCADE;
-DROP TABLE "releaseschanges" CASCADE;
-DROP TABLE "serieschanges" CASCADE;
-DROP TABLE "tagschanges" CASCADE;
-DROP TABLE "translatorschanges" CASCADE;
-DROP TABLE "languagechanges" CASCADE;
-
-
-python db_migrate.py db init &&
-
-python db_migrate.py db migrate && python db_migrate.py db upgrade
-
-'''
 
 
 # class PostChanges(Post, ChangeCols):

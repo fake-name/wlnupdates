@@ -101,6 +101,7 @@ VALID_KEYS = {
 	'tag-container'          : 'tag',
 	'genre-container'        : 'genre',
 	'altnames-container'     : 'alternate-names',
+	'region-container'       : 'region',
 	}
 
 def validateMangaData(data):
@@ -126,9 +127,9 @@ def validateMangaData(data):
 		assert 'key' in item
 
 		itemType = item['type']
-		assert itemType in ['singleitem', 'multiitem']
+		assert itemType in ['singleitem', 'multiitem', 'combobox']
 
-		if itemType == 'singleitem':
+		if itemType == 'singleitem' or itemType == 'combobox':
 			val['data'] = item['value'].strip()
 		elif itemType == 'multiitem':
 			tmp         = [entry.strip() for entry in item['value'].strip().split("\n")]
@@ -276,6 +277,15 @@ def processMangaUpdateJson(data):
 				print("No change?")
 			else:
 				series.demographic = processedData
+				series.changeuser = current_user.id
+				series.changetime = datetime.datetime.now()
+
+		elif entry['type'] == 'region':
+			processedData = bleach.clean(entry['data'], strip=True)
+			if series.demographic == processedData:
+				print("No change?")
+			else:
+				series.region = processedData
 				series.changeuser = current_user.id
 				series.changetime = datetime.datetime.now()
 

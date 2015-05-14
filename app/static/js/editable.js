@@ -17,6 +17,19 @@ function singleEditable(spans, contentDiv, containerId)
 	contentDiv.html(contentArr.join("\n"))
 }
 
+function dropboxEditable(spans, contentDiv, containerId)
+{
+	var text = contentDiv.find('.dropitem-text').first();
+	var edit = contentDiv.find('.dropitem-box').first();
+
+	console.log(spans)
+	console.log(text)
+	console.log(edit)
+	text.hide();
+	edit.show();
+	// contentDiv.html()
+}
+
 function multiEditable(spans, contentDiv, containerId)
 {
 	var content = ""
@@ -66,6 +79,10 @@ function edit(containerId){
 	if (spantype.indexOf("singleitem") >= 0)
 	{
 		singleEditable(spans, contentDiv, containerId);
+	}
+	else if (spantype.indexOf("dropitem") >= 0)
+	{
+		dropboxEditable(spans, contentDiv, containerId);
 	}
 	else if (spantype.indexOf("multiitem") >= 0)
 	{
@@ -158,6 +175,8 @@ function saveEdits(containerId)
 		// Iterate over the info-item wells, extract the textarea if it's present.
 		var member = $(this);
 		var textarea = member.find("textarea").first();
+		var combobox = member.find("select").first();
+
 		if (textarea.length > 0)
 		{
 			var entryKey  = member.find(".row").first().attr('id');
@@ -172,6 +191,21 @@ function saveEdits(containerId)
 			data.push(entry);
 
 		}
+		else if (combobox.length > 0 && combobox.is(":visible"))
+		{
+
+			var entryKey  = member.find(".row").first().attr('id');
+			var entryType = 'combobox';
+			var entryArea = combobox.val();
+
+			var entry = {};
+			entry['key'] = entryKey;
+			entry['type'] = entryType;
+			entry['value'] = entryArea;
+
+			data.push(entry);
+		}
+
 	}
 	)
 

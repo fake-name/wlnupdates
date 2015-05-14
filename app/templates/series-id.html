@@ -14,6 +14,31 @@
 	</div>
 {%- endmacro %}
 
+<!-- extend base layout -->
+{% macro singleItemBlockDropbox(name, value, valId, values) -%}
+	<div class="well well-tny info-item">
+		<div class="row dropitem"  id="{{valId}}-container">
+			<div class="col-md-3 rowTitle">
+				{{ name }}:
+				<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+				<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+			</div>
+			<div class="col-md-9 rowContents" id='{{valId}}'>
+				<div class='singleitem'>
+					<span class='dropitem-text'>{{ values[value] | safe }}</span>
+					<span class='dropitem-box' style='display: none'>
+						<select>
+							{% for key, val in values.items() %}
+								<option value='{{key}}' {{'selected="selected"' if key == value else ''}} >{{val}}</option>
+							{% endfor %}
+						</select>
+					</span>
+				</div>
+
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
 
 {% macro multiItemBlock(name, inList, itemKey, valId, link_base) -%}
 	<div class="well well-tny info-item">
@@ -203,6 +228,15 @@
 			{{singleItemBlock("Type",              series.type,        'type'            )}}
 			{{singleItemBlock("Country of Origin", series.origin_loc,  'origin_loc'      )}}
 			{{singleItemBlock("Original Language", series.orig_lang,   'orig_lang'       )}}
+
+			{{singleItemBlockDropbox("General Type", series.region,   'region',
+				{
+					"eastern" : "Eastern",
+					"western" : "Western",
+					"unknown" : "Unknown",
+				}
+			)}}
+
 			{{multiItemBlock("Author(s)",          author,             'name',           'author',       'author-id')}}
 			{{multiItemBlock("Illustrator(s)",     illustrators,       'name',           'illustrators', 'artist-id')}}
 			{{multiItemBlock("Tags",               tags,               'tag',            'tag',          'tag-id')}}

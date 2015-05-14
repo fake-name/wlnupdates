@@ -96,8 +96,10 @@ def processMngSeries(cur, name, srcTable):
 	item['illust'] = row['buartist'].split(", ")
 
 
-	while "" in item['genre']: item['genre'].remove("")
-	while "" in item['tags']: item['tags'].remove("")
+	while "" in item['genre']:
+		item['genre'].remove("")
+	while "" in item['tags']:
+		item['tags'].remove("")
 
 	cur.execute("""SELECT name FROM munamelist WHERE buid=%s""", (row['buid'], ))
 
@@ -259,14 +261,15 @@ def processBookTbl(cur, name, srcTable):
 
 
 def insertItem(cur, item):
-	cur.execute('''INSERT INTO series (title, description, type, demographic, changeuser, changetime) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id;''',
+	cur.execute('''INSERT INTO series (title, description, type, demographic, changeuser, changetime, region) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;''',
 			(
 				item['name'],
 				item['desc'],
 				item['type'],
 				item['demo'],
 				1,
-				datetime.datetime.now()
+				datetime.datetime.now(),
+				"eastern"
 			)
 		)
 
@@ -551,6 +554,8 @@ def reset_db():
 		'''DROP TABLE "tagschanges" CASCADE;''',
 		'''DROP TABLE "translatorschanges" CASCADE;''',
 		'''DROP TABLE "languagechanges" CASCADE;''',
+		'''DROP TYPE region_enum;''',
+
 	]
 	for command in commands:
 		try:
@@ -568,29 +573,3 @@ if __name__ == "__main__":
 	else:
 		go()
 
-'''
-DROP TABLE "alembic_version" CASCADE;
-DROP TABLE "alternatenames" CASCADE;
-DROP TABLE "alternatenameschanges" CASCADE;
-DROP TABLE "author" CASCADE;
-DROP TABLE "authorchanges" CASCADE;
-DROP TABLE "covers" CASCADE;
-DROP TABLE "coverschanges" CASCADE;
-DROP TABLE "genres" CASCADE;
-DROP TABLE "genreschanges" CASCADE;
-DROP TABLE "illustrators" CASCADE;
-DROP TABLE "illustratorschanges" CASCADE;
-DROP TABLE "language" CASCADE;
-DROP TABLE "languagechanges" CASCADE;
-DROP TABLE "post" CASCADE;
-DROP TABLE "releases" CASCADE;
-DROP TABLE "releaseschanges" CASCADE;
-DROP TABLE "series" CASCADE;
-DROP TABLE "serieschanges" CASCADE;
-DROP TABLE "tags" CASCADE;
-DROP TABLE "tagschanges" CASCADE;
-DROP TABLE "translators" CASCADE;
-DROP TABLE "translatorschanges" CASCADE;
-DROP TABLE "users" CASCADE;
-
-'''

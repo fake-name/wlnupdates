@@ -1,6 +1,11 @@
 #! /bin/bash
 
-# Reinitialize the database for the app.
+# Initialize/Reinitialize the database for the app.
+
+# Note: You need pg_trgm and citext extensions installed for this to work.
+# On ubuntu: sudo apt-get install postgresql-contrib
+# then CREATE EXTENSION citext; CREATE EXTENSION pg_trgm;
+
 set -e
 
 python migrator.py destroy
