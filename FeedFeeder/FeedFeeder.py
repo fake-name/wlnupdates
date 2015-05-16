@@ -87,7 +87,7 @@ def insert_raw_item(item):
 	for tag in item.pop('tags'):
 		if not FeedTags.query                           \
 			.filter(FeedTags.article_id==itemrow.id)    \
-			.filter(FeedTags.tag == tag).scalar():
+			.filter(FeedTags.tag == tag.strip()).scalar():
 
 			newtag = FeedTags(article_id=itemrow.id, tag=tag.strip())
 			db.session.add(newtag)
@@ -98,10 +98,11 @@ def insert_raw_item(item):
 
 		if not FeedAuthors.query                        \
 			.filter(FeedAuthors.article_id==itemrow.id) \
-			.filter(FeedAuthors.name == author['name']).scalar():
+			.filter(FeedAuthors.name == author['name'].strip()).scalar():
 
 			newtag = FeedAuthors(article_id=itemrow.id, name=author['name'].strip())
 			db.session.add(newtag)
+
 	db.session.flush()
 	db.session.commit()
 
