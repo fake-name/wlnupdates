@@ -1,6 +1,7 @@
 #!python
 import sys
 import time
+import calendar
 import datetime
 import bleach
 import markdown
@@ -554,6 +555,9 @@ def reset_db():
 		'''DROP TABLE "tagschanges" CASCADE;''',
 		'''DROP TABLE "translatorschanges" CASCADE;''',
 		'''DROP TABLE "languagechanges" CASCADE;''',
+		'''DROP TABLE "feeds" CASCADE;''',
+		'''DROP TABLE "feedauthors" CASCADE;''',
+		'''DROP TABLE "feedtags" CASCADE;''',
 		'''DROP TYPE region_enum;''',
 
 	]

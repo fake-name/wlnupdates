@@ -386,8 +386,6 @@ def install_trigram_indices():
 				install_trigram_indice_on_column(classtype, column)
 
 
-# class PostChanges(Post, ChangeCols):
-# 	srccol   = db.Column(db.Integer, db.ForeignKey('post.id'), index=True)
 
 ################################################################################################################################################################
 ################################################################################################################################################################
@@ -395,6 +393,40 @@ def install_trigram_indices():
 ################################################################################################################################################################
 ################################################################################################################################################################
 ################################################################################################################################################################
+
+class Feeds(db.Model):
+
+	id          = db.Column(db.Integer, primary_key=True)
+	title       = db.Column(db.Text, nullable=False)
+	contents    = db.Column(db.Text, nullable=False)
+	guid        = db.Column(db.Text, unique=True)
+	linkurl     = db.Column(db.Text, nullable=False)
+	published   = db.Column(db.DateTime, index=True, nullable=False)
+	updated     = db.Column(db.DateTime, index=True)
+
+	region      = db.Column(region_enum, default='unknown')
+
+class FeedAuthors(db.Model):
+	id          = db.Column(db.Integer, primary_key=True)
+	article_id  = db.Column(db.Integer, db.ForeignKey('feeds.id'))
+	name        = db.Column(CIText(), index=True, nullable=False)
+
+	__table_args__ = (
+		db.UniqueConstraint('article_id', 'name'),
+		)
+
+class FeedTags(db.Model):
+	id          = db.Column(db.Integer, primary_key=True)
+	article_id  = db.Column(db.Integer, db.ForeignKey('feeds.id'))
+	tag         = db.Column(CIText(), index=True, nullable=False)
+
+	__table_args__ = (
+		db.UniqueConstraint('article_id', 'tag'),
+		)
+
+
+	def __repr__(self):  # pragma: no cover
+		return '<Post %r>' % (self.body)
 
 class Posts(db.Model):
 	__searchable__ = ['body']

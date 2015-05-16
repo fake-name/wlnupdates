@@ -3,25 +3,24 @@
 from app import app
 import threading
 import time
+import calendar
 
 import FeedFeeder.FeedFeeder
-
-RUNSTATE = True
+import flags
 
 def thread_run():
 	interface = FeedFeeder.FeedFeeder.FeedFeeder()
-	while RUNSTATE:
-		print("Thread!")
+	while flags.RUNSTATE:
 		interface.process()
 		time.sleep(1)
 
-	print("Thread received halt signal. Exiting.")
 
 def startBackgroundThread():
-	thread = threading.Thread(target = thread_run)
-	thread.start()
+	print("ThreadStarter")
 
-	return thread
+	bk_thread = threading.Thread(target = thread_run)
+	bk_thread.start()
+	return bk_thread
 
 
 def go():
@@ -44,11 +43,13 @@ def go():
 	print("Interrupt!")
 	print("Joining on background thread")
 
-	global RUNSTATE
-	RUNSTATE = False
+	flags.RUNSTATE = False
 	bk_thread.join()
 
 	print("Thread halted. App exiting.")
 
 if __name__ == "__main__":
-	go()
+	started = False
+	if not started:
+		started = True
+		go()
