@@ -91,6 +91,7 @@ def insert_raw_item(item):
 
 			newtag = FeedTags(article_id=itemrow.id, tag=tag.strip())
 			db.session.add(newtag)
+			db.session.flush()
 
 	for author in item.pop('authors'):
 		if not 'name' in author:
@@ -102,8 +103,8 @@ def insert_raw_item(item):
 
 			newtag = FeedAuthors(article_id=itemrow.id, name=author['name'].strip())
 			db.session.add(newtag)
+			db.session.flush()
 
-	db.session.flush()
 	db.session.commit()
 
 def dispatchItem(item):
