@@ -62,10 +62,6 @@ def insert_raw_item(item):
 
 	# print(item)
 
-	have = Feeds.query.filter(Feeds.guid == item['guid']).scalar()
-	if have:
-		# print("Already have item '%s', not adding." % item['guid'])
-		return
 
 	print("New feed item: ", item['guid'])
 
@@ -79,21 +75,33 @@ def insert_raw_item(item):
 	if 'updated' in item:
 		entry['updated']   = datetime.datetime.fromtimestamp(item.pop('updated'))
 
-	itemrow = Feeds(**entry)
-	db.session.add(itemrow)
-	db.session.flush()
+	itemrow = Feeds.query.filter(Feeds.guid == entry['guid']).scalar()
+	if not itemrow:
+		itemrow = Feeds(**entry)
+		db.session.add(itemrow)
+		db.session.flush()
+
+
 
 
 	for tag in item.pop('tags'):
-		newtag = FeedTags(article_id=itemrow.id, tag=tag.strip())
-		db.session.add(newtag)
+		if not FeedTags.query                           \
+			.filter(FeedTags.article_id==itemrow.id)    \
+			.filter(FeedTags.tag == tag).scalar():
+
+			newtag = FeedTags(article_id=itemrow.id, tag=tag.strip())
+			db.session.add(newtag)
 
 	for author in item.pop('authors'):
 		if not 'name' in author:
-			print("No author? Wat? Item:'%s'" % author)
 			continue
-		newtag = FeedAuthors(article_id=itemrow.id, name=author['name'].strip())
-		db.session.add(newtag)
+
+		if not FeedAuthors.query                        \
+			.filter(FeedAuthors.article_id==itemrow.id) \
+			.filter(FeedAuthors.name == author['name']).scalar():
+
+			newtag = FeedAuthors(article_id=itemrow.id, name=author['name'].strip())
+			db.session.add(newtag)
 	db.session.flush()
 	db.session.commit()
 
