@@ -39,7 +39,7 @@ class RabbitQueueHandler(object):
 												synchronous        = False,
 												flush_queues       = False,
 												task_exchange_type = "fanout",
-												consumer_queue     = 'task.{name}.q'.format(name=settings['CLIENT_NAME']),
+												task_queue         = 'task.{name}.q'.format(name=settings['CLIENT_NAME']),
 												response_queue     = 'response.{name}.q'.format(name=settings['CLIENT_NAME']),
 												)
 
