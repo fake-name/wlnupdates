@@ -97,21 +97,18 @@ def renderHistory(histType, contentId):
 		return render_template('not-implemented-yet.html', message='Error! Invalid history type.')
 
 	table = dispatch_table[histType]
-	print("Dispatch table:", table)
 
 	if table == SeriesChanges:
 		conditional = (table.srccol==contentId)
 	else:
 		conditional = (table.series==contentId)
 
-	print("Conditional:", conditional)
 
 	data = table                                   \
 			.query                                 \
 			.filter(conditional)                   \
 			.order_by(table.changetime).all()
 
-	print("data:", data)
 
 	seriesHist = None
 	authorHist = None

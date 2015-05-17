@@ -410,6 +410,7 @@ class Feeds(db.Model):
 	published   = db.Column(db.DateTime, index=True, nullable=False)
 	updated     = db.Column(db.DateTime, index=True)
 
+	srcname     = db.Column(db.Text, nullable=False)
 	region      = db.Column(region_enum, default='unknown')
 
 	tags        = db.relationship('FeedTags',    backref='Feeds')
@@ -433,9 +434,6 @@ class FeedTags(db.Model):
 		db.UniqueConstraint('article_id', 'tag'),
 		)
 
-
-	def __repr__(self):  # pragma: no cover
-		return '<Post %r>' % (self.body)
 
 class Posts(db.Model):
 	__searchable__ = ['body']

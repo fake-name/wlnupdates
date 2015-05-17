@@ -2,6 +2,11 @@
 <div class="well well-large">
 	<h3>Latest Releases:</h3>
 
-	(Not implemented yet)
-
+	{% if release_feeds: %}
+		<p>Releases!</p>
+		<p>{{release_feeds}}</p>
+	{% else: %}
+		<!-- <strong>No Releases! This probably means something is broken!</strong> -->
+		Not implemented yet!
+	{% endif %}
 </div>

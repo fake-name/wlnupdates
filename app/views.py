@@ -7,7 +7,9 @@ from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, babel
 from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
-from .models import Users, Posts, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches, AlternateNames
+from .models import Users, Posts, Series, Tags, Genres, Author
+from .models import  Illustrators, Translators, Releases, Covers, Watches, AlternateNames
+from .models import Feeds, Releases
 
 from .confirm import send_email
 
@@ -21,6 +23,8 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy import desc
 from app.sub_views import stub_views
 from app.sub_views import watched_view
+
+import traceback
 
 @lm.user_loader
 def load_user(id):
@@ -63,6 +67,9 @@ def not_found_error(dummy_error):
 @app.errorhandler(500)
 def internal_error(dummy_error):
 	db.session.rollback()
+	print("Internal Error!")
+	print(dummy_error)
+	print(traceback.format_exc())
 	# print("500 error!")
 	return render_template('500.html'), 500
 
@@ -80,16 +87,18 @@ def get_news():
 	return newsPost
 
 def get_raw_feeds():
-	# User ID 2 is the admin acct, as created by the db migrator script
-	# Probably shouldn't be hardcoded, works for the moment.
-	newsPost = Posts.query.filter(Posts.user_id == 2).order_by(desc(Posts.timestamp)).limit(1).one()
-	return newsPost
+	raw_feeds = Feeds.query.order_by(desc(Feeds.published)).limit(10).all()
+	if raw_feeds:
+		tmp = raw_feeds[0]
+
+		print(tmp)
+		print(dir(tmp))
+		print(tmp.tags)
+	return raw_feeds
 
 def get_release_feeds():
-	# User ID 2 is the admin acct, as created by the db migrator script
-	# Probably shouldn't be hardcoded, works for the moment.
-	newsPost = Posts.query.filter(Posts.user_id == 2).order_by(desc(Posts.timestamp)).limit(1).one()
-	return newsPost
+	get_release_feeds = Releases.query.order_by(desc(Releases.published)).limit(10).all()
+	return get_release_feeds
 
 
 @app.route('/', methods=['GET'])

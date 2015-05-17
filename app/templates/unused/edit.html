@@ -3,7 +3,7 @@
 
 {% block content %}
     <h1>{{ _('Edit Your Profile') }}</h1>
-    {% include 'flash.html' %}
+    {% include '_block_flash.html' %}
     <div class="well">
         <form class="form-horizontal" action="" method="post" name="edit">
             {{ form.hidden_tag() }}

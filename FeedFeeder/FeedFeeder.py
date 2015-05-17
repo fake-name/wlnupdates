@@ -62,6 +62,9 @@ def insert_raw_item(item):
 
 	# print(item)
 
+	if not 'srcname' in item:
+		print("No srcname? Old item?")
+		return
 
 
 	entry = {}
@@ -70,6 +73,7 @@ def insert_raw_item(item):
 	entry['guid']      = item.pop('guid')
 	entry['linkurl']   = item.pop('linkUrl')
 	entry['region']    = item.pop('feedtype')
+	entry['srcname']   = item.pop('srcname')
 	entry['published'] = datetime.datetime.fromtimestamp(item.pop('published'))
 	if 'updated' in item:
 		entry['updated']   = datetime.datetime.fromtimestamp(item.pop('updated'))

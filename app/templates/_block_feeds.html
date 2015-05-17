@@ -2,6 +2,25 @@
 <div class="well well-large">
 	<h3>Latest Feed Updates:</h3>
 
-	(Not implemented yet)
+	{% if raw_feeds: %}
 
+		<table class='table-striped table table-bordered table-condensed fullwidth'>
+			{% for entry in raw_feeds: %}
+				<tr>
+					<td>
+						<a href='{{entry.linkurl}}'>{{entry.title}}</a>
+					</td>
+					<td>
+
+						{% for tag in entry.tags %}
+							{{ tag.tag }}{% if not loop.last %},{% endif %}
+						{% endfor %}
+
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+	{% else: %}
+		<strong>No feeds! This probably means something is broken!</strong>
+	{% endif %}
 </div>
