@@ -79,16 +79,30 @@ def get_news():
 	newsPost = Posts.query.filter(Posts.user_id == 2).order_by(desc(Posts.timestamp)).limit(1).one()
 	return newsPost
 
+def get_raw_feeds():
+	# User ID 2 is the admin acct, as created by the db migrator script
+	# Probably shouldn't be hardcoded, works for the moment.
+	newsPost = Posts.query.filter(Posts.user_id == 2).order_by(desc(Posts.timestamp)).limit(1).one()
+	return newsPost
+
+def get_release_feeds():
+	# User ID 2 is the admin acct, as created by the db migrator script
+	# Probably shouldn't be hardcoded, works for the moment.
+	newsPost = Posts.query.filter(Posts.user_id == 2).order_by(desc(Posts.timestamp)).limit(1).one()
+	return newsPost
+
 
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
 # @login_required
 def index(page=1):
 	return render_template('index.html',
-						   title='Home',
+						   title         = 'Home',
 						   random_series = get_random_books(),
-						   news = get_news(),
-						   posts=[])
+						   news          = get_news(),
+						   raw_feeds     = get_raw_feeds(),
+						   release_feeds = get_release_feeds()
+						   )
 
 
 @app.route('/user/<nickname>/<int:page>')
@@ -107,15 +121,9 @@ def user(nickname, page=1):
 @app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
 	series       =       Series.query.filter(Series.id==sid).first()
-	tags         =         Tags.query.filter(Tags.series==sid).all()
-	genres       =       Genres.query.filter(Genres.series==sid).all()
-	author       =       Author.query.filter(Author.series==sid).all()
-	illustrators = Illustrators.query.filter(Illustrators.series==sid).all()
-	releases     =     Releases.query.filter(Releases.series==sid).all()
-	covers       =       Covers.query.filter(Covers.series==sid).all()
 
-	watches      =       Watches.query.filter(Watches.series_id==sid).scalar()
-	altnames     =       AlternateNames.query.filter(AlternateNames.series==sid).order_by(AlternateNames.name).all()
+	watches      =       Watches.query.filter(Watches.series_id==sid) \
+								.filter(Watches.user_id==g.user.id).scalar()
 
 
 
@@ -126,14 +134,7 @@ def renderSeriesId(sid):
 	return render_template('series-id.html',
 						series_id    = sid,
 						series       = series,
-						tags         = tags,
-						genres       = genres,
-						author       = author,
-						illustrators = illustrators,
-						covers       = covers,
-						releases     = releases,
-						watches      = watches,
-						altnames     = altnames)
+						watches      = watches)
 
 
 @app.route('/author-id/<sid>/<int:page>')

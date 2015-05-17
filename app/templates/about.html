@@ -1,5 +1,5 @@
 <!-- extend base layout -->
-{% extends "base.html" %}
+{% extends "__base.html" %}
 
 {% block content %}
 	{% include 'flash.html' %}
@@ -46,7 +46,8 @@
 		</p>
 		<p>
 			<strong>Is there a way to monitor certain series for changes?</strong>
-			You can currently watch series, though the update tracking system is yet to be implemented.
+			You can currently watch series, though the update tracking system is yet to be implemented, because the release
+			tracking system itself (that would feed the update system) is <em>also</em> not yet implemented.
 		</p>
 		<hr>
 		<h6>Licensing:</h6>
@@ -54,7 +55,7 @@
 			<li>The code for this site was initially based on the <a href='https://github.com/miguelgrinberg/microblog'>microblog</a>
 				code by <a href='https://github.com/miguelgrinberg'>@miguelgrinberg</a>. It's diverged extensively enough that it's
 				probably a remote relation at best at this point, though.</li>
-			<li>Built using SQLAlchemy, Flask, Jinja2, Python 3 and PostgreSQL.</li>
+			<li>Built using SQLAlchemy, Flask, Jinja2, Python 3 and PostgreSQL/Psycopg2. HTTPS termination via Nginx. The release message system uses RabbitMQ.</li>
 			<li>All original components for this site are dual-licensed <a href='https://creativecommons.org/licenses/by-sa/4.0/'>CC-BY-SA</a> or <a href='http://gplv3.fsf.org/'>GPLv3</a> at your discretion.</li>
 			<li>By contributing content to the site, you are agreeing to release your contributed content under the above CC-BY-SA/GPLv3 terms as well.</li>
 			<li>References and cover images are property of their creators. The information actually <em>hosted</em> here is only for informational purposes.</li>

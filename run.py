@@ -26,8 +26,8 @@ def startBackgroundThread():
 def go():
 	import sys
 
-	print("Starting background thread")
-	bk_thread = startBackgroundThread()
+	# print("Starting background thread")
+	# bk_thread = startBackgroundThread()
 
 	if "debug" in sys.argv:
 		print("Running in debug mode.")
@@ -39,14 +39,14 @@ def go():
 		print("Running in normal mode.")
 		app.run()
 
-	print()
-	print("Interrupt!")
-	print("Joining on background thread")
+	# print()
+	# print("Interrupt!")
+	# print("Joining on background thread")
 
-	flags.RUNSTATE = False
-	bk_thread.join()
+	# flags.RUNSTATE = False
+	# bk_thread.join()
 
-	print("Thread halted. App exiting.")
+	# print("Thread halted. App exiting.")
 
 if __name__ == "__main__":
 	started = False

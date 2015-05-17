@@ -1,5 +1,5 @@
 <!-- extend base layout -->
-{% extends "base.html" %}
+{% extends "__base.html" %}
 
 {% block content %}
 	{% include 'flash.html' %}
@@ -19,12 +19,7 @@
 		{% endfor %}
 	</div>
 
+	{% include '_block_releases.html' %}
+	{% include '_block_feeds.html' %}
 
-
-	<div class="well well-large">
-		<h3>Latest Releases:</h3>
-
-		(Not implemented yet)
-
-	</div>
 {% endblock %}

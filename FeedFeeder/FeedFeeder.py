@@ -63,7 +63,6 @@ def insert_raw_item(item):
 	# print(item)
 
 
-	print("New feed item: ", item['guid'])
 
 	entry = {}
 	entry['title']     = item.pop('title')
@@ -77,6 +76,7 @@ def insert_raw_item(item):
 
 	itemrow = Feeds.query.filter(Feeds.guid == entry['guid']).scalar()
 	if not itemrow:
+		print("New feed item: ", entry['guid'])
 		itemrow = Feeds(**entry)
 		db.session.add(itemrow)
 		db.session.flush()

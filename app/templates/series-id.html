@@ -204,7 +204,7 @@
 	</div>
 {%- endmacro %}
 
-{% extends "base.html" %}
+{% extends "__base.html" %}
 
 {% block header %}
 	<meta name="csrf-token" content="{{ csrf_token() }}">
@@ -221,7 +221,7 @@
 	<div class="well well-large">
 		<h2>{{ series.title }}</h2>
 			{{watchBlock(watches)}}
-			{{coversBlock(covers)}}
+			{{coversBlock(series.covers)}}
 
 			{{singleItemBlock("Description",       series.description, 'description'     )}}
 			{{singleItemBlock("Demographic",       series.demographic, 'demographic'     )}}
@@ -237,11 +237,11 @@
 				}
 			)}}
 
-			{{multiItemBlock("Author(s)",          author,             'name',           'author',       'author-id')}}
-			{{multiItemBlock("Illustrator(s)",     illustrators,       'name',           'illustrators', 'artist-id')}}
-			{{multiItemBlock("Tags",               tags,               'tag',            'tag',          'tag-id')}}
-			{{multiItemBlock("Genres",             genres,             'genre',          'genre',        'genre-id')}}
-			{{multiItemList("Alternate Names",     altnames,           'name',           'altnames',     'altnames-id')}}
+			{{multiItemBlock("Author(s)",          series.author,             'name',           'author',       'author-id')}}
+			{{multiItemBlock("Illustrator(s)",     series.illustrators,       'name',           'illustrators', 'artist-id')}}
+			{{multiItemBlock("Tags",               series.tags,               'tag',            'tag',          'tag-id')}}
+			{{multiItemBlock("Genres",             series.genres,             'genre',          'genre',        'genre-id')}}
+			{{multiItemList("Alternate Names",     series.alternatenames,     'name',           'altnames',     'altnames-id')}}
 
 			<div style="clear: both;"></div>
 

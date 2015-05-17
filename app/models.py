@@ -88,6 +88,8 @@ class ReleasesBase(object):
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
 
+	published   = db.Column(db.DateTime, index=True, nullable=False)
+
 	volume      = db.Column(db.Float(), nullable=False, index=True)
 	chapter     = db.Column(db.Float(), nullable=False, index=True)
 
@@ -107,6 +109,7 @@ class ReleasesBase(object):
 	@declared_attr
 	def lang(cls):
 		return db.Column(db.Integer, db.ForeignKey('language.id'))
+
 
 class LanguageBase(object):
 	id              = db.Column(db.Integer, primary_key=True)
@@ -154,11 +157,14 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	__table_args__ = (
 		db.UniqueConstraint('title'),
 		)
-	tags           = relationship("Tags")
-	genres         = relationship("Genres")
-	author         = relationship("Author")
-	illustrators   = relationship("Illustrators")
-	alternatenames = relationship("AlternateNames")
+	tags           = relationship("Tags",           backref='Series')
+	genres         = relationship("Genres",         backref='Series')
+	author         = relationship("Author",         backref='Series')
+	illustrators   = relationship("Illustrators",   backref='Series')
+	alternatenames = relationship("AlternateNames", backref='Series')
+	covers         = relationship("Covers",         backref='Series')
+
+
 
 
 class Tags(db.Model, TagsBase, ModificationInfoMixin):
@@ -405,6 +411,9 @@ class Feeds(db.Model):
 	updated     = db.Column(db.DateTime, index=True)
 
 	region      = db.Column(region_enum, default='unknown')
+
+	tags        = db.relationship('FeedTags',    backref='Feeds')
+	authors     = db.relationship('FeedAuthors', backref='Feeds')
 
 class FeedAuthors(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
