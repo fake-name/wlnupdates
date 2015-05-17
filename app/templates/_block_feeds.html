@@ -11,11 +11,12 @@
 						<a href='{{entry.linkurl}}'>{{entry.title}}</a>
 					</td>
 					<td>
-
 						{% for tag in entry.tags %}
 							{{ tag.tag }}{% if not loop.last %},{% endif %}
 						{% endfor %}
-
+					</td>
+					<td>
+						{{entry.srcname}}
 					</td>
 				</tr>
 			{% endfor %}

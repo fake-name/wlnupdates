@@ -91,9 +91,9 @@ def get_raw_feeds():
 	if raw_feeds:
 		tmp = raw_feeds[0]
 
-		print(tmp)
-		print(dir(tmp))
-		print(tmp.tags)
+		# print(tmp)
+		# print(dir(tmp))
+		# print(tmp.tags)
 	return raw_feeds
 
 def get_release_feeds():
