@@ -131,8 +131,13 @@ def user(nickname, page=1):
 def renderSeriesId(sid):
 	series       =       Series.query.filter(Series.id==sid).first()
 
-	watches      =       Watches.query.filter(Watches.series_id==sid) \
-								.filter(Watches.user_id==g.user.id).scalar()
+
+	if g.user.is_authenticated():
+		watches      =       Watches.query.filter(Watches.series_id==sid)     \
+		                                  .filter(Watches.user_id==g.user.id) \
+		                                  .scalar()
+	else:
+		watches = False
 
 
 
