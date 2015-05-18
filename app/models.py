@@ -104,6 +104,8 @@ class ReleasesBase(object):
 	# the furthest chapter.
 	include     = db.Column(db.Boolean, nullable=False, index=True, default=False)
 
+	srcurl      = db.Column(db.Text())
+
 	@declared_attr
 	def tlgroup(cls):
 		return db.Column(db.Integer, db.ForeignKey('translators.id'))
@@ -228,7 +230,8 @@ class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
 
 class Releases(db.Model, ReleasesBase, ModificationInfoMixin):
 	__tablename__ = 'releases'
-	translators        = relationship("Translators",         backref='Releases')
+	translators      = relationship("Translators",         backref='Releases')
+	series_row       = relationship("Series",              backref='Releases')
 
 
 class Language(db.Model, LanguageBase, ModificationInfoMixin):
@@ -284,8 +287,6 @@ class LanguageChanges(db.Model, LanguageBase, ModificationInfoMixin, ChangeLogMi
 
 
 def create_trigger(cls):
-	# get called after mappings are completed
-	# http://docs.sqlalchemy.org/en/rel_0_7/orm/extensions/declarative.html#declare-last
 	if cls.__tablename__.endswith("changes"):
 		print("Not creating triggers on chagetable {name}.".format(name=cls.__tablename__))
 		return
@@ -294,7 +295,7 @@ def create_trigger(cls):
 
 	# So this is fairly complex. We know that all the local colums (excepting "id") are
 	# present in the changes table, however we can't simply say `INSERT INTO changes VALUES SELECT OLD.*`, because
-	# we're adding some more cols, and I don't know if I trust any assumptions I make about the ordering anyways.
+	# the history table has additional columns, and I don't know if I trust any assumptions I make about the ordering anyways.
 
 	colNames = []
 	for column in cls.__table__.columns:
@@ -306,7 +307,9 @@ def create_trigger(cls):
 
 	# The Foreign key is null when we delete
 	deleteFromCols = ", ".join(["OLD."+item for item in colNames]+['NULL', ])
-	oldFromCols    = ", ".join(["OLD."+item for item in colNames+['id', ]])
+
+	# Otherwise, mirror the new changes into the log table.
+	oldFromCols    = ", ".join(["NEW."+item for item in colNames+['id', ]])
 	newFromCols    = ", ".join(["NEW."+item for item in colNames+['id', ]])
 
 

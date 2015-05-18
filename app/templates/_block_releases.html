@@ -3,10 +3,60 @@
 	<h3>Latest Releases:</h3>
 
 	{% if release_feeds: %}
-		<p>Releases!</p>
-		<p>{{release_feeds}}</p>
+		<table class='table-striped table table-bordered table-condensed fullwidth'>
+
+			<col style="width: 60px">
+			<col style="width: 70%">
+			<col style="width: 50px">
+			<col style="width: 50px">
+			<col style="width: 25%">
+			<tr>
+				<th>
+					View
+				</th>
+				<th>
+					Series
+				</th>
+				<th>
+					Vol
+				</th>
+				<th>
+					Chap
+				</th>
+				<th>
+					Extra
+				</th>
+			</tr>
+			{% for entry in release_feeds: %}
+				<tr>
+					<td>
+						<a href='{{entry.srcurl}}'>View</a>
+					</td>
+					<td>
+						<a href='/series-id/{{entry.series}}/'>{{entry.series_row.title}}</a>
+					</td>
+					{% if entry.volume != None %}
+						<td class='numeric'>
+							{{entry.volume | int}}
+						</td>
+					{% endif %}
+					{% if entry.chapter != None %}
+						<td class='numeric' {{ "colspan=2" if entry.volume == None  }}>
+							{% if entry.chapter != None %}
+								{{('%0.4f' % entry.chapter).rstrip('.0')}}
+							{% endif %}
+						</td>
+					{% endif %}
+					<td {{ "colspan=2" if entry.chapter == None  }}>
+						{{entry.postfix}}
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
 	{% else: %}
 		<!-- <strong>No Releases! This probably means something is broken!</strong> -->
 		Not implemented yet!
 	{% endif %}
 </div>
+
+

@@ -8,8 +8,12 @@
 		{% include '_block_news.html' %}
 	</div>
 
+
+	{% include '_block_releases.html' %}
+	{% include '_block_feeds.html' %}
+
 	<div class="well">
-		<h4>Random Novels</h4>
+		<h4>A few random series</h4>
 		{% for post in random_series %}
 			<div class="well well-tny">
 
@@ -18,8 +22,5 @@
 			</div>
 		{% endfor %}
 	</div>
-
-	{% include '_block_releases.html' %}
-	{% include '_block_feeds.html' %}
 
 {% endblock %}

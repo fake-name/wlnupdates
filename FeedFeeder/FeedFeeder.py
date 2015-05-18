@@ -189,6 +189,7 @@ def check_insert_release(item, group, series):
 			tlgroup    = group.id,
 			changetime = datetime.datetime.now(),
 			changeuser = RSS_USER_ID,
+			srcurl     = item['itemurl'],
 		)
 
 
