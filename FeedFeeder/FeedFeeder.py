@@ -5,7 +5,10 @@ import json
 import datetime
 from app import db
 from app.models import Feeds, FeedAuthors, FeedTags
-
+from app.models import Translators, Releases, Series, AlternateNames
+import traceback
+import app.nameTools as nt
+import time
 
 # user = Users(
 # 	nickname  = form.username.data,
@@ -38,7 +41,8 @@ from app.models import Feeds, FeedAuthors, FeedTags
 # 	article_id  = db.Column(db.Integer, db.ForeignKey('feeds.id'))
 # 	tag         = db.Column(CIText(), index=True, nullable=False)
 
-
+# Hard coded RSS user ID. Probably a bad idea.
+RSS_USER_ID = 3
 
 def insert_raw_item(item):
 	'''
@@ -111,6 +115,96 @@ def insert_raw_item(item):
 
 	db.session.commit()
 
+def get_create_group(groupname):
+	have = Translators.query.filter(Translators.group_name==groupname).scalar()
+	if not have:
+		print("Need to create new translator entry for ", groupname)
+		new = Translators(
+				group_name = groupname,
+				changeuser = RSS_USER_ID,
+				)
+		db.session.add(new)
+		db.session.flush()
+		db.session.commit()
+		return new
+	return have
+
+# {
+# 	'series': 'I’m Back in the Other World?',
+# 	'srcname': 'お兄ちゃん、やめてぇ！',
+# 	'published': 1427995197.0,
+# 	'chp': '9',
+# 	'vol': None,
+# 	'postfix': '',
+# 	'itemurl': 'https://oniichanyamete.wordpress.com/2015/04/02/im-back-in-the-other-world-chapter-9/'
+# }
+
+
+def get_create_series(seriesname):
+	have  = AlternateNames.query.filter(AlternateNames.name == seriesname).scalar()
+	if not have:
+		print("Need to create new series entry for ", seriesname)
+		new = Series(
+				title=seriesname,
+				changeuser = RSS_USER_ID,  # Hard coded RSS user ID. Probably a bad idea.
+				changetime = datetime.datetime.now(),
+
+			)
+		db.session.add(new)
+		db.session.flush()
+
+
+		newname = AlternateNames(
+				name       = seriesname,
+				cleanname  = nt.prepFilenameForMatching(seriesname),
+				series     = new.id,
+				changetime = datetime.datetime.now(),
+				changeuser = RSS_USER_ID
+			)
+		db.session.add(newname)
+		db.session.flush()
+		db.session.commit()
+
+		return new
+
+	return have.series_row
+
+def check_insert_release(item, group, series):
+	have = Releases.query                            \
+		.filter(Releases.series  == series.id)       \
+		.filter(Releases.tlgroup == group.id)        \
+		.filter(Releases.volume  == item['vol'])     \
+		.filter(Releases.chapter == item['chp'])     \
+		.filter(Releases.postfix == item['postfix']).all()
+	if have:
+		return
+	print("Adding new release at date:", datetime.datetime.fromtimestamp(item['published']))
+	release = Releases(
+			series     = series.id,
+			published  = datetime.datetime.fromtimestamp(item['published']),
+			volume     = item['vol'],
+			chapter    = item['chp'],
+			include    = True,
+			postfix    = item['postfix'],
+			tlgroup    = group.id,
+			changetime = datetime.datetime.now(),
+			changeuser = RSS_USER_ID,
+		)
+
+
+	db.session.add(release)
+	db.session.flush()
+	db.session.commit()
+
+def insert_parsed_release(item):
+
+	group = get_create_group(item['srcname'])
+	series = get_create_series(item['series'])
+
+	# print(series)
+	check_insert_release(item, group, series)
+
+
 def dispatchItem(item):
 	item = json.loads(item)
 	assert 'type' in item
@@ -119,7 +213,7 @@ def dispatchItem(item):
 	if item['type'] == 'raw-feed':
 		insert_raw_item(item['data'])
 	elif item['type'] == 'parsed-release':
-		print("Parsed release items not handled yet")
+		insert_parsed_release(item['data'])
 	else:
 		print(item)
 		raise ValueError("No known packet structure in item!")
@@ -148,7 +242,13 @@ class FeedFeeder(object):
 			if not data:
 				break
 			else:
-				dispatchItem(data)
+				try:
+					dispatchItem(data)
+				except Exception:
+					with open("error - %s.txt" % time.time(), 'w') as fp:
+						fp.write(traceback.format_exc())
+					print("Error!")
+					traceback.print_exc()
 
 	def __del__(self):
 		print("FeedFeeder being deleted")

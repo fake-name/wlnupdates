@@ -14,6 +14,7 @@ from citext import CIText
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 import sqlalchemy.exc
+import datetime
 from settings import DATABASE_DB_NAME
 from sqlalchemy.dialects.postgresql import ENUM
 
@@ -90,8 +91,9 @@ class ReleasesBase(object):
 
 	published   = db.Column(db.DateTime, index=True, nullable=False)
 
-	volume      = db.Column(db.Float(), nullable=False, index=True)
-	chapter     = db.Column(db.Float(), nullable=False, index=True)
+	volume      = db.Column(db.Float(), index=True)
+	chapter     = db.Column(db.Float(), index=True)
+	postfix     = db.Column(db.Text())
 
 	# We need to be able to filter the chapters to include in the logic for
 	# determining the translation progress, because some annoying people
@@ -136,7 +138,7 @@ class ModificationInfoMixin(object):
 
 	@declared_attr
 	def changetime(cls):
-		return db.Column(db.DateTime, nullable=False, index=True)
+		return db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
 
 	@declared_attr
 	def changeuser(cls):
@@ -174,6 +176,7 @@ class Tags(db.Model, TagsBase, ModificationInfoMixin):
 	__table_args__ = (
 		db.UniqueConstraint('series', 'tag'),
 		)
+	series_row     = relationship("Series",         backref='Tags')
 
 class Genres(db.Model, GenresBase, ModificationInfoMixin):
 	__tablename__ = 'genres'
@@ -182,6 +185,7 @@ class Genres(db.Model, GenresBase, ModificationInfoMixin):
 	__table_args__ = (
 		db.UniqueConstraint('series', 'genre'),
 		)
+	series_row     = relationship("Series",         backref='Genres')
 
 class Author(db.Model, AuthorBase, ModificationInfoMixin):
 	__tablename__ = 'author'
@@ -191,6 +195,8 @@ class Author(db.Model, AuthorBase, ModificationInfoMixin):
 		db.UniqueConstraint('series', 'name'),
 		)
 
+	series_row       = relationship("Series",         backref='Author')
+
 class Illustrators(db.Model, IllustratorsBase, ModificationInfoMixin):
 	__tablename__ = 'illustrators'
 	__searchable__ = ['name']
@@ -198,10 +204,16 @@ class Illustrators(db.Model, IllustratorsBase, ModificationInfoMixin):
 	__table_args__ = (
 		db.UniqueConstraint('series', 'name'),
 		)
+	series_row       = relationship("Series",         backref='Illustrators')
 
 class AlternateNames(db.Model, AlternateNamesBase, ModificationInfoMixin):
 	__tablename__ = 'alternatenames'
 	__searchable__ = ['name', 'cleanname']
+
+	__table_args__ = (
+		db.UniqueConstraint('series', 'name'),
+		)
+	series_row       = relationship("Series",         backref='AlternateNames')
 
 
 class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
@@ -212,8 +224,12 @@ class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
 		db.UniqueConstraint('group_name'),
 		)
 
+	releases        = relationship("Releases",         backref='Translators')
+
 class Releases(db.Model, ReleasesBase, ModificationInfoMixin):
 	__tablename__ = 'releases'
+	translators        = relationship("Translators",         backref='Releases')
+
 
 class Language(db.Model, LanguageBase, ModificationInfoMixin):
 	__tablename__ = 'language'

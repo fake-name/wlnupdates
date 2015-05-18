@@ -468,15 +468,13 @@ def consolidate(inDat):
 
 def base_setup(cur):
 
-	cur.execute("INSERT INTO users (nickname, verified) VALUES (%s, %s) RETURNING id", ("system-migrator", 1))
-	ret = cur.fetchall()
-	print("System user ID = ", ret)
+	cur.execute("INSERT INTO users (id, nickname, verified, has_admin, has_mod) VALUES (%s, %s) RETURNING id", (3, "rss-feeder", 1, False, False))
+	cur.execute("INSERT INTO users (id, nickname, verified, has_admin, has_mod) VALUES (%s, %s) RETURNING id", (1, "system-migrator", 1, False, False))
+
 	# Install my user ID (since the pasword is hashed AND salted, it should be safe. If not, it's not like I can't recover anyways.)
 	cur.execute("INSERT INTO users (nickname, email, password, verified, has_admin, has_mod) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
 			("admin", "lemuix@gmail.com", "$2a$12$31.y.Bj9Pr705daMQFi/3.EjT0LkT80E7TJhlDqib/h5TUY0ukJU.", 1, True, True)
 		)
-	ret = cur.fetchall()
-	print("Admin ID = ", ret)
 
 
 	languages = [

@@ -31,7 +31,7 @@ If you do not have an account, you must create one in order to edit things or wa
 		print("Non-JSON request!")
 		js = {
 			"error"   : True,
-			"message" : "This endpoint only accepts JSON requests."
+			"message" : "This endpoint only accepts JSON POST requests."
 		}
 		resp = jsonify(js)
 		resp.status_code = 200
