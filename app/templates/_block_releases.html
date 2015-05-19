@@ -43,7 +43,7 @@
 					{% if entry.chapter != None %}
 						<td class='numeric' {{ "colspan=2" if entry.volume == None  }}>
 							{% if entry.chapter != None %}
-								{{('%0.4f' % entry.chapter).rstrip('.0')}}
+								{{('%0.4f' % entry.chapter).rstrip('0').rstrip('.')}}
 							{% endif %}
 						</td>
 					{% endif %}

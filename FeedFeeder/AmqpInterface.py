@@ -14,7 +14,7 @@ class RabbitQueueHandler(object):
 		logPath = 'Main.Feeds.RPC'
 
 		self.log = logging.getLogger(logPath)
-		self.log.info("RPC Management class instantiated.")
+		print("RPC Management class instantiated.")
 
 
 		# Require clientID in settings
@@ -42,7 +42,8 @@ class RabbitQueueHandler(object):
 												task_queue         = 'task.{name}.q'.format(name=settings['CLIENT_NAME']),
 												response_queue     = 'response.{name}.q'.format(name=settings['CLIENT_NAME']),
 												poll_rate          = 0.1,
-												prefetch           = 10,
+												prefetch           = 150,
+												prefetch_size      = 0,
 												)
 
 
@@ -76,6 +77,7 @@ class RabbitQueueHandler(object):
 
 
 	def get_item(self):
+		# print("GetItem call")
 		ret = self.connector.getMessage()
 		if ret:
 			self.log.info("Received data size: %s bytes.", len(ret))
