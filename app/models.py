@@ -167,6 +167,7 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	illustrators   = relationship("Illustrators",   backref='Series')
 	alternatenames = relationship("AlternateNames", backref='Series')
 	covers         = relationship("Covers",         backref='Series')
+	releases       = relationship("Releases",       backref='Series', order_by="desc(Releases.volume), desc(Releases.chapter), desc(Releases.published)")
 
 
 

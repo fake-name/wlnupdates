@@ -6,11 +6,20 @@
 	<div class="well">
 		<h3>News</h3>
 		{% include '_block_news.html' %}
+		<a href='/news/'>Older news</a>
 	</div>
 
+	<div class="well well-large">
+		<h3>Latest Releases:</h3>
+		{% include '_block_releases.html' %}
+		<a href='/releases/'>More Releases</a>
+	</div>
 
-	{% include '_block_releases.html' %}
-	{% include '_block_feeds.html' %}
+	<div class="well well-large">
+		<h3>Latest Feed Updates:</h3>
+		{% include '_block_feeds.html' %}
+		<a href='/feeds/'>More Feeds</a>
+	</div>
 
 	<div class="well">
 		<h4>A few random series</h4>

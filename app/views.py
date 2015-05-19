@@ -110,7 +110,7 @@ def index(page=1):
 						   random_series = get_random_books(),
 						   news          = get_news(),
 						   raw_feeds     = get_raw_feeds(),
-						   release_feeds = get_release_feeds()
+						   release_items = get_release_feeds()
 						   )
 
 
@@ -363,7 +363,7 @@ def renderArtistTable(letter=None, page=1):
 			.distinct(Illustrators.name)
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('series'))
+		return redirect(url_for('renderArtistTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('sequence.html',
@@ -391,9 +391,10 @@ def renderTagTable(letter=None, page=1):
 		series = Tags.query       \
 			.order_by(Tags.tag)\
 			.distinct(Tags.tag)
+
 	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('series'))
+		flash(gettext('No tag items with a prefix of {prefix} found.'.format(prefix=letter)))
+		return redirect(url_for('renderTagTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('sequence.html',
@@ -421,8 +422,8 @@ def renderGenreTable(letter=None, page=1):
 			.order_by(Genres.genre) \
 			.distinct(Genres.genre)
 	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('series'))
+		flash(gettext('No genre items with a prefix of {prefix} found.'.format(prefix=letter)))
+		return redirect(url_for('renderGenreTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
 	return render_template('sequence.html',
@@ -432,6 +433,46 @@ def renderGenreTable(letter=None, page=1):
 						   name_key        = "genre",
 						   page_url_prefix = 'genre-id',
 						   title           = 'Genres')
+
+
+
+@app.route('/releases/<page>')
+@app.route('/releases/<int:page>')
+@app.route('/releases/')
+def renderReleasesTable(page=1):
+
+	releases = Releases.query       \
+		.order_by(desc(Releases.published))
+
+	if releases is None:
+		flash(gettext('No releases? Something is /probably/ broken!.'))
+		return redirect(url_for('renderReleasesTable'))
+
+	releases_entries = releases.paginate(page, app.config['SERIES_PER_PAGE'], False)
+
+	return render_template('releases.html',
+						   sequence_item   = releases_entries,
+						   page            = page)
+
+
+@app.route('/feeds/<page>')
+@app.route('/feeds/<int:page>')
+@app.route('/feeds/')
+def renderFeedsTable(page=1):
+
+	feeds = Feeds.query       \
+		.order_by(desc(Feeds.published))
+
+	if feeds is None:
+		flash(gettext('No feeds? Something is /probably/ broken!.'))
+		return redirect(url_for('renderFeedsTable'))
+
+	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'], False)
+
+	return render_template('feeds.html',
+						   sequence_item   = feed_entries,
+						   page            = page
+						   )
 
 
 @app.route('/history/<topic>/<int:srcId>')

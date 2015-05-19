@@ -18,20 +18,20 @@ def about_site():
 def renderUserCp():
 	return render_template('not-implemented-yet.html')
 
+@app.route('/news/')
+def renderNews():
+	return render_template('not-implemented-yet.html')
 
-@app.route('/groups')
+
+@app.route('/groups/')
 def renderGroups():
 	return render_template('not-implemented-yet.html')
 
-@app.route('/releases')
-def renderReleases():
-	return render_template('not-implemented-yet.html')
 
-
-@app.route('/oel-authors')
+@app.route('/oel-authors/')
 def renderOelGroups():
 	return render_template('not-implemented-yet.html')
 
-@app.route('/oel-releases')
+@app.route('/oel-releases/')
 def renderOelReleases():
 	return render_template('not-implemented-yet.html')

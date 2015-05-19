@@ -248,12 +248,10 @@
 	</div>
 
 
-
+	{% set release_items = series.releases %}
 	<div class="well well-large">
-		<h3>Releases:</h3>
-
-		(Not implemented yet)
-
+		<span><h3>Series Releases:</h3><sup style='float:right'>Releases found: {{ release_items | length }}</sup></span>
+		{% include '_block_releases.html' %}
 	</div>
 
 	</ul>
