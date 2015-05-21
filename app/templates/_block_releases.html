@@ -48,7 +48,14 @@
 						{% endif %}
 					</td>
 				{% endif %}
-				<td {{ "colspan=2" if entry.chapter == None  }}>
+
+				{% if entry.chapter == None and entry.volume == None %}
+					<td class='postfix' {{ "colspan=3" if entry.chapter == None  }}>
+				{% elif entry.chapter == None %}
+					<td class='postfix' {{ "colspan=2" if entry.chapter == None  }}>
+				{% else %}
+					<td class='postfix'>
+				{% endif %}
 					{{entry.postfix}}
 				</td>
 				<td>

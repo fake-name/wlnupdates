@@ -57,6 +57,6 @@ textarea
 	resize: none;
 }
 
-td.numeric {
+td.numeric, td.postfix {
     text-align:right;
 }
