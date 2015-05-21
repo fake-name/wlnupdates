@@ -23,10 +23,6 @@ def renderNews():
 	return render_template('not-implemented-yet.html')
 
 
-@app.route('/groups/')
-def renderGroups():
-	return render_template('not-implemented-yet.html')
-
 
 @app.route('/oel-authors/')
 def renderOelGroups():

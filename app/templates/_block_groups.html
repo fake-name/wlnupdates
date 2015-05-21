@@ -1,0 +1,19 @@
+
+{% if release_items: %}
+	<table class='table-striped table table-bordered table-condensed fullwidth'>
+
+
+		{% for entry in release_items: %}
+			<tr>
+				<td>
+					<a href='/group-id/{{entry.id}}/'>{{entry.group_name}}</a>
+				</td>
+
+			</tr>
+		{% endfor %}
+	</table>
+{% else: %}
+	<strong>No releases found!</strong>
+{% endif %}
+
+

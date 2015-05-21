@@ -6,9 +6,9 @@ from flask.ext.babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, babel
-from .forms import LoginForm, EditForm, PostForm, SearchForm, SignupForm
+from .forms import  LoginForm, EditForm, PostForm, SearchForm, SignupForm
 from .models import Users, Posts, Series, Tags, Genres, Author
-from .models import  Illustrators, Translators, Releases, Covers, Watches, AlternateNames
+from .models import Illustrators, Translators, Releases, Covers, Watches, AlternateNames
 from .models import Feeds, Releases
 
 from .confirm import send_email
@@ -17,12 +17,13 @@ from .apiview import handleApiPost, handleApiGet
 
 from app.sub_views.search import execute_search
 
-from .historyController import renderHistory
 import os.path
 from sqlalchemy.sql.expression import func
 from sqlalchemy import desc
+from app.sub_views import item_views
 from app.sub_views import stub_views
 from app.sub_views import watched_view
+from app.sub_views import sequence_views
 
 import traceback
 
@@ -72,6 +73,7 @@ def internal_error(dummy_error):
 	print(traceback.format_exc())
 	# print("500 error!")
 	return render_template('500.html'), 500
+
 
 
 def get_random_books():
@@ -127,153 +129,7 @@ def user(nickname, page=1):
 						   user=user,
 						   posts=posts)
 
-@app.route('/series-id/<sid>/')
-def renderSeriesId(sid):
-	series       =       Series.query.filter(Series.id==sid).first()
 
-
-	if g.user.is_authenticated():
-		watches      =       Watches.query.filter(Watches.series_id==sid)     \
-		                                  .filter(Watches.user_id==g.user.id) \
-		                                  .scalar()
-	else:
-		watches = False
-
-
-
-	if series is None:
-		flash(gettext('Series %(sid)s not found.', sid=sid))
-		return redirect(url_for('index'))
-
-	return render_template('series-id.html',
-						series_id    = sid,
-						series       = series,
-						watches      = watches)
-
-
-@app.route('/author-id/<sid>/<int:page>')
-@app.route('/author-id/<sid>/')
-def renderAuthorId(sid, page=1):
-	author = Author.query.filter(Author.id==sid).first()
-	# print("Author search result: ", author)
-
-	if author is None:
-		flash(gettext('Author not found? This is probably a error!'))
-		return redirect(url_for('renderAuthorTable'))
-
-	items = Author.query.filter(Author.name==author.name).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
-
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('search_results.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   name_key        = "title",
-						   page_url_prefix = 'series-id',
-						   searchTarget    = 'Authors',
-						   searchValue     = author.name
-						   )
-
-@app.route('/artist-id/<sid>/<int:page>')
-@app.route('/artist-id/<sid>/')
-def renderArtistId(sid, page=1):
-	artist = Illustrators.query.filter(Illustrators.id==sid).first()
-	# print("Artist search result: ", artist)
-
-	if artist is None:
-		flash(gettext('Tag not found? This is probably a error!'))
-		return redirect(url_for('renderArtistTable'))
-
-	items = Illustrators.query.filter(Illustrators.name==artist.name).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
-
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('search_results.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   name_key        = "title",
-						   page_url_prefix = 'series-id',
-						   searchTarget    = 'Artists',
-						   searchValue     = artist.name
-						   )
-
-
-@app.route('/tag-id/<sid>/<int:page>')
-@app.route('/tag-id/<sid>/')
-def renderTagId(sid, page=1):
-
-	tag = Tags.query.filter(Tags.id==sid).first()
-
-	if tag is None:
-		flash(gettext('Tag not found? This is probably a error!'))
-		return redirect(url_for('renderTagTable'))
-
-	# Look up the ascii value of the tag, and then find
-	# all the links containing it.
-	# Table is CITEXT, so we don't care about case.
-
-	# this should REALLY have another indirection table.
-
-	items = Tags.query.filter(Tags.tag==tag.tag).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
-
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-	return render_template('search_results.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   name_key        = "title",
-						   page_url_prefix = 'series-id',
-						   searchTarget    = 'Tags',
-						   searchValue     = tag.tag
-						   )
-
-
-@app.route('/genre-id/<sid>/<int:page>')
-@app.route('/genre-id/<sid>/')
-def renderGenreId(sid, page=1):
-
-	genre = Genres.query.filter(Genres.id==sid).first()
-
-	if genre is None:
-		flash(gettext('Genre not found? This is probably a error!'))
-		return redirect(url_for('renderGenreTable'))
-
-	# Look up the ascii value of the tag, and then find
-	# all the links containing it.
-	# Table is CITEXT, so we don't care about case.
-
-	# this should REALLY have another indirection table.
-
-	items = Genres.query.filter(Genres.genre==genre.genre).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
-
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-	return render_template('search_results.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   name_key        = "title",
-						   page_url_prefix = 'series-id',
-						   searchTarget    = 'Genres',
-						   searchValue     = genre.genre
-						   )
 
 @app.route('/cover-img/<cid>')
 def renderCoverImage(cid):
@@ -290,194 +146,6 @@ def renderCoverImage(cid):
 	return send_file(covpath)
 
 
-
-@app.route('/series/<letter>/<int:page>')
-@app.route('/series/<page>')
-@app.route('/series/<int:page>')
-@app.route('/series/')
-def renderSeriesTable(letter=None, page=1):
-	if letter:
-		series = Series.query                                \
-			.filter(Series.title.like("{}%".format(letter))) \
-			.order_by(Series.title)
-	else:
-		series = Series.query       \
-			.order_by(Series.title)
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderSeriesTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-	return render_template('sequence.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   name_key        = "title",
-						   letter          = letter,
-						   page_url_prefix = 'series-id',
-						   title           = 'Book Titles')
-
-
-
-@app.route('/authors/<letter>/<int:page>')
-@app.route('/authors/<page>')
-@app.route('/authors/<int:page>')
-@app.route('/authors/')
-def renderAuthorTable(letter=None, page=1):
-
-	if letter:
-		series = Author.query                                 \
-			.filter(Author.name.like("{}%".format(letter))) \
-			.order_by(Author.name)                          \
-			.distinct(Author.name)
-	else:
-		series = Author.query       \
-			.order_by(Author.name)\
-			.distinct(Author.name)
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderAuthorTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('sequence.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   letter          = letter,
-						   name_key        = "name",
-						   page_url_prefix = 'author-id',
-						   title           = 'Authors')
-
-
-@app.route('/artists/<letter>/<int:page>')
-@app.route('/artists/<page>')
-@app.route('/artists/<int:page>')
-@app.route('/artists/')
-def renderArtistTable(letter=None, page=1):
-
-	if letter:
-		series = Illustrators.query                                 \
-			.filter(Illustrators.name.like("{}%".format(letter))) \
-			.order_by(Illustrators.name)                          \
-			.distinct(Illustrators.name)
-	else:
-		series = Illustrators.query       \
-			.order_by(Illustrators.name)\
-			.distinct(Illustrators.name)
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderArtistTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('sequence.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   letter          = letter,
-						   name_key        = "name",
-						   page_url_prefix = 'artist-id',
-						   title           = 'Artists')
-
-
-
-@app.route('/tags/<letter>/<int:page>')
-@app.route('/tags/<page>')
-@app.route('/tags/<int:page>')
-@app.route('/tags/')
-def renderTagTable(letter=None, page=1):
-
-	if letter:
-		series = Tags.query                                 \
-			.filter(Tags.tag.like("{}%".format(letter))) \
-			.order_by(Tags.tag)                          \
-			.distinct(Tags.tag)
-	else:
-		series = Tags.query       \
-			.order_by(Tags.tag)\
-			.distinct(Tags.tag)
-
-	if series is None:
-		flash(gettext('No tag items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderTagTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('sequence.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   letter          = letter,
-						   name_key        = "tag",
-						   page_url_prefix = 'tag-id',
-						   title           = 'Tags')
-
-
-@app.route('/genres/<letter>/<int:page>')
-@app.route('/genres/<page>')
-@app.route('/genres/<int:page>')
-@app.route('/genres/')
-def renderGenreTable(letter=None, page=1):
-
-	if letter:
-		series = Genres.query                                \
-			.filter(Genres.genre.like("{}%".format(letter))) \
-			.order_by(Genres.genre)                          \
-			.distinct(Genres.genre)
-	else:
-		series = Genres.query       \
-			.order_by(Genres.genre) \
-			.distinct(Genres.genre)
-	if series is None:
-		flash(gettext('No genre items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderGenreTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('sequence.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   letter          = letter,
-						   name_key        = "genre",
-						   page_url_prefix = 'genre-id',
-						   title           = 'Genres')
-
-
-
-@app.route('/releases/<page>')
-@app.route('/releases/<int:page>')
-@app.route('/releases/')
-def renderReleasesTable(page=1):
-
-	releases = Releases.query       \
-		.order_by(desc(Releases.published))
-
-	if releases is None:
-		flash(gettext('No releases? Something is /probably/ broken!.'))
-		return redirect(url_for('renderReleasesTable'))
-
-	releases_entries = releases.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('releases.html',
-						   sequence_item   = releases_entries,
-						   page            = page)
-
-
-@app.route('/feeds/<page>')
-@app.route('/feeds/<int:page>')
-@app.route('/feeds/')
-def renderFeedsTable(page=1):
-
-	feeds = Feeds.query       \
-		.order_by(desc(Feeds.published))
-
-	if feeds is None:
-		flash(gettext('No feeds? Something is /probably/ broken!.'))
-		return redirect(url_for('renderFeedsTable'))
-
-	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('feeds.html',
-						   sequence_item   = feed_entries,
-						   page            = page
-						   )
-
-
-@app.route('/history/<topic>/<int:srcId>')
-def history_route(topic, srcId):
-	return renderHistory(topic, srcId)
 
 
 @app.route('/edit', methods=['GET', 'POST'])
@@ -573,7 +241,6 @@ def signup():
 
 def get_serializer():
 	return URLSafeTimedSerializer(app.config['SECRET_KEY'])
-
 
 
 def get_activation_link(user):

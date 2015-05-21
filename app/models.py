@@ -235,6 +235,8 @@ class Releases(db.Model, ReleasesBase, ModificationInfoMixin):
 	series_row       = relationship("Series",              backref='Releases')
 
 
+
+
 class Language(db.Model, LanguageBase, ModificationInfoMixin):
 	__tablename__ = 'language'
 	__table_args__ = (
