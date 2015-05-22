@@ -171,9 +171,8 @@ def renderGenreId(sid, page=1):
 						   )
 
 
-@app.route('/group-id/<sid>/<int:page>')
 @app.route('/group-id/<sid>/')
-def renderGroupId(sid, page=1):
+def renderGroupId(sid):
 
 	group = Translators.query.filter(Translators.id==sid).scalar()
 
@@ -182,20 +181,16 @@ def renderGroupId(sid, page=1):
 		return redirect(url_for('renderTagTable'))
 
 
-	items = Releases.query.filter(Releases.tlgroup==group.id).all()
+	items = Releases.query.filter(Releases.tlgroup==group.id).order_by(desc(Releases.published)).all()
 	ids = []
 	for item in items:
 		ids.append(item.series)
 
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title).all()
 
-	return render_template('search_results.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   name_key        = "title",
-						   page_url_prefix = 'series-id',
-						   searchTarget    = 'Translation Groups',
-						   searchValue     = group.group_name
+	return render_template('group.html',
+						   series   = series,
+						   releases = items,
+						   group    = group
 						   )
 

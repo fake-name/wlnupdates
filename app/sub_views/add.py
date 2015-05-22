@@ -30,13 +30,13 @@ from app.forms import NewGroupForm, NewSeriesForm, updateAltNames
 
 def add_group(form):
 	name = form.name.data.strip()
-	have = Translators.query.filter(Translators.group_name==name).scalar()
+	have = Translators.query.filter(Translators.name==name).scalar()
 	if have:
 		flash(gettext('Group already exists!'))
 		return redirect(url_for('renderGroupId', sid=have.id))
 	else:
 		new = Translators(
-			group_name = name,
+			name = name,
 			changetime = datetime.datetime.now(),
 			changeuser = g.user.id,
 			)

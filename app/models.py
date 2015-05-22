@@ -78,10 +78,18 @@ class AlternateNamesBase(object):
 	name        = db.Column(db.Text(), nullable=False, index=True)
 	cleanname   = db.Column(CIText(), nullable=False, index=True)
 
-class TranslatorsBase(object):
+class AlternateTranslatorNamesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	group_name  = db.Column(CIText(), nullable=False, unique=True)
-	group_site  = db.Column(db.Text())
+	@declared_attr
+	def group(cls):
+		return db.Column(db.Integer, db.ForeignKey('translators.id'))
+	name        = db.Column(db.Text(), nullable=False, index=True)
+	cleanname   = db.Column(CIText(), nullable=False, index=True)
+
+class TranslatorsBase(object):
+	id    = db.Column(db.Integer, primary_key=True)
+	name  = db.Column(CIText(), nullable=False, unique=True)
+	site  = db.Column(db.Text())
 
 class ReleasesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -219,15 +227,26 @@ class AlternateNames(db.Model, AlternateNamesBase, ModificationInfoMixin):
 	series_row       = relationship("Series",         backref='AlternateNames')
 
 
-class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
-	__tablename__ = 'translators'
-	__searchable__ = ['group_name']
+class AlternateTranslatorNames(db.Model, AlternateTranslatorNamesBase, ModificationInfoMixin):
+	__tablename__ = 'alternatetranslatornames'
+	__searchable__ = ['name', 'cleanname']
 
 	__table_args__ = (
-		db.UniqueConstraint('group_name'),
+		db.UniqueConstraint('group', 'name'),
+		)
+	group_row       = relationship("Translators",         backref='AlternateTranslatorNames')
+
+
+class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
+	__tablename__ = 'translators'
+	__searchable__ = ['name']
+
+	__table_args__ = (
+		db.UniqueConstraint('name'),
 		)
 
-	releases        = relationship("Releases",         backref='Translators')
+	releases        = relationship("Releases",                 backref='Translators')
+	alt_names       = relationship("AlternateTranslatorNames", backref='Translators')
 
 class Releases(db.Model, ReleasesBase, ModificationInfoMixin):
 	__tablename__ = 'releases'
@@ -284,6 +303,11 @@ class AlternateNamesChanges(db.Model, AlternateNamesBase, ModificationInfoMixin,
 	__tablename__ = "alternatenameschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('alternatenames.id', ondelete="SET NULL"), index=True)
 
+
+class AlternateTranslatorNamesChanges(db.Model, AlternateTranslatorNamesBase, ModificationInfoMixin, ChangeLogMixin):
+	__tablename__ = "alternatetranslatornameschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('alternatetranslatornames.id', ondelete="SET NULL"), index=True)
+
 class LanguageChanges(db.Model, LanguageBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "languagechanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('language.id', ondelete="SET NULL"), index=True)
@@ -306,7 +330,9 @@ def create_trigger(cls):
 			colNames.append(column.description)
 
 	# id -> srccol, so the backlink works.
-	intoCols = ", ".join(colNames+['srccol', 'operation'])
+	# The names have to be quoted, because some of them are keywords (ex: "group"), and therefore
+	# were producing syntax issues
+	intoCols = ", ".join(['"{}"'.format(name) for name in colNames+['srccol', 'operation']])
 
 	# The Foreign key is null when we delete
 	deleteFromCols = ", ".join(["OLD."+item for item in colNames]+['NULL', ])
@@ -367,6 +393,7 @@ trigger_on = [
 	Releases,
 	Language,
 	Covers,
+	AlternateTranslatorNames,
 ]
 
 def install_trigram_indice_on_column(table, column):

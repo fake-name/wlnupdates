@@ -201,7 +201,7 @@ def renderReleasesTable(page=1):
 def renderGroupsTable(page=1):
 
 	groups = Translators.query       \
-		.order_by(Translators.group_name)
+		.order_by(Translators.name)
 
 	if groups is None:
 		flash(gettext('No Translators? Something is /probably/ broken!.'))

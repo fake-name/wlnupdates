@@ -5,7 +5,7 @@ import json
 import datetime
 from app import db
 from app.models import Feeds, FeedAuthors, FeedTags
-from app.models import Translators, Releases, Series, AlternateNames
+from app.models import Translators, Releases, Series, AlternateNames, AlternateTranslatorNames
 import traceback
 import app.nameTools as nt
 import time
@@ -116,15 +116,24 @@ def insert_raw_item(item):
 	db.session.commit()
 
 def get_create_group(groupname):
-	have = Translators.query.filter(Translators.group_name==groupname).scalar()
+	have = Translators.query.filter(Translators.name==groupname).scalar()
 	if not have:
 		print("Need to create new translator entry for ", groupname)
 		new = Translators(
-				group_name = groupname,
+				name = groupname,
 				changeuser = RSS_USER_ID,
+				changetime = datetime.datetime.now()
 				)
 		db.session.add(new)
-		db.session.flush()
+		db.session.commit()
+		newalt = AlternateTranslatorNames(
+			group      = new.id,
+			name       = new.name,
+			cleanname  = nt.prepFilenameForMatching(new.name),
+			changetime = datetime.datetime.now(),
+			changeuser = RSS_USER_ID,
+			)
+		db.session.add(newalt)
 		db.session.commit()
 		return new
 	return have

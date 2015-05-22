@@ -61,14 +61,14 @@ def utility_processor():
 	def getTlGroupId(idNo):
 		if idNo in tlGroupIdCache:
 			return tlGroupIdCache[idNo]
-		user = Translators.query.filter_by(id=idNo).one()
-		tlGroupIdCache[user.id] = user.group_name
+		group = Translators.query.filter_by(id=idNo).one()
+		tlGroupIdCache[group.id] = group.name
 
 		# Truncate the cache if it's getting too large
 		if len(tlGroupIdCache) > CACHE_SIZE:
 			tlGroupIdCache.popitem()
 
-		return tlGroupIdCache[user.id]
+		return tlGroupIdCache[group.id]
 
 	return dict(getUserId=getUserId, getTlGroupId=getTlGroupId)
 

@@ -40,11 +40,11 @@ def go():
 		print("Running in normal mode.")
 		app.run()
 
-	# print()
-	# print("Interrupt!")
-	# print("Joining on background thread")
 
+	print()
+	print("Interrupt!")
 	if not "debug" in sys.argv:
+		print("Joining on background thread")
 		flags.RUNSTATE = False
 		bk_thread.join()
 

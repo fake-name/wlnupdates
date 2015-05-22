@@ -53,7 +53,7 @@ class NewGroupForm(Form):
 
 
 # class NewReleaseForm(Form):
-# 	group_name  =   StringField('Author Name', validators=[DataRequired(), Length(min=1)])
+# 	name  =   StringField('Author Name', validators=[DataRequired(), Length(min=1)])
 
 
 

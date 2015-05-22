@@ -1,0 +1,73 @@
+<!-- extend base layout -->
+
+
+{% macro render_page_contents(series) %}
+
+	<table class='table-striped table table-bordered table-condensed fullwidth'>
+		{%- for page in series %}
+			<tr>
+				<td>
+					<a href="/series-id/{{page.id}}/">{{ page.title }}</a>
+				</td>
+
+			</tr>
+		{%- endfor %}
+	</table>
+
+{% endmacro %}
+
+
+
+{% extends "__base.html" %}
+
+{% block header %}
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="manga-id" content="{{ series_id }}">
+
+	<script src="/static/js/editable.js"></script>
+	<script src="/static/js/autogrow.js"></script>
+{% endblock %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div class="well well-large" style="min-height: 140px;">
+		<h2>Group {{ group.name }}</h2>
+
+
+		<div class="row">
+			<div class="col-md-6">
+				<div class="row multilist" id="altnames-container">
+					<div class='pull-right' style='padding-top: 10px'>
+						<a id='editlink' href="#" onclick="edit('altnames-container');return false;">[edit]</a>
+						<a id='historylink' href="/history/group-altnames/{{series.id}}">[history]</a>
+					</div>
+					<h4 style='padding-left: 10px'>Group Aliases</h4>
+
+					<div class="col-md-9 rowContents" id='altnames'>
+						<ul>
+							{% for item in group.alt_names %}
+								<li><span class='multilist' id='altnames'>{{item.name}}</span></li>
+							{% endfor %}
+						</ul>
+
+					</div>
+				</div>
+
+			</div>
+			<div class="col-md-6">
+				<h4>Series</h4>
+				{{ render_page_contents(series) }}
+			</div>
+		</div>
+
+
+	</div>
+
+	{% set release_items = releases %}
+	<div class="well well-large">
+		<span><h3>Group Releases:</h3><sup style='float:right'>Releases found: {{ release_items | length }}</sup></span>
+		{% include '_block_releases.html' %}
+	</div>
+
+
+{% endblock %}

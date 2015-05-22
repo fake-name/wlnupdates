@@ -568,12 +568,33 @@ def reset_db():
 			cur.execute("ROLLBACK")
 			print("Error:", str(e).strip())
 
+def create_tl_alts():
+	from app.models import AlternateTranslatorNames, Translators
+	from app import db
+	groups = Translators.query.all()
+	print(groups)
+	for group in groups:
+		new = AlternateTranslatorNames(
+			group      = group.id,
+			name       = group.name,
+			cleanname  = nt.prepFilenameForMatching(group.name),
+			changetime = datetime.datetime.now(),
+			changeuser = 3,
+			)
+		print(new)
+
+		db.session.add(new)
+		db.session.commit()
+	pass
+
 if __name__ == "__main__":
 	if "destroy" in sys.argv:
 		print("DESTROYING DATABASE! WARNING! WARNING!")
 		reset_db()
 	elif "create" in sys.argv:
 		go()
+	elif "create-tl-altnames" in sys.argv:
+		create_tl_alts()
 	else:
 		print("No arguments?")
 
