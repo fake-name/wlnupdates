@@ -42,7 +42,10 @@ def renderSeriesTable(letter=None, page=1):
 						   name_key        = "title",
 						   letter          = letter,
 						   page_url_prefix = 'series-id',
-						   title           = 'Book Titles')
+						   title           = 'Book Titles',
+						   add_new         = 'series',
+						   add_new_text    = 'Add a Series',
+						   )
 
 
 
@@ -72,7 +75,10 @@ def renderAuthorTable(letter=None, page=1):
 						   letter          = letter,
 						   name_key        = "name",
 						   page_url_prefix = 'author-id',
-						   title           = 'Authors')
+						   title           = 'Authors',
+						   # add_new         = 'author',
+						   # add_new_text    = 'Add a Author',
+						   )
 
 
 @app.route('/artists/<letter>/<int:page>')
@@ -101,7 +107,11 @@ def renderArtistTable(letter=None, page=1):
 						   letter          = letter,
 						   name_key        = "name",
 						   page_url_prefix = 'artist-id',
-						   title           = 'Artists')
+						   title           = 'Artists',
+						   # add_new         = 'artist',
+						   # add_new_text    = 'Add a Artist',
+
+						   )
 
 
 
@@ -201,7 +211,10 @@ def renderGroupsTable(page=1):
 
 	return render_template('groups.html',
 						   sequence_item   = groups_entries,
-						   page            = page)
+						   page            = page,
+						   add_new         = 'group',
+						   add_new_text    = 'Add a Group',
+						   )
 
 
 @app.route('/feeds/<page>')

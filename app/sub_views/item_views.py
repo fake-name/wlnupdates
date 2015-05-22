@@ -171,6 +171,7 @@ def renderGenreId(sid, page=1):
 						   )
 
 
+@app.route('/group-id/<sid>/<int:page>')
 @app.route('/group-id/<sid>/')
 def renderGroupId(sid, page=1):
 
@@ -187,8 +188,8 @@ def renderGroupId(sid, page=1):
 		ids.append(item.series)
 
 	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
-
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+
 	return render_template('search_results.html',
 						   sequence_item   = series_entries,
 						   page            = page,

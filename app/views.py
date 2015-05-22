@@ -6,7 +6,7 @@ from flask.ext.babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, babel
-from .forms import  LoginForm, EditForm, PostForm, SearchForm, SignupForm
+from .forms import  LoginForm, SearchForm, SignupForm
 from .models import Users, Posts, Series, Tags, Genres, Author
 from .models import Illustrators, Translators, Releases, Covers, Watches, AlternateNames
 from .models import Feeds, Releases
@@ -23,7 +23,9 @@ from sqlalchemy import desc
 from app.sub_views import item_views
 from app.sub_views import stub_views
 from app.sub_views import watched_view
+from app.sub_views import add
 from app.sub_views import sequence_views
+from app.sub_views import history_view
 
 import traceback
 
@@ -148,27 +150,23 @@ def renderCoverImage(cid):
 
 
 
-@app.route('/edit', methods=['GET', 'POST'])
-@login_required
-def edit():
-	form = EditForm(g.user.nickname)
-	if form.validate_on_submit():
-		g.user.nickname = form.nickname.data
-		g.user.about_me = form.about_me.data
-		db.session.add(g.user)
-		db.session.commit()
-		flash(gettext('Your changes have been saved.'))
-		return redirect(url_for('edit'))
-	elif request.method != "POST":
-		form.nickname.data = g.user.nickname
-		form.about_me.data = g.user.about_me
-	return render_template('edit.html', form=form)
-
-
+# @app.route('/edit', methods=['GET', 'POST'])
 # @login_required
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-	return execute_search()
+# def edit():
+# 	form = EditForm(g.user.nickname)
+# 	if form.validate_on_submit():
+# 		g.user.nickname = form.nickname.data
+# 		g.user.about_me = form.about_me.data
+# 		db.session.add(g.user)
+# 		db.session.commit()
+# 		flash(gettext('Your changes have been saved.'))
+# 		return redirect(url_for('edit'))
+# 	elif request.method != "POST":
+# 		form.nickname.data = g.user.nickname
+# 		form.about_me.data = g.user.about_me
+# 	return render_template('edit.html', form=form)
+
+
 
 
 

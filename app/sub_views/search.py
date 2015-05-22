@@ -8,6 +8,7 @@ from sqlalchemy.sql.functions import Function
 from sqlalchemy.sql.expression import select, desc
 
 from app import db
+from app import app
 
 def title_search(searchterm, page=1):
 	searchtermclean = bleach.clean(searchterm, strip=True)
@@ -55,6 +56,11 @@ def execute_search():
 		flash(gettext('Bad search route!'))
 		return redirect(url_for('index'))
 
+
+# @login_required
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+	return execute_search()
 
 
 	# return render_template('search_results.html',

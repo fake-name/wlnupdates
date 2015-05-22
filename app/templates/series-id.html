@@ -50,7 +50,7 @@
 			</div>
 			<div class="col-md-9 rowContents" id='{{valId}}'>
 				{% for item in inList %}
-					<span class='multiitem' id='{{valId}}'><a href="/{{link_base}}/{{item.id}}">{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
+					<span class='multiitem' id='{{valId}}'><a href="/{{link_base}}/{{item.id}}/">{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
 				{% else %}
 					<span class='multiitem' id='{{valId}}'>N/A</span>
 				{% endfor %}

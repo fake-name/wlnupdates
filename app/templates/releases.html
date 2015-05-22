@@ -23,7 +23,12 @@
 {% block content %}
 	{% include '_block_flash.html' %}
 	<div class="well well-large" style="min-height: 140px;">
-		<h2>Series Releases:</h2>
+		<div class='pull-right'>
+			<h4><a href='/add/release/'>Add a new release</a></h4>
+		</div>
+		<div>
+			<h2>Series Releases:</h2>
+		</div>
 
 		{{ render_pagination(sequence_item) }}
 

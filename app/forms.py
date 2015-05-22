@@ -45,37 +45,47 @@ class SignupForm(Form):
 		if user is not None:
 			raise ValidationError("That username is already used! Please choose another.")
 
+class NewSeriesForm(Form):
+	name =   StringField('Series Title', validators=[DataRequired(), Length(min=1)])
+
+class NewGroupForm(Form):
+	name  =   StringField('Group Name', validators=[DataRequired(), Length(min=1)])
 
 
-class EditForm(Form):
-	nickname = StringField('nickname', validators=[DataRequired()])
-	about_me = TextAreaField('about_me', validators=[Length(min=0, max=140)])
-
-	def __init__(self, original_nickname, *args, **kwargs):
-		Form.__init__(self, *args, **kwargs)
-		self.original_nickname = original_nickname
-
-	def validate(self):
-		if not Form.validate(self):
-			return False
-		if self.nickname.data == self.original_nickname:
-			return True
-		if self.nickname.data != Users.make_valid_nickname(self.nickname.data):
-			self.nickname.errors.append(gettext(
-				'This nickname has invalid characters. '
-				'Please use letters, numbers, dots and underscores only.'))
-			return False
-		user = Users.query.filter_by(nickname=self.nickname.data).first()
-		if user is not None:
-			self.nickname.errors.append(gettext(
-				'This nickname is already in use. '
-				'Please choose another one.'))
-			return False
-		return True
+# class NewReleaseForm(Form):
+# 	group_name  =   StringField('Author Name', validators=[DataRequired(), Length(min=1)])
 
 
-class PostForm(Form):
-	post = StringField('post', validators=[DataRequired()])
+
+# class EditForm(Form):
+# 	nickname = StringField('nickname', validators=[DataRequired()])
+# 	about_me = TextAreaField('about_me', validators=[Length(min=0, max=140)])
+
+# 	def __init__(self, original_nickname, *args, **kwargs):
+# 		Form.__init__(self, *args, **kwargs)
+# 		self.original_nickname = original_nickname
+
+# 	def validate(self):
+# 		if not Form.validate(self):
+# 			return False
+# 		if self.nickname.data == self.original_nickname:
+# 			return True
+# 		if self.nickname.data != Users.make_valid_nickname(self.nickname.data):
+# 			self.nickname.errors.append(gettext(
+# 				'This nickname has invalid characters. '
+# 				'Please use letters, numbers, dots and underscores only.'))
+# 			return False
+# 		user = Users.query.filter_by(nickname=self.nickname.data).first()
+# 		if user is not None:
+# 			self.nickname.errors.append(gettext(
+# 				'This nickname is already in use. '
+# 				'Please choose another one.'))
+# 			return False
+# 		return True
+
+
+# class PostForm(Form):
+# 	post = StringField('post', validators=[DataRequired()])
 
 
 class SearchForm(Form):

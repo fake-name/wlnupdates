@@ -18,4 +18,4 @@ python db_migrate.py db upgrade
 python db_migrate.py install_triggers
 python db_migrate.py install_tgm_idx
 
-python migrator.py
+python migrator.py create

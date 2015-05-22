@@ -80,7 +80,7 @@ class AlternateNamesBase(object):
 
 class TranslatorsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
-	group_name  = db.Column(db.Text(), nullable=False)
+	group_name  = db.Column(CIText(), nullable=False, unique=True)
 	group_site  = db.Column(db.Text())
 
 class ReleasesBase(object):

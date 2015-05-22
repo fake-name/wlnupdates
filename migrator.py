@@ -572,6 +572,8 @@ if __name__ == "__main__":
 	if "destroy" in sys.argv:
 		print("DESTROYING DATABASE! WARNING! WARNING!")
 		reset_db()
-	else:
+	elif "create" in sys.argv:
 		go()
+	else:
+		print("No arguments?")
 
