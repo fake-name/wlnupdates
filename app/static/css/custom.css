@@ -65,3 +65,9 @@ span.light-grey
 	color: #999;
 	font-size: 75%;
 }
+body
+{
+	margin:0 auto;
+	max-width: 1100px;
+	background-color: #ccc;
+}
