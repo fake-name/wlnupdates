@@ -28,7 +28,7 @@ If you do not have an account, you must create one in order to edit things or wa
 		return resp
 
 	if not request.json:
-		print("Non-JSON request!")
+		# print("Non-JSON request!")
 		js = {
 			"error"   : True,
 			"message" : "This endpoint only accepts JSON POST requests."
@@ -68,7 +68,7 @@ DISPATCH_TABLE = {
 }
 
 def dispatchApiCall(reqJson):
-	print("Json request:", reqJson)
+	# print("Json request:", reqJson)
 	if not "mode" in reqJson:
 		return getError("No mode in API Request!")
 
