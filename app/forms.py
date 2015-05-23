@@ -160,7 +160,7 @@ VALID_KEYS = {
 	}
 
 def validateMangaData(data):
-	print("Manga Data:", data)
+	# print("Manga Data:", data)
 	assert "entries" in data
 	assert "item-id" in data
 
@@ -241,7 +241,7 @@ def updateGenres(series, genres):
 
 
 def updateAltNames(series, altnames):
-	print("Alt names:", altnames)
+	# print("Alt names:", altnames)
 	altnames = [name.strip() for name in altnames]
 	cleaned = {}
 	for name in altnames:
@@ -283,7 +283,7 @@ def setAuthorIllust(series, author=None, illust=None):
 		return {'error' : True, 'message' : "No parameters?"}
 
 	have = table.query.filter(table.series==series.id).all()
-	print(have)
+	# print(have)
 
 	haveitems = {item.name.lower().strip() : item for item in have}
 	initems   = {    value.lower().strip() : value for value in values}
@@ -315,11 +315,12 @@ def processMangaUpdateJson(data):
 	series = Series.query.filter(Series.id==sid).one()
 
 	for entry in validated['entries']:
-		print(entry)
+		# print(entry)
 		if entry['type'] == 'description':
 			processedData = markdown.markdown(bleach.clean(entry['data'], strip=True))
 			if series.description == processedData:
-				print("No change?")
+				# print("No change?")
+				pass
 			else:
 				series.description = processedData
 				series.changeuser = current_user.id
@@ -329,7 +330,8 @@ def processMangaUpdateJson(data):
 		elif entry['type'] == 'demographic':
 			processedData = bleach.clean(entry['data'], strip=True)
 			if series.demographic == processedData:
-				print("No change?")
+				# print("No change?")
+				pass
 			else:
 				series.demographic = processedData
 				series.changeuser = current_user.id
@@ -338,7 +340,8 @@ def processMangaUpdateJson(data):
 		elif entry['type'] == 'region':
 			processedData = bleach.clean(entry['data'], strip=True)
 			if series.demographic == processedData:
-				print("No change?")
+				# print("No change?")
+				pass
 			else:
 				series.region = processedData
 				series.changeuser = current_user.id
@@ -347,7 +350,8 @@ def processMangaUpdateJson(data):
 		elif entry['type'] == 'type':
 			processedData = bleach.clean(entry['data'], strip=True)
 			if series.type == processedData:
-				print("No change?")
+				# print("No change?")
+				pass
 			else:
 				series.type = processedData
 				series.changeuser = current_user.id
@@ -356,7 +360,8 @@ def processMangaUpdateJson(data):
 		elif entry['type'] == 'origin_loc':
 			processedData = bleach.clean(entry['data'], strip=True)
 			if series.origin_loc == processedData:
-				print("No change?")
+				# print("No change?")
+				pass
 			else:
 				series.origin_loc = processedData
 				series.changeuser = current_user.id
@@ -365,7 +370,8 @@ def processMangaUpdateJson(data):
 		elif entry['type'] == 'orig_lang':
 			processedData = bleach.clean(entry['data'], strip=True)
 			if series.orig_lang == processedData:
-				print("No change?")
+				# print("No change?")
+				pass
 			else:
 				series.orig_lang = processedData
 				series.changeuser = current_user.id
