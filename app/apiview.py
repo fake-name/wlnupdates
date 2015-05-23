@@ -82,6 +82,7 @@ def dispatchApiCall(reqJson):
 
 	except AssertionError:
 		traceback.print_exc()
+		print(reqJson)
 		return getError("Invalid data in API request!")
 
 

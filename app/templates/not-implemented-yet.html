@@ -2,6 +2,8 @@
 {% extends "__base.html" %}
 
 {% block content %}
-	<h1>{{ _('Not Implemented Yet!' if not message else message) }}</h1>
-	<p><a href="{{ url_for('index') }}">{{ _('Back') }}</a></p>
+	<div class="well well-large">
+		<h1>{{ _('Not Implemented Yet!' if not message else message) }}</h1>
+		<p><a href="{{ url_for('index') }}">{{ _('Back') }}</a></p>
+	</div>
 {% endblock %}

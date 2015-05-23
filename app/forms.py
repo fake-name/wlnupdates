@@ -157,7 +157,13 @@ VALID_KEYS = {
 	'genre-container'        : 'genre',
 	'altnames-container'     : 'alternate-names',
 	'region-container'       : 'region',
+	'license_en-container'   : 'license_en',
 	}
+VALID_LICENSE_STATES = {
+	"unknown" : None,
+	"True"    : True,
+	"False"   : False,
+}
 
 def validateMangaData(data):
 	# print("Manga Data:", data)
@@ -313,6 +319,7 @@ def processMangaUpdateJson(data):
 
 	sid = validated['id']
 	series = Series.query.filter(Series.id==sid).one()
+	print(validated)
 
 	for entry in validated['entries']:
 		# print(entry)
@@ -346,6 +353,27 @@ def processMangaUpdateJson(data):
 				series.region = processedData
 				series.changeuser = current_user.id
 				series.changetime = datetime.datetime.now()
+
+		elif entry['type'] == 'license_en':
+			lic_state = entry['data']
+
+			if lic_state not in VALID_LICENSE_STATES:
+				raise ValueError("Invalid license data!")
+			else:
+				lic_state = VALID_LICENSE_STATES[lic_state]
+
+			series.license_en = lic_state
+			series.changeuser = current_user.id
+			series.changetime = datetime.datetime.now()
+
+
+			# if series.demographic == processedData:
+			# 	# print("No change?")
+			# 	pass
+			# else:
+			# 	series.region = processedData
+			# 	series.changeuser = current_user.id
+			# 	series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'type':
 			processedData = bleach.clean(entry['data'], strip=True)

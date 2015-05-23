@@ -1,13 +1,15 @@
 <!-- extend base layout -->
-{% macro singleItemBlock(name, value, valId) -%}
+{% macro singleItemBlock(name, value, valId, width=3) -%}
 	<div class="well well-tny info-item">
 		<div class="row singleitem"  id="{{valId}}-container">
-			<div class="col-md-3 rowTitle">
+			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
-				<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				<span class='text-nowrap'>
+					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				</span>
 			</div>
-			<div class="col-md-9 rowContents" id='{{valId}}'>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				<span class='singleitem'>{{ ( value if value else "N/A" ) | safe }}</span>
 			</div>
 		</div>
@@ -15,18 +17,20 @@
 {%- endmacro %}
 
 <!-- extend base layout -->
-{% macro singleItemBlockDropbox(name, value, valId, values) -%}
+{% macro singleItemBlockDropbox(name, value, valId, values, width=3) -%}
 	<div class="well well-tny info-item">
 		<div class="row dropitem"  id="{{valId}}-container">
-			<div class="col-md-3 rowTitle">
+			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
-				<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				<span class='text-nowrap'>
+					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				</span>
 			</div>
-			<div class="col-md-9 rowContents" id='{{valId}}'>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				<div class='singleitem'>
 					<span class='dropitem-text'>{{ values[value] | safe }}</span>
-					<span class='dropitem-box' style='display: none'>
+					<span class='dropitem-box' style='display: none; width:90%'>
 						<select>
 							{% for key, val in values.items() %}
 								<option value='{{key}}' {{'selected="selected"' if key == value else ''}} >{{val}}</option>
@@ -40,15 +44,17 @@
 	</div>
 {%- endmacro %}
 
-{% macro multiItemBlock(name, inList, itemKey, valId, link_base) -%}
+{% macro multiItemBlock(name, inList, itemKey, valId, link_base, width=3) -%}
 	<div class="well well-tny info-item">
 		<div class="row multiitem" id="{{valId}}-container">
-			<div class="col-md-3 rowTitle">
+			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
-				<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				<span class='text-nowrap'>
+					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				</span>
 			</div>
-			<div class="col-md-9 rowContents" id='{{valId}}'>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				{% for item in inList %}
 					<span class='multiitem' id='{{valId}}'><a href="/{{link_base}}/{{item.id}}/">{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
 				{% else %}
@@ -62,18 +68,18 @@
 
 
 
-{% macro multiItemList(name, inList, itemKey, valId, link_base, link=True) -%}
+{% macro multiItemList(name, inList, itemKey, valId, link_base, link=True, width=3) -%}
 	<div class="well well-tny info-item">
 		<div class="row multilist" id="{{valId}}-container">
-			<div class="col-md-3 rowTitle">
+			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
-				<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				<span class='text-nowrap'>
+					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				</span>
 			</div>
-			<div class="col-md-9 rowContents" id='{{valId}}'>
-
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				<ul>
-
 					{% for item in inList %}
 					<li><span class='multilist' id='{{valId}}'>{{ item[itemKey] }}</span></li>
 					{% endfor %}
@@ -224,24 +230,116 @@
 			{{coversBlock(series.covers)}}
 
 			{{singleItemBlock("Description",       series.description, 'description'     )}}
-			{{singleItemBlock("Demographic",       series.demographic, 'demographic'     )}}
-			{{singleItemBlock("Type",              series.type,        'type'            )}}
-			{{singleItemBlock("Country of Origin", series.origin_loc,  'origin_loc'      )}}
-			{{singleItemBlock("Original Language", series.orig_lang,   'orig_lang'       )}}
+			{{singleItemBlock("Demographic",
+								series.demographic,
+								'demographic',
+								width=5
+							)
+			}}
 
-			{{singleItemBlockDropbox("General Type", series.region,   'region',
-				{
-					"eastern" : "Eastern",
-					"western" : "Western",
-					"unknown" : "Unknown",
-				}
-			)}}
+			{{singleItemBlockDropbox("Type",
+								series.type,
+								'type',
+								{
+									"Novel"       : "Novel",
+									"Light-Novel" : "Light-Novel",
+									"Web-Novel"   : "Web-Novel",
+								},
+								width=5
+							)
+			}}
 
-			{{multiItemBlock("Author(s)",          series.author,             'name',           'author',       'author-id')}}
-			{{multiItemBlock("Illustrator(s)",     series.illustrators,       'name',           'illustrators', 'artist-id')}}
-			{{multiItemBlock("Tags",               series.tags,               'tag',            'tag',          'tag-id')}}
-			{{multiItemBlock("Genres",             series.genres,             'genre',          'genre',        'genre-id')}}
-			{{multiItemList("Alternate Names",     series.alternatenames,     'name',           'altnames',     'altnames-id')}}
+			{{singleItemBlockDropbox("Country of Origin",
+								series.origin_loc,
+								'origin_loc',
+								{
+									"unknown" : "Unknown",
+									"china"   : "China",
+									"japan"   : "Japan",
+									"korea"   : "Korea",
+								},
+								width=5
+							)
+			}}
+
+			{{singleItemBlock("Original Language",
+								series.orig_lang,
+								'orig_lang',
+								width=5
+							)
+			}}
+
+			{{singleItemBlockDropbox("General Type",
+								series.region,
+								'region',
+								{
+									"eastern" : "Eastern",
+									"western" : "Western",
+									"unknown" : "Unknown",
+								},
+								width=5
+							)
+			}}
+
+			{% if series.license_en == True %}
+				{% set lic_state = 'True'%}
+			{% elif series.license_en == False %}
+				{% set lic_state = 'False'%}
+			{% else %}
+				{% set lic_state = 'unknown'%}
+			{% endif %}
+			{{singleItemBlockDropbox("Licensed (in english)",
+								lic_state,
+								'license_en',
+								{
+									"unknown" : "Unknown",
+									"True"    : "Yes",
+									"False"   : "No",
+								},
+								width=5
+							)
+			}}
+
+			{{multiItemBlock("Author(s)",
+								series.author,
+								'name',
+								'author',
+								'author-id',
+								width=5
+							)
+			}}
+			{{multiItemBlock("Illustrator(s)",
+								series.illustrators,
+								'name',
+								'illustrators',
+								'artist-id',
+								width=5
+							)
+			}}
+			{{multiItemBlock("Tags",
+								series.tags,
+								'tag',
+								'tag',
+								'tag-id',
+								width=5
+							)
+			}}
+			{{multiItemBlock("Genres",
+								series.genres,
+								'genre',
+								'genre',
+								'genre-id',
+								width=5
+							)
+			}}
+			{{multiItemList("Alternate Names",
+								series.alternatenames,
+								'name',
+								'altnames',
+								'altnames-id',
+								width=5
+							)
+			}}
 
 			<div style="clear: both;"></div>
 

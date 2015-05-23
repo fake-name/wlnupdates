@@ -123,7 +123,7 @@ function toggle_watch(containerId){
 
 	var params = {
 		"mode"      : "set-watch",
-		"mangaId"   : mangaId,
+		"item-id"   : mangaId,
 		"watch"     : watch,
 		"list"      : "watched"
 	}
