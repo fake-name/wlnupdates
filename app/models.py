@@ -36,6 +36,10 @@ class SeriesBase(object):
 	volume      = db.Column(db.Float(), default=-1)
 	chapter     = db.Column(db.Float(), default=-1)
 
+
+	tot_volume  = db.Column(db.Float(), default=-1)
+	tot_chapter = db.Column(db.Float(), default=-1)
+
 	region      = db.Column(region_enum, default='unknown')
 
 class TagsBase(object):
