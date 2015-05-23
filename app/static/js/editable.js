@@ -177,6 +177,9 @@ function saveEdits(containerId)
 		var textarea = member.find("textarea").first();
 		var combobox = member.find("select").first();
 
+		console.log('this', this);
+		console.log('textarea', textarea);
+
 		if (textarea.length > 0)
 		{
 			var entryKey  = member.find(".row").first().attr('id');
@@ -212,7 +215,24 @@ function saveEdits(containerId)
 	console.log("Data:", data)
 
 
-	var mangaId = $('meta[name=manga-id]').attr('content')
+	var mangaId  = $('meta[name=manga-id]').attr('content')
+	var seriesId = $('meta[name=group-id]').attr('content')
+	console.log(mangaId)
+	console.log(seriesId)
+
+	var itemId = -1;
+	var mode = "error";
+
+	if (mangaId && seriesId == undefined)
+	{
+		mode = "manga-update";
+		itemId = mangaId;
+	}
+	else if (seriesId && mangaId == undefined)
+	{
+		mode = "group-update";
+		itemId = seriesId;
+	}
 
 	var container = $('#'+containerId).first();
 	var editLink = container.find("#editlink").first();
@@ -224,8 +244,8 @@ function saveEdits(containerId)
 	var entryArea = container.find("textarea").first().val();
 
 	var params = {
-		"mode"      : "manga-update",
-		"mangaId"   : mangaId,
+		"mode"      : mode,
+		"item-id"   : itemId,
 		"entries"   : data,
 	}
 
@@ -260,9 +280,6 @@ function saveCallback(containerId)
 			location.reload();
 		}
 		console.log(result)
-
-
-
 
 	}
 }

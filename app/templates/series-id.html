@@ -250,7 +250,13 @@
 
 	{% set release_items = series.releases %}
 	<div class="well well-large">
-		<span><h3>Series Releases:</h3><sup style='float:right'>Releases found: {{ release_items | length }}</sup></span>
+		<div style='float:right'>
+			<sup>Releases found: {{ release_items | length }}</sup>
+			<p>
+				<a href='/add/release/{{series.id}}/'>Add a release</a>
+			</p>
+		</div>
+		<span><h3>Series Releases:</h3></span>
 		{% include '_block_releases.html' %}
 	</div>
 

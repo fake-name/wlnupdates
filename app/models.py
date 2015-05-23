@@ -110,6 +110,7 @@ class ReleasesBase(object):
 	# showing up as progress.
 	# As such, if include is false, the release is just ignored when looking for
 	# the furthest chapter.
+	# This is not currently exposed at all through the web-ui
 	include     = db.Column(db.Boolean, nullable=False, index=True, default=False)
 
 	srcurl      = db.Column(db.Text())

@@ -1,11 +1,23 @@
 from flask.ext.wtf import Form
 from flask.ext.babel import gettext
-from wtforms import StringField, BooleanField, TextAreaField, FormField, PasswordField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import StringField, BooleanField, TextAreaField, FormField, PasswordField, SelectField, HiddenField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, URL
 from .models import Users
 from flask.ext.bcrypt import check_password_hash
 from app import db
-from .models import Users, Posts, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers, Watches, AlternateNames
+from app.models import Users
+from app.models import Posts
+from app.models import Series
+from app.models import Tags
+from app.models import Genres
+from app.models import Author
+from app.models import Illustrators
+from app.models import Translators
+from app.models import Releases
+from app.models import Covers
+from app.models import Watches
+from app.models import AlternateNames
+from app.models import AlternateTranslatorNames
 import markdown
 import bleach
 import wtforms
@@ -31,9 +43,6 @@ class LoginForm(Form):
 		if not check_password_hash(user.password, form.password.data):
 			loginError()
 
-
-
-
 class SignupForm(Form):
 	username  =   StringField('Username', validators=[DataRequired(), Length(min=5)])
 	password  = PasswordField('Password', validators=[DataRequired(), Length(min=8), EqualTo('pconfirm', "Your passwords must match!")])
@@ -52,9 +61,52 @@ class NewGroupForm(Form):
 	name  =   StringField('Group Name', validators=[DataRequired(), Length(min=1)])
 
 
-# class NewReleaseForm(Form):
-# 	name  =   StringField('Author Name', validators=[DataRequired(), Length(min=1)])
 
+def check_group(form, field):
+	try:
+		dat = int(field.data)
+	except ValueError:
+		raise ValidationError("Invalid group value! You must select a group.")
+	if dat < 0:
+		raise ValidationError("Invalid group value! You must select a group.")
+
+def check_volume(form, field):
+	if field.data:
+		try:
+			dat = int(field.data)
+		except ValueError:
+			raise ValidationError("Volume must be an integer value!")
+	if not (field.data or form.chapter.data):
+		raise ValidationError("Volume and chapter cannot both be empty!")
+
+
+def check_chapter(form, field):
+	if field.data:
+		try:
+			dat = int(field.data)
+		except ValueError:
+			raise ValidationError("Chapter must be an integer value!")
+	if not (field.data or form.volume.data):
+		raise ValidationError("Volume and chapter cannot both be empty!")
+
+def check_sub_chapter(form, field):
+	if field.data:
+		try:
+			dat = int(field.data)
+		except ValueError:
+			raise ValidationError("Sub-Chapter must be an integer value!")
+
+
+
+class NewReleaseForm(Form):
+	volume      = StringField('Volume', validators=[check_volume])
+	chapter     = StringField('Chapter', validators=[check_chapter])
+	subChap     = StringField('Sub-Chapter', validators=[check_sub_chapter])
+	postfix     = StringField('Additional release titles', [Length(max=64)])
+	group       = SelectField('Group', validators=[check_group], coerce=int)
+	series_id   = HiddenField('series')
+	release_pg  = StringField('Release URL', [URL(message='You must supply a link to the released chapter/volume.')])
+	# releasetime = DateTimeField('Release Date/Time', format='%Y-%m-%dT%H:%M:%SZ')
 
 
 # class EditForm(Form):
@@ -93,13 +145,6 @@ class SearchForm(Form):
 
 
 
-
-class SeriesUpdate(Form):
-	mangaId  = wtforms.IntegerField('mangaId', validators=[DataRequired()])
-	mode     = wtforms.StringField('mode',     validators=[DataRequired()])
-	entries  = wtforms.StringField('entries',  validators=[DataRequired()])
-
-
 VALID_KEYS = {
 	'description-container'  : 'description',
 	'demographic-container'  : 'demographic',
@@ -117,10 +162,10 @@ VALID_KEYS = {
 def validateMangaData(data):
 	print("Manga Data:", data)
 	assert "entries" in data
-	assert "mangaId" in data
+	assert "item-id" in data
 
 	try:
-		itemId = int(data['mangaId'])
+		itemId = int(data['item-id'])
 	except ValueError:
 		raise AssertionError
 
@@ -354,12 +399,17 @@ def processMangaUpdateJson(data):
 	}
 	return ret
 
-# {'watch': True, 'mode': 'set-watch', 'mangaId': '1857', 'list': 'watched'}
+# {'watch': True, 'mode': 'set-watch', 'item-id': '1857', 'list': 'watched'}
+
+################################################################################################################################################################
+################################################################################################################################################################
+################################################################################################################################################################
+
 
 def validateWatchedData(data):
 	assert "watch" in data
 	assert "list" in data
-	assert "mangaId" in data
+	assert "item-id" in data
 
 	update = {}
 	try:
@@ -368,7 +418,7 @@ def validateWatchedData(data):
 		raise AssertionError
 
 	try:
-		update['mangaId'] = int(data['mangaId'])
+		update['item-id'] = int(data['item-id'])
 	except ValueError:
 		raise AssertionError
 
@@ -384,12 +434,13 @@ def validateWatchedData(data):
 	# Return the processed output.
 	return update
 
+
 def setSeriesWatchJson(data):
 	cleaned = validateWatchedData(data)
 
 	watch_row = Watches.query.filter(
 			(Watches.user_id==current_user.id) &
-			(Watches.series_id==cleaned['mangaId'])
+			(Watches.series_id==cleaned['item-id'])
 		).scalar()
 
 	# There are 5 possible permutations here:
@@ -409,7 +460,7 @@ def setSeriesWatchJson(data):
 
 		newWatch = Watches(
 			user_id   = current_user.id,
-			series_id = cleaned['mangaId'],
+			series_id = cleaned['item-id'],
 			listname  = cleaned['listName'],
 		)
 
@@ -443,6 +494,113 @@ def setSeriesWatchJson(data):
 
 	}
 	return ret
+
+
+################################################################################################################################################################
+################################################################################################################################################################
+################################################################################################################################################################
+
+
+VALID_GROUP_KEYS = {
+	'altnames-container'     : 'alternate-names',
+	}
+
+def validateGroupData(data):
+	print("Group Data:", data)
+	assert "entries" in data
+	assert "item-id" in data
+
+	try:
+		itemId = int(data['item-id'])
+	except ValueError:
+		raise AssertionError
+
+	assert itemId >= 0
+	update = {
+				'id'       : itemId,
+				'entries' : []
+			}
+
+	for item in data['entries']:
+		val = {}
+		assert 'value' in item
+		assert 'type' in item
+		assert 'key' in item
+
+		itemType = item['type']
+		assert itemType in ['singleitem', 'multiitem', 'combobox']
+
+		if itemType == 'singleitem' or itemType == 'combobox':
+			val['data'] = item['value'].strip()
+		elif itemType == 'multiitem':
+			tmp         = [entry.strip() for entry in item['value'].strip().split("\n")]
+			val['data'] = [entry for entry in tmp if entry]
+		else:
+			raise AssertionError("Invalid item type!")
+
+		if item['key'] not in VALID_GROUP_KEYS:
+			raise AssertionError("Invalid source key: '%s'!" % item['key'])
+		else:
+			val['type'] = VALID_GROUP_KEYS[item['key']]
+
+		update['entries'].append(val)
+
+	# Ok, the JSON is valid, and we've more or less sanitized it.
+	# Return the processed output.
+	return update
+
+
+
+def updateGroupAltNames(group, altnames):
+	print("Alt names:", altnames)
+	altnames = [name.strip() for name in altnames]
+	cleaned = {}
+	for name in altnames:
+		if name.lower().strip():
+			cleaned[name.lower().strip()] = name
+
+	havenames = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.group==group.id).order_by(AlternateTranslatorNames.name).all()
+	havenames = {name.name.lower().strip() : name for name in havenames}
+
+	for name in cleaned.keys():
+		if name in havenames:
+			havenames.pop(name)
+		else:
+			newname = AlternateTranslatorNames(
+					name       = cleaned[name],
+					cleanname  = nt.prepFilenameForMatching(cleaned[name]),
+					group     = group.id,
+					changetime = datetime.datetime.now(),
+					changeuser = current_user.id
+				)
+			db.session.add(newname)
+
+	for key, value in havenames.items():
+		db.session.delete(value)
+	db.session.commit()
+
+
+
+def processGroupUpdateJson(data):
+	validated = validateGroupData(data)
+
+	sid = validated['id']
+	group = Translators.query.filter(Translators.id==sid).one()
+
+	for entry in validated['entries']:
+		print(entry)
+
+		if entry['type'] == 'alternate-names':
+			updateGroupAltNames(group, entry['data'])
+		else:
+			raise AssertionError("Unknown modifification type!")
+
+	ret = {
+			"error"   : False,
+			"message" : "Wat?!"
+	}
+	return ret
+
 
 
 # {'value': '',

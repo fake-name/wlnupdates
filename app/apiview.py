@@ -63,10 +63,12 @@ def getError(message):
 
 DISPATCH_TABLE = {
 	'manga-update' : forms.processMangaUpdateJson,
+	'group-update' : forms.processGroupUpdateJson,
 	'set-watch'    : forms.setSeriesWatchJson,
 }
 
 def dispatchApiCall(reqJson):
+	print("Json request:", reqJson)
 	if not "mode" in reqJson:
 		return getError("No mode in API Request!")
 

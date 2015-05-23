@@ -1,0 +1,137 @@
+<!-- extend base layout -->
+{% extends "__base.html" %}
+
+
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div class="well well-large" style="min-height: 140px;">
+		<h2>Add a new release for {{series.title}}:</h2>
+
+		<form method="POST" action="{{request.path}}">
+			{{ form.hidden_tag() }}
+			<div class="well well-xs" >
+
+				<table class='table-striped table table-bordered table-condensed fullwidth'>
+					<colgroup>
+						<col style='width: 180px'>
+						<col>
+					</colgroup>
+					<tr>
+						<td>
+							{{ form.volume.label }}
+						</td>
+						<td>
+							{{ form.volume(size=6) }}
+							<span class='light-grey'>Leave empty if there is no volume number</span>
+
+							{% if form.volume.errors %}
+								<ul class="errors">
+									{% for error in form.volume.errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<td>
+							{{ form.chapter.label }}
+						</td>
+						<td>
+							{{ form.chapter(size=6) }}
+							{% if form.chapter.errors %}
+								<ul class="errors">
+									{% for error in form.chapter.errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+							{{ form.subChap.label }}
+						</td>
+
+						<td>
+							{{ form.subChap(size=6) }}
+							<span class='light-grey'>Use for partial chapters, leave empty otherwise.</span>
+
+							{% if form.subChap.errors %}
+								<ul class="errors">
+									{% for error in form.subChap.errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+
+							{{ form.postfix.label }}
+						</td>
+						<td>
+							{{ form.postfix(size=60) }}
+							<span class='light-grey'>If the chapter has a name, it goes here..</span>
+
+							{% if form.postfix.errors %}
+								<ul class="errors">
+									{% for error in form.postfix.errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+
+							{{ form.release_pg.label }}
+						</td>
+						<td>
+							{{ form.release_pg(size=60) }}
+							<span class='light-grey'>Address where the release is available</span>
+
+							{% if form.release_pg.errors %}
+								<ul class="errors">
+									{% for error in form.release_pg.errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<td>
+
+							{{ form.group.label }}
+						</td>
+						<td>
+							{{ form.group() }}
+							<span class='light-grey'>Translator group. If the group is not present, you must <a href='/add/group/'>add it first.</a></span>
+
+							{% if form.group.errors %}
+								<ul class="errors">
+									{% for error in form.group.errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</td>
+					</tr>
+
+				</table>
+
+			<div>{{message}}</div>
+			</div>
+			<input type="submit" value="Add">
+
+		</form>
+	</div>
+
+{% endblock %}
