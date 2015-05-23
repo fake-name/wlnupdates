@@ -13,6 +13,7 @@ app = Flask(__name__)
 
 import sys
 if "debug" in sys.argv:
+	print("Flask running in debug mode!")
 	app.debug = True
 app.config.from_object('config.BaseConfig')
 db = SQLAlchemy(app)
@@ -23,7 +24,10 @@ lm.login_message = lazy_gettext('Please log in to access this page.')
 mail = Mail(app)
 babel = Babel(app)
 CsrfProtect(app)
-toolbar = DebugToolbarExtension(app)
+
+if "debug" in sys.argv:
+	print("Installing debug toolbar!")
+	toolbar = DebugToolbarExtension(app)
 
 if not app.debug:
 	import logging
