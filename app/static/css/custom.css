@@ -71,3 +71,10 @@ body
 	max-width: 1100px;
 	background-color: #ccc;
 }
+
+tr.red-highlight:nth-of-type(odd) {
+  background-color: #ffeaea !important;
+}
+tr.red-highlight:nth-of-type(even) {
+  background-color: #ffe0e0 !important;
+}

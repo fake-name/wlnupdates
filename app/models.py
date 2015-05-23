@@ -518,6 +518,7 @@ class Watches(db.Model):
 		db.UniqueConstraint('user_id', 'series_id'),
 		)
 
+	series_row       = relationship("Series",         backref='Watches')
 
 
 class Users(db.Model):
