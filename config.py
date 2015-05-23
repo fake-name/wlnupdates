@@ -27,7 +27,7 @@ class BaseConfig(object):
 	# slow database query threshold (in seconds)
 	DATABASE_QUERY_TIMEOUT = 0.5
 
-	SEND_FILE_MAX_AGE_DEFAULT = 60*60*4
+	SEND_FILE_MAX_AGE_DEFAULT = 60*60*12
 
 	# pagination
 	TAGS_PER_PAGE = 50

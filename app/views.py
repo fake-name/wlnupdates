@@ -135,9 +135,10 @@ def user(nickname, page=1):
 
 @app.route('/cover-img/<cid>')
 def renderCoverImage(cid):
+	# TODO: Add a "not found" image
 	cover = Covers.query.filter(Covers.id==cid).first()
 	if not cover:
-		flash(gettext('Cover not found!'))
+		flash(gettext('Cover not found in database! Wat?'))
 		return redirect(url_for('index'))
 
 	covpath = os.path.join(app.config['COVER_DIR_BASE'], cover.fspath)
@@ -145,7 +146,10 @@ def renderCoverImage(cid):
 		flash(gettext('Cover file is missing!'))
 		return redirect(url_for('index'))
 
-	return send_file(covpath)
+	return send_file(
+		covpath,
+		conditional=True
+		)
 
 
 
