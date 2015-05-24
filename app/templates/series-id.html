@@ -197,6 +197,9 @@
 		<div class="row multiitem" id="watch-container">
 			<div class="col-md-3 rowTitle">
 				Watching item:
+				<span id='watch-state' class='text-nowrap light-grey'>
+					[saved]
+				</span>
 			</div>
 			<div class="col-sm-9 rowContents" id='watch'>
 				{% if watches %}
@@ -221,8 +224,12 @@
 					</div>
 					<script>
 						$('#vol' ).bootstrapNumber();
+						$('#vol' ).change(readChange);
 						$('#chap').bootstrapNumber();
+						$('#chap').change(readChange);
 						$('#frag').bootstrapNumber();
+						$('#frag').change(readChange);
+						console.log("Events attached?")
 					</script>
 				{% else %}
 					<a href="#" id="watch-link" onclick="toggle_watch();return false;">No</a>
@@ -369,7 +376,7 @@
 	</div>
 
 
-	{% set release_items = series.releases %}
+	{% set release_items = releases %}
 	<div class="well well-large">
 		<div style='float:right'>
 			<sup>Releases found: {{ release_items | length }}</sup>

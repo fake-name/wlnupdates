@@ -65,6 +65,7 @@ DISPATCH_TABLE = {
 	'manga-update' : forms.processMangaUpdateJson,
 	'group-update' : forms.processGroupUpdateJson,
 	'set-watch'    : forms.setSeriesWatchJson,
+	'read-update'  : forms.setReadingProgressJson,
 }
 
 def dispatchApiCall(reqJson):

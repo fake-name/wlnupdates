@@ -6,13 +6,14 @@ from sqlalchemy import desc
 from app import db
 from flask.ext.babel import gettext
 from sqlalchemy.orm import joinedload
+from sqlalchemy.sql.expression import nullslast
 def get_latest_release(series):
-	latest = Releases                               \
-				.query                              \
-				.filter(Releases.series==series.id) \
-				.order_by(desc(Releases.volume))    \
-				.order_by(desc(Releases.chapter))   \
-				.limit(1)                           \
+	latest = Releases                                        \
+				.query                                       \
+				.filter(Releases.series==series.id)          \
+				.order_by(nullslast(desc(Releases.volume)))  \
+				.order_by(nullslast(desc(Releases.chapter))) \
+				.limit(1)                                    \
 				.scalar()
 	return latest
 
@@ -22,10 +23,11 @@ def renderUserLists():
 		flash(gettext('You need to log in to create or view series watches.'))
 		return redirect(url_for('index'))
 
-	watches = Watches                                       \
-				.query                                      \
-				.options(joinedload(Watches.series_row))    \
-				.filter(Watches.user_id == g.user.id).all()
+	watches = Watches                                    \
+				.query                                   \
+				.options(joinedload(Watches.series_row)) \
+				.filter(Watches.user_id == g.user.id)    \
+				.all()
 
 
 	data = []
@@ -56,6 +58,8 @@ def renderUserLists():
 			avail['agg'] += avail['chp']
 
 		data.append((series, prog, avail))
+
+	data.sort(key=lambda x: x[0].title.lower())
 
 	return render_template(
 			'watched.html',

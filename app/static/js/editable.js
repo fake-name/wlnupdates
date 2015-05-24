@@ -162,6 +162,7 @@ function watchCalback(result)
 		var container = $('#watch-link').first();
 		container.text(result['watch_str'])
 	}
+	location.reload()
 }
 
 
@@ -283,6 +284,64 @@ function saveCallback(containerId)
 
 	}
 }
+
+var timeout = null;;
+function readChange(evt)
+{
+	$("#watch-state").text("[changed]")
+	if (timeout) {
+		clearTimeout(timeout); //cancel the previous timer.
+	 	timeout = null;
+	}
+	timeout = setTimeout(sendChange, 2000);
+}
+
+function sendChange()
+{
+	console.log("Ready to send!");
+	$("#watch-state").text("[saving]");
+	var vol  = $("#vol").val();
+	var chp  = $("#chap").val();
+	var frag = $("#frag").val();
+	console.log("vol, chp, frag", vol, chp, frag)
+
+	var mangaId  = $('meta[name=manga-id]').attr('content')
+	var params = {
+		'mode'      : 'read-update',
+		'item-id'   : mangaId,
+		'vol'       : vol,
+		'chp'       : chp,
+		'frag'      : frag
+	}
+
+
+	$.ajax({
+		url : "/api",
+		success : readCallback,
+		data: JSON.stringify(params),
+		method: "POST",
+		dataType: 'json',
+		contentType: "application/json;",
+	});
+}
+
+function readCallback(result)
+{
+	console.log("Save callback!")
+	if (!result.hasOwnProperty("error"))
+	{
+		console.log("No error result?")
+	}
+	if (result['error'])
+	{
+		alert("Error on update!\n\n"+result["message"])
+	}
+
+	console.log(result)
+	console.log("Saved!")
+	$("#watch-state").text("[saved]");
+}
+
 
 var csrftoken = $('meta[name=csrf-token]').attr('content')
 

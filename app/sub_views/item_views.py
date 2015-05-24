@@ -20,12 +20,12 @@ from sqlalchemy import desc
 
 import traceback
 
+from sqlalchemy.sql.expression import nullslast
 
 
 @app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
 	series       =       Series.query.filter(Series.id==sid).first()
-
 
 	if g.user.is_authenticated():
 		watches      =       Watches.query.filter(Watches.series_id==sid)     \
@@ -34,15 +34,17 @@ def renderSeriesId(sid):
 	else:
 		watches = False
 
-
-
 	if series is None:
 		flash(gettext('Series %(sid)s not found.', sid=sid))
 		return redirect(url_for('index'))
 
+	releases = series.releases
+	releases.sort(key=lambda x: (x.volume if x.volume else 0 * 1e6 + x.chapter if x.chapter else 0))
+
 	return render_template('series-id.html',
 						series_id    = sid,
 						series       = series,
+						releases     = releases,
 						watches      = watches)
 
 

@@ -635,6 +635,70 @@ def processGroupUpdateJson(data):
 	}
 	return ret
 
+def validateReadingProgressData(inDat):
+	assert 'mode'    in inDat
+	assert 'item-id' in inDat
+	assert 'vol'     in inDat
+	assert 'chp'     in inDat
+	assert 'frag'    in inDat
+
+	try:
+		vol  = int(inDat['vol'])
+		chp  = int(inDat['chp'])
+		frag = int(inDat['frag'])
+		sid  = int(inDat['item-id'])
+	except ValueError:
+		raise AssertionError("Volume, chapter, and fragment must be integers!")
+
+	if any([item < 0 for item in (vol, chp, frag)]):
+		raise AssertionError("Values cannot be lower then 0!")
+
+	if frag > 99:
+		raise AssertionError("A chapter can only have a maximum of 99 fragments!")
+
+	chp += frag / 100.0
+
+
+	return sid, (vol, chp)
+
+def setReadingProgressJson(data):
+	sid, progress = validateReadingProgressData(data)
+
+	watch_row = Watches.query.filter(
+			(Watches.user_id==current_user.id) &
+			(Watches.series_id==sid)
+		).one()
+
+	vol, chp = progress
+
+	if chp == 0 and vol == 0:
+		vol = -1
+		chp = -1
+
+	if vol == 0:
+		vol = -1
+
+	watch_row.volume  = vol
+	watch_row.chapter = chp
+	db.session.commit()
+
+	# sid = validated['id']
+	# group = Translators.query.filter(Translators.id==sid).one()
+
+	# for entry in validated['entries']:
+	# 	print(entry)
+
+	# 	if entry['type'] == 'alternate-names':
+	# 		updateGroupAltNames(group, entry['data'])
+	# 	else:
+	# 		raise AssertionError("Unknown modifification type!")
+
+	ret = {
+			"error"   : False,
+			"message" : "Wat?!"
+	}
+	return ret
+
 
 
 # {'value': '',

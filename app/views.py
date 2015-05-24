@@ -16,6 +16,7 @@ from .confirm import send_email
 from .apiview import handleApiPost, handleApiGet
 
 from app.sub_views.search import execute_search
+import sqlalchemy.sql.expression
 
 import os.path
 from sqlalchemy.sql.expression import func
