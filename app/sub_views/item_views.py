@@ -39,7 +39,7 @@ def renderSeriesId(sid):
 		return redirect(url_for('index'))
 
 	releases = series.releases
-	releases.sort(key=lambda x: (x.volume if x.volume else 0 * 1e6 + x.chapter if x.chapter else 0))
+	releases.sort(reverse=True, key=lambda x: (x.volume if x.volume else 0 * 1e6 + x.chapter if x.chapter else 0))
 
 	return render_template('series-id.html',
 						series_id    = sid,
