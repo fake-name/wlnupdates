@@ -102,7 +102,7 @@ def get_raw_feeds():
 	return raw_feeds
 
 def get_release_feeds():
-	get_release_feeds = Releases.query.order_by(desc(Releases.published)).limit(10).all()
+	get_release_feeds = Releases.query.order_by(desc(Releases.published)).limit(20).all()
 	return get_release_feeds
 
 
