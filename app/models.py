@@ -523,7 +523,7 @@ class Watches(db.Model):
 
 class Users(db.Model):
 	id        = db.Column(db.Integer, primary_key=True)
-	nickname  = db.Column(db.String,  index=True, unique=True)
+	nickname  = db.Column(CIText(),  index=True, unique=True)
 	password  = db.Column(db.String,  index=True, unique=True)
 	email     = db.Column(db.String,  index=True, unique=True)
 	verified  = db.Column(db.Integer, nullable=False)

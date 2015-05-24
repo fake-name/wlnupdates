@@ -78,3 +78,27 @@ tr.red-highlight:nth-of-type(odd) {
 tr.red-highlight:nth-of-type(even) {
   background-color: #ffe0e0 !important;
 }
+
+.control-label-sm {
+	padding-right: 5px;
+	padding-left: 10px;
+}
+
+.form-control-num {
+
+	width: 50px !important;
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+	height: 22px !important;
+	font-size: 11px !important;
+
+}
+
+.btn-default, .btn {
+
+	height: 22px !important;
+	font-size: 12px !important;
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+
+}

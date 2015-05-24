@@ -1,10 +1,10 @@
 
 from flask import render_template, flash, redirect, url_for, g, request
-
 from app import app
 from app.models import Watches, Series, Releases
 from sqlalchemy import desc
 from app import db
+from flask.ext.babel import gettext
 from sqlalchemy.orm import joinedload
 def get_latest_release(series):
 	latest = Releases                               \
@@ -18,6 +18,9 @@ def get_latest_release(series):
 
 @app.route('/watches')
 def renderUserLists():
+	if not g.user.is_authenticated():
+		flash(gettext('You need to log in to create or view series watches.'))
+		return redirect(url_for('index'))
 
 	watches = Watches                                       \
 				.query                                      \

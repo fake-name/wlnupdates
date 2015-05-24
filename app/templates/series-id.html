@@ -198,13 +198,43 @@
 			<div class="col-md-3 rowTitle">
 				Watching item:
 			</div>
-			<div class="col-md-9 rowContents" id='watch'>
+			<div class="col-sm-9 rowContents" id='watch'>
 				{% if watches %}
+
 					<a href="#" id="watch-link" onclick="toggle_watch();return false;">Yes</a>
+
+					<div id='spinner-div' style='display: inline-block; float:right;'>
+						<form class="form-inline">
+							<div class="form-group form-group-sm btn-xs">
+								<label class="control-label-sm">Vol:</label>
+								<input id="vol" class="form-control form-control-num" type="number" value="0" min="0" />
+							</div>
+							<div class="form-group form-group-sm btn-xs">
+								<label class="control-label-sm">Chapter:</label>
+								<input id="chap" class="form-control form-control-num" type="number" value="0" min="0" />
+							</div>
+							<div class="form-group form-group-sm btn-xs">
+								<label class="control-label-sm">Fragment:</label>
+								<input id="frag" class="form-control form-control-num" type="number" value="0" min="0" max="99" />
+							</div>
+						</form>
+					</div>
+					<script>
+					// Remember set you events before call bootstrapSwitch or they will fire after bootstrapSwitch's events
+					$("[name='checkbox2']").change(function() {
+						if(!confirm('Do you wanna cancel me!')) {
+							this.checked = true;
+						}
+					});
+
+					$('#vol').bootstrapNumber();
+					$('#chap').bootstrapNumber();
+					$('#frag').bootstrapNumber();
+
+					</script>
 				{% else %}
 					<a href="#" id="watch-link" onclick="toggle_watch();return false;">No</a>
 				{% endif %}
-
 			</div>
 		</div>
 	</div>
@@ -218,6 +248,7 @@
 
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
+	<script src="/static/js/bootstrap-number-input.js"></script>
 {% endblock %}
 
 {% block content %}
