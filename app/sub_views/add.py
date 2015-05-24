@@ -33,10 +33,10 @@ from app.forms import NewGroupForm, NewSeriesForm, updateAltNames, NewReleaseFor
 
 def add_group(form):
 	name = form.name.data.strip()
-	have = Translators.query.filter(Translators.name==name).scalar()
+	have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname==nt.prepFilenameForMatching(name)).scalar()
 	if have:
 		flash(gettext('Group already exists!'))
-		return redirect(url_for('renderGroupId', sid=have.id))
+		return redirect(url_for('renderGroupId', sid=have.group))
 	else:
 		new = Translators(
 			name = name,
@@ -44,6 +44,15 @@ def add_group(form):
 			changeuser = g.user.id,
 			)
 		db.session.add(new)
+		db.session.commit()
+		newname = AlternateTranslatorNames(
+				name       = name,
+				cleanname  = nt.prepFilenameForMatching(name),
+				group      = new.id,
+				changetime = datetime.datetime.now(),
+				changeuser = g.user.id
+			)
+		db.session.add(newname)
 		db.session.commit()
 		flash(gettext('Group Created!'))
 		return redirect(url_for('renderGroupId', sid=new.id))

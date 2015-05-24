@@ -92,7 +92,7 @@ class AlternateTranslatorNamesBase(object):
 
 class TranslatorsBase(object):
 	id    = db.Column(db.Integer, primary_key=True)
-	name  = db.Column(CIText(), nullable=False, unique=True)
+	name  = db.Column(CIText(), nullable=False)
 	site  = db.Column(db.Text())
 
 class ReleasesBase(object):
