@@ -192,7 +192,7 @@
 {%- endmacro %}
 
 
-{% macro watchBlock(watches) -%}
+{% macro watchBlock(watches, progress) -%}
 	<div class="well well-tny info-item">
 		<div class="row multiitem" id="watch-container">
 			<div class="col-md-3 rowTitle">
@@ -210,15 +210,15 @@
 						<form class="form-inline">
 							<div class="form-group form-group-sm btn-xs">
 								<label class="control-label-sm">Vol:</label>
-								<input id="vol" class="form-control form-control-num" type="number" value="0" min="0" />
+								<input id="vol" class="form-control form-control-num" type="number" value="{{ progress['vol'] | int }}" min="0" />
 							</div>
 							<div class="form-group form-group-sm btn-xs">
 								<label class="control-label-sm">Chapter:</label>
-								<input id="chap" class="form-control form-control-num" type="number" value="0" min="0" />
+								<input id="chap" class="form-control form-control-num" type="number" value="{{ progress['chp'] | int }}" min="0" />
 							</div>
 							<div class="form-group form-group-sm btn-xs">
 								<label class="control-label-sm">Fragment:</label>
-								<input id="frag" class="form-control form-control-num" type="number" value="0" min="0" max="99" />
+								<input id="frag" class="form-control form-control-num" type="number" value="{{ progress['frg'] | int }}" min="0" max="99" />
 							</div>
 						</form>
 					</div>
@@ -256,7 +256,7 @@
 
 	<div class="well well-large">
 		<h2>{{ series.title }}</h2>
-			{{watchBlock(watches)}}
+			{{watchBlock(watch, progress)}}
 			{{coversBlock(series.covers)}}
 
 			{{singleItemBlock("Description",       series.description, 'description'     )}}

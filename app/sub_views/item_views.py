@@ -22,30 +22,52 @@ import traceback
 
 from sqlalchemy.sql.expression import nullslast
 
+def getSort(row):
+	chp = row.chapter if row.chapter else 0
+	vol = row.volume  if row.volume  else 0
+
+	return vol * 1e6 + chp
 
 @app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
 	series       =       Series.query.filter(Series.id==sid).first()
 
 	if g.user.is_authenticated():
-		watches      =       Watches.query.filter(Watches.series_id==sid)     \
+		watch      =       Watches.query.filter(Watches.series_id==sid)     \
 		                                  .filter(Watches.user_id==g.user.id) \
 		                                  .scalar()
 	else:
-		watches = False
+		watch = False
 
 	if series is None:
 		flash(gettext('Series %(sid)s not found.', sid=sid))
 		return redirect(url_for('index'))
 
 	releases = series.releases
-	releases.sort(reverse=True, key=lambda x: (x.volume if x.volume else 0 * 1e6 + x.chapter if x.chapter else 0))
+	releases.sort(reverse=True, key=getSort)
+
+	progress = {}
+	progress['vol'] = 0
+	progress['chp'] = 0
+	progress['frg'] = 0
+	if watch:
+		progress['vol'] = watch.volume
+		progress['chp'] = int(watch.chapter)
+		progress['frg'] = int(watch.chapter * 100) % 100
+
+
+	progress['vol'] = max(progress['vol'], 0)
+	progress['chp'] = max(progress['chp'], 0)
+	progress['frg'] = max(progress['frg'], 0)
+
 
 	return render_template('series-id.html',
 						series_id    = sid,
 						series       = series,
 						releases     = releases,
-						watches      = watches)
+						watch        = watch,
+						progress     = progress
+						)
 
 
 @app.route('/author-id/<sid>/<int:page>')
