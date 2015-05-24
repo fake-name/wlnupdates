@@ -220,17 +220,9 @@
 						</form>
 					</div>
 					<script>
-					// Remember set you events before call bootstrapSwitch or they will fire after bootstrapSwitch's events
-					$("[name='checkbox2']").change(function() {
-						if(!confirm('Do you wanna cancel me!')) {
-							this.checked = true;
-						}
-					});
-
-					$('#vol').bootstrapNumber();
-					$('#chap').bootstrapNumber();
-					$('#frag').bootstrapNumber();
-
+						$('#vol' ).bootstrapNumber();
+						$('#chap').bootstrapNumber();
+						$('#frag').bootstrapNumber();
 					</script>
 				{% else %}
 					<a href="#" id="watch-link" onclick="toggle_watch();return false;">No</a>

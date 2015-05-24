@@ -47,10 +47,10 @@
 			}
 
 			var group = $("<div class='input-group'></div>");
-			var down = $("<button type='button'>-</button>").attr('class', 'btn btn-' + settings.downClass).click(function() {
+			var down = $("<button type='button'>-</button>").attr('class', 'btn button-sm btn-' + settings.downClass).click(function() {
 				setText(parseInt(clone.val()) - 1);
 			});
-			var up = $("<button type='button'>+</button>").attr('class', 'btn btn-' + settings.upClass).click(function() {
+			var up = $("<button type='button'>+</button>").attr('class', 'btn button-sm btn-' + settings.upClass).click(function() {
 				setText(parseInt(clone.val()) + 1);
 			});
 			$("<span class='input-group-btn'></span>").append(down).appendTo(group);
@@ -63,11 +63,11 @@
 			// remove spins from original
 			clone.attr('type', 'text').keydown(function (e) {
 				if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-					(e.keyCode == 65 && e.ctrlKey === true) || 
+					(e.keyCode == 65 && e.ctrlKey === true) ||
 					(e.keyCode >= 35 && e.keyCode <= 39)) {
 					return;
 				}
-				if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {				
+				if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
 					e.preventDefault();
 				}
 

@@ -94,7 +94,7 @@ tr.red-highlight:nth-of-type(even) {
 
 }
 
-.btn-default, .btn {
+.button-sm {
 
 	height: 22px !important;
 	font-size: 12px !important;
