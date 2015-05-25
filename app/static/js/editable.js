@@ -5,15 +5,25 @@
 
 function singleEditable(spans, contentDiv, containerId)
 {
+	var showNote = spans.first().hasClass("description")
 	var content = spans.first().html()
+	// Clean up the markup a little bit
+	// these changes will be reversed by the markdown
+	// processing.
 	content = content.replace(/(<br>)/g, "\n");
 	content = content.replace(/(<p>)/g, "");
 	content = content.replace(/(<\/p>)/g, "\n\n");
 	if (content == 'N/A') content = ""
-	var contentArr = [
-		"<textarea name='input-" + containerId + "' rows='2' id='singleitem'>"+content.trim()+"\n</textarea>",
-		"<script>$('textarea').autogrow({onInitialize:true});</script>"
-	]
+	var contentArr = []
+	if (showNote)
+	{
+		contentArr.push("<span class='light-grey'><font size=-2.5>Text will be processed with <a href='https://help.github.com/articles/markdown-basics/'>markdown</a>.");
+		contentArr.push("<br>Some HTML tags (like &lt;a&gt;) are also allowed.")
+		contentArr.push("<br>Please don't make me block all markup.</font></span>")
+	}
+	contentArr.push("<textarea name='input-" + containerId + "' rows='2' id='singleitem'>"+content.trim()+"\n</textarea>")
+	contentArr.push("<script>$('textarea').autogrow({onInitialize:true});</script>")
+
 	contentDiv.html(contentArr.join("\n"))
 }
 

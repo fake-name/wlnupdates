@@ -158,6 +158,7 @@ VALID_KEYS = {
 	'altnames-container'     : 'alternate-names',
 	'region-container'       : 'region',
 	'license_en-container'   : 'license_en',
+	'orig_status-container'  : 'orig_status',
 	}
 VALID_LICENSE_STATES = {
 	"unknown" : None,
@@ -341,6 +342,16 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.demographic = processedData
+				series.changeuser = current_user.id
+				series.changetime = datetime.datetime.now()
+
+		elif entry['type'] == 'orig_status':
+			processedData = bleach.clean(entry['data'], strip=True)
+			if series.orig_status == processedData:
+				# print("No change?")
+				pass
+			else:
+				series.orig_status = processedData
 				series.changeuser = current_user.id
 				series.changetime = datetime.datetime.now()
 

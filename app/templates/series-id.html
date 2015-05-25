@@ -1,5 +1,5 @@
 <!-- extend base layout -->
-{% macro singleItemBlock(name, value, valId, width=3) -%}
+{% macro singleItemBlock(name, value, valId, width=3, extra_cls='') -%}
 	<div class="well well-tny info-item">
 		<div class="row singleitem"  id="{{valId}}-container">
 			<div class="col-md-{{width}} rowTitle">
@@ -10,13 +10,13 @@
 				</span>
 			</div>
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
-				<span class='singleitem'>{{ ( value if value else "N/A" ) | safe }}</span>
+				<span class='singleitem {{extra_cls}}'>{{ ( value if value else "N/A" ) | safe }}</span>
 			</div>
 		</div>
 	</div>
 {%- endmacro %}
 
-<!-- extend base layout -->
+
 {% macro singleItemBlockDropbox(name, value, valId, values, width=3) -%}
 	<div class="well well-tny info-item">
 		<div class="row dropitem"  id="{{valId}}-container">
@@ -259,7 +259,13 @@
 			{{watchBlock(watch, progress)}}
 			{{coversBlock(series.covers)}}
 
-			{{singleItemBlock("Description",       series.description, 'description'     )}}
+			{{singleItemBlock("Description",
+								series.description,
+								'description',
+								extra_cls='description'
+							)
+			}}
+
 			{{singleItemBlock("Demographic",
 								series.demographic,
 								'demographic',
@@ -292,6 +298,12 @@
 							)
 			}}
 
+			{{singleItemBlock("Status in Country of Origin",
+								series.orig_status,
+								'orig_status',
+								width=5
+							)
+			}}
 			{{singleItemBlock("Original Language",
 								series.orig_lang,
 								'orig_lang',

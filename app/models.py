@@ -36,6 +36,8 @@ class SeriesBase(object):
 	volume      = db.Column(db.Float(), default=-1)
 	chapter     = db.Column(db.Float(), default=-1)
 
+	orig_status = db.Column(db.Text())
+
 	tot_volume  = db.Column(db.Float(), default=-1)
 	tot_chapter = db.Column(db.Float(), default=-1)
 
