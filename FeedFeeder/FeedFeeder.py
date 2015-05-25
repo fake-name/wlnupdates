@@ -150,7 +150,15 @@ def get_create_group(groupname):
 
 
 def get_create_series(seriesname):
-	have  = AlternateNames.query.filter(AlternateNames.name == seriesname).scalar()
+	# If two series have the same alt-name, pick the one with
+	# the lower database-id
+	have  = AlternateNames                             \
+			.query                                     \
+			.filter(AlternateNames.name == seriesname) \
+			.order_by(AlternateNames.id)               \
+			.limit(1)                                  \
+			.scalar()
+
 	if not have:
 		print("Need to create new series entry for ", seriesname)
 		new = Series(

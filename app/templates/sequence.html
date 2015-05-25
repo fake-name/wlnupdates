@@ -1,6 +1,6 @@
 <!-- extend base layout -->
 {% macro render_pagination(pagination) %}
-	<div class=pagination>
+	Page:
 	{%- for page in pagination.iter_pages() %}
 		{% if page %}
 			{% if page != pagination.page %}
@@ -12,7 +12,7 @@
 			<span class=ellipsis>…</span>
 		{% endif %}
 	{%- endfor %}
-	</div>
+
 {% endmacro %}
 
 
@@ -32,6 +32,15 @@
 {% endmacro %}
 
 
+{% macro render_alphanum_div(prefix) %}
+	<div class='pull-right'>
+		Prefix:
+		{%- for letter in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+			<a href="/{{prefix}}/{{letter}}/1">{{ letter | upper }}</a>
+		{%- endfor %}
+	</div>
+{% endmacro %}
+
 
 {% extends "__base.html" %}
 
@@ -43,13 +52,33 @@
 				<h4><a href='/add/{{add_new}}/'>{{add_new_text}}</a></h4>
 			</div>
 		{% endif %}
-		<h2>{{ title }}</h2>
+		{% if letter != None%}
+			<div>
+				<h2 style='display: inline-block;'>{{ title }}</h2>
+				<h4 style='display: inline-block;'> - Starting with "{{letter | upper}}"</h4>
+			</div>
+		{% else %}
+			<h2>{{ title }}</h2>
+		{% endif %}
 
-		{{ render_pagination(sequence_item) }}
-		<div>
-			{{ render_page_contents(page_url_prefix, sequence_item, name_key) }}
-		</div>
-		{{ render_pagination(sequence_item) }}
+
+		{% if sequence_item.items %}
+			{% if path_name %}
+				<div class='pull-left'>
+					{{ render_pagination(sequence_item) }}
+				</div>
+				{{ render_alphanum_div(path_name) }}
+			{% else %}
+				{{ render_pagination(sequence_item) }}
+			{% endif %}
+
+			<div>
+				{{ render_page_contents(page_url_prefix, sequence_item, name_key) }}
+			</div>
+			{{ render_pagination(sequence_item) }}
+		{% else %}
+			<h4>No items found!</h4>
+		{% endif %}
 
 
 
