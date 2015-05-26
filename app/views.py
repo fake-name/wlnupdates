@@ -141,6 +141,7 @@ def renderCoverImage(cid):
 
 	covpath = os.path.join(app.config['COVER_DIR_BASE'], cover.fspath)
 	if not os.path.exists(covpath):
+		print("Cover not found! '%s'" % covpath)
 		flash(gettext('Cover file is missing!'))
 		return redirect(url_for('index'))
 
