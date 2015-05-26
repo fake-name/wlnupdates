@@ -383,6 +383,11 @@
 							)
 			}}
 
+			{% if g.user.is_admin() %}
+				<div>
+					Admin Stuff!
+				</div>
+			{% endif %}
 			<div style="clear: both;"></div>
 
 	</div>

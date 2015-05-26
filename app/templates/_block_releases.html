@@ -3,10 +3,13 @@
 	<table class='table-striped table table-bordered table-condensed fullwidth'>
 
 		<col style="width: 60px">
-		<col style="width: 40%">
+		<col>
 		<col style="width: 30px">
 		<col style="width: 30px">
 		<col style="width: 20%">
+		<col style="width: 20%">
+		<col style="width: 10%">
+
 		<col >
 		<tr>
 			<th>
@@ -27,6 +30,10 @@
 			<th>
 				Group
 			</th>
+			<th>
+				Added By
+			</th>
+
 		</tr>
 		{% for entry in release_items: %}
 			<tr>
@@ -60,6 +67,9 @@
 				</td>
 				<td>
 					<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
+				</td>
+				<td>
+					{{getUserId(entry.changeuser)}}
 				</td>
 			</tr>
 		{% endfor %}

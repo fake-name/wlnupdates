@@ -14,8 +14,8 @@ from .models import Feeds, Releases
 from .confirm import send_email
 
 from .apiview import handleApiPost, handleApiGet
-
 from app.sub_views.search import execute_search
+
 import sqlalchemy.sql.expression
 
 import os.path
@@ -80,7 +80,7 @@ def internal_error(dummy_error):
 
 
 def get_random_books():
-	items = Series.query.order_by(func.random()).limit(4)
+	items = Series.query.order_by(func.random()).limit(5)
 	# print(list(items))
 	return items
 
@@ -96,9 +96,6 @@ def get_raw_feeds():
 	if raw_feeds:
 		tmp = raw_feeds[0]
 
-		# print(tmp)
-		# print(dir(tmp))
-		# print(tmp.tags)
 	return raw_feeds
 
 def get_release_feeds():

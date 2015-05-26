@@ -561,6 +561,12 @@ class Users(db.Model):
 	def is_active(self):
 		return self.verified
 
+	def is_admin(self):
+		return self.has_admin
+
+	def is_mod(self):
+		return self.has_mod
+
 	def is_anonymous(self):
 		return False
 
@@ -573,7 +579,7 @@ class Users(db.Model):
 
 
 	def __repr__(self):  # pragma: no cover
-		return '<User %r>' % (self.nickname)
+		return '<User -- %r>' % (self.nickname)
 
 	def __init__(self, nickname, email, password, verified):
 		self.nickname  = nickname

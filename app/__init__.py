@@ -9,6 +9,23 @@ from flask_wtf.csrf import CsrfProtect
 from flask_debugtoolbar import DebugToolbarExtension
 from config import basedir
 
+
+class AnonUser():
+	def is_authenticated(self):
+		return False
+	def is_active(self):
+		return False
+	def is_admin(self):
+		return False
+	def is_mod(self):
+		return False
+	def is_anonymous(self):
+		return True
+	def get_id(self):
+		return None
+
+
+
 app = Flask(__name__)
 
 import sys
@@ -18,6 +35,7 @@ if "debug" in sys.argv:
 app.config.from_object('config.BaseConfig')
 db = SQLAlchemy(app)
 lm = LoginManager()
+lm.anonymous_user = AnonUser
 lm.init_app(app)
 lm.login_view = 'login'
 lm.login_message = lazy_gettext('Please log in to access this page.')
