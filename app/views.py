@@ -45,6 +45,8 @@ def before_request():
 	print(request.path)
 	req = HttpRequestLog(
 		path           = request.path,
+		user_agent     = request.headers.get('User-Agent'),
+		referer        = request.headers.get('Referer'),
 		forwarded_for  = request.headers.get('X-Originating-IP'),
 		originating_ip = request.headers.get('X-Forwarded-For'),
 		)

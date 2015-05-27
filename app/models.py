@@ -591,5 +591,7 @@ class HttpRequestLog(db.Model):
 	id             = db.Column(db.Integer, primary_key=True)
 	access_time    = db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
 	path           = db.Column(db.String)
+	user_agent     = db.Column(db.String)
+	referer        = db.Column(db.String)
 	forwarded_for  = db.Column(db.String)
 	originating_ip = db.Column(db.String)
