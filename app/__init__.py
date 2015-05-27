@@ -8,7 +8,7 @@ from flask.ext.babel import Babel, lazy_gettext
 from flask_wtf.csrf import CsrfProtect
 from flask_debugtoolbar import DebugToolbarExtension
 from config import basedir
-
+from babel.dates import format_datetime
 
 class AnonUser():
 	def is_authenticated(self):
@@ -92,7 +92,17 @@ def utility_processor():
 
 		return tlGroupIdCache[group.id]
 
-	return dict(getUserId=getUserId, getTlGroupId=getTlGroupId)
+
+	def format_date(value, format='medium'):
+
+		return format_datetime(value, "EE yyyy.MM.dd")
+
+	return dict(
+			getUserId       = getUserId,
+			getTlGroupId    = getTlGroupId,
+			format_date = format_date,
+			)
+
 
 def format_price(amount, currency=u'€'):
 	return u'{0:.2f}{1}'.format(amount, currency)

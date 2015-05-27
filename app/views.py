@@ -9,7 +9,7 @@ from app import app, db, lm, babel
 from .forms import  LoginForm, SearchForm, SignupForm
 from .models import Users, Posts, Series, Tags, Genres, Author
 from .models import Illustrators, Translators, Releases, Covers, Watches, AlternateNames
-from .models import Feeds, Releases
+from .models import Feeds, Releases, HttpRequestLog
 
 from .confirm import send_email
 
@@ -42,6 +42,14 @@ def get_locale():
 
 @app.before_request
 def before_request():
+	print(request.path)
+	req = HttpRequestLog(
+		path           = request.path,
+		forwarded_for  = request.headers.get('X-Originating-IP'),
+		originating_ip = request.headers.get('X-Forwarded-For'),
+		)
+	db.session.add(req)
+
 	g.user = current_user
 	g.search_form = SearchForm()
 	if g.user.is_authenticated():
@@ -49,6 +57,7 @@ def before_request():
 		db.session.add(g.user)
 		db.session.commit()
 	g.locale = get_locale()
+
 
 
 @app.after_request
@@ -81,7 +90,6 @@ def internal_error(dummy_error):
 
 def get_random_books():
 	items = Series.query.order_by(func.random()).limit(5)
-	# print(list(items))
 	return items
 
 
@@ -111,7 +119,7 @@ def index(page=1):
 						   title         = 'Home',
 						   random_series = get_random_books(),
 						   news          = get_news(),
-						   raw_feeds     = get_raw_feeds(),
+						   # raw_feeds     = get_raw_feeds(),
 						   release_items = get_release_feeds()
 						   )
 

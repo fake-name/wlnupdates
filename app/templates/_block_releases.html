@@ -1,5 +1,6 @@
 
-{% if release_items: %}
+
+{% macro tableHeader() -%}
 	<table class='table-striped table table-bordered table-condensed fullwidth'>
 
 		<col style="width: 60px">
@@ -35,13 +36,39 @@
 			</th>
 
 		</tr>
+{%- endmacro %}
+
+{% macro tableFooter() -%}
+	</table>
+{%- endmacro %}
+
+{% if release_items: %}
+		{% if chunk %}
+			<h4>
+				{{ format_date(release_items[0].published) }}
+			</h4>
+			{% set lastitemday = release_items[0].published.day %}
+		{% endif %}
+		{{ tableHeader() }}
 		{% for entry in release_items: %}
+
+			{% if chunk and entry.published.day != lastitemday %}
+
+				{{ tableFooter() }}
+
+				<h4>
+					{{ format_date(entry.published) }}
+				</h4>
+				{{ tableHeader() }}
+				{% set lastitemday = entry.published.day %}
+			{% endif %}
 			<tr>
 				<td>
 					<a href='{{entry.srcurl}}'>View</a>
 				</td>
 				<td>
 					<a href='/series-id/{{entry.series}}/'>{{entry.series_row.title}}</a>
+
 				</td>
 				{% if entry.volume != None %}
 					<td class='numeric'>
@@ -73,7 +100,7 @@
 				</td>
 			</tr>
 		{% endfor %}
-	</table>
+		{{ tableFooter() }}
 {% else: %}
 	<strong>No releases found!</strong>
 {% endif %}
