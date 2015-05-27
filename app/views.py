@@ -42,7 +42,6 @@ def get_locale():
 
 @app.before_request
 def before_request():
-	print(request.path)
 	req = HttpRequestLog(
 		path           = request.path,
 		user_agent     = request.headers.get('User-Agent'),
