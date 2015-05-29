@@ -90,7 +90,7 @@
 	</div>
 {%- endmacro %}
 
-{% macro coversBlock(covers) -%}
+{% macro coversBlock(series, covers) -%}
 
 	{% if covers %}
 		<div class='imgDiv'>
@@ -104,7 +104,18 @@
 					{% endif %}
 				</div>
 			{% endfor %}
-		<p id='cover-offset' style=""></p>
+
+			<p id='cover-offset' style=""></p>
+
+			<div class='cvr-edit-div'>
+				<a id='editlink' href="/series-id/{{ series.id }}/edit-covers/">[edit covers]</a>
+
+			</div>
+
+			<div class='cvr-btn-div'>
+				<button class="btn btn-default btn-prev" onclick="prev_cover();"><i class="glyphicon glyphicon-chevron-left"></i></button>
+				<button class="btn btn-default btn-next" onclick="next_cover();"><i class="glyphicon glyphicon-chevron-right"></i></button>
+			</div>
 
 		</div>
 	{% else %}
@@ -153,12 +164,14 @@
 		</style>
 		<div class='imgDiv' id='x'>
 			<div id='x-desc-div'>
-				<p id='x-content'>No covers! Add one, maybe?</p>
+				<p id='x-content'>
+					<a id='editlink' href="/series-id/{{ series.id }}/edit-covers/">No covers! Add one, maybe?</a>
+				</p>
 			</div>
 		</div>
 	{% endif %}
 	<script>
-
+		var i = 0;
 		var pos_text = $('p[id="cover-offset"]');
 		var divs = $('div[id="cover-item"]');
 		if (divs.length == 1)
@@ -170,19 +183,56 @@
 		else if (divs.length > 1)
 		{
 			divs.hide();
-			var i = 0;
 
-			(function cycle() {
+			divs.eq(i).fadeIn(400)
+					  .delay(5000)
+					  .fadeOut(400, cycle);
+				pos_text.html("Cover " + (i+1) + " of " + divs.length);
+
+			function cycle()
+			{
+				i = ++i % divs.length;
 				divs.eq(i).fadeIn(400)
 						  .delay(5000)
 						  .fadeOut(400, cycle);
 
-				i = ++i % divs.length;
 
 				pos_text.html("Cover " + (i+1) + " of " + divs.length);
 
+			}
 
-			})();
+
+			function next_cover()
+			{
+				divs.each(function() {
+					$(this).unbind();
+					$(this).stop(true);
+					$(this).hide();
+				})
+
+				i = ++i % divs.length;
+				divs.eq(i).show();
+				pos_text.html("Cover " + (i+1) + " of " + divs.length);
+
+
+			}
+			function prev_cover()
+			{
+				divs.each(function() {
+					$(this).unbind();
+					$(this).stop(true);
+					$(this).hide();
+				})
+
+				i = --i
+				if (i < 0)
+					i = divs.length-1;
+
+				divs.eq(i).show();
+				pos_text.html("Cover " + (i+1) + " of " + divs.length);
+
+			}
+
 		}
 		else
 		{
@@ -257,7 +307,7 @@
 	<div class="well well-large">
 		<h2>{{ series.title }}</h2>
 			{{watchBlock(watch, progress)}}
-			{{coversBlock(series.covers)}}
+			{{coversBlock(series, series.covers)}}
 
 			{{singleItemBlock("Description",
 								series.description,

@@ -4,9 +4,9 @@
 @media (min-width: 768px)
 {
 	.imgDiv {
-		height     : 600px !important;
+		height     : 615px !important;
 		width      : 400px !important;
-		max-height : 600px !important;
+		max-height : 615px !important;
 		max-width  : 400px !important;
 		float      : right;
 
@@ -177,4 +177,49 @@ tr.green-highlight:nth-of-type(even) {
 	padding-top: 2px !important;
 	padding-bottom: 2px !important;
 
+}
+
+
+div.imgDiv {
+	position:relative;
+}
+
+
+@media (min-width: 768px)
+{
+	div.cvr-btn-div, div.cvr-edit-div
+	{
+		width: 95%;
+	}
+}
+
+
+@media (max-width: 767px)
+{
+	div.cvr-btn-div, div.cvr-edit-div
+	{
+		width: 100%;
+	}
+}
+
+div.cvr-edit-div
+{
+	position:absolute;
+	bottom: 2px;
+	text-align: center;
+}
+div.cvr-btn-div
+{
+	position:absolute;
+	bottom: 8px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+button.btn-prev
+{
+	float:left;
+}
+button.btn-next
+{
+	float:right;
 }
