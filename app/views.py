@@ -160,6 +160,14 @@ def renderCoverImage(cid):
 		)
 
 
+@app.route('/favicon.ico')
+def sendFavIcon():
+	return send_file(
+		"./static/favicon.ico",
+		conditional=True
+		)
+
+
 
 
 # @app.route('/edit', methods=['GET', 'POST'])
