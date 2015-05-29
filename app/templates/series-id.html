@@ -111,11 +111,12 @@
 				<a id='editlink' href="/series-id/{{ series.id }}/edit-covers/">[edit covers]</a>
 
 			</div>
-
-			<div class='cvr-btn-div'>
-				<button class="btn btn-default btn-prev" onclick="prev_cover();"><i class="glyphicon glyphicon-chevron-left"></i></button>
-				<button class="btn btn-default btn-next" onclick="next_cover();"><i class="glyphicon glyphicon-chevron-right"></i></button>
-			</div>
+			{% if covers|length > 1 %}
+				<div class='cvr-btn-div'>
+					<button class="btn btn-default btn-prev" onclick="prev_cover();"><i class="glyphicon glyphicon-chevron-left"></i></button>
+					<button class="btn btn-default btn-next" onclick="next_cover();"><i class="glyphicon glyphicon-chevron-right"></i></button>
+				</div>
+			{% endif %}
 
 		</div>
 	{% else %}
