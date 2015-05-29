@@ -76,8 +76,11 @@ def insert_raw_item(item):
 	entry['contents']  = item.pop('contents', 'N/A')
 
 	if not isinstance(entry['contents'], str):
-		print(entry['contents'])
-		entry['contents'] = str(entry['contents'])
+		if 'value' in entry['contents']:
+			entry['contents'] = entry['contents']['value']
+		else:
+			print(entry['contents'])
+			entry['contents'] = str(entry['contents'])
 
 	entry['guid']      = item.pop('guid')
 	entry['linkurl']   = item.pop('linkUrl')
