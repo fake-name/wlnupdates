@@ -76,6 +76,8 @@ def insert_raw_item(item):
 	entry['contents']  = item.pop('contents', 'N/A')
 
 	if not isinstance(entry['contents'], str):
+		if isinstance(entry['contents'], list):
+			entry['contents'] = entry['contents'].pop()
 		if 'value' in entry['contents']:
 			entry['contents'] = entry['contents']['value']
 		else:
