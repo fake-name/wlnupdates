@@ -73,7 +73,7 @@ def insert_raw_item(item):
 
 	entry = {}
 	entry['title']     = item.pop('title')
-	entry['contents']  = item.pop('contents')
+	# entry['contents']  = item.pop('contents')
 	entry['guid']      = item.pop('guid')
 	entry['linkurl']   = item.pop('linkUrl')
 	entry['region']    = item.pop('feedtype')
