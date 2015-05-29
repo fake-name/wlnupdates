@@ -9,6 +9,7 @@ from sqlalchemy.sql.expression import select, desc
 from app import app
 
 from app import db
+from app.models import Series
 
 @app.route('/series-id/<sid>/edit-covers/')
 def renderEditCovers(sid):
