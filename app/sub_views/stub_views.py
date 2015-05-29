@@ -18,10 +18,6 @@ def about_site():
 def renderUserCp():
 	return render_template('not-implemented-yet.html')
 
-@app.route('/news/')
-def renderNews():
-	return render_template('not-implemented-yet.html')
-
 
 
 @app.route('/oel-authors/')

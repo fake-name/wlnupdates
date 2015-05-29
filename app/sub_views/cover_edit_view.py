@@ -12,4 +12,5 @@ from app import db
 
 @app.route('/series-id/<sid>/edit-covers/')
 def renderEditCovers(sid):
+	series       =       Series.query.filter(Series.id==sid).first()
 	return render_template('not-implemented-yet.html')

@@ -28,6 +28,7 @@ from app.sub_views import add
 from app.sub_views import sequence_views
 from app.sub_views import history_view
 from app.sub_views import cover_edit_view
+from app.sub_views import news_view
 
 import traceback
 
