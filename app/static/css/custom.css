@@ -1,5 +1,5 @@
 .fullwidth {
-  width: 100%;
+	width: 100%;
 }
 @media (min-width: 768px)
 {
@@ -20,6 +20,7 @@
 	}
 }
 
+
 @media (max-width: 767px)
 {
 	.imgDiv {
@@ -32,6 +33,74 @@
 	{
 		/*overflow : hidden;*/
 	}
+}
+
+@media (max-width: 1024px)
+{
+
+	div#watch
+	{
+		float:right;
+	}
+
+
+	.form-inline .form-group {
+		display: block;
+		margin-bottom: 0;
+		vertical-align: middle;
+	}
+	.form-inline .form-control {
+		display: inline-block;
+		width: auto;
+		vertical-align: middle;
+	}
+	.form-inline .form-control-static {
+		display: inline-block;
+	}
+	.form-inline .input-group {
+		display: inline-table;
+		vertical-align: middle;
+	}
+	.form-inline .input-group .input-group-addon,
+	.form-inline .input-group .input-group-btn,
+	.form-inline .input-group .form-control {
+		width: auto;
+	}
+	.form-inline .input-group > .form-control {
+		width: 100%;
+	}
+	.form-inline .control-label {
+		margin-bottom: 0;
+		vertical-align: middle;
+	}
+	.form-inline .radio,
+	.form-inline .checkbox {
+		display: inline-block;
+		margin-top: 0;
+		margin-bottom: 0;
+		vertical-align: middle;
+	}
+	.form-inline .radio label,
+	.form-inline .checkbox label {
+		padding-left: 0;
+	}
+	.form-inline .radio input[type="radio"],
+	.form-inline .checkbox input[type="checkbox"] {
+		position: relative;
+		margin-left: 0;
+	}
+	.form-inline .has-feedback .form-control-feedback {
+		top: 0;
+	}
+
+
+	.control-label-sm {
+		padding-right: 5px;
+		padding-left: 10px;
+		width:      100px;
+	}
+
+
 }
 .imgDiv
 {
@@ -58,7 +127,7 @@ textarea
 }
 
 td.numeric, td.postfix {
-    text-align:right;
+		text-align:right;
 }
 span.light-grey
 {
@@ -73,17 +142,17 @@ body
 }
 
 tr.red-highlight:nth-of-type(odd) {
-  background-color: #ffeaea !important;
+	background-color: #ffeaea !important;
 }
 tr.red-highlight:nth-of-type(even) {
-  background-color: #ffe0e0 !important;
+	background-color: #ffe0e0 !important;
 }
 
 tr.green-highlight:nth-of-type(odd) {
-  background-color: #eaffea !important;
+	background-color: #eaffea !important;
 }
 tr.green-highlight:nth-of-type(even) {
-  background-color: #e0ffe0 !important;
+	background-color: #e0ffe0 !important;
 }
 
 .control-label-sm {
