@@ -73,7 +73,12 @@ def insert_raw_item(item):
 
 	entry = {}
 	entry['title']     = item.pop('title')
-	entry['contents']  = item.pop('contents', 'None')
+	entry['contents']  = item.pop('contents', 'N/A')
+
+	if not isinstance(entry['contents'], str):
+		print(entry['contents'])
+		entry['contents'] = str(entry['contents'])
+
 	entry['guid']      = item.pop('guid')
 	entry['linkurl']   = item.pop('linkUrl')
 	entry['region']    = item.pop('feedtype')
