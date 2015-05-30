@@ -9,6 +9,7 @@ from app.models import Translators, Releases, Series, AlternateNames, AlternateT
 import traceback
 import app.nameTools as nt
 import time
+import sqlalchemy.exc
 
 # user = Users(
 # 	nickname  = form.username.data,
@@ -96,8 +97,10 @@ def insert_raw_item(item):
 	if not itemrow:
 		print("New feed item: ", entry['guid'])
 		itemrow = Feeds(**entry)
+
 		db.session.add(itemrow)
 		db.session.flush()
+
 
 
 
@@ -238,14 +241,20 @@ def dispatchItem(item):
 	assert 'type' in item
 	assert 'data' in item
 
-	if item['type'] == 'raw-feed':
-		insert_raw_item(item['data'])
-	elif item['type'] == 'parsed-release':
-		insert_parsed_release(item['data'])
-	else:
-		print(item)
-		raise ValueError("No known packet structure in item!")
+	try:
+		if item['type'] == 'raw-feed':
+			insert_raw_item(item['data'])
+		elif item['type'] == 'parsed-release':
+			insert_parsed_release(item['data'])
+		else:
+			print(item)
+			raise ValueError("No known packet structure in item!")
+	except sqlalchemy.exc.IntegrityError:
 
+		print("ERROR INSERTING ROW!")
+		traceback.print_exc()
+		db.session.rollback()
+		return
 
 class FeedFeeder(object):
 	die = False
