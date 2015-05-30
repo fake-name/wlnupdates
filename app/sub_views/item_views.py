@@ -21,12 +21,36 @@ from sqlalchemy import desc
 import traceback
 
 from sqlalchemy.sql.expression import nullslast
+from natsort import natsort_keygen
 
 def getSort(row):
 	chp = row.chapter if row.chapter else 0
 	vol = row.volume  if row.volume  else 0
 
 	return vol * 1e6 + chp
+
+def build_progress(watch):
+
+	progress = {}
+	progress['vol'] = 0
+	progress['chp'] = 0
+	progress['frg'] = 0
+	if watch:
+		progress['vol'] = watch.volume
+		progress['chp'] = int(watch.chapter)
+		progress['frg'] = int(watch.chapter * 100) % 100
+
+
+	progress['vol'] = max(progress['vol'], 0)
+	progress['chp'] = max(progress['chp'], 0)
+	progress['frg'] = max(progress['frg'], 0)
+
+	return progress
+
+def get_cover_sorter():
+	# Munge up the covers so they sort properly
+	sorter = natsort_keygen(key=lambda x: str(x.description).replace('〈', '').replace('〉', ''))
+	return sorter
 
 @app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
@@ -46,20 +70,10 @@ def renderSeriesId(sid):
 	releases = series.releases
 	releases.sort(reverse=True, key=getSort)
 
-	progress = {}
-	progress['vol'] = 0
-	progress['chp'] = 0
-	progress['frg'] = 0
-	if watch:
-		progress['vol'] = watch.volume
-		progress['chp'] = int(watch.chapter)
-		progress['frg'] = int(watch.chapter * 100) % 100
+	progress = build_progress(watch)
 
 
-	progress['vol'] = max(progress['vol'], 0)
-	progress['chp'] = max(progress['chp'], 0)
-	progress['frg'] = max(progress['frg'], 0)
-
+	series.covers.sort(key=get_cover_sorter())
 
 	return render_template('series-id.html',
 						series_id    = sid,

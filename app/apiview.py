@@ -2,7 +2,7 @@ from flask import g, jsonify, send_file, render_template, request
 from flask.ext.login import login_required, current_user
 # from guess_language import guess_language
 from app import app, db, lm, babel
-from . import forms
+from . import api_handlers
 from .models import Users, Posts, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
 
 import traceback
@@ -62,10 +62,10 @@ def getError(message):
 	return ret
 
 DISPATCH_TABLE = {
-	'manga-update' : forms.processMangaUpdateJson,
-	'group-update' : forms.processGroupUpdateJson,
-	'set-watch'    : forms.setSeriesWatchJson,
-	'read-update'  : forms.setReadingProgressJson,
+	'manga-update' : api_handlers.processMangaUpdateJson,
+	'group-update' : api_handlers.processGroupUpdateJson,
+	'set-watch'    : api_handlers.setSeriesWatchJson,
+	'read-update'  : api_handlers.setReadingProgressJson,
 }
 
 def dispatchApiCall(reqJson):
@@ -75,7 +75,8 @@ def dispatchApiCall(reqJson):
 
 	mode = reqJson["mode"]
 	if not mode in DISPATCH_TABLE:
-		return getError("Invalid mode in API Request!")
+		print("Invalid mode in request: '{mode}'".format(mode=mode))
+		return getError("Invalid mode in API Request ({mode})!".format(mode=mode))
 
 	dispatch_method = DISPATCH_TABLE[mode]
 	try:

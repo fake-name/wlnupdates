@@ -1,0 +1,145 @@
+<!-- extend base layout -->
+{% macro cover_block(cover, series) -%}
+	<div class="well well-tny info-item">
+		<div class="row coverdiv"  id="{{cover.id}}-container">
+			<div class="col-md-6 rowTitle">
+				<img src='/cover-img/{{ cover.id }}' style='padding: 5px'>
+			</div>
+			<div class="col-md-6 attrs">
+				<div style='padding: 5px'>
+					<strong>Title:</strong>
+					{% if g.user.is_authenticated() %}
+						<textarea id='new-cover-title' name='c-input-{{cover.id}}' style='width: 100%'>{{ cover.description }}</textarea>
+						<textarea id='old-cover-title' name='c-orig-input-{{cover.id}}' style='visibility: hidden'>{{ cover.description }}</textarea>
+					{% else %}
+						<span>{{ cover.description }}</span>
+					{% endif %}
+				</div>
+			</div>
+
+		</div>
+	</div>
+{%- endmacro %}
+
+{% extends "__base.html" %}
+
+{% block header %}
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="manga-id" content="{{ series_id }}">
+
+	<script src="/static/js/editable.js"></script>
+	<script src="/static/js/autogrow.js"></script>
+	<script src="/static/js/bootstrap-number-input.js"></script>
+{% endblock %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+
+	<script>
+
+
+		function saveCallback()
+		{
+			return function(result)
+			{
+				console.log("Save callback!")
+				if (!result.hasOwnProperty("error"))
+				{
+					console.log("No error result?")
+				}
+				if (result['error'])
+				{
+					alert("Error on update!\n\n"+result["message"])
+				}
+				else
+				{
+					location.reload();
+				}
+				console.log(result)
+
+			}
+		}
+
+		function save_covers()
+		{
+
+			var covers = $(".coverdiv");
+			var changes = [];
+
+			covers.each(function(index, data){
+
+				var new_c = $(this).find("#new-cover-title");
+				var old_c = $(this).find("#old-cover-title");
+				if (new_c.length == 1 & old_c.length == 1)
+				{
+					var new_t = new_c.val()
+					var old_t = old_c.val()
+					if (new_t != old_t)
+					{
+						var change = {
+							"type"  : "name",
+							"new"   : new_c.val(),
+							"old"   : old_c.val(),
+							"covid" : new_c.attr('name')
+						}
+						changes.push(change)
+					}
+
+				}
+				// console.log("items", items);
+
+			})
+			console.log("save clicked!");
+			console.log(changes)
+
+
+			if (changes.length > 0)
+			{
+
+
+				var mangaId  = $('meta[name=manga-id]').attr('content')
+				var params = {
+					"mode"      : 'cover-update',
+					"item-id"   : mangaId,
+					"entries"   : changes,
+				}
+
+
+				$.ajax({
+					url : "/api",
+					success : saveCallback(),
+					data: JSON.stringify(params),
+					method: "POST",
+					dataType: 'json',
+					contentType: "application/json;",
+				});
+			}
+
+		}
+	</script>
+	<div class="well well-large">
+		<form action="submit">
+			<button type="button" onclick="save_covers()" class="pull-right">Save changes</button>
+			<h2>{{ series.title }} - Covers </h2>
+				{% if series.covers %}
+					{% for cover in series.covers %}
+						{{cover_block(
+											cover,
+											series
+										)
+						}}
+					{% endfor %}
+
+					<div style='width: 100%;'>
+						<button type="button" onclick="save_covers()" class="pull-right">Save changes</button>
+					</div>
+				{% endif %}
+		</form>
+		<script>$('textarea').autogrow({onInitialize:true});</script>
+
+		<div style="clear: both;"></div>
+
+	</div>
+
+
+{% endblock %}

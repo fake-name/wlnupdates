@@ -16,19 +16,10 @@ from app.models import Translators
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
 from app.models import Releases
-# from app.models import Users
-# from app.models import Posts
-# from app.models import Tags
-# from app.models import Genres
-# from app.models import Author
-# from app.models import Illustrators
-# from app.models import Releases
-# from app.models import Covers
-# from app.models import Watches
-# from app.models import Feeds
 import app.nameTools as nt
 
-from app.forms import NewGroupForm, NewSeriesForm, updateAltNames, NewReleaseForm
+from app.forms import NewGroupForm, NewSeriesForm, NewReleaseForm
+from app.api_handlers import updateAltNames
 
 
 def add_group(form):
