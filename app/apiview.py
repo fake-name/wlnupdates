@@ -66,6 +66,7 @@ DISPATCH_TABLE = {
 	'group-update' : api_handlers.processGroupUpdateJson,
 	'set-watch'    : api_handlers.setSeriesWatchJson,
 	'read-update'  : api_handlers.setReadingProgressJson,
+	'cover-update' : api_handlers.updateAddCoversJson,
 }
 
 def dispatchApiCall(reqJson):

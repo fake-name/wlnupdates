@@ -38,6 +38,14 @@ VALID_LICENSE_STATES = {
 	"False"   : False,
 }
 
+
+def getResponse(message, error=False):
+	ret = {
+		'error'   : error,
+		'message' : message
+	}
+	return ret
+
 def validateMangaData(data):
 	# print("Manga Data:", data)
 	assert "entries" in data
@@ -576,16 +584,15 @@ def setReadingProgressJson(data):
 	# 	else:
 	# 		raise AssertionError("Unknown modifification type!")
 
-	ret = {
-			"error"   : False,
-			"message" : "Wat?!"
-	}
-	return ret
+	return getResponse('Succeeded')
 
-
+def updateAddCoversJson(data):
+	print(data)
+	return getResponse("Lolercoaster", True)
 
 # {'value': '',
 # 'type': 'singleitem',
 # 'key': 'demographic-container'},
 
 # {'value': 'Novel\n', 'type': 'singleitem', 'key': 'type-container'}, {'value': '', 'type': 'singleitem', 'key': 'origin_loc-container'}], 'mode': 'manga-update'}
+
