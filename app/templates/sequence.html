@@ -47,30 +47,30 @@
 {% block content %}
 	{% include '_block_flash.html' %}
 	<div class="well well-large" style="min-height: 140px;">
-		{% if add_new %}
-			<div class='pull-right'>
-				<h4><a href='/add/{{add_new}}/'>{{add_new_text}}</a></h4>
-			</div>
-		{% endif %}
-		{% if letter != None%}
-			<div>
-				<h2 style='display: inline-block;'>{{ title }}</h2>
-				<h4 style='display: inline-block;'> - Starting with "{{letter | upper}}"</h4>
-			</div>
-		{% else %}
-			<h2>{{ title }}</h2>
-		{% endif %}
-
-
-		{% if sequence_item.items %}
-			{% if path_name %}
-				<div class='pull-left'>
-					{{ render_pagination(sequence_item) }}
+		<div>
+			{% if add_new %}
+				<div class='pull-right'>
+					<h4><a href='/add/{{add_new}}/'>{{add_new_text}}</a></h4>
 				</div>
+			{% endif %}
+			{% if letter != None%}
+				<div>
+					<h2 style='display: inline-block;'>{{ title }}</h2>
+					<h4 style='display: inline-block;'> - Starting with "{{letter | upper}}"</h4>
+				</div>
+			{% else %}
+				<h2>{{ title }}</h2>
+			{% endif %}
+			{% if path_name %}
+
+				{{ render_pagination(sequence_item) }}
 				{{ render_alphanum_div(path_name) }}
 			{% else %}
 				{{ render_pagination(sequence_item) }}
 			{% endif %}
+		</div>
+
+		{% if sequence_item.items %}
 
 			<div>
 				{{ render_page_contents(page_url_prefix, sequence_item, name_key) }}
