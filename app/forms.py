@@ -117,8 +117,9 @@ class NewReleaseForm(Form):
 # 		return True
 
 
-# class PostForm(Form):
-# 	post = StringField('post', validators=[DataRequired()])
+class PostForm(Form):
+	title = StringField('Title', validators=[DataRequired(), Length(max=128)])
+	content = TextAreaField('Content', validators=[DataRequired()])
 
 
 class SearchForm(Form):

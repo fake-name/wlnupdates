@@ -10,15 +10,21 @@ from app import app
 from app import db
 import datetime
 import bleach
+import markdown
 from sqlalchemy import and_
 from app.models import Series
 from app.models import Translators
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
 from app.models import Releases
+from app.models import Posts
 import app.nameTools as nt
 
-from app.forms import NewGroupForm, NewSeriesForm, NewReleaseForm
+from app.forms import NewGroupForm
+from app.forms import NewSeriesForm
+from app.forms import NewReleaseForm
+from app.forms import PostForm
+
 from app.api_handlers import updateAltNames
 
 
@@ -135,6 +141,21 @@ def add_release(form):
 	flash(gettext('New release added. Thanks for contributing!'))
 	return redirect(url_for('renderSeriesId', sid=sid))
 
+def add_post(form):
+	title   = bleach.clean(form.data['title'], tags=[], strip=True)
+	content = markdown.markdown(bleach.clean(form.data['content'], strip=True))
+	new = Posts(
+			title     = title,
+			body      = content,
+			timestamp = datetime.datetime.now(),
+			user_id   = g.user.id,
+		)
+	db.session.add(new)
+	db.session.commit()
+	flash(gettext('New post added.'))
+	return redirect(url_for('renderNews'))
+
+
 s_msg = '''
 After you have added the series by name, you will be taken to the new
 series page where you can fill in the rest of the series information.
@@ -147,6 +168,7 @@ dispatch = {
 	'group'   : (NewGroupForm,   add_group,   ''),
 	'series'  : (NewSeriesForm,  add_series,  s_msg),
 	'release' : (NewReleaseForm, add_release, ''),
+	'post'    : (PostForm,       add_post,    ''),
 }
 
 
@@ -201,6 +223,12 @@ def addNewItem(add_type, sid=None):
 				add_name = add_type,
 				message = message,
 				series  = series
+				)
+
+	if add_type == 'post':
+		return render_template(
+				'add-post.html',
+				form=form,
 				)
 
 

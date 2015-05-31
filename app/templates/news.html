@@ -30,6 +30,11 @@
 
 
 	<div class="well well-large">
+		{% if add_new %}
+			<div class='pull-right'>
+				<h4><a href='/add/{{add_new}}/'>{{add_new_text}}</a></h4>
+			</div>
+		{% endif %}
 		<h2>News Posts</h2>
 
 		<div style="clear: both;"></div>

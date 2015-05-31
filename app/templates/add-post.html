@@ -1,0 +1,42 @@
+<!-- extend base layout -->
+{% extends "__base.html" %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div class="well well-large" style="min-height: 140px;">
+		<h2>Add a new {{add_name}}:</h2>
+
+		<form method="POST" action="{{request.path}}">
+			<div class="well well-xs" >
+				{{ form.hidden_tag() }}
+				<div>
+					{{ form.title.label }}
+					{{ form.title(size=60) }}
+
+					{% if form.title.errors %}
+						<ul class="errors">
+							{% for error in form.title.errors %}
+								<li>{{ error }}</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				</div>
+				<div>
+					{{ form.content.label }}
+					{{ form.content(size=60, rows=15) }}
+					{% if form.content.errors %}
+						<ul class="errors">
+							{% for error in form.content.errors %}
+								<li>{{ error }}</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				</div>
+			<div>{{message}}</div>
+			</div>
+			<input type="submit" value="Add">
+
+		</form>
+	</div>
+
+{% endblock %}

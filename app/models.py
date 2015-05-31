@@ -503,7 +503,7 @@ class Posts(db.Model):
 
 
 	def __repr__(self):  # pragma: no cover
-		return '<Post %r>' % (self.body)
+		return '<Post %r (body size: %s)>' % (self.title, len(self.body))
 
 
 class Watches(db.Model):

@@ -20,10 +20,16 @@ def renderNews(page=1):
 			.filter(Posts.user_id == 2)      \
 			.order_by(desc(Posts.timestamp)) \
 			.paginate(page, 5, False)
-	print(posts)
-	print(posts.total)
-	print(dir(posts))
+
+	add_new = None
+	add_new_text = None
+	if g.user.is_admin():
+		add_new = "post"
+		add_new_text = "New Post"
+
 	return render_template(
 			'news.html',
 			posts = posts,
+			add_new = add_new,
+			add_new_text = add_new_text,
 		)
