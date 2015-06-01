@@ -657,6 +657,7 @@ def updateCoverTitle(series, updateDat):
 	assert 'type'  in updateDat
 	assert 'covid' in updateDat
 	assert 'c-input-' in updateDat['covid']
+	assert len(updateDat['new']) < 255
 
 	cid = int(updateDat['covid'].replace('c-input-', ''))
 	cover = Covers.query.filter(Covers.id==cid).one()
@@ -664,7 +665,7 @@ def updateCoverTitle(series, updateDat):
 		cover.description = ''
 	assert cover.description == updateDat['old']
 
-	cover.description = updateDat['new']
+	cover.description = bleach.clean(str(updateDat['new']), tags=[], strip=True)
 	db.session.commit()
 
 
