@@ -1,8 +1,10 @@
 
 from app import db
+from app import app
 from app.models import Series
 from app.models import Tags
 from app.models import Genres
+from app.models import Covers
 from app.models import Author
 from app.models import Illustrators
 from app.models import Translators
@@ -11,6 +13,10 @@ from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
 import markdown
 import bleach
+import os.path
+import os
+import hashlib
+from data_uri import DataURI
 from flask.ext.login import current_user
 import datetime
 import app.nameTools as nt
@@ -586,9 +592,141 @@ def setReadingProgressJson(data):
 
 	return getResponse('Succeeded')
 
+def getHash(filecont):
+	m = hashlib.md5()
+	m.update(filecont)
+	fHash = m.hexdigest()
+	return fHash
+
+def saveCoverFile(filecont, filename):
+	fHash = getHash(filecont)
+	# use the first 3 chars of the hash for the folder name.
+	# Since it's hex-encoded, that gives us a max of 2^12 bits of
+	# directories, or 4096 dirs.
+	fHash = fHash.upper()
+	dirName = fHash[:3]
+
+	dirPath = os.path.join(app.config['COVER_DIR_BASE'], dirName)
+	if not os.path.exists(dirPath):
+		os.makedirs(dirPath)
+
+	ext = os.path.splitext(filename)[-1]
+	ext   = ext.lower()
+
+	# The "." is part of the ext.
+	filename = '{filename}{ext}'.format(filename=fHash, ext=ext)
+
+
+	# The "." is part of the ext.
+	filename = '{filename}{ext}'.format(filename=fHash, ext=ext)
+
+	# Flask config values have specious "/./" crap in them. Since that gets broken through
+	# the abspath canonization, we pre-canonize the config path so it compares
+	# properly.
+	confpath = os.path.abspath(app.config['COVER_DIR_BASE'])
+
+	fqpath = os.path.join(dirPath, filename)
+	fqpath = os.path.abspath(fqpath)
+
+	if not fqpath.startswith(confpath):
+		raise ValueError("Generating the file path to save a cover produced a path that did not include the storage directory?")
+
+	locpath = fqpath[len(confpath):]
+	if not os.path.exists(fqpath):
+		print("Saving cover file to path: '{fqpath}'!".format(fqpath=fqpath))
+		with open(fqpath, "wb") as fp:
+			fp.write(filecont)
+	else:
+		print("File '{fqpath}' already exists!".format(fqpath=fqpath))
+
+	if locpath.startswith("/"):
+		locpath = locpath[1:]
+	return locpath
+
+VALID_COVER_OPS = {
+	'name',
+	'new-cover'
+}
+
+def updateCoverTitle(series, updateDat):
+	'''
+	assert ALL THE THINGS
+	'''
+	assert 'new'   in updateDat
+	assert 'old'   in updateDat
+	assert 'type'  in updateDat
+	assert 'covid' in updateDat
+	assert 'c-input-' in updateDat['covid']
+
+	cid = int(updateDat['covid'].replace('c-input-', ''))
+	cover = Covers.query.filter(Covers.id==cid).one()
+	if cover.description == None:
+		cover.description = ''
+	assert cover.description == updateDat['old']
+
+	cover.description = updateDat['new']
+	db.session.commit()
+
+
+# {'type': 'new-cover', 'name': 'DM01M.jpg', 'file': 'data:image
+def addNewCover(series, updateDat):
+	assert 'name' in updateDat
+	assert 'file' in updateDat
+	assert 'type' in updateDat
+
+	data = DataURI(updateDat['file'])
+
+	dathash = getHash(data.data).lower()
+	have = Covers.query.filter(Covers.hash == dathash).scalar()
+	if have:
+		return getResponse("A cover with that MD5 hash already exists! Are you accidentally adding a duplicate?", True)
+
+	covpath = saveCoverFile(data.data, updateDat['name'])
+
+	new = Covers(
+		srcfname    = updateDat['name'],
+		series      = series.id,
+		description = '',
+		fspath      = covpath,
+		hash        = dathash,
+		)
+
+	db.session.add(new)
+	db.session.commit()
+
+	# print(data.mimetype)
+	# print(data.data)
+	# with open(updateDat['name'], 'wb') as fp:
+	# 	fp.write(data.data)
+
+def processCoverUpdate(series, entry):
+	assert 'type' in entry
+	assert entry['type'] in VALID_COVER_OPS
+
+	if entry['type'] == "name":
+		return updateCoverTitle(series, entry)
+
+	if entry['type'] == "new-cover":
+		return addNewCover(series, entry)
+
+
+
 def updateAddCoversJson(data):
-	print(data)
-	return getResponse("Lolercoaster", True)
+	assert 'mode' in data
+	assert 'entries' in data
+	assert 'item-id' in data
+	assert data['mode'] == 'cover-update'
+	sid = data['item-id']
+
+	series = Series.query.filter(Series.id==sid).one()
+
+	# print(series)
+	ret = None
+	for entry in data['entries']:
+		ret = processCoverUpdate(series, entry)
+		if ret:
+			return ret
+	return getResponse("Success", False)
 
 # {'value': '',
 # 'type': 'singleitem',

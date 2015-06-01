@@ -96,7 +96,7 @@
 		<div class='imgDiv'>
 			{% for cover in covers %}
 				<div id="cover-item" style="display: none;">
-					<img src='/cover-img/{{ cover.id }}'>
+					<img src='/cover-img/{{ cover.id }}' style='max-width: 350px; max-height: 500px;'>
 					{% if cover.description %}
 						<h4>{{cover.description}}</h4>
 					{% else %}

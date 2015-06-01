@@ -47,7 +47,7 @@
 
 {% block header %}
 	<meta name="csrf-token" content="{{ csrf_token() }}">
-	<meta name="manga-id" content="{{ series_id }}">
+	<meta name="manga-id" content="{{ series.id }}">
 
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
@@ -182,12 +182,12 @@
 										)
 						}}
 					{% endfor %}
-
-					<div style='width: 100%;'>
-						<button type="button" onclick="save_covers()" class="pull-right">Save changes</button>
-					</div>
 				{% endif %}
 				{{ image_upload_block(series) }}
+				<div style='width: 100%;'>
+					<button type="button" onclick="save_covers()" class="pull-right">Save changes</button>
+				</div>
+
 		</form>
 		<script>$('textarea').autogrow({onInitialize:true});</script>
 
