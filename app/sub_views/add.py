@@ -6,7 +6,6 @@ from flask import g
 from flask.ext.babel import gettext
 from werkzeug.urls import url_fix
 # from guess_language import guess_language
-from app import app
 from app import db
 import datetime
 import bleach
@@ -19,13 +18,14 @@ from app.models import AlternateTranslatorNames
 from app.models import Releases
 from app.models import Posts
 import app.nameTools as nt
-
+import app.series_tools
 from app.forms import NewGroupForm
 from app.forms import NewSeriesForm
 from app.forms import NewReleaseForm
 from app.forms import PostForm
+from app import app
 
-from app.api_handlers import updateAltNames
+
 
 
 def add_group(form):
@@ -80,7 +80,7 @@ def add_series(form):
 
 		# session must be committed before adding alternate names,
 		# or the primary key links will fail.
-		updateAltNames(new, [name])
+		app.series_tools.updateAltNames(new, [name])
 
 		flash(gettext('Series Created!'))
 		# return redirect(url_for('index'))

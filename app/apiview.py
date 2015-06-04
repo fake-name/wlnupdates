@@ -1,28 +1,39 @@
-from flask import g, jsonify, send_file, render_template, request
-from flask.ext.login import login_required, current_user
-# from guess_language import guess_language
-from app import app, db, lm, babel
+
+from flask import jsonify
+from flask import render_template
+from flask import request
+from flask.ext.login import current_user
+import wtforms_json
+
+from app import app
+
 from . import api_handlers
-from .models import Users, Posts, Series, Tags, Genres, Author, Illustrators, Translators, Releases, Covers
+from . import api_handlers_admin
 
 import traceback
 
-import wtforms_json
 wtforms_json.init()
 
-@app.route('/api', methods=['POST'])
-def handleApiPost():
-	if not current_user.is_authenticated():
-		js = {
-			"error"   : True,
-			"message" : """
+LOGIN_REQ =  """
 API Calls can only be made by a logged in user!
 
 If you are not logged in, please log in.
 
 If you do not have an account, you must create one in order to edit things or watch series."""
-		}
-		resp = jsonify(js)
+
+
+def getError(message):
+	ret = {
+		'error'   : True,
+		'message' : message
+	}
+	return ret
+
+@app.route('/api', methods=['POST'])
+def handleApiPost():
+	if not current_user.is_authenticated():
+
+		resp = jsonify(getError(LOGIN_REQ))
 		resp.status_code = 200
 		resp.mimetype="application/json"
 		return resp
@@ -54,12 +65,6 @@ def handleApiGet():
 	return render_template('not-implemented-yet.html', message="API Endpoint requires a POST request.")
 
 
-def getError(message):
-	ret = {
-		'error'   : True,
-		'message' : message
-	}
-	return ret
 
 DISPATCH_TABLE = {
 	'manga-update' : api_handlers.processMangaUpdateJson,
@@ -67,6 +72,8 @@ DISPATCH_TABLE = {
 	'set-watch'    : api_handlers.setSeriesWatchJson,
 	'read-update'  : api_handlers.setReadingProgressJson,
 	'cover-update' : api_handlers.updateAddCoversJson,
+
+	'merge-id'     : api_handlers_admin.mergeSeriesItems,
 }
 
 def dispatchApiCall(reqJson):
@@ -86,7 +93,7 @@ def dispatchApiCall(reqJson):
 	except AssertionError:
 		traceback.print_exc()
 		print(reqJson)
-		return getError("Invalid data in API request!")
+		return getError("Error processing API request!")
 
 
 

@@ -83,8 +83,51 @@
 					{% for item in inList %}
 					<li><span class='multilist' id='{{valId}}'>{{ item[itemKey] }}</span></li>
 					{% endfor %}
+					{% if not inList %}
+						<span class='multilist' id='{{valId}}'></span>
+					{% endif %}
 				</ul>
 
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+
+{% macro mergeInto() -%}
+	<script>
+		function merge_ajax()
+		{
+			console.log("Ready to send!");
+			var merge_id  = $("#dbid").val();
+			console.log("merge_id", merge_id)
+
+			var mangaId  = $('meta[name=manga-id]').attr('content')
+			var params = {
+				'mode'      : 'merge-id',
+				'item-id'   : mangaId,
+				'merge_id'  : merge_id
+			}
+
+
+			$.ajax({
+				url : "/api",
+				success : saveCallback(false),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
+	</script>
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-12 rowContents" id='{{valId}}'>
+				<form class="form-inline" action="javascript:merge_ajax();">
+					<label for="exampleInputEmail1">Merge-To ID</label>
+					<input type="text" class="form-control input-sm" id="dbid" placeholder="DbId">
+					<button class="btn btn-primary btn-xs">Do Merge</button>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -435,10 +478,8 @@
 			}}
 
 			{% if g.user.is_admin() %}
-				<div>
-					Merge Item:
-
-				</div>
+				<hr>
+				{{mergeInto()}}
 			{% endif %}
 			<div style="clear: both;"></div>
 

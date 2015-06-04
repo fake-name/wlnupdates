@@ -30,6 +30,7 @@ from app.sub_views import history_view
 from app.sub_views import cover_edit_view
 from app.sub_views import news_view
 
+
 import traceback
 
 @lm.user_loader
