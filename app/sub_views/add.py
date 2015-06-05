@@ -18,11 +18,11 @@ from app.models import AlternateTranslatorNames
 from app.models import Releases
 from app.models import Posts
 import app.nameTools as nt
-import app.series_tools
 from app.forms import NewGroupForm
 from app.forms import NewSeriesForm
 from app.forms import NewReleaseForm
 from app.forms import PostForm
+import app.series_tools as series_tools
 from app import app
 
 
@@ -80,7 +80,7 @@ def add_series(form):
 
 		# session must be committed before adding alternate names,
 		# or the primary key links will fail.
-		app.series_tools.updateAltNames(new, [name])
+		series_tools.updateAltNames(new, [name])
 
 		flash(gettext('Series Created!'))
 		# return redirect(url_for('index'))
