@@ -6,22 +6,17 @@
 		{% else %}
 			<title>WLN Updates</title>
 		{% endif %}
-		<script src="/static/js/jquery-latest.min.js"></script>
 		<link href="/static/css/bootstrap.css" rel="stylesheet" media="screen">
-		<script src="/static/js/bootstrap.min.js"></script>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="/static/css/custom.css" rel="stylesheet" media="screen">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 		{% block header %}{% endblock %}
 	</head>
 	<body>
-		<div style='max-width: 1200px'>
+		<div id='segment_container'>
 			<nav class="navbar navbar-default">
-
 				<div class="container-fluid">
-
 					<div class="navbar-header">
-
 						<a class="navbar-brand" href="/">Web & Light Novel Updates!</a>
 					</div>
 					<div class="col-sm-5 col-md-5 col-lg-5 pull-right" style="display:inline;">
@@ -34,28 +29,44 @@
 					</div>
 				</div>
 			</nav>
-
-			<div class="container-fluid">
-
-
-
-				<div class="row">
-					<div class="col-md-10">
-						{% block content %}{% endblock %}
+			<div id='segment_body'>
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-10">
+							{% block content %}{% endblock %}
+						</div>
+						<div class="col-md-2">
+							{% include '_block_nav.html' %}
+						</div>
 					</div>
-					<div class="col-md-2">
-						{% include '_block_nav.html' %}
-					</div>
+
 				</div>
+			</div>
+			<div id='segment_footer'>
+				<div class="navbar navbar-default">
+					<div class="container">
+						<div class="navbar-header">
 
-				<div class='row'>
-					<div class="col-md-12">
-						<a href='/about'>About this site</a>
-					</div>
+						</div>
+						<ul class="nav navbar-nav">
+							<li>
+								<a href='/about'>About this site</a>
+							</li>
+							<li>
+								<a href="/help">Help</a>
+							</li>
+						</ul>
+					</nav>
+
 				</div>
 			</div>
 		</div>
+
+
+
 	</body>
 
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
 	{% block footer %}{% endblock %}
 </html>
