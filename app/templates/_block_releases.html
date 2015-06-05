@@ -86,7 +86,7 @@
 				{% else %}
 					<td class='postfix'>
 				{% endif %}
-					{{entry.postfix}}
+					{{entry.postfix | safe}}
 				</td>
 				<td>
 					<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
