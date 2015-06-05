@@ -105,23 +105,17 @@ def mergeSeriesItems(data):
 
 	# For each user watch, if the user is already watching the merge-to item,
 	# just delete it. If not, update the user-id
-	for watch in Watches.query.filter(Watches.series_id==itm_to.id).all():
+	for watch in Watches.query.filter(Watches.series_id==itm_from.id).all():
 		if not Watches                              \
 				.query                                  \
 				.filter(Watches.series_id==itm_to.id)   \
 				.filter(Watches.user_id==watch.user_id) \
 				.scalar():
-			Watches                                     \
-				.query                                  \
-				.filter(Watches.series_id==itm_from.id) \
-				.filter(Watches.user_id==watch.user_id) \
-				.update({'series_id': itm_to.id})
+
+			watch.series_id = itm_to.id
+
 		else:
-			Watches                                     \
-				.query                                  \
-				.filter(Watches.series_id==itm_from.id) \
-				.filter(Watches.user_id==watch.user_id) \
-				.delete()
+			db.session.delete(watch)
 
 	if itm_from.description and not itm_to.description:
 		itm_to.description = itm_from.description
