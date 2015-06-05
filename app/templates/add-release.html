@@ -1,16 +1,22 @@
 <!-- extend base layout -->
 {% extends "__base.html" %}
 
-
+{% block footer %}
+<link rel="stylesheet" type="text/css" href="/static/css/jquery.datetimepicker.css"/>
+<script src="/static/js/jquery.datetimepicker.js"></script>
+<script>
+	$('#datetimepicker').datetimepicker({value:'{{date_now()}}',step:10});
+</script>
+{% endblock %}
 
 {% block content %}
 	{% include '_block_flash.html' %}
 	<div class="well well-large" style="min-height: 140px;">
 		<h2>Add a new release for {{series.title}}:</h2>
 
-		<form method="POST" action="{{request.path}}">
+		<form method="POST" action="{{request.path}}" class='form-horizontal'>
 			{{ form.hidden_tag() }}
-			<div class="well well-xs" >
+			<div class="well well-xs form-inline" >
 
 				<table class='table-striped table table-bordered table-condensed fullwidth'>
 					<colgroup>
@@ -22,7 +28,7 @@
 							{{ form.volume.label }}
 						</td>
 						<td>
-							{{ form.volume(size=6) }}
+							{{ form.volume(size=6, class='form-control') }}
 							<span class='light-grey'>Leave empty if there is no volume number</span>
 
 							{% if form.volume.errors %}
@@ -39,7 +45,7 @@
 							{{ form.chapter.label }}
 						</td>
 						<td>
-							{{ form.chapter(size=6) }}
+							{{ form.chapter(size=6, class='form-control') }}
 							{% if form.chapter.errors %}
 								<ul class="errors">
 									{% for error in form.chapter.errors %}
@@ -56,7 +62,7 @@
 						</td>
 
 						<td>
-							{{ form.subChap(size=6) }}
+							{{ form.subChap(size=6, class='form-control') }}
 							<span class='light-grey'>Use for partial chapters, leave empty otherwise.</span>
 
 							{% if form.subChap.errors %}
@@ -75,7 +81,7 @@
 							{{ form.postfix.label }}
 						</td>
 						<td>
-							{{ form.postfix(size=60) }}
+							{{ form.postfix(size=60, class='form-control') }}
 							<span class='light-grey'>If the chapter has a name, it goes here..</span>
 
 							{% if form.postfix.errors %}
@@ -94,9 +100,10 @@
 							{{ form.release_pg.label }}
 						</td>
 						<td>
-							{{ form.release_pg(size=60) }}
-							<span class='light-grey'>Address where the release is available</span>
-
+							<div class='input-group'>
+								{{ form.release_pg(size=60, class='form-control') }}
+								<span class='light-grey'>Web Address where the release is available</span>
+							</div>
 							{% if form.release_pg.errors %}
 								<ul class="errors">
 									{% for error in form.release_pg.errors %}
@@ -112,12 +119,38 @@
 							{{ form.group.label }}
 						</td>
 						<td>
-							{{ form.group() }}
+
+							<div class='input-group'>
+								{{ form.group(class='form-control') }}
 							<span class='light-grey'>Translator group. If the group is not present, you must <a href='/add/group/'>add it first.</a></span>
+							</div>
 
 							{% if form.group.errors %}
 								<ul class="errors">
 									{% for error in form.group.errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+
+							{{ form.releasetime.label }}
+						</td>
+						<td>
+							<div class='input-group date'>
+								{{ form.releasetime(class='form-control',  id='datetimepicker', type='text', value="") }}
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar"></span>
+								</span>
+							</div>
+
+							{% if form.releasetime.errors %}
+								<ul class="errors">
+									{% for error in form.releasetime.errors %}
 										<li>{{ error }}</li>
 									{% endfor %}
 								</ul>

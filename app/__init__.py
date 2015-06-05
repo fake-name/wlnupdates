@@ -8,6 +8,7 @@ from flask.ext.babel import Babel, lazy_gettext
 from flask_wtf.csrf import CsrfProtect
 from flask_debugtoolbar import DebugToolbarExtension
 from config import basedir
+import datetime
 from babel.dates import format_datetime
 
 class AnonUser():
@@ -97,10 +98,15 @@ def utility_processor():
 
 		return format_datetime(value, "EE yyyy.MM.dd")
 
+	def date_now():
+		return format_datetime(datetime.datetime.today(), "yyyy/MM/dd, hh:mm:ss")
+
+
 	return dict(
 			getUserId       = getUserId,
 			getTlGroupId    = getTlGroupId,
 			format_date = format_date,
+			date_now = date_now,
 			)
 
 

@@ -94,6 +94,7 @@ def add_release(form):
 	sub = int(form.data['subChap'])   if form.data['subChap']   and int(form.data['subChap'])   >= 0 else None
 	group = int(form.data['group'])
 
+	pubdate = form.data['releasetime']
 	# Sub-chapters are packed into the chapter value.
 	# I /may/ change this
 	if sub:
@@ -128,7 +129,7 @@ def add_release(form):
 	new = Releases(
 		tlgroup   = group.id,
 		series    = series.id,
-		published = datetime.datetime.now(),
+		published = pubdate,
 		volume    = vol,
 		chapter   = chp,
 		postfix   = bleach.clean(form.data['postfix'], strip=True),

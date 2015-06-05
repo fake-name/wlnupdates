@@ -1,7 +1,19 @@
 from flask.ext.wtf import Form
 from flask.ext.babel import gettext
-from wtforms import StringField, BooleanField, TextAreaField, FormField, PasswordField, SelectField, HiddenField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, URL
+from wtforms import StringField
+from wtforms import BooleanField
+from wtforms import TextAreaField
+from wtforms import FormField
+from wtforms import PasswordField
+from wtforms import SelectField
+from wtforms import HiddenField
+from wtforms.fields.html5 import DateTimeField
+from wtforms.validators import DataRequired
+from wtforms.validators import Length
+from wtforms.validators import Email
+from wtforms.validators import EqualTo
+from wtforms.validators import ValidationError
+from wtforms.validators import URL
 from .models import Users
 from flask.ext.bcrypt import check_password_hash
 from app.models import Users
@@ -87,7 +99,7 @@ class NewReleaseForm(Form):
 	group       = SelectField('Group', validators=[check_group], coerce=int)
 	series_id   = HiddenField('series')
 	release_pg  = StringField('Release URL', [URL(message='You must supply a link to the released chapter/volume.')])
-	# releasetime = DateTimeField('Release Date/Time', format='%Y-%m-%dT%H:%M:%SZ')
+	releasetime = DateTimeField('Release Date', format='%Y/%m/%d %H:%M')
 
 
 # class EditForm(Form):
