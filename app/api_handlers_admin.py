@@ -145,6 +145,7 @@ def mergeSeriesItems(data):
 	if itm_from.orig_status and not itm_to.orig_status:
 		itm_to.orig_status = itm_from.orig_status
 
+	db.session.flush()
 	Covers.query.filter(Covers.series==itm_from.id).update({'series': itm_to.id})
 	CoversChanges.query.filter(CoversChanges.series==itm_from.id).update({'series': itm_to.id})
 
