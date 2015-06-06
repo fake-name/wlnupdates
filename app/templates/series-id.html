@@ -339,10 +339,13 @@
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<meta name="manga-id" content="{{ series_id }}">
 
+{% endblock %}
+{% block footer %}
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
 	<script src="/static/js/bootstrap-number-input.js"></script>
 {% endblock %}
+
 
 {% block content %}
 	{% include '_block_flash.html' %}

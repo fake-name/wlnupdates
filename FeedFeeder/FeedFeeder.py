@@ -173,6 +173,17 @@ def get_create_series(seriesname):
 			.scalar()
 
 	if not have:
+
+		haveS  = Series                              \
+				.query                              \
+				.filter(Series.title == seriesname) \
+				.limit(1)                           \
+				.scalar()
+
+		if haveS:
+			print("Wat? Item that isn't in the altname table but still exists?")
+			return haveS
+
 		print("Need to create new series entry for ", seriesname)
 		new = Series(
 				title=seriesname,

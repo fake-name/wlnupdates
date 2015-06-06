@@ -81,7 +81,7 @@ class AlternateNamesBase(object):
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
-	name        = db.Column(db.Text(), nullable=False, index=True)
+	name        = db.Column(CIText(), nullable=False, index=True)
 	cleanname   = db.Column(CIText(), nullable=False, index=True)
 
 class AlternateTranslatorNamesBase(object):
