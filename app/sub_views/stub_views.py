@@ -13,6 +13,12 @@ from app import db
 @app.route('/about')
 def about_site():
 	return render_template('about.html')
+@app.route('/help')
+def help_site():
+	return render_template('help.html')
+@app.route('/legal')
+def legal_site():
+	return render_template('legal.html')
 
 @app.route('/user-cp')
 def renderUserCp():

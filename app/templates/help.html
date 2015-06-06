@@ -1,0 +1,110 @@
+<!-- extend base layout -->
+{% extends "__base.html" %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div class="well">
+		<h4>Site Help</h4>
+		<h3>FAQ</h3>
+		<ul>
+			<li>
+				<strong>Manga naming:</strong>
+				<p>
+					When adding a series, the name should generally be as faithful to the original as possible,
+					generally either <a href='http://en.wikipedia.org/wiki/Romanization_of_Japanese'>romanji</a>,
+					<a href='http://en.wikipedia.org/wiki/Pinyin'>pinyin</a> or <a href='http://en.wikipedia.org/wiki/Revised_Romanization_of_Korean'>RR (korean)</a>
+					<a href='http://en.wikipedia.org/wiki/Romanization'>romanization</a> of the series title.
+				</p>
+				<p>
+					Translated titles, and the original title in Japanese/Chinese/Korean should be added to the series
+					as <em>Alternate Names</em>. The search system uses the alternate name values for it's results,
+					so the choice of the title is basically entirely just a function of maintaining consistency with
+					the rest of the series present.
+				</p>
+			</li>
+
+			<li>
+				<strong>Author/Illustrator naming:</strong>
+				<p>
+					Currently, the author/illustrator system has no provision for tracking alternate names for
+					an entry. This will <em>probably</em> change in the relatively near future.
+				</p>
+				<p>
+					At the moment, please use the roman alphabet version of the Author/Illustrator's name.
+				</p>
+				<p>
+					If the author is Asian, then the name order is the surname (family name) first and the given name
+					last, with the surname in all capital letters. For example: TAKAHASHI Rumiko.<br>
+					If the author is Western, then the name order is the given name first and the surname last, with
+					both names NOT in all caps, ONLY in initial caps. For example: John Scalzi.
+				</p>
+				<p>
+					There are currently a fairly large number of duplicate names, both in the author and illustrator
+					listings. This is a unfortunate side-effect of the way the initial data for the site was acquired,
+					and a way to fix it is planned.
+				</p>
+			</li>
+
+		</ul>
+
+		<span><h3>IAQ</h3><sup style='float:right'>Infrequently asked questions</sup></span>
+		<ul>
+			<li>
+				<strong>Your project is somewhat neat. Can you add releases from my site?</strong>
+				<p>
+					Absolutely, but there are a few things you have to do.
+				</p>
+				<p>
+					Basically, you <strong>HAVE</strong> to be consistent in your release naming. In other words, you have to
+					<strong>ALWAYS</strong> have <code>c. {chapter num}</code> or <code>chapter {chapter num}</code> in each
+					chapter relase (<code>v. {volume/book num}</code> or <code>volume {vol/book num}</code> for volumes,
+					<code>part {part num}</code> for partial chapters).<br>
+					Furthermore, you need to either have the series name in the release title, or (for wordpress/blogspot blogs)
+					tag the series in each post.
+				</p>
+				<p>
+					If you post occational commentary or other non-actual-content things, you <strong>must</strong> provide some
+					way for the feed scraper to delineate between actual releases and the additional things. This can be as simple
+					as having a tag that is <em>only</em> used for <em>actual</em> releases.
+				</p>
+				<p>
+					Critically, <em>consistency</em> is the most vital component here. Non-standard, or different ways of
+					referring to releases can prevent proper parsing. As an example, one blog that was examined as a potential
+					source often had "chapter 1, part 1", "chapter 1, part 2", "chapter 1, last part". This is surprisingly
+					difficult to parse, since the extraction system has no knowledge outside of the <em>single</em> title it's
+					processing at a time. As such, it does not know what was before the "last part", and therefore cannot extract
+					anything meaningful.
+				</p>
+				<p>
+					If you're interested in seeing how it works internally, the chapter, vol and fragment values are extracted
+					from the title by the regular expressions
+					<a href='https://github.com/fake-name/MangaCMS/blob/master/FeedScrape/FeedDataParser.py#L25-L61'>here</a>.
+				</p>
+				<p>
+					If you're doing the above, drop me a mail at <code>info at wlnupdates dot com</code>, or submit an
+					<a href='https://github.com/fake-name/wlnupdates/issues'>issue on github</a>, and I'll get it added
+					as soon as possible.
+				</p>
+			</li>
+			<li>
+				<strong>The name you have for my group/site is wrong:</strong>
+				<p>
+					Sorry about that, Currently most of the names came form scraping the title tags of each site, and
+					then just doing a little manual cleanup. Drop me a mail at <code>info at wlnupdates dot com</code>, and
+					I'll try to fix it promptly.
+					<br>
+					Alternatively, the mapping table is <a href='https://github.com/fake-name/MangaCMS/blob/master/FeedScrape/feedNameLut.py'>here</a>, if you want to just pull-request your
+					fixes.
+				</p>
+			</li>
+			<li>
+				<strong>You're showing my [tl-group/sites] RSS Feed! Stop that:</strong>
+				<p>
+					I'm literally using RSS for it's <em>designed purpose</em>. Why do you have a RSS feed if
+					you don't intend it to be used as a RSS feed?
+				</p>
+			</li>
+		</ul>
+	</div>
+
+{% endblock %}
