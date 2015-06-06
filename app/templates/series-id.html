@@ -235,7 +235,7 @@
 {% extends "__base.html" %}
 
 {% block header %}
-	<meta name="csrf-token" content="{{ csrf_token() }}">
+
 	<meta name="manga-id" content="{{ series_id }}">
 
 {% endblock %}
@@ -244,6 +244,11 @@
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
 	<script src="/static/js/bootstrap-number-input.js"></script>
+	{% if g.user.is_mod() %}
+		<script src="/static/js/jquery.contextmenu.js"></script>
+	{% endif %}
+
+
 
 	<script>
 		$('#vol' ).bootstrapNumber();

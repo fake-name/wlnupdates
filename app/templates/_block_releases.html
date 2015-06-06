@@ -58,7 +58,7 @@
 				{{ tableHeader() }}
 				{% set lastitemday = entry.published.day %}
 			{% endif %}
-			<tr>
+			<tr id='release-entry' data-id="{{entry.id}}" data-counted="{{entry.include}}">
 				<td>
 					<a href='{{entry.srcurl}}'>View</a>
 				</td>

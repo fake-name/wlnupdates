@@ -27,16 +27,10 @@ from app.models import Watches
 from flask.ext.login import current_user
 
 from flask.ext.login import current_user
-
 import app.series_tools
+from app.api_common import getResponse
 
 
-def getResponse(message, error=False):
-	ret = {
-		'error'   : error,
-		'message' : message
-	}
-	return ret
 
 
 def mergeSeriesItems(data):
@@ -161,9 +155,48 @@ def mergeSeriesItems(data):
 
 	return getResponse("Success", False)
 
-# {'value': '',
-# 'type': 'singleitem',
-# 'key': 'demographic-container'},
+def getReleaseFromId(inId):
+	ret = Releases.query.filter(Releases.id==inId).one()
+	return ret
 
-# {'value': 'Novel\n', 'type': 'singleitem', 'key': 'type-container'}, {'value': '', 'type': 'singleitem', 'key': 'origin_loc-container'}], 'mode': 'manga-update'}
+def toggle_counted(data):
+	release = getReleaseFromId(data['id'])
+	print(release)
+	return getResponse("API toggle_counted Sez hai?!", error=True)
+
+def delete(data):
+	release = getReleaseFromId(data['id'])
+	print(release)
+	return getResponse("API delete Sez hai?!", error=True)
+
+
+RELEASE_OPS = {
+	'toggle-counted' : toggle_counted,
+	'delete'         : delete,
+}
+
+BOOL_LUT = {
+	"True"  : True,
+	"False" : False,
+}
+
+
+def alterReleaseItem(data):
+	assert 'op' in data
+	assert 'mode' in data
+	assert 'count' in data
+	assert 'id' in data
+
+	assert data['mode'] == "release-ctrl"
+
+	try:
+		data['id'] = int(data['id'])
+	except ValueError:
+		raise AssertionError("Failure converting item ID to integer!")
+	assert data['count'] in BOOL_LUT
+	data['count'] = BOOL_LUT[data['count']]
+
+	assert data['op'] in RELEASE_OPS
+
+	return RELEASE_OPS[data['op']](data)
 

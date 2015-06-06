@@ -21,6 +21,7 @@ from flask.ext.login import current_user
 import datetime
 import app.nameTools as nt
 
+from app.api_common import getResponse
 import app.series_tools
 
 VALID_KEYS = {
@@ -45,12 +46,6 @@ VALID_LICENSE_STATES = {
 }
 
 
-def getResponse(message, error=False):
-	ret = {
-		'error'   : error,
-		'message' : message
-	}
-	return ret
 
 def validateMangaData(data):
 	# print("Manga Data:", data)

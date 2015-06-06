@@ -10,6 +10,7 @@ from app import app
 from . import api_handlers
 from . import api_handlers_admin
 
+from app.api_common import getResponse
 import traceback
 
 wtforms_json.init()
@@ -22,18 +23,11 @@ If you are not logged in, please log in.
 If you do not have an account, you must create one in order to edit things or watch series."""
 
 
-def getError(message):
-	ret = {
-		'error'   : True,
-		'message' : message
-	}
-	return ret
-
 @app.route('/api', methods=['POST'])
 def handleApiPost():
 	if not current_user.is_authenticated():
 
-		resp = jsonify(getError(LOGIN_REQ))
+		resp = jsonify(getResponse(LOGIN_REQ, error=True))
 		resp.status_code = 200
 		resp.mimetype="application/json"
 		return resp
@@ -74,17 +68,18 @@ DISPATCH_TABLE = {
 	'cover-update' : api_handlers.updateAddCoversJson,
 
 	'merge-id'     : api_handlers_admin.mergeSeriesItems,
+	'release-ctrl' : api_handlers_admin.alterReleaseItem,
 }
 
 def dispatchApiCall(reqJson):
 	# print("Json request:", reqJson)
 	if not "mode" in reqJson:
-		return getError("No mode in API Request!")
+		return getResponse("No mode in API Request!", error=True)
 
 	mode = reqJson["mode"]
 	if not mode in DISPATCH_TABLE:
 		print("Invalid mode in request: '{mode}'".format(mode=mode))
-		return getError("Invalid mode in API Request ({mode})!".format(mode=mode))
+		return getResponse("Invalid mode in API Request ({mode})!".format(mode=mode), error=True)
 
 	dispatch_method = DISPATCH_TABLE[mode]
 	try:
@@ -93,7 +88,7 @@ def dispatchApiCall(reqJson):
 	except AssertionError:
 		traceback.print_exc()
 		print(reqJson)
-		return getError("Error processing API request!")
+		return getResponse("Error processing API request!", error=True)
 
 
 
