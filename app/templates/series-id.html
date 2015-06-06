@@ -95,31 +95,7 @@
 
 
 {% macro mergeInto() -%}
-	<script>
-		function merge_ajax()
-		{
-			console.log("Ready to send!");
-			var merge_id  = $("#dbid").val();
-			console.log("merge_id", merge_id)
 
-			var mangaId  = $('meta[name=manga-id]').attr('content')
-			var params = {
-				'mode'      : 'merge-id',
-				'item-id'   : mangaId,
-				'merge_id'  : merge_id
-			}
-
-
-			$.ajax({
-				url : "/api",
-				success : saveCallback(false),
-				data: JSON.stringify(params),
-				method: "POST",
-				dataType: 'json',
-				contentType: "application/json;",
-			});
-		}
-	</script>
 	<div class="well well-tny info-item">
 		<div class="row multilist" id="{{valId}}-container">
 			<div class="col-md-12 rowContents" id='{{valId}}'>
@@ -214,7 +190,93 @@
 			</div>
 		</div>
 	{% endif %}
+
+{%- endmacro %}
+
+
+{% macro watchBlock(watches, progress) -%}
+	<div class="well well-tny info-item">
+		<div class="row multiitem" id="watch-container">
+			<div class="col-md-3 rowTitle">
+				Watching item:
+				<span id='watch-state' class='text-nowrap light-grey'>
+					[saved]
+				</span>
+			</div>
+			<div class="col-sm-9 rowContents" id='watch'>
+				{% if watches %}
+
+					<a href="#" id="watch-link" onclick="toggle_watch();return false;">Yes</a>
+
+					<div id='spinner-div' style='display: inline-block; float:right;'>
+						<form class="form-inline">
+							<div class="form-group form-group-sm btn-xs chap-btn">
+								<label class="control-label-sm">Vol:</label>
+								<input id="vol" class="form-control form-control-num" type="number" value="{{ progress['vol'] | int }}" min="0" />
+							</div>
+							<div class="form-group form-group-sm btn-xs chap-btn">
+								<label class="control-label-sm">Chapter:</label>
+								<input id="chap" class="form-control form-control-num" type="number" value="{{ progress['chp'] | int }}" min="0" />
+							</div>
+							<div class="form-group form-group-sm btn-xs chap-btn">
+								<label class="control-label-sm">Fragment:</label>
+								<input id="frag" class="form-control form-control-num" type="number" value="{{ progress['frg'] | int }}" min="0" max="99" />
+							</div>
+						</form>
+					</div>
+				{% else %}
+					<a href="#" id="watch-link" onclick="toggle_watch();return false;">No</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+{% extends "__base.html" %}
+
+{% block header %}
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="manga-id" content="{{ series_id }}">
+
+{% endblock %}
+
+{% block footer %}
+	<script src="/static/js/editable.js"></script>
+	<script src="/static/js/autogrow.js"></script>
+	<script src="/static/js/bootstrap-number-input.js"></script>
+
 	<script>
+		$('#vol' ).bootstrapNumber();
+		$('#vol' ).change(readChange);
+		$('#chap').bootstrapNumber();
+		$('#chap').change(readChange);
+		$('#frag').bootstrapNumber();
+		$('#frag').change(readChange);
+		console.log("Events attached?")
+
+		function merge_ajax()
+		{
+			console.log("Ready to send!");
+			var merge_id  = $("#dbid").val();
+			console.log("merge_id", merge_id)
+
+			var mangaId  = $('meta[name=manga-id]').attr('content')
+			var params = {
+				'mode'      : 'merge-id',
+				'item-id'   : mangaId,
+				'merge_id'  : merge_id
+			}
+
+
+			$.ajax({
+				url : "/api",
+				success : saveCallback(false),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
 		var i = 0;
 		var pos_text = $('p[id="cover-offset"]');
 		var divs = $('div[id="cover-item"]');
@@ -283,67 +345,7 @@
 			// No images?
 		}
 	</script>
-{%- endmacro %}
 
-
-{% macro watchBlock(watches, progress) -%}
-	<div class="well well-tny info-item">
-		<div class="row multiitem" id="watch-container">
-			<div class="col-md-3 rowTitle">
-				Watching item:
-				<span id='watch-state' class='text-nowrap light-grey'>
-					[saved]
-				</span>
-			</div>
-			<div class="col-sm-9 rowContents" id='watch'>
-				{% if watches %}
-
-					<a href="#" id="watch-link" onclick="toggle_watch();return false;">Yes</a>
-
-					<div id='spinner-div' style='display: inline-block; float:right;'>
-						<form class="form-inline">
-							<div class="form-group form-group-sm btn-xs chap-btn">
-								<label class="control-label-sm">Vol:</label>
-								<input id="vol" class="form-control form-control-num" type="number" value="{{ progress['vol'] | int }}" min="0" />
-							</div>
-							<div class="form-group form-group-sm btn-xs chap-btn">
-								<label class="control-label-sm">Chapter:</label>
-								<input id="chap" class="form-control form-control-num" type="number" value="{{ progress['chp'] | int }}" min="0" />
-							</div>
-							<div class="form-group form-group-sm btn-xs chap-btn">
-								<label class="control-label-sm">Fragment:</label>
-								<input id="frag" class="form-control form-control-num" type="number" value="{{ progress['frg'] | int }}" min="0" max="99" />
-							</div>
-						</form>
-					</div>
-					<script>
-						$('#vol' ).bootstrapNumber();
-						$('#vol' ).change(readChange);
-						$('#chap').bootstrapNumber();
-						$('#chap').change(readChange);
-						$('#frag').bootstrapNumber();
-						$('#frag').change(readChange);
-						console.log("Events attached?")
-					</script>
-				{% else %}
-					<a href="#" id="watch-link" onclick="toggle_watch();return false;">No</a>
-				{% endif %}
-			</div>
-		</div>
-	</div>
-{%- endmacro %}
-
-{% extends "__base.html" %}
-
-{% block header %}
-	<meta name="csrf-token" content="{{ csrf_token() }}">
-	<meta name="manga-id" content="{{ series_id }}">
-
-{% endblock %}
-{% block footer %}
-	<script src="/static/js/editable.js"></script>
-	<script src="/static/js/autogrow.js"></script>
-	<script src="/static/js/bootstrap-number-input.js"></script>
 {% endblock %}
 
 
