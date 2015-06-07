@@ -56,7 +56,7 @@ def get_latest_release(releases):
 			max_vol = release.volume
 			max_chp = release.chapter
 
-		elif not release.volume and not max_vol and release.chapter >= max_chp:
+		elif not release.volume and not max_vol and release.chapter and release.chapter >= max_chp:
 			max_chp = release.chapter
 
 	ret = ''
