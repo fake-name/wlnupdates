@@ -35,7 +35,7 @@ from app.api_common import getResponse
 
 
 def mergeSeriesItems(data):
-	if not current_user.has_mod:
+	if not current_user.is_mod():
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
 
@@ -189,7 +189,7 @@ BOOL_LUT = {
 
 def alterReleaseItem(data):
 
-	if not current_user.has_mod:
+	if not current_user.is_mod():
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 	assert 'op' in data
 	assert 'mode' in data

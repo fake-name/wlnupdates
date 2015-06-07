@@ -448,7 +448,7 @@
 			}}
 
 			{{multiItemBlock("Author(s)",
-								series.author,
+							series.author,
 								'name',
 								'author',
 								'author-id',
@@ -501,11 +501,15 @@
 	<div class="well well-large">
 		<div style='float:right'>
 			<sup>Releases found: {{ release_items | length }}</sup>
+
 			<p>
 				<a href='/add/release/{{series.id}}/'>Add a release</a>
 			</p>
 		</div>
-		<span><h3>Series Releases:</h3></span>
+		<span>
+			<h3 >Series Releases: </h3>
+			<h5 >Latest release - {{latest}}</h5>
+		</span>
 		{% include '_block_releases.html' %}
 	</div>
 

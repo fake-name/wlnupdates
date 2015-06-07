@@ -46,15 +46,17 @@
 			"id"        : itemdat['id'],
 			"count"     : itemdat['counted'],
 		}
-
-		$.ajax({
-			url : "/api",
-			success : updateCallback,
-			data: JSON.stringify(params),
-			method: "POST",
-			dataType: 'json',
-			contentType: "application/json;",
-		});
+		if (confirm('Are you sure you want to delete that release?'))
+		{
+			$.ajax({
+				url : "/api",
+				success : updateCallback,
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
 
 
 	}

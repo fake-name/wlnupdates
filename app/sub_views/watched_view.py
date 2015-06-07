@@ -1,21 +1,17 @@
 
 from flask import render_template, flash, redirect, url_for, g, request
 from app import app
-from app.models import Watches, Series, Releases
+from app.models import Watches
+from app.models import Series
+from app.models import Releases
 from sqlalchemy import desc
 from app import db
 from flask.ext.babel import gettext
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import nullslast
-def get_latest_release(series):
-	latest = Releases                                        \
-				.query                                       \
-				.filter(Releases.series==series.id)          \
-				.order_by(nullslast(desc(Releases.volume)))  \
-				.order_by(nullslast(desc(Releases.chapter))) \
-				.limit(1)                                    \
-				.scalar()
-	return latest
+
+from app.utilities import get_latest_release
+
 
 @app.route('/watches')
 def renderUserLists():

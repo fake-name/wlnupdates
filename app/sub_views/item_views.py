@@ -1,26 +1,22 @@
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_file, abort
+from flask import render_template
+from flask import flash
+from flask import redirect
+from flask import url_for
+from flask import g
 from flask.ext.babel import gettext
 # from guess_language import guess_language
-from app import app, db, lm, babel
+from app import app
 
-from app.models import Users, Posts, Series, Tags, Genres, Author
-from app.models import Illustrators, Translators, Releases, Covers, Watches, AlternateNames
-from app.models import Feeds, Releases
+from app.models import Series
+from app.models import Tags
+from app.models import Genres
+from app.models import Author
+from app.models import Illustrators
+from app.models import Translators
+from app.models import Releases
+from app.models import Watches
 
-from app.confirm import send_email
-
-from app.apiview import handleApiPost, handleApiGet
-
-from app.sub_views.search import execute_search
-
-from app.historyController import renderHistory
-import os.path
-from sqlalchemy.sql.expression import func
 from sqlalchemy import desc
-
-import traceback
-
-from sqlalchemy.sql.expression import nullslast
 from natsort import natsort_keygen
 
 def getSort(row):
@@ -47,6 +43,31 @@ def build_progress(watch):
 
 	return progress
 
+def get_latest_release(releases):
+	max_vol = 0
+	max_chp = 0
+
+	for release in [item for item in releases if item.include]:
+
+		if release.volume and release.volume > max_vol:
+			max_vol = release.volume
+			max_chp = release.chapter
+		elif release.volume and release.chapter and release.volume >= max_vol and release.chapter >= max_chp:
+			max_vol = release.volume
+			max_chp = release.chapter
+
+		elif not release.volume and not max_vol and release.chapter >= max_chp:
+			max_chp = release.chapter
+
+	ret = ''
+	if max_vol > 0:
+		ret += "vol. {}".format(max_vol)
+	if max_chp:
+		if len(ret) > 1:
+			ret += ", "
+		ret += "ch. {}".format(max_chp)
+	return ret
+
 def get_cover_sorter():
 	# Munge up the covers so they sort properly
 	sorter = natsort_keygen(key=lambda x: str(x.description).replace('〈', '').replace('〉', ''))
@@ -71,7 +92,7 @@ def renderSeriesId(sid):
 	releases.sort(reverse=True, key=getSort)
 
 	progress = build_progress(watch)
-
+	latest = get_latest_release(releases)
 
 	series.covers.sort(key=get_cover_sorter())
 
@@ -80,7 +101,8 @@ def renderSeriesId(sid):
 						series       = series,
 						releases     = releases,
 						watch        = watch,
-						progress     = progress
+						progress     = progress,
+						latest       = latest
 						)
 
 
