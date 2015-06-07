@@ -10,6 +10,9 @@
 		<col style="width: 32%">
 		<col style="width: 20%">
 
+		{% if g.user.is_mod() %}
+			<col style="width: 10px">
+		{% endif %}
 		<col >
 		<tr>
 			<th>
@@ -31,6 +34,11 @@
 				Group
 			</th>
 
+			{% if g.user.is_mod() %}
+				<th>
+					C
+				</th>
+			{% endif %}
 		</tr>
 {%- endmacro %}
 
@@ -91,6 +99,15 @@
 				<td>
 					<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
 				</td>
+				{% if g.user.is_mod() %}
+					<th>
+						{% if entry.include %}
+							◯
+						{% else %}
+							✖
+						{% endif %}
+					</th>
+				{% endif %}
 			</tr>
 		{% endfor %}
 		{{ tableFooter() }}

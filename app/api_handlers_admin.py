@@ -23,7 +23,8 @@ from app.models import Releases
 from app.models import ReleasesChanges
 from app.models import Watches
 
-
+from flask import flash
+from flask.ext.babel import gettext
 from flask.ext.login import current_user
 
 from flask.ext.login import current_user
@@ -161,13 +162,18 @@ def getReleaseFromId(inId):
 
 def toggle_counted(data):
 	release = getReleaseFromId(data['id'])
-	print(release)
-	return getResponse("API toggle_counted Sez hai?!", error=True)
+	release.include = not release.include
+	db.session.commit()
+
+	flash(gettext('Release %(id)s count-state toggled. New state: %(state)s', id=release.id, state="counted" if release.include else "uncounted"))
+	return getResponse("Item count-state toggled!", error=False)
 
 def delete(data):
 	release = getReleaseFromId(data['id'])
-	print(release)
-	return getResponse("API delete Sez hai?!", error=True)
+	db.session.delete(release)
+	db.session.commit()
+	flash(gettext('Release deleted.'))
+	return getResponse("Release deleted.", error=False)
 
 
 RELEASE_OPS = {
@@ -182,6 +188,9 @@ BOOL_LUT = {
 
 
 def alterReleaseItem(data):
+
+	if not current_user.has_mod:
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 	assert 'op' in data
 	assert 'mode' in data
 	assert 'count' in data
