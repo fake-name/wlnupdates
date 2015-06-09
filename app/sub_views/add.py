@@ -24,7 +24,7 @@ from app.forms import NewReleaseForm
 from app.forms import PostForm
 import app.series_tools as series_tools
 from app import app
-
+import datetime
 
 
 
@@ -95,6 +95,11 @@ def add_release(form):
 	group = int(form.data['group'])
 
 	pubdate = form.data['releasetime']
+
+	# Limit publication dates to now to prevent post-dating.
+	if pubdate > datetime.datetime.now():
+		pubdate = datetime.datetime.now()
+
 	# Sub-chapters are packed into the chapter value.
 	# I /may/ change this
 	if sub:
