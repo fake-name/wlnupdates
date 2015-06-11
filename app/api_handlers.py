@@ -1,6 +1,6 @@
 
 from app import db
-from app import app
+import app
 from app.models import Series
 from app.models import Tags
 from app.models import Genres
@@ -39,6 +39,7 @@ VALID_KEYS = {
 	'license_en-container'   : 'license_en',
 	'orig_status-container'  : 'orig_status',
 	}
+
 VALID_LICENSE_STATES = {
 	"unknown" : None,
 	"True"    : True,
@@ -498,7 +499,7 @@ def saveCoverFile(filecont, filename):
 	fHash = fHash.upper()
 	dirName = fHash[:3]
 
-	dirPath = os.path.join(app.config['COVER_DIR_BASE'], dirName)
+	dirPath = os.path.join(app.app.config['COVER_DIR_BASE'], dirName)
 	if not os.path.exists(dirPath):
 		os.makedirs(dirPath)
 
@@ -515,7 +516,7 @@ def saveCoverFile(filecont, filename):
 	# Flask config values have specious "/./" crap in them. Since that gets broken through
 	# the abspath canonization, we pre-canonize the config path so it compares
 	# properly.
-	confpath = os.path.abspath(app.config['COVER_DIR_BASE'])
+	confpath = os.path.abspath(app.app.config['COVER_DIR_BASE'])
 
 	fqpath = os.path.join(dirPath, filename)
 	fqpath = os.path.abspath(fqpath)
