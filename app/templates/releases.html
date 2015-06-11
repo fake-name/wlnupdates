@@ -1,4 +1,7 @@
 <!-- extend base layout -->
+{% extends "__base.html" %}
+
+
 {% macro render_pagination(pagination) %}
 	<div class=pagination>
 	{%- for page in pagination.iter_pages() %}
@@ -18,7 +21,6 @@
 
 
 
-{% extends "__base.html" %}
 
 {% block content %}
 	{% include '_block_flash.html' %}
@@ -42,5 +44,12 @@
 
 	</div>
 
-	</ul>
 {% endblock %}
+
+
+{% block footer %}
+	{% if g.user.is_mod() %}
+		{% include '_block_admin_scripts.html' %}
+	{% endif %}
+{% endblock %}
+
