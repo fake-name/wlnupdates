@@ -3,15 +3,17 @@
 
 {% macro render_page_contents(results) %}
 	{% if results %}
-		<table class='table-striped table table-bordered table-condensed fullwidth'>
-			{% for row in results %}
-				<tr>
-					<td>
-						<a href="/series-id/{{row.series}}/">{{ row.name }}</a>
-					</td>
-				</tr>
-			{% endfor %}
-		</table>
+		{% for key, value in results.items() %}
+			<table class='table table-bordered table-condensed fullwidth' style='margin-bottom: 5px;'>
+				{% for series, cleanname, name, similarity in value['results'] %}
+					<tr>
+						<td>
+							<a href="/series-id/{{key}}/">{{ name }}</a>
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		{% endfor %}
 	{% else %}
 		<div class="well well-med" >
 			No results found!
@@ -32,8 +34,6 @@
 		<div>
 			{{ render_page_contents(results) }}
 		</div>
-
-
 
 	</div>
 

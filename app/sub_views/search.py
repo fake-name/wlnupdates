@@ -3,12 +3,14 @@ from flask import render_template, flash, redirect, url_for, g, request
 from app.forms import SearchForm
 import bleach
 from app.models import AlternateNames
+from app.models import Series
 import app.nameTools as nt
 from sqlalchemy.sql.functions import Function
 from sqlalchemy.sql.expression import select, desc
 
 from app import db
 from app import app
+import collections
 
 def title_search(searchterm, page=1):
 	searchtermclean = bleach.clean(searchterm, strip=True)
@@ -19,21 +21,39 @@ def title_search(searchterm, page=1):
 
 	similarity = Function('similarity', AlternateNames.cleanname, (searchterm))
 	query = select(
-		[AlternateNames.series, AlternateNames.cleanname, AlternateNames.name, similarity],
-		from_obj=[AlternateNames],
-		order_by=desc(similarity)
+			[AlternateNames.series, AlternateNames.cleanname, AlternateNames.name, similarity],
+			from_obj=[AlternateNames],
+			order_by=desc(similarity)
 		).where(
-		AlternateNames.cleanname.op("%%")(searchterm)
+			AlternateNames.cleanname.op("%%")(searchterm)
 		).limit(
-		50
+			50
 		)
+
 	results = db.session.execute(query).fetchall()
 
+	data = collections.OrderedDict()
 
+	for result in results:
+		dbid = result[0]
+		if not dbid in data:
+			data[dbid] = {}
+			data[dbid]['row'] = Series.query.filter(Series.id==dbid).one()
+			data[dbid]['results'] = []
+		# We only care about relative ordering, and
+		# since we're ordered when we iterate, if we
+		# just append here, things will stay in the correct
+		# order.
+		data[dbid]['results'].append(result)
+
+
+
+	# print(results)
+	# print(data)
 
 
 	return render_template('text-search.html',
-					   results         = results,
+					   results         = data,
 					   name_key        = "tag",
 					   page_url_prefix = 'tag-id',
 					   searchTarget    = "Titles",
