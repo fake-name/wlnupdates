@@ -42,10 +42,11 @@ def renderAdminViewcount(days=1):
 					.distinct(HttpRequestLog.user_agent, HttpRequestLog.originating_ip) \
 					.all()
 
-	referred_by   = HttpRequestLog                                                                      \
-					.query                                                                              \
-					.filter(sqlalchemy.not_(HttpRequestLog.referer.like('https://www.wlnupdates.com'))) \
-					.distinct(HttpRequestLog.referer)                                                   \
+	referred_by   = HttpRequestLog                                                                       \
+					.query                                                                               \
+					.filter(sqlalchemy.not_(HttpRequestLog.referer.like('https://www.wlnupdates.com%'))) \
+					.filter(sqlalchemy.not_(HttpRequestLog.referer.like('http://10.1.1.8:8081%')))       \
+					.distinct(HttpRequestLog.referer)                                                    \
 					.all()
 
 	# print(total_requests)
