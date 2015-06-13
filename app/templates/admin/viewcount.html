@@ -1,0 +1,59 @@
+<!-- extend base layout -->
+{% extends "__base.html" %}
+
+
+{% macro render_pagination(pagination) %}
+	<div class=pagination>
+	{%- for page in pagination.iter_pages() %}
+		{% if page %}
+			{% if page != pagination.page %}
+				<a href="{{ page }}">{{ page }}</a>
+			{% else %}
+				<strong>{{ page }}</strong>
+			{% endif %}
+		{% else %}
+			<span class=ellipsis>…</span>
+		{% endif %}
+	{%- endfor %}
+	</div>
+{% endmacro %}
+
+
+
+
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	{% if g.user.is_admin() %}
+		<div class="well well-large" style="min-height: 140px;">
+			<div>
+				<h2>Viewcount for the {{interval}}:</h2>
+			</div>
+			<p>Total requests: {{total_requests}}</p>
+			<p>Unique visitors: {{ clients | length }}</p>
+		</div>
+
+		<div class="well well-large" style="min-height: 140px;">
+			<h3>Visitors:</h3>
+			<table class='table-striped table table-bordered table-condensed fullwidth'>
+
+				{% for client in clients %}
+					<tr>
+						<td>{{client.originating_ip}}</td>
+						<td>{{client.forwarded_for}}</td>
+						<td>{{client.user_agent}}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	{% endif %}
+
+{% endblock %}
+
+
+{% block footer %}
+	{% if g.user.is_mod() %}
+		{% include '_block_admin_scripts.html' %}
+	{% endif %}
+{% endblock %}
+

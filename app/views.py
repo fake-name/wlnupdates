@@ -23,7 +23,8 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy import desc
 from app.sub_views import item_views
 from app.sub_views import stub_views
-from app.sub_views import watched_view
+from app.sub_views import user_views
+from app.sub_views import admin_views
 from app.sub_views import add
 from app.sub_views import sequence_views
 from app.sub_views import history_view

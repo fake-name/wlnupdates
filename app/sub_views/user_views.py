@@ -61,3 +61,12 @@ def renderUserLists():
 			'watched.html',
 			watches = data
 		)
+
+
+@app.route('/user-cp')
+def renderUserCp():
+	if not g.user.is_authenticated():
+		flash(gettext('You need to log in to acces your user control-panel.'))
+		return redirect(url_for('index'))
+
+	return render_template('user_cp.html')

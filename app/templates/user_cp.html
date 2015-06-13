@@ -1,0 +1,25 @@
+<!-- extend base layout -->
+{% extends "__base.html" %}
+
+
+
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div class="well well-large" style="min-height: 140px;">
+		<div>
+			<h2>User Control Panel</h2>
+
+			Nothing yet, sorry about that!
+		</div>
+
+
+		{% if g.user.is_admin() %}
+			<hr>
+			{% include 'admin/admin-nav-block.html' %}
+		{% endif %}
+
+
+	</div>
+
+{% endblock %}

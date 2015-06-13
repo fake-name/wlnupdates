@@ -21,9 +21,6 @@ def legal_site():
 	return render_template('legal.html')
 
 
-@app.route('/user-cp')
-def renderUserCp():
-	return render_template('not-implemented-yet.html')
 
 @app.route('/oel-authors/')
 def renderOelGroups():
