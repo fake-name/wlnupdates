@@ -1,4 +1,9 @@
 #!flask/bin/python
+
+# import logging
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
 from app import app, db
 from citext import CIText
 from flask import Flask
@@ -7,7 +12,8 @@ from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 
 from app import models
-migrate = Migrate(app, db)
+
+# migrate = Migrate(app, db)
 manager = Manager(app)
 
 # Unfortuntely, this couldn't be hooked into the `db upgrade` command, because it appears the changes to the DB
@@ -36,8 +42,12 @@ def install_enum():
 	Install enum type in db
 	'''
 	print("Installing enum indices")
-	models.install_region_enum()
-	models.install_tl_type_enum()
+	db.engine.begin()
+	conn = db.engine.connect()
+	models.install_region_enum(conn)
+	models.install_tl_type_enum(conn)
+
+	print("Done")
 
 manager.add_command('db', MigrateCommand)
 

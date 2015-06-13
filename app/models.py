@@ -23,7 +23,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 # pylint: disable=E0213, R0903
 
 region_enum  = ENUM('western', 'eastern', 'unknown', name='region_enum')
-tl_type_enum = ENUM('oel', 'translated', name='region_enum')
+tl_type_enum = ENUM('oel', 'translated',             name='tl_type_enum')
 
 class SeriesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -434,13 +434,13 @@ def install_triggers():
 		create_trigger(classDefinition)
 
 
-def install_region_enum():
+def install_region_enum(conn):
 	print("Installing region enum type!")
-	region_enum.create(bind=db.engine)
+	region_enum.create(bind=conn, checkfirst=True)
 
-def install_tl_type_enum():
+def install_tl_type_enum(conn):
 	print("Installing tl_type enum type!")
-	tl_type_enum.create(bind=db.engine)
+	tl_type_enum.create(bind=conn, checkfirst=True)
 
 
 
