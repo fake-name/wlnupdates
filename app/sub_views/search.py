@@ -35,12 +35,21 @@ def title_search(searchterm, page=1):
 
 	data = collections.OrderedDict()
 
+	uid = g.user.get_id()
 	for result in results:
 		dbid = result[0]
 		if not dbid in data:
 			data[dbid] = {}
 			data[dbid]['row'] = Series.query.filter(Series.id==dbid).one()
-			data[dbid]['watch'] = Watches.query.filter(Watches.series_id==dbid).scalar()
+			if uid:
+				data[dbid]['watch'] = Watches            \
+						.query                           \
+						.filter(Watches.series_id==dbid) \
+						.filter(Watches.user_id==uid)    \
+						.scalar()
+			else:
+				data[dbid]['watch'] = []
+
 			data[dbid]['results'] = []
 		# We only care about relative ordering, and
 		# since we're ordered when we iterate, if we
