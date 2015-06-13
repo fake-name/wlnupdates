@@ -40,7 +40,6 @@
 				{% for client in clients %}
 					<tr>
 						<td>{{client.originating_ip}}</td>
-						<td>{{client.forwarded_for}}</td>
 						<td>{{client.user_agent}}</td>
 					</tr>
 				{% endfor %}

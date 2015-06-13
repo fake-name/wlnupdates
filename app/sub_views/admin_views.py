@@ -22,12 +22,13 @@ from natsort import natsort_keygen
 
 import datetime
 
+@app.route('/admin/viewcounts/<int:days>')
 @app.route('/admin/viewcounts/')
-def renderAdminViewcount():
+def renderAdminViewcount(days=1):
 	if not g.user.is_admin():
 		return render_template('not-implemented-yet.html')
 
-	last_day = datetime.datetime.now() - datetime.timedelta(days=1)
+	last_day = datetime.datetime.now() - datetime.timedelta(days=days)
 
 	total_requests = HttpRequestLog                                 \
 					.query                                          \
