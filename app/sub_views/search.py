@@ -4,6 +4,7 @@ from app.forms import SearchForm
 import bleach
 from app.models import AlternateNames
 from app.models import Series
+from app.models import Watches
 import app.nameTools as nt
 from sqlalchemy.sql.functions import Function
 from sqlalchemy.sql.expression import select, desc
@@ -39,6 +40,7 @@ def title_search(searchterm, page=1):
 		if not dbid in data:
 			data[dbid] = {}
 			data[dbid]['row'] = Series.query.filter(Series.id==dbid).one()
+			data[dbid]['watch'] = Watches.query.filter(Watches.series_id==dbid).scalar()
 			data[dbid]['results'] = []
 		# We only care about relative ordering, and
 		# since we're ordered when we iterate, if we

@@ -1,5 +1,19 @@
 <!-- extend base layout -->
 
+{% macro quick_watch(sid, watchstate) %}
+	<div class='pull-right'>
+		{% if g.user.is_authenticated() %}
+			{% set itemid = 'watch-link-%s' % sid %}
+			{% if not watchstate %}
+				<a href='#' onclick="toggle_watch('.{{itemid}}', mangaId={{sid}}, callback=callbackIIFE('{{itemid}}'));return false;" class='{{itemid}}'>Add Watch</a>
+			{% else %}
+				<a href='#' onclick="toggle_watch('.{{itemid}}', mangaId={{sid}}, callback=callbackIIFE('{{itemid}}'));return false;" class='{{itemid}}'>Remove Watch</a>
+			{% endif %}
+		{% endif %}
+	</div>
+
+{% endmacro %}
+
 
 {% macro render_page_contents(results) %}
 	{% if results %}
@@ -9,6 +23,7 @@
 					<tr>
 						<td>
 							<a href="/series-id/{{key}}/">{{ name }}</a>
+							{{ quick_watch(key, value['watch']) }}
 						</td>
 					</tr>
 				{% endfor %}
@@ -30,12 +45,51 @@
 	{% include '_block_flash.html' %}
 	<div class="well well-large" style="min-height: 140px;">
 		<h2>Search of {{ searchTarget }} for "{{ searchValue }}"</h2>
-
 		<div>
 			{{ render_page_contents(results) }}
 		</div>
-
 	</div>
+{% endblock %}
 
+
+{% block footer %}
+	<script src="/static/js/editable.js"></script>
+	<script>
+
+		function callbackIIFE(selector)
+		{
+
+			return function(result)
+			{
+				var container = $("."+selector);
+				console.log(result)
+				console.log("Watch callback for selector: " + selector)
+				console.log("Container:", container)
+				if (!result.hasOwnProperty("error"))
+				{
+					container.html("ERROR?")
+				}
+				if (!result.hasOwnProperty("watch_str"))
+				{
+					container.html("ERROR!")
+				}
+				if (result['error'])
+				{
+					alert("Error on update!\n\n"+result["message"])
+				}
+				else
+				{
+					if (result['watch_str'] == 'No')
+						container.text('Add Watch')
+					else if (result['watch_str'] == 'Yes')
+						container.text('Remove Watch')
+					else
+						container.text('Error?')
+					console.log("Message:", result['message'])
+					console.log("watch_str:", result['watch_str'])
+				}
+			}
+		}
+	</script>
 
 {% endblock %}

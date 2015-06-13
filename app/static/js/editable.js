@@ -116,20 +116,25 @@ function edit(containerId){
 
 }
 
-function toggle_watch(containerId){
+function toggle_watch(containerId, mangaId, callback)
+{
+	callback = typeof callback !== 'undefined' ?  callback : watchCalback;
 
-	var container = $('#watch-link').first();
+	var container = $(containerId);
+	console.log("Container: ", $(containerId))
 	console.log("Contents: ", container.text())
 
 	var watch = false;
-	if (container.text().indexOf('No') > -1)
+	if (container.text().indexOf('No') > -1 ||  (container.text().indexOf('Add') > -1))
 		watch = true;
 
-	container.html("[Working]")
+	container.each(function(idx){$(this).html("[Working]");});
 
 
 	var data = [];
-	var mangaId = $('meta[name=manga-id]').attr('content')
+
+	if (typeof mangaId == 'undefined')
+		mangaId = $('meta[name=manga-id]').attr('content')
 
 	var params = {
 		"mode"      : "set-watch",
@@ -140,7 +145,7 @@ function toggle_watch(containerId){
 
 	$.ajax({
 		url : "/api",
-		success : watchCalback,
+		success : callback,
 		data: JSON.stringify(params),
 		method: "POST",
 		dataType: 'json',

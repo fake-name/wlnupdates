@@ -206,7 +206,7 @@
 			<div class="col-sm-9 rowContents" id='watch'>
 				{% if watches %}
 
-					<a href="#" id="watch-link" onclick="toggle_watch();return false;">Yes</a>
+					<a href="#" id="watch-link" onclick="toggle_watch('#watch-link');return false;">Yes</a>
 
 					<div id='spinner-div' style='display: inline-block; float:right;'>
 						<form class="form-inline">
@@ -225,7 +225,7 @@
 						</form>
 					</div>
 				{% else %}
-					<a href="#" id="watch-link" onclick="toggle_watch();return false;">No</a>
+					<a href="#" id="watch-link" onclick="toggle_watch('#watch-link');return false;">No</a>
 				{% endif %}
 			</div>
 		</div>
