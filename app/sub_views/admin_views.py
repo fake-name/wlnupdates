@@ -18,6 +18,7 @@ from app.models import HttpRequestLog
 from app.models import Watches
 
 from sqlalchemy import desc
+import sqlalchemy
 from natsort import natsort_keygen
 
 import datetime
@@ -41,14 +42,24 @@ def renderAdminViewcount(days=1):
 					.distinct(HttpRequestLog.user_agent, HttpRequestLog.originating_ip) \
 					.all()
 
-	print(total_requests)
-	print(clients)
+	referred_by   = HttpRequestLog                                                                      \
+					.query                                                                              \
+					.filter(sqlalchemy.not_(HttpRequestLog.referer.like('https://www.wlnupdates.com'))) \
+					.distinct(HttpRequestLog.referer)                                                   \
+					.all()
+
+	# print(total_requests)
+	# print(clients)
+	# print(referred_by)
 
 	return render_template('/admin/viewcount.html',
 		total_requests = total_requests,
 		clients        = clients,
-		interval       = "Last Day"
+		referred_by    = referred_by,
+		interval       = "Last {n} Day{p}".format(n=days if days > 1 else '', p='' if days == 1 else "s")
 		)
+
+
 
 @app.route('/admin/changes/')
 def renderAdminChanges():
