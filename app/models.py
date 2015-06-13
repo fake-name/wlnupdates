@@ -22,7 +22,8 @@ from sqlalchemy.dialects.postgresql import ENUM
 # so disable the warnings for those aspects of things
 # pylint: disable=E0213, R0903
 
-region_enum = ENUM('western', 'eastern', 'unknown', name='region_enum')
+region_enum  = ENUM('western', 'eastern', 'unknown', name='region_enum')
+tl_type_enum = ENUM('oel', 'translated', name='region_enum')
 
 class SeriesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -42,6 +43,7 @@ class SeriesBase(object):
 	tot_chapter = db.Column(db.Float(), default=-1)
 
 	region      = db.Column(region_enum, default='unknown')
+	tl_type     = db.Column(tl_type_enum, nullable=False, index=True)
 	license_en  = db.Column(db.Boolean)
 
 class TagsBase(object):
@@ -432,9 +434,13 @@ def install_triggers():
 		create_trigger(classDefinition)
 
 
-def install_enum():
-	print("Installing enum type!")
+def install_region_enum():
+	print("Installing region enum type!")
 	region_enum.create(bind=db.engine)
+
+def install_tl_type_enum():
+	print("Installing tl_type enum type!")
+	tl_type_enum.create(bind=db.engine)
 
 
 

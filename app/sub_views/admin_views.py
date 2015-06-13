@@ -17,9 +17,7 @@ from app.models import Releases
 from app.models import HttpRequestLog
 from app.models import Watches
 
-from sqlalchemy import desc
 import sqlalchemy
-from natsort import natsort_keygen
 
 import datetime
 

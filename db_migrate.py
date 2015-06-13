@@ -36,7 +36,8 @@ def install_enum():
 	Install enum type in db
 	'''
 	print("Installing enum indices")
-	models.install_enum()
+	models.install_region_enum()
+	models.install_tl_type_enum()
 
 manager.add_command('db', MigrateCommand)
 
