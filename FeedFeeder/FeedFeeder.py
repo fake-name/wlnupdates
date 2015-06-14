@@ -162,7 +162,7 @@ def get_create_group(groupname):
 # }
 
 
-def get_create_series(seriesname):
+def get_create_series(seriesname, tl_type):
 	# If two series have the same alt-name, pick the one with
 	# the lower database-id
 	have  = AlternateNames                             \
@@ -199,6 +199,7 @@ def get_create_series(seriesname):
 				name       = seriesname,
 				cleanname  = nt.prepFilenameForMatching(seriesname),
 				series     = new.id,
+				tl_type    = tl_type,
 				changetime = datetime.datetime.now(),
 				changeuser = RSS_USER_ID
 			)
@@ -239,9 +240,11 @@ def check_insert_release(item, group, series):
 	db.session.commit()
 
 def insert_parsed_release(item):
+	if not "tl_type" in item:
+		item["tl_type"] = "translated"
 
 	group = get_create_group(item['srcname'])
-	series = get_create_series(item['series'])
+	series = get_create_series(item['series'], item["tl_type"])
 
 	# print(series)
 	check_insert_release(item, group, series)
