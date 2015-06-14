@@ -156,6 +156,7 @@ def add_release(form):
 		srcurl    = itemurl,
 		changetime = datetime.datetime.now(),
 		changeuser = g.user.id,
+		include    = True,
 		)
 	db.session.add(new)
 	db.session.commit()

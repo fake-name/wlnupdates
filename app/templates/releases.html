@@ -26,7 +26,7 @@
 	{% include '_block_flash.html' %}
 	<div class="well well-large" style="min-height: 140px;">
 		<div>
-			<h2>Series Releases:</h2>
+			<h2>{{tl_type}}Series Releases:</h2>
 		</div>
 
 		{{ render_pagination(sequence_item) }}
@@ -39,8 +39,6 @@
 		</div>
 
 		{{ render_pagination(sequence_item) }}
-
-
 
 	</div>
 

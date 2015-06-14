@@ -22,6 +22,3 @@ def legal_site():
 
 
 
-@app.route('/oel-releases/')
-def renderOelReleases():
-	return render_template('not-implemented-yet.html')

@@ -1,15 +1,39 @@
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_file, abort
+from flask import render_template
+from flask import flash
+from flask import redirect
+from flask import session
+from flask import url_for
+from flask import request
+from flask import g
+from flask import jsonify
+from flask import send_file
+from flask import abort
 from flask.ext.babel import gettext
 # from guess_language import guess_language
-from app import app, db, lm, babel
+from app import app
+from app import db
+from app import lm
+from app import babel
 
-from app.models import Users, Posts, Series, Tags, Genres, Author
-from app.models import Illustrators, Translators, Releases, Covers, Watches, AlternateNames
-from app.models import Feeds, Releases
+from app.models import Users
+from app.models import Posts
+from app.models import Series
+from app.models import Tags
+from app.models import Genres
+from app.models import Author
+from app.models import Illustrators
+from app.models import Translators
+from app.models import Releases
+from app.models import Covers
+from app.models import Watches
+from app.models import AlternateNames
+from app.models import Feeds
+from app.models import Releases
 
 from app.confirm import send_email
 
-from app.apiview import handleApiPost, handleApiGet
+from app.apiview import handleApiPost
+from app.apiview import  handleApiGet
 
 from app.sub_views.search import execute_search
 
@@ -149,27 +173,6 @@ def renderGenreTable(letter=None, page=1):
 						   name_key        = "genre",
 						   page_url_prefix = 'genre-id',
 						   title           = 'Genres')
-
-
-
-@app.route('/releases/<page>')
-@app.route('/releases/<int:page>')
-@app.route('/releases/')
-def renderReleasesTable(page=1):
-
-	releases = Releases.query       \
-		.order_by(desc(Releases.published))
-
-	if releases is None:
-		flash(gettext('No releases? Something is /probably/ broken!.'))
-		return redirect(url_for('renderReleasesTable'))
-
-	releases_entries = releases.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
-	return render_template('releases.html',
-						   sequence_item   = releases_entries,
-						   page            = page)
-
 
 
 @app.route('/groups/<page>')

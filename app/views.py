@@ -27,6 +27,7 @@ from app.sub_views import user_views
 from app.sub_views import admin_views
 from app.sub_views import add
 from app.sub_views import sequence_views
+from app.sub_views import release_views
 from app.sub_views import series_views
 from app.sub_views import history_view
 from app.sub_views import cover_edit_view
