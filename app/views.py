@@ -61,7 +61,8 @@ def before_request():
 	if g.user.is_authenticated():
 		g.user.last_seen = datetime.utcnow()
 		db.session.add(g.user)
-		db.session.commit()
+
+	db.session.commit()
 	g.locale = get_locale()
 
 
