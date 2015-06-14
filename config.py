@@ -1,7 +1,17 @@
 
 
-from settings import (DATABASE_IP, DATABASE_DB_NAME, DATABASE_USER, DATABASE_PASS, SECRET_KEY, WTF_CSRF_SECRET_KEY,
-					MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER, SECURITY_PASSWORD_SALT)
+from settings import DATABASE_IP            as C_DATABASE_IP
+from settings import DATABASE_DB_NAME       as C_DATABASE_DB_NAME
+from settings import DATABASE_USER          as C_DATABASE_USER
+from settings import DATABASE_PASS          as C_DATABASE_PASS
+from settings import SECRET_KEY             as C_SECRET_KEY
+from settings import WTF_CSRF_SECRET_KEY    as C_WTF_CSRF_SECRET_KEY
+from settings import MAIL_USERNAME          as C_MAIL_USERNAME
+from settings import MAIL_PASSWORD          as C_MAIL_PASSWORD
+from settings import MAIL_DEFAULT_SENDER    as C_MAIL_DEFAULT_SENDER
+from settings import SECURITY_PASSWORD_SALT as C_SECURITY_PASSWORD_SALT
+from settings import COVER_PATH             as C_COVER_PATH
+
 import os
 import sys
 if len(sys.argv) > 1 and "debug" in sys.argv:
@@ -12,13 +22,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class BaseConfig(object):
 
-	SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{passwd}@{host}:5432/{database}'.format(user=DATABASE_USER, passwd=DATABASE_PASS, host=DATABASE_IP, database=DATABASE_DB_NAME)
+	SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{passwd}@{host}:5432/{database}'.format(user=C_DATABASE_USER, passwd=C_DATABASE_PASS, host=C_DATABASE_IP, database=C_DATABASE_DB_NAME)
 	SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 	CSRF_ENABLED = True
 	WTF_CSRF_ENABLED = True
 
-	COVER_DIR_BASE = os.path.join(basedir, "./covers/")
+	COVER_DIR_BASE = os.path.abspath(os.path.join(basedir, C_COVER_PATH))
 
 
 	# administrator list
@@ -37,14 +47,14 @@ class BaseConfig(object):
 	POSTS_PER_PAGE = 50
 	MAX_SEARCH_RESULTS = 50
 
-	DATABASE_IP            = DATABASE_IP
-	DATABASE_DB_NAME       = DATABASE_DB_NAME
-	DATABASE_USER          = DATABASE_USER
-	DATABASE_PASS          = DATABASE_PASS
-	SECRET_KEY             = SECRET_KEY
-	WTF_CSRF_SECRET_KEY    = WTF_CSRF_SECRET_KEY
+	DATABASE_IP            = C_DATABASE_IP
+	DATABASE_DB_NAME       = C_DATABASE_DB_NAME
+	DATABASE_USER          = C_DATABASE_USER
+	DATABASE_PASS          = C_DATABASE_PASS
+	SECRET_KEY             = C_SECRET_KEY
+	WTF_CSRF_SECRET_KEY    = C_WTF_CSRF_SECRET_KEY
 
-	SECURITY_PASSWORD_SALT = SECURITY_PASSWORD_SALT
+	SECURITY_PASSWORD_SALT = C_SECURITY_PASSWORD_SALT
 
 	# mail settings
 	MAIL_SERVER = 'smtp.googlemail.com'
@@ -52,6 +62,6 @@ class BaseConfig(object):
 	MAIL_USE_TLS = False
 	MAIL_USE_SSL = True
 
-	MAIL_USERNAME          = MAIL_USERNAME
-	MAIL_PASSWORD          = MAIL_PASSWORD
-	MAIL_DEFAULT_SENDER    = MAIL_DEFAULT_SENDER
+	MAIL_USERNAME          = C_MAIL_USERNAME
+	MAIL_PASSWORD          = C_MAIL_PASSWORD
+	MAIL_DEFAULT_SENDER    = C_MAIL_DEFAULT_SENDER

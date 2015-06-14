@@ -242,6 +242,11 @@ def check_insert_release(item, group, series):
 def insert_parsed_release(item):
 	if not "tl_type" in item:
 		item["tl_type"] = "translated"
+	else:
+		print("Have TL type?", item["tl_type"])
+
+	if item["tl_type"] not in ['oel', 'translated']:
+		raise ValueError("Invalid TL Type! Wat?")
 
 	group = get_create_group(item['srcname'])
 	series = get_create_series(item['series'], item["tl_type"])
