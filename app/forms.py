@@ -7,6 +7,7 @@ from wtforms import FormField
 from wtforms import PasswordField
 from wtforms import SelectField
 from wtforms import HiddenField
+from wtforms.fields import RadioField
 from wtforms.fields.html5 import DateTimeField
 from wtforms.validators import DataRequired
 from wtforms.validators import Length
@@ -49,6 +50,9 @@ class SignupForm(Form):
 
 class NewSeriesForm(Form):
 	name =   StringField('Series Title', validators=[DataRequired(), Length(min=1)])
+	type =   RadioField( 'Series Type',
+				validators=[DataRequired(message='You must supply select a type.')],
+				choices=[('oel', 'OEL - (original english language)'), ('translated', 'Translated')])
 
 class NewGroupForm(Form):
 	name  =   StringField('Group Name', validators=[DataRequired(), Length(min=1)])
@@ -56,12 +60,14 @@ class NewGroupForm(Form):
 
 
 def check_group(form, field):
+
 	try:
 		dat = int(field.data)
 	except ValueError:
 		raise ValidationError("Invalid group value! You must select a group.")
 	if dat < 0:
 		raise ValidationError("Invalid group value! You must select a group.")
+	print("group validated")
 
 def check_volume(form, field):
 	if field.data:
@@ -96,8 +102,9 @@ class NewReleaseForm(Form):
 	chapter     = StringField('Chapter', validators=[check_chapter])
 	subChap     = StringField('Sub-Chapter', validators=[check_sub_chapter])
 	postfix     = StringField('Additional release titles', [Length(max=64)])
-	group       = SelectField('Group', validators=[check_group], coerce=int)
+	group       = SelectField('Group', validators=[check_group], coerce=int, default=-1)
 	series_id   = HiddenField('series')
+	is_oel      = HiddenField('is_oel')
 	release_pg  = StringField('Release URL', [URL(message='You must supply a link to the released chapter/volume.')])
 	releasetime = DateTimeField('Release Date', format='%Y/%m/%d %H:%M')
 

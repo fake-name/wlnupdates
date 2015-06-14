@@ -61,6 +61,8 @@ def add_series(form):
 	stripped = nt.prepFilenameForMatching(name)
 	have = AlternateNames.query.filter(AlternateNames.cleanname==stripped).all()
 
+	rel_type = form.type.data.strip()
+
 	if len(have) == 1:
 		flash(gettext('Series exists under a different name!'))
 		return redirect(url_for('renderSeriesId', sid=have[0].series))
@@ -72,6 +74,7 @@ def add_series(form):
 	else:
 		new = Series(
 			title      = name,
+			tl_type    = rel_type,
 			changetime = datetime.datetime.now(),
 			changeuser = g.user.id,
 			)
@@ -87,12 +90,19 @@ def add_series(form):
 		return redirect(url_for('renderSeriesId', sid=new.id))
 
 def add_release(form):
-
+	print("Add_release call")
 	chp = int(form.data['chapter'])   if form.data['chapter']   and int(form.data['chapter'])   >= 0 else None
 	vol = int(form.data['volume'])    if form.data['volume']    and int(form.data['volume'])    >= 0 else None
 	sid = int(form.data['series_id']) if form.data['series_id'] and int(form.data['series_id']) >= 0 else None
 	sub = int(form.data['subChap'])   if form.data['subChap']   and int(form.data['subChap'])   >= 0 else None
 	group = int(form.data['group'])
+
+	assert form.data['is_oel'] in ['oel', 'translated']
+
+	oel = False
+	if form.data['is_oel'] == 'oel':
+		oel = True
+		group = None
 
 	pubdate = form.data['releasetime']
 
@@ -116,6 +126,7 @@ def add_release(form):
 
 	itemurl = url_fix(form.data['release_pg'])
 
+
 	if have:
 		flash(gettext('That release appears to already have been added.'))
 		return redirect(url_for('renderSeriesId', sid=sid))
@@ -126,13 +137,17 @@ def add_release(form):
 		return redirect(url_for('index'))
 
 	group = Translators.query.filter(Translators.id==group).scalar()
-	if not group:
+	if oel:
+		groupid = None
+	elif group:
+		groupid = group.id
+	else:
 		flash(gettext('Invalid group-id in add call? Are you trying something naughty?'))
 		return redirect(url_for('index'))
 
 	# Everything has validated, add the new item.
 	new = Releases(
-		tlgroup   = group.id,
+		tlgroup   = groupid,
 		series    = series.id,
 		published = pubdate,
 		volume    = vol,
@@ -162,17 +177,12 @@ def add_post(form):
 	return redirect(url_for('renderNews'))
 
 
-s_msg = '''
-After you have added the series by name, you will be taken to the new
-series page where you can fill in the rest of the series information.
-'''
-
 def preset(cls):
 	return lambda : cls(NewReleaseForm=datetime.datetime.now())
 
 dispatch = {
 	'group'   : (NewGroupForm,   add_group,   ''),
-	'series'  : (NewSeriesForm,  add_series,  s_msg),
+	'series'  : (NewSeriesForm,  add_series,  ''),
 	'release' : (NewReleaseForm, add_release, ''),
 	'post'    : (PostForm,       add_post,    ''),
 }
@@ -195,7 +205,10 @@ def addNewItem(add_type, sid=None):
 	if add_type == 'release':
 		series = Series.query.filter(Series.id==sid).one()
 
-		form = form_class(series_id = series.id)
+		form = form_class(
+				series_id = series.id,
+				is_oel    = series.tl_type
+			)
 
 		altn = AlternateTranslatorNames.query.all()
 		altfmt = [(x.group, x.name) for x in altn]
@@ -204,7 +217,10 @@ def addNewItem(add_type, sid=None):
 	else:
 		form = form_class()
 
+	print("Trying to validate")
+	# print(form.validate_on_submit())
 	if form.validate_on_submit():
+		print("Post request. Validating")
 		if have_auth:
 			print("Validation succeeded!")
 			return callee(form)
@@ -215,7 +231,10 @@ def addNewItem(add_type, sid=None):
 		if not have_auth:
 			flash(gettext('You do not appear to be logged in. Any changes you make will not be saved!'))
 
+
+
 	if add_type == 'release':
+
 
 		altfmt = [(-1, "")] + altfmt
 		form.group.choices = altfmt
@@ -235,6 +254,14 @@ def addNewItem(add_type, sid=None):
 		return render_template(
 				'add-post.html',
 				form=form,
+				)
+
+	if add_type == 'series':
+		return render_template(
+				'add-series.html',
+				form=form,
+				add_name = add_type,
+				message = message
 				)
 
 

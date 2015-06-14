@@ -1146,10 +1146,10 @@ img {
   border-radius: 50%;
 }
 hr {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
   border: 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #dddddd;
 }
 .sr-only {
   position: absolute;

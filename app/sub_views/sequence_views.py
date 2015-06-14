@@ -20,34 +20,6 @@ from sqlalchemy import desc
 
 import traceback
 
-@app.route('/series/<letter>/<int:page>')
-@app.route('/series/<page>')
-@app.route('/series/<int:page>')
-@app.route('/series/')
-def renderSeriesTable(letter=None, page=1):
-	if letter:
-		series = Series.query                                \
-			.filter(Series.title.like("{}%".format(letter))) \
-			.order_by(Series.title)
-	else:
-		series = Series.query       \
-			.order_by(Series.title)
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderSeriesTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-	return render_template('sequence.html',
-						   sequence_item   = series_entries,
-						   page            = page,
-						   name_key        = "title",
-						   letter          = letter,
-						   path_name       = "series",
-						   page_url_prefix = 'series-id',
-						   title           = 'Book Titles',
-						   add_new         = 'series',
-						   add_new_text    = 'Add a Series',
-						   )
-
 
 
 @app.route('/authors/<letter>/<int:page>')

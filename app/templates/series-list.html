@@ -1,0 +1,89 @@
+<!-- extend base layout -->
+{% macro render_pagination(pagination) %}
+	Page:
+	{%- for page in pagination.iter_pages() %}
+		{% if page %}
+			{% if page != pagination.page %}
+				<a href="{{ page }}">{{ page }}</a>
+			{% else %}
+				<strong>{{ page }}</strong>
+			{% endif %}
+		{% else %}
+			<span class=ellipsis>…</span>
+		{% endif %}
+	{%- endfor %}
+
+{% endmacro %}
+
+
+{% macro render_page_contents(pagination, access_key) %}
+
+	<table class='table-striped table table-bordered table-condensed fullwidth'>
+		{%- for page in pagination.items %}
+			<tr>
+				<td>
+					<a href="/series-id/{{page.id}}/">{{ page[access_key] }}</a>
+					{% if page.tl_type == 'oel' %}
+						<div class='pull-right'>
+							<a href='/help#what-is-oel'>OEL</a>
+						</div>
+					{% endif %}
+				</td>
+
+			</tr>
+		{%- endfor %}
+	</table>
+
+{% endmacro %}
+
+
+{% macro render_alphanum_div(prefix) %}
+	<div class='pull-right'>
+		Prefix:
+		{%- for letter in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+			<a href="/{{prefix}}/{{letter}}/1">{{ letter | upper }}</a>
+		{%- endfor %}
+	</div>
+{% endmacro %}
+
+
+{% extends "__base.html" %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div class="well well-large" style="min-height: 140px;">
+		<div>
+			<div class='pull-right'>
+				<h4><a href='/add/series/'>Add a Series</a></h4>
+			</div>
+
+			{% if letter != None%}
+				<div>
+					<h2 style='display: inline-block;'>{{title_prefix}}Book Titles</h2>
+					<h4 style='display: inline-block;'> - Starting with "{{letter | upper}}"</h4>
+				</div>
+			{% else %}
+				<h2>{{title_prefix}}Book Titles</h2>
+			{% endif %}
+
+			{{ render_pagination(series_entries) }}
+			{{ render_alphanum_div(path_name) }}
+
+		</div>
+
+		{% if series_entries.items %}
+
+			<div>
+				{{ render_page_contents(series_entries, name_key) }}
+			</div>
+			{{ render_pagination(series_entries) }}
+		{% else %}
+			<h4>No items found!</h4>
+		{% endif %}
+
+
+
+	</div>
+
+	</ul>
+{% endblock %}

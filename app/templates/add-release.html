@@ -113,27 +113,34 @@
 							{% endif %}
 						</td>
 					</tr>
-					<tr>
-						<td>
+					{% if form.is_oel.data != 'oel' %}
+						<tr>
+							<td>
 
-							{{ form.group.label }}
-						</td>
-						<td>
+								{{ form.group.label }}
+							</td>
+							<td>
 
-							<div class='input-group'>
-								{{ form.group(class='form-control') }}
-							<span class='light-grey'>Translator group. If the group is not present, you must <a href='/add/group/'>add it first.</a></span>
-							</div>
+								<div class='input-group'>
+									{{ form.group(class='form-control') }}
+								<span class='light-grey'>Translator group. If the group is not present, you must <a href='/add/group/'>add it first.</a></span>
+								</div>
 
-							{% if form.group.errors %}
-								<ul class="errors">
-									{% for error in form.group.errors %}
-										<li>{{ error }}</li>
-									{% endfor %}
-								</ul>
-							{% endif %}
-						</td>
-					</tr>
+								{% if form.group.errors %}
+									<ul class="errors">
+										{% for error in form.group.errors %}
+											<li>{{ error }}</li>
+										{% endfor %}
+									</ul>
+								{% endif %}
+							</td>
+						</tr>
+					{% else %}
+						<!-- This is a horrible mess to work around broken WTForms validation -->
+						<div style="display:none;">
+							<input id="group" name="group" type="hidden" value="1">
+						</div>
+					{% endif %}
 
 					<tr>
 						<td>
