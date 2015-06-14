@@ -240,10 +240,10 @@ def check_insert_release(item, group, series):
 	db.session.commit()
 
 def insert_parsed_release(item):
-	if not "tl_type" in item:
-		item["tl_type"] = "translated"
-	else:
-		print("Have TL type?", item["tl_type"])
+	assert 'tl_type' in item
+	assert 'srcname' in item
+	assert 'series'  in item
+
 
 	if item["tl_type"] not in ['oel', 'translated']:
 		raise ValueError("Invalid TL Type! Wat?")
