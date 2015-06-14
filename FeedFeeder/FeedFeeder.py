@@ -189,6 +189,7 @@ def get_create_series(seriesname, tl_type):
 				title=seriesname,
 				changeuser = RSS_USER_ID,  # Hard coded RSS user ID. Probably a bad idea.
 				changetime = datetime.datetime.now(),
+				tl_type    = tl_type,
 
 			)
 		db.session.add(new)
@@ -199,7 +200,6 @@ def get_create_series(seriesname, tl_type):
 				name       = seriesname,
 				cleanname  = nt.prepFilenameForMatching(seriesname),
 				series     = new.id,
-				tl_type    = tl_type,
 				changetime = datetime.datetime.now(),
 				changeuser = RSS_USER_ID
 			)
