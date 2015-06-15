@@ -101,12 +101,33 @@ def utility_processor():
 	def date_now():
 		return format_datetime(datetime.datetime.today(), "yyyy/MM/dd, hh:mm:ss")
 
+	def ago(then):
+		now = datetime.datetime.now()
+		delta = now - then
+
+		d = delta.days
+		h, s = divmod(delta.seconds, 3600)
+		m, s = divmod(s, 60)
+		labels = ['d', 'h', 'm', 's']
+		dhms = ['%s %s' % (i, lbl) for i, lbl in zip([d, h, m, s], labels)]
+		for start in range(len(dhms)):
+			if not dhms[start].startswith('0'):
+				break
+		for end in range(len(dhms)-1, -1, -1):
+			if not dhms[end].startswith('0'):
+				break
+		return ', '.join(dhms[start:end+1])
+
+
+
+
 
 	return dict(
 			getUserId       = getUserId,
 			getTlGroupId    = getTlGroupId,
 			format_date = format_date,
 			date_now = date_now,
+			ago = ago,
 			)
 
 

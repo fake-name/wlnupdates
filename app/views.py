@@ -21,6 +21,7 @@ import sqlalchemy.sql.expression
 import os.path
 from sqlalchemy.sql.expression import func
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 from app.sub_views import item_views
 from app.sub_views import stub_views
 from app.sub_views import user_views
@@ -120,6 +121,8 @@ def get_release_feeds(srctype=None):
 		q = q.filter(Releases.series_row.has(tl_type = srctype))
 
 	q = q.order_by(desc(Releases.published))
+	q = q.options(joinedload('series_row'))
+	q = q.options(joinedload('translators'))
 	q = q.limit(20)
 
 	return q.all()

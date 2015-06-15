@@ -88,16 +88,18 @@
 			selector: "#release-entry",
 			build: function(trigger, e) {
 				var dat = trigger.data()
-				var addedBy = dat.addedBy
-				var addedOn = dat.addedOn
+				var addedBy  = dat.addedBy
+				var addedOn  = dat.addedOn
+				var addedAgo = dat.addedAgo
 				return {
 
 					items: {
-						del    : {name:'Delete Release',      icon:'remove', callback:delete_release },
-						toggle : {name:'Toggle Countability', icon:'ok',     callback:toggle_count_release },
-						"sep1": "---------",
-						"addedby": {name: "Added by: "+addedBy, disabled:true},
-						"addedon": {name: "Added on: "+addedOn, disabled:true},
+						del       : {name:'Delete Release',      icon:'remove', callback:delete_release },
+						toggle    : {name:'Toggle Countability', icon:'ok',     callback:toggle_count_release },
+						"sep1"    : "---------",
+						"addedby" : {name: "Added by: "+addedBy, disabled:true},
+						"addedon" : {name: "Added on: "+addedOn, disabled:true},
+						"addedago": {name: "(Ago: "+addedAgo+")", disabled:true},
 					}
 				};
 			}

@@ -8,6 +8,7 @@ from app import app
 from app.models import Releases
 from app.models import Series
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 
 
 def get_releases(srctype=None):
@@ -16,6 +17,9 @@ def get_releases(srctype=None):
 		releases = releases.filter(Releases.series_row.has(tl_type = srctype))
 	releases = releases.order_by(desc(Releases.published))
 
+	# Join on the series entry. Cuts the total page-rendering queries in half.
+	releases = releases.options(joinedload('series_row'))
+	releases = releases.options(joinedload('translators'))
 	return releases
 
 
@@ -79,6 +83,6 @@ def renderOelReleasesTable(page=1):
 	return render_template('releases.html',
 						   sequence_item   = releases_entries,
 						   page            = page,
-						   tl_type         = 'OEL '
+						   tl_type         = 'OEL ',
+						   show_group      = False
 						   )
-

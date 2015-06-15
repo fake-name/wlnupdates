@@ -18,6 +18,7 @@ from app.models import Watches
 
 from sqlalchemy import desc
 from natsort import natsort_keygen
+from sqlalchemy.orm import joinedload
 
 def getSort(row):
 	chp = row.chapter if row.chapter else 0
@@ -75,7 +76,24 @@ def get_cover_sorter():
 
 @app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
-	series       =       Series.query.filter(Series.id==sid).first()
+	series       =       Series.query
+
+	# Adding these additional joinedload values, while they /should/
+	# help, since the relevant content is then loaded during rendering
+	# if they're not already loaded, somehow manages to COMPLETELY
+	# tank the query performance.
+	# series = series.options(joinedload('tags'))
+	# series = series.options(joinedload('genres'))
+	# series = series.options(joinedload('covers'))
+
+	series = series.options(joinedload('author'))
+	series = series.options(joinedload('alternatenames'))
+	series = series.options(joinedload('illustrators'))
+	series = series.options(joinedload('releases.translators'))
+
+	series = series.filter(Series.id==sid)
+
+	series = series.first()
 
 	if g.user.is_authenticated():
 		watch      =       Watches.query.filter(Watches.series_id==sid)     \
@@ -90,6 +108,7 @@ def renderSeriesId(sid):
 
 	releases = series.releases
 	releases.sort(reverse=True, key=getSort)
+
 
 	progress = build_progress(watch)
 	latest = get_latest_release(releases)

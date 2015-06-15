@@ -42,6 +42,7 @@ import os.path
 from sqlalchemy.sql.expression import func
 from sqlalchemy import desc
 
+from sqlalchemy.orm import joinedload
 import traceback
 
 
@@ -204,6 +205,12 @@ def renderFeedsTable(page=1):
 
 	feeds = Feeds.query       \
 		.order_by(desc(Feeds.published))
+
+
+	feeds = feeds.options(joinedload('tags'))
+	feeds = feeds.options(joinedload('authors'))
+
+
 
 	if feeds is None:
 		flash(gettext('No feeds? Something is /probably/ broken!.'))
