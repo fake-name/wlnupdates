@@ -114,9 +114,15 @@ def get_raw_feeds():
 
 	return raw_feeds
 
-def get_release_feeds():
-	get_release_feeds = Releases.query.order_by(desc(Releases.published)).limit(20).all()
-	return get_release_feeds
+def get_release_feeds(srctype=None):
+	q = Releases.query
+	if srctype:
+		q = q.filter(Releases.series_row.has(tl_type = srctype))
+
+	q = q.order_by(desc(Releases.published))
+	q = q.limit(20)
+
+	return q.all()
 
 
 @app.route('/', methods=['GET'])
@@ -124,11 +130,12 @@ def get_release_feeds():
 # @login_required
 def index(page=1):
 	return render_template('index.html',
-						   title         = 'Home',
-						   random_series = get_random_books(),
-						   news          = get_news(),
-						   # raw_feeds     = get_raw_feeds(),
-						   release_items = get_release_feeds()
+						   title               = 'Home',
+						   random_series       = get_random_books(),
+						   news                = get_news(),
+						   # raw_feeds         = get_raw_feeds(),
+						   oel_release_items   = get_release_feeds(srctype='oel'),
+						   trans_release_items = get_release_feeds(srctype='translated'),
 						   )
 
 

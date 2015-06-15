@@ -8,7 +8,9 @@
 		<col style="width: 30px">
 		<col style="width: 30px">
 		<col style="width: 32%">
-		<col style="width: 20%">
+		{% if show_group != False %}
+			<col style="width: 20%">
+		{% endif %}
 
 		{% if g.user.is_mod() %}
 			<col style="width: 10px">
@@ -30,9 +32,11 @@
 			<th>
 				Extra
 			</th>
-			<th>
-				Group
-			</th>
+			{% if show_group != False %}
+				<th>
+					Group
+				</th>
+			{% endif %}
 
 			{% if g.user.is_mod() %}
 				<th>
@@ -102,9 +106,12 @@
 				{% endif %}
 					{{entry.postfix | safe}}
 				</td>
-				<td>
-					<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
-				</td>
+
+				{% if show_group != False %}
+					<td>
+						<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
+					</td>
+				{% endif %}
 				{% if g.user.is_mod() %}
 					<th>
 						{% if entry.include %}

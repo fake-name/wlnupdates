@@ -9,20 +9,23 @@
 		<a href='/news/'>Older news</a>
 	</div>
 
+	{% set release_items = trans_release_items %}
+	{% set show_group = True %}
+
 	<div class="well well-large">
-		<h3>Latest Releases:</h3>
+		<h3>Latest Translated Releases:</h3>
 		{% include '_block_releases.html' %}
 		<a href='/releases/'>More Releases</a>
 	</div>
-{#
-	<!--
-		<div class="well well-large">
-			<h3>Latest Feed Updates:</h3>
-			{% include '_block_feeds.html' %}
-			<a href='/feeds/'>More Feeds</a>
-		</div>
-	-->
-#}
+
+	{% set release_items = oel_release_items %}
+	{% set show_group = False %}
+	<div class="well well-large">
+		<h3>Latest OEL Releases:</h3>
+		{% include '_block_releases.html' %}
+		<a href='/releases/'>More Releases</a>
+	</div>
+
 	<div class="well">
 		<h4>A few random series</h4>
 		{% for post in random_series %}
