@@ -9,9 +9,15 @@ import FeedFeeder.FeedFeeder
 import flags
 
 def thread_run():
-	interface = FeedFeeder.FeedFeeder.FeedFeeder()
+	interface = None
 	while flags.RUNSTATE:
-		interface.process()
+		try:
+			if not interface:
+				interface = FeedFeeder.FeedFeeder.FeedFeeder()
+			interface.process()
+		except Exception:
+			interface = None
+			time.sleep(60)
 		time.sleep(1)
 
 
