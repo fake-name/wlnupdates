@@ -11,6 +11,8 @@ from config import basedir
 import datetime
 from babel.dates import format_datetime
 
+import urllib.parse
+
 class AnonUser():
 	def is_authenticated(self):
 		return False
@@ -118,16 +120,31 @@ def utility_processor():
 				break
 		return ', '.join(dhms[start:end+1])
 
+	def build_name_qs(keys, items):
+		return build_qs(keys, items, lambda x: x.name)
+
+	def build_qs(keys, items, accessor=lambda x: x):
+		if isinstance(keys, str):
+			tmp = keys
+			keys = [tmp for x in range(len(items))]
+		args = list(zip(keys, [accessor(item) for item in items]))
+		qs = urllib.parse.urlencode(args)
+		return qs
+
+
+
 
 
 
 
 	return dict(
-			getUserId       = getUserId,
-			getTlGroupId    = getTlGroupId,
-			format_date = format_date,
-			date_now = date_now,
-			ago = ago,
+			getUserId          = getUserId,
+			getTlGroupId       = getTlGroupId,
+			format_date        = format_date,
+			date_now           = date_now,
+			ago                = ago,
+			build_query_string = build_qs,
+			build_name_qs      = build_name_qs,
 			)
 
 

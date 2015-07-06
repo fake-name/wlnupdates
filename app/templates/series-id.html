@@ -232,6 +232,23 @@
 	</div>
 {%- endmacro %}
 
+
+
+
+{% macro localLinkBlock(names) -%}
+	<div class="well well-tny info-item">
+		<div class="row multiitem" id="watch-container">
+			<div class="col-md-3 rowTitle">
+				View in MangaCMS:
+			</div>
+
+			<div class="col-sm-9 rowContents" id='watch'>
+				<a href='http://mangacms.test:8081/books/book-multisearch?{{build_name_qs('name', names)}}'>search</a>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
 {% extends "__base.html" %}
 
 {% block header %}
@@ -504,9 +521,9 @@
 								width=5
 							)
 			}}
-
 			{% if g.user.is_admin() %}
 				<hr>
+				{{localLinkBlock(series.alternatenames)}}
 				{{mergeInto()}}
 			{% endif %}
 			<div style="clear: both;"></div>
