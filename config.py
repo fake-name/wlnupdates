@@ -32,7 +32,7 @@ class BaseConfig(object):
 
 
 	# administrator list
-	ADMINS = ['you@example.com']
+	ADMINS = ['admin@wlnupdates.com']
 
 	# slow database query threshold (in seconds)
 	DATABASE_QUERY_TIMEOUT = 0.5
@@ -65,3 +65,40 @@ class BaseConfig(object):
 	MAIL_USERNAME          = C_MAIL_USERNAME
 	MAIL_PASSWORD          = C_MAIL_PASSWORD
 	MAIL_DEFAULT_SENDER    = C_MAIL_DEFAULT_SENDER
+
+
+	## Caching
+	# For all available caching types, take a look at the Flask-Cache docs
+	# https://pythonhosted.org/Flask-Cache/#configuring-flask-cache
+	CACHE_TYPE = "simple"
+	CACHE_DEFAULT_TIMEOUT = 60
+
+
+
+	RECAPTCHA_ENABLED = False
+	RECAPTCHA_USE_SSL = False
+	RECAPTCHA_PUBLIC_KEY = "your_public_recaptcha_key"
+	RECAPTCHA_PRIVATE_KEY = "your_private_recaptcha_key"
+	RECAPTCHA_OPTIONS = {"theme": "white"}
+
+	INFO_LOG = "info.log"
+	ERROR_LOG = "error.log"
+
+
+	# URL Prefixes. Only change it when you know what you are doing.
+	FORUM_URL_PREFIX = "/forum"
+	USER_URL_PREFIX = "/forum/user"
+	AUTH_URL_PREFIX = "/forum/auth"
+	ADMIN_URL_PREFIX = "/forum/admin"
+	MESSAGE_URL_PREFIX = "/forum/message"
+
+	LOGIN_VIEW = "auth.login"
+	REAUTH_VIEW = "auth.reauth"
+	LOGIN_MESSAGE_CATEGORY = "error"
+
+	# Flask-Redis
+	REDIS_ENABLED = False
+	REDIS_URL = ""
+	REDIS_DATABASE = 0
+
+	SEND_LOGS = False

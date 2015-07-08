@@ -13,6 +13,8 @@ from babel.dates import format_datetime
 
 import urllib.parse
 
+from flaskbb import create_app as install_flaskbb
+
 class AnonUser():
 	def is_authenticated(self):
 		return False
@@ -45,6 +47,8 @@ lm.login_message = lazy_gettext('Please log in to access this page.')
 mail = Mail(app)
 babel = Babel(app)
 CsrfProtect(app)
+
+install_flaskbb(app)
 
 if "debug" in sys.argv:
 	print("Installing debug toolbar!")

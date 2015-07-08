@@ -18,6 +18,7 @@ from sqlalchemy.engine import Engine
 
 from flask import Flask, request
 from flask_login import current_user
+import os.path
 
 # Import the user blueprint
 from flaskbb.user.views import user
@@ -48,18 +49,18 @@ from flaskbb.utils.permissions import can_post_reply, can_post_topic, \
 from flaskbb.utils.settings import flaskbb_config
 
 
-def create_app(config=None):
+def create_app(app):
     """Creates the app."""
 
     # Initialize the app
-    app = Flask("flaskbb")
+    # app = Flask("flaskbb")
 
     # Use the default config and override it afterwards
-    app.config.from_object('flaskbb.configs.default.DefaultConfig')
+    # app.config.from_object('flaskbb.configs.default.DefaultConfig')
     # Update the config
-    app.config.from_object(config)
+    # app.config.from_object(config)
     # try to update the config via the environment variable
-    app.config.from_envvar("FLASKBB_SETTINGS", silent=True)
+    # app.config.from_envvar("FLASKBB_SETTINGS", silent=True)
 
     configure_blueprints(app)
     configure_extensions(app)
@@ -91,7 +92,10 @@ def configure_extensions(app):
     csrf.init_app(app)
 
     # Flask-Plugins
-    plugin_manager.init_app(app)
+    cwd = os.path.split(__file__)[0]
+    plugin_dir = os.path.join(cwd, "plugins")
+
+    plugin_manager.init_app(app, plugin_import_path="flaskbb.plugins", plugin_folder=plugin_dir)
 
     # Flask-SQLAlchemy
     db.init_app(app)
