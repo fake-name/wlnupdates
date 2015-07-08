@@ -1,0 +1,75 @@
+{% set page_title = _("Banned Users") %}
+{% set active_management_user_nav=True %}
+
+{% extends theme("management/management_layout.html") %}
+{% block management_content %}
+{% from theme('macros.html') import render_pagination, render_field, group_field, navlink with context %}
+
+<div class="col-md-3">
+    <ul class="nav nav-pills nav-stacked">
+        {{ navlink('management.users', _("Manage Users")) }}
+        {{ navlink('management.banned_users', _('Banned Users')) }}
+
+        {% if current_user|is_admin %}
+            {{ navlink('management.add_user', _("Add User")) }}
+        {% endif %}
+    </ul>
+</div><!--/.col-md-3 -->
+
+<div class="col-md-9">
+    <legend>{% trans %}Banned Users{% endtrans %}</legend>
+
+    <div class="pull-left" style="padding-bottom: 10px">
+        {{ render_pagination(users, url_for('management.users')) }}
+    </div>
+    <div class="pull-right" style="padding-bottom: 10px">
+        <form role="form" method="post">
+            <div class="input-group">
+                {{ search_form.hidden_tag() }}
+                {{ group_field(search_form.search_query) }}
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="submit">{% trans %}Search{% endtrans %}</button>
+                </span>
+            </div>
+        </form>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{% trans %}Username{% endtrans %}</th>
+                <th>{% trans %}Posts{% endtrans %}</th>
+                <th>{% trans %}Date registered{% endtrans %}</th>
+                <th>{% trans %}Group{% endtrans %}</th>
+                <th>{% trans %}Manage{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users.items %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td><a href="{{ url_for('user.profile', username=user.username) }}">{{ user.username }}</a></td>
+                    <td>{{ user.post_count }}</td>
+                    <td>{{ user.date_joined|format_date('%b %d %Y') }}</td>
+                    <td>{{ user.primary_group.name }}</td>
+                    <td>
+                        {% if current_user|can_ban_user and user.permissions['banned'] %}
+                        <form class="inline-form" method="post" action="{{ url_for('management.unban_user', user_id = user.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                            <button class="btn btn-link">{% trans %}Unban{% endtrans %}</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">
+                        {% trans %}No users found matching your search criteria.{% endtrans %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

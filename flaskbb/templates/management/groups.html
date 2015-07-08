@@ -1,0 +1,48 @@
+{% set page_title = _("Groups") %}
+
+{% extends theme("management/management_layout.html") %}
+{% block management_content %}
+{% from theme('macros.html') import render_pagination, navlink with context %}
+
+<div class="col-md-3">
+    <ul class="nav nav-pills nav-stacked">
+        {{ navlink('management.groups', _("Manage Groups")) }}
+        {{ navlink('management.add_group', _("Add Group")) }}
+    </ul>
+</div>
+
+<div class="col-md-9">
+    <legend>{% trans %}Manage Groups{% endtrans %}</legend>
+
+    <div class="pull-left" style="padding-bottom: 10px">
+        {{ render_pagination(groups, url_for('management.groups')) }}
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{% trans %}Group Name{% endtrans %}</th>
+                <th>{% trans %}Description{% endtrans %}</th>
+                <th>{% trans %}Manage{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups.items %}
+            <tr>
+                <td>{{ group.id }}</td>
+                <td><a href="#">{{ group.name }}</a></td>
+                <td>{{ group.description }}</td>
+                <td>
+                    <a href="{{ url_for('management.edit_group', group_id = group.id) }}">{% trans %}Edit{% endtrans %}</a> |
+                    <form class="inline-form" method="post" action="{{ url_for('management.delete_group', group_id=group.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        <button class="btn btn-link">{% trans %}Delete{% endtrans %}</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

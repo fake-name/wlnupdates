@@ -1,0 +1,50 @@
+{% set page_title = _("Memberlist") %}
+
+{% extends theme("layout.html") %}
+{% block content %}
+{% from theme('macros.html') import render_pagination, group_field %}
+
+<ul class="breadcrumb">
+    <li><a href="{{ url_for('forum.index') }}">{% trans %}Forum{% endtrans %}</a></li>
+    <li class="active">{% trans %}Memberlist{% endtrans %}</li>
+</ul>
+
+<div class="pull-left" style="padding-bottom: 10px">
+    {{ render_pagination(users, url_for('forum.memberlist')) }}
+</div><!-- /.col-pull-left -->
+<div class="pull-right" style="padding-bottom: 10px">
+  <form role="form" method="post">
+      <div class="input-group">
+          {{ search_form.hidden_tag() }}
+          {{ group_field(search_form.search_query) }}
+          <span class="input-group-btn">
+            <button class="btn btn-primary" type="submit">{% trans %}Search{% endtrans %}</button>
+          </span>
+      </div>
+  </form>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>{% trans %}Username{% endtrans %}</th>
+            <th>{% trans %}Posts{% endtrans %}</th>
+            <th>{% trans %}Date registered{% endtrans %}</th>
+            <th>{% trans %}Group{% endtrans %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users.items %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td><a href="{{ user.url }}">{{ user.username }}</a></td>
+            <td>{{ user.post_count }}</td>
+            <td>{{ user.date_joined|format_date('%b %d %Y') }}</td>
+            <td>{{ user.primary_group.name }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

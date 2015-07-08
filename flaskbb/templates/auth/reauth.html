@@ -1,0 +1,16 @@
+{% set page_title = _("Refresh Login") %}
+{% set active_forum_nav=True %}
+
+{% extends theme("layout.html") %}
+{% block content %}
+{% from theme("macros.html") import horizontal_field %}
+
+<form class="form-horizontal" action="" method="POST">
+    <h2>{% trans %}Refresh Login{% endtrans %}</h2>
+    <hr>
+    {{ form.hidden_tag() }}
+    {{ horizontal_field(form.password)}}
+    {{ horizontal_field(form.submit)}}
+</form>
+
+{% endblock %}

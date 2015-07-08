@@ -1,0 +1,48 @@
+{% set page_title = _("New Topic") %}
+{% set active_forum_nav=True %}
+
+{% extends theme("layout.html") %}
+
+{% block css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-markdown.min.css') }}">
+{% endblock %}
+
+{% block content %}
+{% from theme("macros.html") import render_field, render_submit_field %}
+
+<ul class="breadcrumb">
+    <li><a href="{{ url_for('forum.index') }}">{% trans %}Forum{% endtrans %}</a></li>
+    <li><a href="{{ forum.url }}">{{ forum.title }}</a></li>
+    <li class="active">{% trans %}New Topic{% endtrans %}</li>
+</ul>
+
+<form class="form" role="form" method="post">
+    {{ form.hidden_tag() }}
+    <h3>{% trans %}New Topic{% endtrans %}</h3>
+
+    {% if preview %}
+    <div class="form-group">
+        <div class="col-sm-12">
+            <label>{% trans %}Preview{% endtrans %}</label>
+            <div class="form-control preview-body">
+                {% autoescape false %}
+                {{ preview|markup }}
+                {% endautoescape %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {{ render_field(form.title, div_class="col-sm-12") }}
+    {{ render_field(form.content, div_class="col-sm-12", rows="10", placeholder="", **{'data-provide': 'markdown', 'data-autofocus': 'true', 'id': 'quickreply-editor'}) }}
+
+    {{ render_submit_field(form.submit) }}
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/marked.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap-markdown.js') }}"></script>
+{% endblock %}
