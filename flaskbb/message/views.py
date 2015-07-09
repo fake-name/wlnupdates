@@ -15,12 +15,13 @@ from flask import Blueprint, redirect, request, url_for, flash, abort
 from flask_login import login_required, current_user
 from flask_babelex import gettext as _
 
-from flaskbb.extensions import db
+
+from app import db
 from flaskbb.utils.settings import flaskbb_config
 from flaskbb.utils.helpers import render_template, format_quote
 from flaskbb.message.forms import ConversationForm, MessageForm
 from flaskbb.message.models import Conversation, Message
-from flaskbb.user.models import User
+from flaskbb.user.models import Users
 
 message = Blueprint("message", __name__)
 
@@ -129,7 +130,7 @@ def new_conversation():
 
     if request.method == "POST":
         if "save_message" in request.form and form.validate():
-            to_user = User.query.filter_by(username=form.to_user.data).first()
+            to_user = Users.query.filter_by(username=form.to_user.data).first()
 
             shared_id = uuid.uuid4()
 
@@ -144,7 +145,7 @@ def new_conversation():
             return redirect(url_for("message.drafts"))
 
         if "send_message" in request.form and form.validate():
-            to_user = User.query.filter_by(username=form.to_user.data).first()
+            to_user = Users.query.filter_by(username=form.to_user.data).first()
 
             # this is the shared id between conversations because the messages
             # are saved on both ends
@@ -204,7 +205,7 @@ def edit_conversation(conversation_id):
 
     if request.method == "POST":
         if "save_message" in request.form:
-            to_user = User.query.filter_by(username=form.to_user.data).first()
+            to_user = Users.query.filter_by(username=form.to_user.data).first()
 
             conversation.draft = True
             conversation.to_user_id = to_user.id
@@ -215,7 +216,7 @@ def edit_conversation(conversation_id):
             return redirect(url_for("message.drafts"))
 
         if "send_message" in request.form and form.validate():
-            to_user = User.query.filter_by(username=form.to_user.data).first()
+            to_user = Users.query.filter_by(username=form.to_user.data).first()
             # Save the message in the recievers inbox
             form.save(from_user=current_user.id,
                       to_user=to_user.id,

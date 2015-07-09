@@ -12,7 +12,8 @@ from flask import render_template
 from flask_mail import Message
 from flask_babelex import lazy_gettext as _
 
-from flaskbb.extensions import mail
+
+from app import mail
 
 
 def send_reset_token(user, token):

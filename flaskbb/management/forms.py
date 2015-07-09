@@ -28,9 +28,10 @@ from flask_babelex import lazy_gettext as _
 
 from flaskbb.utils.fields import BirthdayField
 from flaskbb.utils.widgets import SelectBirthdayWidget, MultiSelect
-from flaskbb.extensions import db
+
+from app import db
 from flaskbb.forum.models import Forum, Category
-from flaskbb.user.models import User, Group
+from flaskbb.user.models import Users, Group
 
 USERNAME_RE = r'^[\w.+-]+$'
 is_username = regexp(USERNAME_RE,
@@ -103,28 +104,28 @@ class UserForm(Form):
 
     def validate_username(self, field):
         if hasattr(self, "user"):
-            user = User.query.filter(
+            user = Users.query.filter(
                 db.and_(
-                    User.username.like(field.data),
-                    db.not_(User.id == self.user.id)
+                    Users.username.like(field.data),
+                    db.not_(Users.id == self.user.id)
                 )
             ).first()
         else:
-            user = User.query.filter(User.username.like(field.data)).first()
+            user = Users.query.filter(Users.username.like(field.data)).first()
 
         if user:
             raise ValidationError(_("This Username is already taken."))
 
     def validate_email(self, field):
         if hasattr(self, "user"):
-            user = User.query.filter(
+            user = Users.query.filter(
                 db.and_(
-                    User.email.like(field.data),
-                    db.not_(User.id == self.user.id)
+                    Users.email.like(field.data),
+                    db.not_(Users.id == self.user.id)
                 )
             ).first()
         else:
-            user = User.query.filter(User.email.like(field.data)).first()
+            user = Users.query.filter(Users.email.like(field.data)).first()
 
         if user:
             raise ValidationError(_("This E-Mail Address is already taken."))
@@ -348,7 +349,7 @@ class ForumForm(Form):
             moderators = [mod.strip() for mod in moderators]
             for moderator in moderators:
                 # Check if the usernames exist
-                user = User.query.filter_by(username=moderator).first()
+                user = Users.query.filter_by(username=moderator).first()
 
                 # Check if the user has the permissions to moderate a forum
                 if user:

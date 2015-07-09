@@ -12,7 +12,7 @@ from datetime import datetime
 
 from sqlalchemy_utils import UUIDType
 
-from flaskbb.extensions import db
+from app import db
 
 
 class Conversation(db.Model):
@@ -36,11 +36,11 @@ class Conversation(db.Model):
     )
 
     # this is actually the users message box
-    user = db.relationship("User", lazy="joined", foreign_keys=[user_id])
+    user = db.relationship("Users", lazy="joined", foreign_keys=[user_id])
     # the user to whom the conversation is addressed
-    to_user = db.relationship("User", lazy="joined", foreign_keys=[to_user_id])
+    to_user = db.relationship("Users", lazy="joined", foreign_keys=[to_user_id])
     # the user who sent the message
-    from_user = db.relationship("User", lazy="joined",
+    from_user = db.relationship("Users", lazy="joined",
                                 foreign_keys=[from_user_id])
 
     @property
@@ -93,7 +93,7 @@ class Message(db.Model):
     message = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow())
 
-    user = db.relationship("User", lazy="joined")
+    user = db.relationship("Users", lazy="joined")
 
     def save(self, conversation=None):
         """Saves a private message.

@@ -18,7 +18,7 @@ from flaskbb.utils.helpers import render_template
 from flaskbb.email import send_reset_token
 from flaskbb.auth.forms import (LoginForm, ReauthForm, ForgotPasswordForm,
                                 ResetPasswordForm)
-from flaskbb.user.models import User
+from flaskbb.user.models import Users
 
 auth = Blueprint("auth", __name__)
 
@@ -34,7 +34,7 @@ def login():
 
     form = LoginForm(request.form)
     if form.validate_on_submit():
-        user, authenticated = User.authenticate(form.login.data,
+        user, authenticated = Users.authenticate(form.login.data,
                                                 form.password.data)
 
         if user and authenticated:
@@ -109,7 +109,7 @@ def forgot_password():
 
     form = ForgotPasswordForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = Users.query.filter_by(email=form.email.data).first()
 
         if user:
             token = user.make_reset_token()
@@ -134,7 +134,7 @@ def reset_password(token):
 
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = Users.query.filter_by(email=form.email.data).first()
         expired, invalid, data = user.verify_reset_token(form.token.data)
 
         if invalid:

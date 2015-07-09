@@ -25,9 +25,10 @@ from flaskbb.utils.settings import flaskbb_config
 from flaskbb.utils.helpers import render_template
 from flaskbb.utils.decorators import admin_required, moderator_required
 from flaskbb.utils.permissions import can_ban_user, can_edit_user
-from flaskbb.extensions import db
-from flaskbb.user.models import Guest, User, Group
-from flaskbb.forum.models import Post, Topic, Forum, Category, Report
+
+from app import db
+from flaskbb.user.models import Guest, Users, Group
+from flaskbb.forum.models import Posts, Topic, Forum, Category, Report
 from flaskbb.management.models import Setting, SettingsGroup
 from flaskbb.management.forms import (AddUserForm, EditUserForm, AddGroupForm,
                                       EditGroupForm, EditForumForm,
@@ -41,9 +42,9 @@ management = Blueprint("management", __name__)
 @moderator_required
 def overview():
     python_version = "%s.%s" % (sys.version_info[0], sys.version_info[1])
-    user_count = User.query.count()
+    user_count = Users.query.count()
     topic_count = Topic.query.count()
-    post_count = Post.query.count()
+    post_count = Posts.query.count()
     return render_template("management/overview.html",
                            python_version=python_version,
                            flask_version=flask_version,
@@ -107,8 +108,8 @@ def users():
         return render_template("management/users.html", users=users,
                                search_form=search_form)
 
-    users = User.query. \
-        order_by(User.id.asc()).\
+    users = Users.query. \
+        order_by(Users.id.asc()).\
         paginate(page, flaskbb_config['USERS_PER_PAGE'], False)
 
     return render_template("management/users.html", users=users,
@@ -118,7 +119,7 @@ def users():
 @management.route("/users/<int:user_id>/edit", methods=["GET", "POST"])
 @moderator_required
 def edit_user(user_id):
-    user = User.query.filter_by(id=user_id).first_or_404()
+    user = Users.query.filter_by(id=user_id).first_or_404()
 
     if not can_edit_user(current_user):
         flash(_("You are not allowed to edit this user."), "danger")
@@ -151,7 +152,7 @@ def edit_user(user_id):
 @management.route("/users/<int:user_id>/delete", methods=["POST"])
 @admin_required
 def delete_user(user_id):
-    user = User.query.filter_by(id=user_id).first_or_404()
+    user = Users.query.filter_by(id=user_id).first_or_404()
     user.delete()
     flash(_("User successfully deleted."), "success")
     return redirect(url_for("management.users"))
@@ -176,9 +177,9 @@ def banned_users():
     page = request.args.get("page", 1, type=int)
     search_form = UserSearchForm()
 
-    users = User.query.filter(
+    users = Users.query.filter(
         Group.banned == True,
-        Group.id == User.primary_group_id
+        Group.id == Users.primary_group_id
     ).paginate(page, flaskbb_config['USERS_PER_PAGE'], False)
 
     if search_form.validate():
@@ -199,7 +200,7 @@ def ban_user(user_id):
         flash(_("You do not have the permissions to ban this user."), "danger")
         return redirect(url_for("management.overview"))
 
-    user = User.query.filter_by(id=user_id).first_or_404()
+    user = Users.query.filter_by(id=user_id).first_or_404()
 
     # Do not allow moderators to ban admins
     if user.get_permissions()['admin'] and \
@@ -225,7 +226,7 @@ def unban_user(user_id):
               "danger")
         return redirect(url_for("management.overview"))
 
-    user = User.query.filter_by(id=user_id).first_or_404()
+    user = Users.query.filter_by(id=user_id).first_or_404()
 
     if user.unban():
         flash(_("User is now unbanned."), "success")
@@ -384,8 +385,8 @@ def edit_forum(forum_id):
 def delete_forum(forum_id):
     forum = Forum.query.filter_by(id=forum_id).first_or_404()
 
-    involved_users = User.query.filter(Topic.forum_id == forum.id,
-                                       Post.user_id == User.id).all()
+    involved_users = Users.query.filter(Topic.forum_id == forum.id,
+                                       Posts.user_id == Users.id).all()
 
     forum.delete(involved_users)
 
@@ -447,9 +448,9 @@ def edit_category(category_id):
 def delete_category(category_id):
     category = Category.query.filter_by(id=category_id).first_or_404()
 
-    involved_users = User.query.filter(Forum.category_id == category.id,
+    involved_users = Users.query.filter(Forum.category_id == category.id,
                                        Topic.forum_id == Forum.id,
-                                       Post.user_id == User.id).all()
+                                       Posts.user_id == Users.id).all()
 
     category.delete(involved_users)
     flash(_("Category with all associated forums deleted."), "success")

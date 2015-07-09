@@ -13,7 +13,8 @@ from wtforms import (TextField, IntegerField, FloatField, BooleanField,
 from flask_wtf import Form
 
 from flaskbb._compat import max_integer, text_type, iteritems
-from flaskbb.extensions import db, cache
+from app import db
+from flaskbb.extensions import cache
 
 
 class SettingsGroup(db.Model):

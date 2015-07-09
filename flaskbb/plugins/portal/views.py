@@ -3,8 +3,8 @@ from flask import Blueprint, current_app, flash, request
 from flask_babelex import gettext as _
 
 from flaskbb.utils.helpers import render_template
-from flaskbb.forum.models import Topic, Post
-from flaskbb.user.models import User
+from flaskbb.forum.models import Topic, Posts
+from flaskbb.user.models import Users
 from flaskbb.utils.helpers import time_diff, get_online_users
 from flaskbb.utils.settings import flaskbb_config
 
@@ -33,14 +33,14 @@ def index():
     recent_topics = Topic.query.order_by(Topic.last_updated.desc()).limit(
                             flaskbb_config.get("PLUGIN_PORTAL_RECENT_TOPICS", 10))
 
-    user_count = User.query.count()
+    user_count = Users.query.count()
     topic_count = Topic.query.count()
-    post_count = Post.query.count()
-    newest_user = User.query.order_by(User.id.desc()).first()
+    post_count = Posts.query.count()
+    newest_user = Users.query.order_by(Users.id.desc()).first()
 
     # Check if we use redis or not
     if not current_app.config["REDIS_ENABLED"]:
-        online_users = User.query.filter(User.lastseen >= time_diff()).count()
+        online_users = Users.query.filter(Users.lastseen >= time_diff()).count()
 
         # Because we do not have server side sessions, we cannot check if there
         # are online guests

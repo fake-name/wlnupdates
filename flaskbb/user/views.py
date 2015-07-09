@@ -14,9 +14,9 @@ from flask_login import login_required, current_user
 from flask_themes2 import get_themes_list
 from flask_babelex import gettext as _
 
-from flaskbb.extensions import babel
+from app import babel
 from flaskbb.utils.helpers import render_template
-from flaskbb.user.models import User
+from flaskbb.user.models import Users
 from flaskbb.user.forms import (ChangePasswordForm, ChangeEmailForm,
                                 ChangeUserDetailsForm, GeneralSettingsForm)
 
@@ -26,7 +26,7 @@ user = Blueprint("user", __name__)
 
 @user.route("/<username>")
 def profile(username):
-    user = User.query.filter_by(username=username).first_or_404()
+    user = Users.query.filter_by(username=username).first_or_404()
 
     return render_template("user/profile.html", user=user)
 
@@ -34,7 +34,7 @@ def profile(username):
 @user.route("/<username>/topics")
 def view_all_topics(username):
     page = request.args.get("page", 1, type=int)
-    user = User.query.filter_by(username=username).first_or_404()
+    user = Users.query.filter_by(username=username).first_or_404()
     topics = user.all_topics(page)
     return render_template("user/all_topics.html", user=user, topics=topics)
 
@@ -42,7 +42,7 @@ def view_all_topics(username):
 @user.route("/<username>/posts")
 def view_all_posts(username):
     page = request.args.get("page", 1, type=int)
-    user = User.query.filter_by(username=username).first_or_404()
+    user = Users.query.filter_by(username=username).first_or_404()
     posts = user.all_posts(page)
     return render_template("user/all_posts.html", user=user, posts=posts)
 

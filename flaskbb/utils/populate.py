@@ -9,8 +9,8 @@
     :license: BSD, see LICENSE for more details.
 """
 from flaskbb.management.models import Setting, SettingsGroup
-from flaskbb.user.models import User, Group
-from flaskbb.forum.models import Post, Topic, Forum, Category
+from flaskbb.user.models import Users, Group
+from flaskbb.forum.models import Posts, Topic, Forum, Category
 
 
 def delete_settings_from_fixture(fixture):
@@ -185,10 +185,10 @@ def create_welcome_forum():
     Returns True if it's created successfully.
     """
 
-    if User.query.count() < 1:
+    if Users.query.count() < 1:
         return False
 
-    user = User.query.filter_by(id=1).first()
+    user = Users.query.filter_by(id=1).first()
 
     category = Category(title="My Category", position=1)
     category.save()
@@ -198,7 +198,7 @@ def create_welcome_forum():
     forum.save()
 
     topic = Topic(title="Welcome!")
-    post = Post(content="Have fun with your new FlaskBB Forum!")
+    post = Posts(content="Have fun with your new FlaskBB Forum!")
 
     topic.save(user=user, forum=forum, post=post)
     return True
@@ -235,8 +235,8 @@ def create_test_data(users=5, categories=2, forums=2, topics=1, posts=1):
         user.save()
         data_created['users'] += 1
 
-    user1 = User.query.filter_by(id=1).first()
-    user2 = User.query.filter_by(id=2).first()
+    user1 = Users.query.filter_by(id=1).first()
+    user2 = Users.query.filter_by(id=2).first()
 
     # lets send them a few private messages
     for i in range(1, 3):
@@ -265,7 +265,7 @@ def create_test_data(users=5, categories=2, forums=2, topics=1, posts=1):
             for t in range(1, topics + 1):
                 # create a topic
                 topic = Topic()
-                post = Post()
+                post = Posts()
 
                 topic.title = "Test Title %s" % j
                 post.content = "Test Content"
@@ -274,8 +274,8 @@ def create_test_data(users=5, categories=2, forums=2, topics=1, posts=1):
 
                 for p in range(1, posts + 1):
                     # create a second post in the forum
-                    post = Post()
-                    post.content = "Test Post"
+                    post = Posts()
+                    post.content = "Test Posts"
                     post.save(user=user2, topic=topic)
                     data_created['posts'] += 1
 
@@ -290,8 +290,8 @@ def insert_mass_data(topics=100, posts=100):
     :param topics: The amount of topics in the forum.
     :param posts: The number of posts in each topic.
     """
-    user1 = User.query.filter_by(id=1).first()
-    user2 = User.query.filter_by(id=2).first()
+    user1 = Users.query.filter_by(id=1).first()
+    user2 = Users.query.filter_by(id=2).first()
     forum = Forum.query.filter_by(id=1).first()
 
     created_posts = 0
@@ -305,7 +305,7 @@ def insert_mass_data(topics=100, posts=100):
 
         # create a topic
         topic = Topic()
-        post = Post()
+        post = Posts()
 
         topic.title = "Test Title %s" % i
         post.content = "Test Content"
@@ -314,7 +314,7 @@ def insert_mass_data(topics=100, posts=100):
 
         # create 100 posts in each topic
         for j in range(1, posts + 1):
-            post = Post()
+            post = Posts()
             post.content = "Test Post"
             post.save(user=user2, topic=topic)
             created_posts += 1

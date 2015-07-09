@@ -22,7 +22,7 @@ import os.path
 
 # Import the user blueprint
 from flaskbb.user.views import user
-from flaskbb.user.models import User, Guest
+from flaskbb.user.models import Users, Guest
 # Import the (private) message blueprint
 from flaskbb.message.views import message
 from flaskbb.message.models import Conversation
@@ -32,10 +32,19 @@ from flaskbb.auth.views import auth
 from flaskbb.management.views import management
 # Import the forum blueprint
 from flaskbb.forum.views import forum
-from flaskbb.forum.models import Post, Topic, Category, Forum
+from flaskbb.forum.models import Posts, Topic, Category, Forum
 # extensions
-from flaskbb.extensions import db, login_manager, mail, cache, redis_store, \
-    debugtoolbar, migrate, themes, plugin_manager, babel, csrf
+
+from app import db
+from app import lm as login_manager
+from app import mail
+from app import babel
+from flaskbb.extensions import cache
+from flaskbb.extensions import redis_store
+from flaskbb.extensions import migrate
+from flaskbb.extensions import themes
+from flaskbb.extensions import plugin_manager
+
 # various helpers
 from flaskbb.utils.helpers import format_date, time_since, crop_title, \
     is_online, render_markup, mark_online, forum_is_unread, topic_is_unread, \
@@ -88,8 +97,6 @@ def configure_blueprints(app):
 def configure_extensions(app):
     """Configures the extensions."""
 
-    # Flask-WTF CSRF
-    csrf.init_app(app)
 
     # Flask-Plugins
     cwd = os.path.split(__file__)[0]
@@ -109,8 +116,6 @@ def configure_extensions(app):
     # Flask-Cache
     cache.init_app(app)
 
-    # Flask-Debugtoolbar
-    debugtoolbar.init_app(app)
 
     # Flask-Themes
     themes.init_themes(app, app_identifier="flaskbb")
@@ -130,7 +135,7 @@ def configure_extensions(app):
         unread_count = db.session.query(db.func.count(Conversation.id)).\
             filter(Conversation.unread,
                    Conversation.user_id == user_id).subquery()
-        u = db.session.query(User, unread_count).filter(User.id == user_id).\
+        u = db.session.query(User, unread_count).filter(Users.id == user_id).\
             first()
 
         if u:
@@ -142,15 +147,15 @@ def configure_extensions(app):
     login_manager.init_app(app)
 
     # Flask-BabelEx
-    babel.init_app(app=app, default_domain=FlaskBBDomain(app))
+    # babel.init_app(app=app, default_domain=FlaskBBDomain(app))
 
-    @babel.localeselector
-    def get_locale():
-        # if a user is logged in, use the locale from the user settings
-        if current_user.is_authenticated() and current_user.language:
-            return current_user.language
-        # otherwise we will just fallback to the default language
-        return flaskbb_config["DEFAULT_LANGUAGE"]
+    # @babel.localeselector
+    # def get_locale():
+    #     # if a user is logged in, use the locale from the user settings
+    #     if current_user.is_authenticated() and current_user.language:
+    #         return current_user.language
+    #     # otherwise we will just fallback to the default language
+    #     return flaskbb_config["DEFAULT_LANGUAGE"]
 
 
 def configure_template_filters(app):

@@ -17,7 +17,7 @@ from wtforms.validators import (DataRequired, InputRequired, Email, EqualTo,
                                 regexp, ValidationError)
 from flask_babelex import lazy_gettext as _
 
-from flaskbb.user.models import User
+from flaskbb.user.models import Users
 
 USERNAME_RE = r'^[\w.+-]+$'
 is_username = regexp(USERNAME_RE,
@@ -57,17 +57,17 @@ class RegisterForm(Form):
     submit = SubmitField(_("Register"))
 
     def validate_username(self, field):
-        user = User.query.filter_by(username=field.data).first()
+        user = Users.query.filter_by(username=field.data).first()
         if user:
             raise ValidationError(_("This Username is already taken."))
 
     def validate_email(self, field):
-        email = User.query.filter_by(email=field.data).first()
+        email = Users.query.filter_by(email=field.data).first()
         if email:
             raise ValidationError(_("This E-Mail Address is already taken."))
 
     def save(self):
-        user = User(username=self.username.data,
+        user = Users(nickname=self.username.data,
                     email=self.email.data,
                     password=self.password.data,
                     date_joined=datetime.utcnow(),
@@ -110,6 +110,6 @@ class ResetPasswordForm(Form):
     submit = SubmitField(_("Reset Password"))
 
     def validate_email(self, field):
-        email = User.query.filter_by(email=field.data).first()
+        email = Users.query.filter_by(email=field.data).first()
         if not email:
             raise ValidationError(_("Wrong E-Mail Address."))

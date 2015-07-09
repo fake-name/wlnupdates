@@ -14,8 +14,8 @@ from wtforms import (TextAreaField, StringField, SelectMultipleField,
 from wtforms.validators import DataRequired, Optional, Length
 from flask_babelex import lazy_gettext as _
 
-from flaskbb.forum.models import Topic, Post, Report, Forum
-from flaskbb.user.models import User
+from flaskbb.forum.models import Topic, Posts, Report, Forum
+from flaskbb.user.models import Users
 
 
 class QuickreplyForm(Form):
@@ -25,7 +25,7 @@ class QuickreplyForm(Form):
     submit = SubmitField(_("Reply"))
 
     def save(self, user, topic):
-        post = Post(content=self.content.data)
+        post = Posts(content=self.content.data)
         return post.save(user=user, topic=topic)
 
 
@@ -40,7 +40,7 @@ class ReplyForm(Form):
     preview = SubmitField(_("Preview"))
 
     def save(self, user, topic):
-        post = Post(content=self.content.data)
+        post = Posts(content=self.content.data)
 
         if self.track_topic.data:
             user.track_topic(topic)
@@ -62,7 +62,7 @@ class NewTopicForm(ReplyForm):
 
     def save(self, user, forum):
         topic = Topic(title=self.title.data)
-        post = Post(content=self.content.data)
+        post = Posts(content=self.content.data)
 
         if self.track_topic.data:
             user.track_topic(topic)
@@ -90,7 +90,7 @@ class UserSearchForm(Form):
 
     def get_results(self):
         query = self.search_query.data
-        # return User.query.whoosh_search(query)
+        # return Users.query.whoosh_search(query)
         return False
 
 
@@ -111,7 +111,7 @@ class SearchPageForm(Form):
         #     'post': Post.query.whoosh_search,
         #     'topic': Topic.query.whoosh_search,
         #     'forum': Forum.query.whoosh_search,
-        #     'user': User.query.whoosh_search
+        #     'user': Users.query.whoosh_search
         # }
 
         query = self.search_query.data

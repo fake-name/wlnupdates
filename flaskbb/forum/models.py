@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from flask import url_for, abort
 from sqlalchemy.orm import aliased
 
-from flaskbb.extensions import db
+from app import db
 from flaskbb.utils.decorators import can_access_forum, can_access_topic
 from flaskbb.utils.helpers import slugify, get_categories_and_forums, get_forums
 from flaskbb.utils.settings import flaskbb_config
@@ -125,10 +125,10 @@ class Report(db.Model):
     zapped_by = db.Column(db.Integer, db.ForeignKey("users.id"))
     reason = db.Column(db.Text)
 
-    post = db.relationship("Post", backref="report", lazy="joined")
-    reporter = db.relationship("User", lazy="joined",
+    post = db.relationship("Posts", backref="report", lazy="joined")
+    reporter = db.relationship("Users", lazy="joined",
                                foreign_keys=[reporter_id])
-    zapper = db.relationship("User", lazy="joined", foreign_keys=[zapped_by])
+    zapper = db.relationship("Users", lazy="joined", foreign_keys=[zapped_by])
 
     def __repr__(self):
         return "<{} {}>".format(self.__class__.__name__, self.id)
@@ -164,7 +164,7 @@ class Report(db.Model):
         return self
 
 
-class Post(db.Model):
+class Posts(db.Model):
     __tablename__ = "posts"
     __searchable__ = ['content', 'username']
 
@@ -261,10 +261,10 @@ class Post(db.Model):
             if self.topic.last_post_id == self.topic.forum.last_post_id:
                 # We need the second last post in the forum here,
                 # because the last post will be deleted
-                second_last_post = Post.query.\
-                    filter(Post.topic_id == Topic.id,
+                second_last_post = Posts.query.\
+                    filter(Posts.topic_id == Topic.id,
                            Topic.forum_id == self.topic.forum.id).\
-                    order_by(Post.id.desc()).limit(2).offset(0).\
+                    order_by(Posts.id.desc()).limit(2).offset(0).\
                     all()
 
                 second_last_post = second_last_post[1]
@@ -315,18 +315,18 @@ class Topic(db.Model):
     # One-to-one (uselist=False) relationship between first_post and topic
     first_post_id = db.Column(db.Integer, db.ForeignKey("posts.id",
                                                         ondelete="CASCADE"))
-    first_post = db.relationship("Post", backref="first_post", uselist=False,
+    first_post = db.relationship("Posts", backref="first_post", uselist=False,
                                  foreign_keys=[first_post_id])
 
     # One-to-one
     last_post_id = db.Column(db.Integer, db.ForeignKey("posts.id"))
 
-    last_post = db.relationship("Post", backref="last_post", uselist=False,
+    last_post = db.relationship("Posts", backref="last_post", uselist=False,
                                 foreign_keys=[last_post_id])
 
     # One-to-many
-    posts = db.relationship("Post", backref="topic", lazy="dynamic",
-                            primaryjoin="Post.topic_id == Topic.id",
+    posts = db.relationship("Posts", backref="topic", lazy="dynamic",
+                            primaryjoin="Posts.topic_id == Topic.id",
                             cascade="all, delete-orphan", post_update=True)
 
     # Properties
@@ -495,8 +495,8 @@ class Topic(db.Model):
             return False
 
         # Update the topic id
-        Post.query.filter_by(topic_id=self.id).\
-            update({Post.topic_id: topic.id})
+        Posts.query.filter_by(topic_id=self.id).\
+            update({Posts.topic_id: topic.id})
 
         # Update the last post
         if topic.last_post.date_created < self.last_post.date_created:
@@ -600,15 +600,15 @@ class Topic(db.Model):
         # Update the post counts
         if users:
             for user in users:
-                user.post_count = Post.query.filter_by(user_id=user.id).count()
+                user.post_count = Posts.query.filter_by(user_id=user.id).count()
                 db.session.commit()
 
         forum.topic_count = Topic.query.\
             filter_by(forum_id=self.forum_id).\
             count()
 
-        forum.post_count = Post.query.\
-            filter(Post.topic_id == Topic.id,
+        forum.post_count = Posts.query.\
+            filter(Posts.topic_id == Topic.id,
                    Topic.forum_id == self.forum_id).\
             count()
 
@@ -635,7 +635,7 @@ class Forum(db.Model):
 
     # One-to-one
     last_post_id = db.Column(db.Integer, db.ForeignKey("posts.id"))
-    last_post = db.relationship("Post", backref="last_post_forum",
+    last_post = db.relationship("Posts", backref="last_post_forum",
                                 uselist=False, foreign_keys=[last_post_id])
 
     # Not nice, but needed to improve the performance
@@ -654,7 +654,7 @@ class Forum(db.Model):
 
     # Many-to-many
     moderators = db.relationship(
-        "User",
+        "Users",
         secondary=moderators,
         primaryjoin=(moderators.c.forum_id == id),
         backref=db.backref("forummoderator", lazy="dynamic"),
@@ -695,10 +695,10 @@ class Forum(db.Model):
 
     def update_last_post(self):
         """Updates the last post in the forum."""
-        last_post = Post.query.\
-            filter(Post.topic_id == Topic.id,
+        last_post = Posts.query.\
+            filter(Posts.topic_id == Topic.id,
                    Topic.forum_id == self.id).\
-            order_by(Post.date_created.desc()).\
+            order_by(Posts.date_created.desc()).\
             first()
 
         # Last post is none when there are no topics in the forum
@@ -815,7 +815,7 @@ class Forum(db.Model):
         if users:
             users_list = []
             for user in users:
-                user.post_count = Post.query.filter_by(user_id=user.id).count()
+                user.post_count = Posts.query.filter_by(user_id=user.id).count()
                 users_list.append(user)
             db.session.add_all(users_list)
             db.session.commit()
@@ -935,7 +935,7 @@ class Category(db.Model):
         # Update the users post count
         if users:
             for user in users:
-                user.post_count = Post.query.filter_by(user_id=user.id).count()
+                user.post_count = Posts.query.filter_by(user_id=user.id).count()
                 db.session.commit()
 
         return self

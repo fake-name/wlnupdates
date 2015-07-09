@@ -21,14 +21,24 @@ from flask_babelex import Babel
 from flask_wtf.csrf import CsrfProtect
 
 
+# from app import db
+# from app import lm as login_manager
+# from app import mail
+# from app import babel
+
+# import app
+# print("app = ", app)
+# print("app = ", dir(app))
+# print("app = ", app.db)
+
 # Database
-db = SQLAlchemy()
+# db = SQLAlchemy()
 
 # Login
-login_manager = LoginManager()
+# login_manager = LoginManager()
 
 # Mail
-mail = Mail()
+# mail = Mail()
 
 # Caching
 cache = Cache()
@@ -37,7 +47,7 @@ cache = Cache()
 redis_store = Redis()
 
 # Debugtoolbar
-debugtoolbar = DebugToolbarExtension()
+# debugtoolbar = DebugToolbarExtension()
 
 # Migrations
 migrate = Migrate()
@@ -49,7 +59,7 @@ themes = Themes()
 plugin_manager = PluginManager()
 
 # Babel
-babel = Babel()
+# babel = Babel()
 
 # CSRF
-csrf = CsrfProtect()
+# csrf = CsrfProtect()

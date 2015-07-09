@@ -16,18 +16,19 @@ from flask import (Blueprint, redirect, url_for, current_app,
 from flask_login import login_required, current_user
 from flask_babelex import gettext as _
 
-from flaskbb.extensions import db
+
+from app import db
 from flaskbb.utils.settings import flaskbb_config
 from flaskbb.utils.helpers import (get_online_users, time_diff, format_quote,
                                    render_template)
 from flaskbb.utils.permissions import (can_post_reply, can_post_topic,
                                        can_delete_topic, can_delete_post,
                                        can_edit_post, can_moderate)
-from flaskbb.forum.models import (Category, Forum, Topic, Post, ForumsRead,
+from flaskbb.forum.models import (Category, Forum, Topic, Posts, ForumsRead,
                                   TopicsRead)
 from flaskbb.forum.forms import (QuickreplyForm, ReplyForm, NewTopicForm,
                                  ReportForm, UserSearchForm, SearchPageForm)
-from flaskbb.user.models import User
+from flaskbb.user.models import Users
 
 forum = Blueprint("forum", __name__)
 
@@ -37,14 +38,14 @@ def index():
     categories = Category.get_all(user=current_user)
 
     # Fetch a few stats about the forum
-    user_count = User.query.count()
+    user_count = Users.query.count()
     topic_count = Topic.query.count()
-    post_count = Post.query.count()
-    newest_user = User.query.order_by(User.id.desc()).first()
+    post_count = Posts.query.count()
+    newest_user = Users.query.order_by(Users.id.desc()).first()
 
     # Check if we use redis or not
     if not current_app.config["REDIS_ENABLED"]:
-        online_users = User.query.filter(User.lastseen >= time_diff()).count()
+        online_users = Users.query.filter(Users.lastseen >= time_diff()).count()
 
         # Because we do not have server side sessions, we cannot check if there
         # are online guests
@@ -108,11 +109,11 @@ def view_topic(topic_id, slug=None):
     topic.save()
 
     # fetch the posts in the topic
-    posts = Post.query.\
-        join(User, Post.user_id == User.id).\
-        filter(Post.topic_id == topic.id).\
+    posts = Posts.query.\
+        join(User, Posts.user_id == Users.id).\
+        filter(Posts.topic_id == topic.id).\
         add_entity(User).\
-        order_by(Post.id.asc()).\
+        order_by(Posts.id.asc()).\
         paginate(page, flaskbb_config['POSTS_PER_PAGE'], False)
 
     # Update the topicsread status if the user hasn't read it
@@ -138,7 +139,7 @@ def view_topic(topic_id, slug=None):
 
 @forum.route("/post/<int:post_id>")
 def view_post(post_id):
-    post = Post.query.filter_by(id=post_id).first_or_404()
+    post = Posts.query.filter_by(id=post_id).first_or_404()
     count = post.topic.post_count
     page = count / flaskbb_config["POSTS_PER_PAGE"]
 
@@ -190,8 +191,8 @@ def delete_topic(topic_id, slug=None):
               "danger")
         return redirect(topic.forum.url)
 
-    involved_users = User.query.filter(Post.topic_id == topic.id,
-                                       User.id == Post.user_id).all()
+    involved_users = Users.query.filter(Posts.topic_id == topic.id,
+                                       Users.id == Posts.user_id).all()
     topic.delete(users=involved_users)
     return redirect(url_for("forum.view_forum", forum_id=topic.forum_id))
 
@@ -350,7 +351,7 @@ def new_post(topic_id, slug=None):
 @login_required
 def reply_post(topic_id, post_id):
     topic = Topic.query.filter_by(id=topic_id).first_or_404()
-    post = Post.query.filter_by(id=post_id).first_or_404()
+    post = Posts.query.filter_by(id=post_id).first_or_404()
 
     if not can_post_reply(user=current_user, topic=topic):
         flash(_("You do not have the permissions to post in this topic."),
@@ -376,7 +377,7 @@ def reply_post(topic_id, post_id):
 @forum.route("/post/<int:post_id>/edit", methods=["POST", "GET"])
 @login_required
 def edit_post(post_id):
-    post = Post.query.filter_by(id=post_id).first_or_404()
+    post = Posts.query.filter_by(id=post_id).first_or_404()
 
     if not can_edit_post(user=current_user, post=post):
         flash(_("You do not have the permissions to edit this post."), "danger")
@@ -404,7 +405,7 @@ def edit_post(post_id):
 @forum.route("/post/<int:post_id>/delete", methods=["POST"])
 @login_required
 def delete_post(post_id):
-    post = Post.query.filter_by(id=post_id).first_or_404()
+    post = Posts.query.filter_by(id=post_id).first_or_404()
 
     # TODO: Bulk delete
 
@@ -428,7 +429,7 @@ def delete_post(post_id):
 @forum.route("/post/<int:post_id>/report", methods=["GET", "POST"])
 @login_required
 def report_post(post_id):
-    post = Post.query.filter_by(id=post_id).first_or_404()
+    post = Posts.query.filter_by(id=post_id).first_or_404()
 
     form = ReportForm()
     if form.validate_on_submit():
@@ -441,7 +442,7 @@ def report_post(post_id):
 @forum.route("/post/<int:post_id>/raw", methods=["POST", "GET"])
 @login_required
 def raw_post(post_id):
-    post = Post.query.filter_by(id=post_id).first_or_404()
+    post = Posts.query.filter_by(id=post_id).first_or_404()
     return format_quote(username=post.username, content=post.content)
 
 
@@ -502,7 +503,7 @@ def who_is_online():
     if current_app.config['REDIS_ENABLED']:
         online_users = get_online_users()
     else:
-        online_users = User.query.filter(User.lastseen >= time_diff()).all()
+        online_users = Users.query.filter(Users.lastseen >= time_diff()).all()
     return render_template("forum/online_users.html",
                            online_users=online_users)
 
@@ -519,7 +520,7 @@ def memberlist():
         return render_template("forum/memberlist.html", users=users,
                                search_form=search_form)
     else:
-        users = User.query.\
+        users = Users.query.\
             paginate(page, flaskbb_config['USERS_PER_PAGE'], False)
         return render_template("forum/memberlist.html", users=users,
                                search_form=search_form)

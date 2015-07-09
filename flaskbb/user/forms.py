@@ -16,8 +16,9 @@ from wtforms.validators import (Length, DataRequired, InputRequired, Email,
                                 EqualTo, Optional, URL)
 from flask_babelex import lazy_gettext as _
 
-from flaskbb.user.models import User
-from flaskbb.extensions import db
+from flaskbb.user.models import Users
+
+from app import db
 from flaskbb.utils.widgets import SelectBirthdayWidget
 from flaskbb.utils.fields import BirthdayField
 from flaskbb.utils.helpers import check_image
@@ -53,9 +54,9 @@ class ChangeEmailForm(Form):
         super(ChangeEmailForm, self).__init__(*args, **kwargs)
 
     def validate_email(self, field):
-        user = User.query.filter(db.and_(
-                                 User.email.like(field.data),
-                                 db.not_(User.id == self.user.id))).first()
+        user = Users.query.filter(db.and_(
+                                 Users.email.like(field.data),
+                                 db.not_(Users.id == self.user.id))).first()
         if user:
             raise ValidationError(_("This E-Mail Address is already taken."))
 

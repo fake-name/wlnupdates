@@ -13,21 +13,21 @@ from babel.dates import format_datetime
 
 import urllib.parse
 
-from flaskbb import create_app as install_flaskbb
 
-class AnonUser():
-	def is_authenticated(self):
-		return False
-	def is_active(self):
-		return False
-	def is_admin(self):
-		return False
-	def is_mod(self):
-		return False
-	def is_anonymous(self):
-		return True
-	def get_id(self):
-		return None
+
+# class AnonUser():
+# 	def is_authenticated(self):
+# 		return False
+# 	def is_active(self):
+# 		return False
+# 	def is_admin(self):
+# 		return False
+# 	def is_mod(self):
+# 		return False
+# 	def is_anonymous(self):
+# 		return True
+# 	def get_id(self):
+# 		return None
 
 
 
@@ -40,15 +40,13 @@ if "debug" in sys.argv:
 app.config.from_object('config.BaseConfig')
 db = SQLAlchemy(app)
 lm = LoginManager()
-lm.anonymous_user = AnonUser
+# lm.anonymous_user = AnonUser
 lm.init_app(app)
 lm.login_view = 'login'
 lm.login_message = lazy_gettext('Please log in to access this page.')
 mail = Mail(app)
 babel = Babel(app)
 CsrfProtect(app)
-
-install_flaskbb(app)
 
 if "debug" in sys.argv:
 	print("Installing debug toolbar!")
@@ -65,6 +63,10 @@ if not app.debug:
 	app.logger.setLevel(logging.INFO)
 	app.logger.info('wlnupdates startup')
 
+
+# Has to go after the above initialization
+from flaskbb import create_app as install_flaskbb
+install_flaskbb(app)
 
 from app import views, models
 from .models import Users, Translators

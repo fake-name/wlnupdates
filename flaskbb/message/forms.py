@@ -14,7 +14,7 @@ from wtforms import StringField, TextAreaField, ValidationError, SubmitField
 from wtforms.validators import DataRequired
 from flask_babelex import lazy_gettext as _
 
-from flaskbb.user.models import User
+from flaskbb.user.models import Users
 from flaskbb.message.models import Conversation, Message
 
 
@@ -32,7 +32,7 @@ class ConversationForm(Form):
     save_message = SubmitField(_("Save Conversation"))
 
     def validate_to_user(self, field):
-        user = User.query.filter_by(username=field.data).first()
+        user = Users.query.filter_by(username=field.data).first()
         if not user:
             raise ValidationError(_("The Username you entered doesn't exist"))
         if user.id == current_user.id:

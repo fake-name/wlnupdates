@@ -18,6 +18,9 @@ import datetime
 from settings import DATABASE_DB_NAME
 from sqlalchemy.dialects.postgresql import ENUM
 
+from flaskbb.user.models import Users
+from flaskbb.forum.models import Posts
+
 # Some of the metaclass hijinks make pylint confused,
 # so disable the warnings for those aspects of things
 # pylint: disable=E0213, R0903
@@ -497,7 +500,7 @@ class FeedTags(db.Model):
 		)
 
 
-class Posts(db.Model):
+class News(db.Model):
 	__searchable__ = ['body']
 
 	id          = db.Column(db.Integer, primary_key=True)
@@ -508,8 +511,8 @@ class Posts(db.Model):
 	seriesTopic = db.Column(db.Integer)
 
 
-	def __repr__(self):  # pragma: no cover
-		return '<Post %r (body size: %s)>' % (self.title, len(self.body))
+# 	def __repr__(self):  # pragma: no cover
+# 		return '<Post %r (body size: %s)>' % (self.title, len(self.body))
 
 
 class Watches(db.Model):
@@ -529,69 +532,54 @@ class Watches(db.Model):
 	series_row       = relationship("Series",         backref='Watches')
 
 
-class Users(db.Model):
-	id        = db.Column(db.Integer, primary_key=True)
-	nickname  = db.Column(CIText(),  index=True, unique=True)
-	password  = db.Column(db.String,  index=True, unique=True)
-	email     = db.Column(db.String,  index=True, unique=True)
-	verified  = db.Column(db.Integer, nullable=False)
 
-	last_seen = db.Column(db.DateTime)
+# class Users(db.Model):
+# 	id        = db.Column(db.Integer, primary_key=True)
+# 	nickname  = db.Column(CIText(),  index=True, unique=True)
+# 	password  = db.Column(db.String,  index=True, unique=True)
+# 	email     = db.Column(db.String,  index=True, unique=True)
+# 	verified  = db.Column(db.Integer, nullable=False)
 
-	has_admin = db.Column(db.Boolean, default=False)
-	has_mod   = db.Column(db.Boolean, default=False)
+# 	last_seen = db.Column(db.DateTime)
 
-	posts     = db.relationship('Posts')
-	# posts     = db.relationship('Post', backref='author', lazy='dynamic')
+# 	has_admin = db.Column(db.Boolean, default=False)
+# 	has_mod   = db.Column(db.Boolean, default=False)
 
-
-	@staticmethod
-	def make_valid_nickname(nickname):
-		return re.sub(r'[^a-zA-Z0-9_\.\-]', '', nickname)
-
-	@staticmethod
-	def make_unique_nickname(nickname):
-		if Users.query.filter_by(nickname=nickname).first() is None:
-			return nickname
-		version = 2
-		while True:
-			new_nickname = nickname + str(version)
-			if Users.query.filter_by(nickname=new_nickname).first() is None:
-				break
-			version += 1
-		return new_nickname
-
-	def is_authenticated(self):
-		return self.verified
-
-	def is_active(self):
-		return self.verified
-
-	def is_admin(self):
-		return self.has_admin
-
-	def is_mod(self):
-		return self.has_mod
-
-	def is_anonymous(self):
-		return False
-
-	def get_id(self):
-		return str(self.id)  # python 3
-
-	def avatar(self, size):
-		return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' % \
-			(md5(self.email.encode('utf-8')).hexdigest(), size)
+# 	posts     = db.relationship('Posts')
+# 	# posts     = db.relationship('Post', backref='author', lazy='dynamic')
 
 
-	def __repr__(self):  # pragma: no cover
-		return '<User -- %r>' % (self.nickname)
+# 	def is_authenticated(self):
+# 		return self.verified
 
-	def __init__(self, nickname, email, password, verified):
-		self.nickname  = nickname
-		self.email     = email
-		self.password  = generate_password_hash(password)
-		self.verified  = verified
+# 	def is_active(self):
+# 		return self.verified
+
+# 	def is_admin(self):
+# 		return self.has_admin
+
+# 	def is_mod(self):
+# 		return self.has_mod
+
+# 	def is_anonymous(self):
+# 		return False
+
+# 	def get_id(self):
+# 		return str(self.id)  # python 3
+
+# 	def avatar(self, size):
+# 		return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' % \
+# 			(md5(self.email.encode('utf-8')).hexdigest(), size)
+
+
+# 	def __repr__(self):  # pragma: no cover
+# 		return '<User -- %r>' % (self.nickname)
+
+# 	def __init__(self, nickname, email, password, verified):
+# 		self.nickname  = nickname
+# 		self.email     = email
+# 		self.password  = generate_password_hash(password)
+# 		self.verified  = verified
 
 class HttpRequestLog(db.Model):
 	id             = db.Column(db.Integer, primary_key=True)
