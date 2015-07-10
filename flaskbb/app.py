@@ -43,7 +43,6 @@ from flaskbb.extensions import cache
 from flaskbb.extensions import redis_store
 from flaskbb.extensions import migrate
 from flaskbb.extensions import themes
-from flaskbb.extensions import plugin_manager
 
 # various helpers
 from flaskbb.utils.helpers import format_date, time_since, crop_title, \
@@ -96,13 +95,6 @@ def configure_blueprints(app):
 
 def configure_extensions(app):
     """Configures the extensions."""
-
-
-    # Flask-Plugins
-    cwd = os.path.split(__file__)[0]
-    plugin_dir = os.path.join(cwd, "plugins")
-
-    plugin_manager.init_app(app, plugin_import_path="flaskbb.plugins", plugin_folder=plugin_dir)
 
     # Flask-SQLAlchemy
     db.init_app(app)
