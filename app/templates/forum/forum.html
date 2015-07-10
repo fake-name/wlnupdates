@@ -85,7 +85,7 @@
                     <small>
                         {% trans %}by{% endtrans %}
                         {% if topic.user_id %}
-                         <a href="{{ topic.user.url }}">{{ topic.user.username }}</a>
+                         <a href="{{ topic.users.url }}">{{ topic.users.username }}</a>
                         {% else %}
                         {{ topic.username }}
                         {% endif %}
@@ -104,7 +104,7 @@
                 <small>
                     {% trans %}by{% endtrans %}
                     {% if topic.last_post.user_id %}
-                    <a href="{{ topic.last_post.user.url }}">{{ topic.last_post.user.username }}</a>
+                    <a href="{{ topic.last_post.users.url }}">{{ topic.last_post.users.username }}</a>
                     {% else %}
                     {{ topic.last_post.username }}
                     {% endif %}

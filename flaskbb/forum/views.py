@@ -110,9 +110,9 @@ def view_topic(topic_id, slug=None):
 
     # fetch the posts in the topic
     posts = Posts.query.\
-        join(User, Posts.user_id == Users.id).\
+        join(Users, Posts.user_id == Users.id).\
         filter(Posts.topic_id == topic.id).\
-        add_entity(User).\
+        add_entity(Users).\
         order_by(Posts.id.asc()).\
         paginate(page, flaskbb_config['POSTS_PER_PAGE'], False)
 
@@ -500,10 +500,11 @@ def markread(forum_id=None, slug=None):
 
 @forum.route("/who-is-online")
 def who_is_online():
-    if current_app.config['REDIS_ENABLED']:
-        online_users = get_online_users()
-    else:
-        online_users = Users.query.filter(Users.lastseen >= time_diff()).all()
+    # if current_app.config['REDIS_ENABLED']:
+    #     online_users = get_online_users()
+    # else:
+    #     online_users = Users.query.filter(Users.lastseen >= time_diff()).all()
+    online_users = 0
     return render_template("forum/online_users.html",
                            online_users=online_users)
 

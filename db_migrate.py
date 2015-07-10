@@ -10,6 +10,7 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
+import flaskbb.utils.populate as pop
 
 from app import models
 
@@ -35,6 +36,7 @@ def install_tgm_idx():
 	'''
 	print("Installing trigram indices")
 	models.install_trigram_indices()
+
 # This is also true for my indexes, since they use postgres specific extensions.
 @manager.command
 def install_enum():
@@ -46,6 +48,19 @@ def install_enum():
 	conn = db.engine.connect()
 	models.install_region_enum(conn)
 	models.install_tl_type_enum(conn)
+
+	print("Done")
+
+# This is also true for my indexes, since they use postgres specific extensions.
+@manager.command
+def create_base_forum():
+	'''
+	Create the basic forum config
+	'''
+	print("Installing enum indices")
+	pop.create_default_settings()
+	pop.create_default_groups()
+	pop.create_welcome_forum()
 
 	print("Done")
 

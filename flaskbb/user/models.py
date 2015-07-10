@@ -185,7 +185,7 @@ class Users(db.Model, UserMixin):
 	@property
 	def url(self):
 		"""Returns the url for the user"""
-		return url_for("user.profile", username=self.username)
+		return url_for("user.profile", username=self.nickname)
 
 	@property
 	def permissions(self):
@@ -225,7 +225,7 @@ class Users(db.Model, UserMixin):
 		"""Set to a unique key specific to the object in the database.
 		Required for cache.memoize() to work across requests.
 		"""
-		return "<{} {}>".format(self.__class__.__name__, self.username)
+		return "<{} {}>".format(self.__class__.__name__, self.nickname)
 
 	def _get_password(self):
 		"""Returns the hashed password"""
@@ -257,7 +257,7 @@ class Users(db.Model, UserMixin):
 		:param password: The password that is connected to username and email.
 		"""
 
-		user = cls.query.filter(db.or_(Users.username == login,
+		user = cls.query.filter(db.or_(Users.nickname == login,
 									   Users.email == login)).first()
 
 		if user:
@@ -376,8 +376,11 @@ class Users(db.Model, UserMixin):
 
 	@cache.memoize(timeout=max_integer)
 	def get_groups(self):
+		print("Get groups!")
 		"""Returns all the groups the user is in."""
-		return [self.primary_group] + list(self.secondary_groups)
+		tmp = [self.primary_group] + list(self.secondary_groups)
+		print("Ret: ", tmp)
+		return tmp
 
 	@cache.memoize(timeout=max_integer)
 	def get_permissions(self, exclude=None):

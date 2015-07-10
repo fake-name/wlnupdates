@@ -217,7 +217,7 @@ class Posts(db.Model):
         # Adding a new post
         if user and topic:
             self.user_id = user.id
-            self.username = user.username
+            self.username = user.nickname
             self.topic_id = topic.id
             self.date_created = datetime.utcnow()
 
@@ -234,7 +234,7 @@ class Posts(db.Model):
             topic.forum.last_post_id = self.id
             topic.forum.last_post_title = topic.title
             topic.forum.last_post_user_id = user.id
-            topic.forum.last_post_username = user.username
+            topic.forum.last_post_username = user.nickname
             topic.forum.last_post_created = datetime.utcnow()
 
             # Update the post counts
@@ -533,7 +533,7 @@ class Topic(db.Model):
         # Set the forum and user id
         self.forum_id = forum.id
         self.user_id = user.id
-        self.username = user.username
+        self.username = user.nickname
 
         # Set the last_updated time. Needed for the readstracker
         self.last_updated = datetime.utcnow()

@@ -10,7 +10,7 @@
 """
 from flask_themes2 import get_themes_list
 
-from flaskbb.extensions import babel
+# from flaskbb.extensions import babel
 
 
 def available_themes():
@@ -21,9 +21,9 @@ def available_avatar_types():
     return [("image/png", "PNG"), ("image/jpeg", "JPG"), ("image/gif", "GIF")]
 
 
-def available_languages():
-    return [(locale.language, locale.display_name)
-            for locale in babel.list_translations()]
+# def available_languages():
+#     return [(locale.language, locale.display_name)
+#             for locale in babel.list_translations()]
 
 
 fixture = (
@@ -143,7 +143,7 @@ fixture = (
             ('default_language', {
                 'value':        "en",
                 'value_type':   "select",
-                'extra':        {'choices': available_languages},
+                # 'extra':        {'choices': available_languages},
                 'name':         "Default Language",
                 'description':  "Change the default language for your forum."
             }),

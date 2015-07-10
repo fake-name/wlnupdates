@@ -171,7 +171,7 @@ def create_admin_user(username, password, email):
     admin_group = Group.query.filter_by(admin=True).first()
     user = User()
 
-    user.username = username
+    user.nickname = username
     user.password = password
     user.email = email
     user.primary_group_id = admin_group.id
@@ -230,7 +230,7 @@ def create_test_data(users=5, categories=2, forums=2, topics=1, posts=1):
     for u in range(1, users + 1):
         username = "test%s" % u
         email = "test%s@example.org" % u
-        user = User(username=username, password="test", email=email)
+        user = User(nickname=username, password="test", email=email)
         user.primary_group_id = u
         user.save()
         data_created['users'] += 1

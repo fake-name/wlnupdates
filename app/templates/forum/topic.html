@@ -38,7 +38,7 @@
                     {% if post.user_id and post.date_modified %}
                     <small>
                         ({% trans %}Last modified{% endtrans %}: {{ post.date_modified|format_date }} {% trans %}by{% endtrans %}
-                        <a href="{{ url_for('user.profile', username=post.modified_by) }}">
+                        <a href="{{ url_for('users.profile', username=post.modified_by) }}">
                             {{ post.modified_by }}
                         </a>.)
                     </small>
@@ -108,7 +108,7 @@
             <td>
                 <span class="pull-left">
                     {% if current_user.is_authenticated() and post.user_id and post.user_id != current_user.id %}
-                    <a href="{{ url_for('message.new_conversation', to_user=post.user.username) }}">{% trans %}PM{% endtrans %}</a>
+                    <a href="{{ url_for('message.new_conversation', to_user=post.users.username) }}">{% trans %}PM{% endtrans %}</a>
                     {% endif %}
                     {% if user.website %}
                     {% if current_user.is_authenticated() %}| {% endif %}<a href="{{ user.website }}">{% trans %}Website{% endtrans %}</a>
