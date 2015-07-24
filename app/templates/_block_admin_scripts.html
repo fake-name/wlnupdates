@@ -85,9 +85,9 @@
 
 	$(function(){
 		$.contextMenu({
-			selector: "#release-entry",
+			selector: "#release-entry-cell",
 			build: function(trigger, e) {
-				var dat = trigger.data()
+				var dat = trigger.parent().data()
 				var addedBy  = dat.addedBy
 				var addedOn  = dat.addedOn
 				var addedAgo = dat.addedAgo

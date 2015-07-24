@@ -86,17 +86,17 @@
 				<td>
 					<a href='{{entry.srcurl}}'>View</a>
 				</td>
-				<td>
+				<td id='release-entry-cell'>
 					<a href='/series-id/{{entry.series}}/'>{{entry.series_row.title}}</a>
 
 				</td>
 				{% if entry.volume != None %}
-					<td class='numeric'>
+					<td class='numeric' id='release-entry-cell'>
 						{{entry.volume | int}}
 					</td>
 				{% endif %}
 				{% if entry.chapter != None %}
-					<td class='numeric' {{ "colspan=2" if entry.volume == None  }}>
+					<td class='numeric' {{ "colspan=2" if entry.volume == None  }} id='release-entry-cell'>
 						{% if entry.chapter != None %}
 							{{('%0.4f' % entry.chapter).rstrip('0').rstrip('.')}}
 						{% endif %}
@@ -104,28 +104,28 @@
 				{% endif %}
 
 				{% if entry.chapter == None and entry.volume == None %}
-					<td class='postfix' {{ "colspan=3" if entry.chapter == None  }}>
+					<td class='postfix' {{ "colspan=3" if entry.chapter == None  }} id='release-entry-cell'>
 				{% elif entry.chapter == None %}
-					<td class='postfix' {{ "colspan=2" if entry.chapter == None  }}>
+					<td class='postfix' {{ "colspan=2" if entry.chapter == None  }} id='release-entry-cell'>
 				{% else %}
-					<td class='postfix'>
+					<td class='postfix' id='release-entry-cell'>
 				{% endif %}
 					{{entry.postfix | safe}}
 				</td>
 
 				{% if show_group != False %}
-					<td>
+					<td id='release-entry-cell'>
 						<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
 					</td>
 				{% endif %}
 				{% if g.user.is_mod() %}
-					<th>
+					<td id='release-entry-cell'>
 						{% if entry.include %}
 							◯
 						{% else %}
 							✖
 						{% endif %}
-					</th>
+					</td>
 				{% endif %}
 			</tr>
 		{% endfor %}
