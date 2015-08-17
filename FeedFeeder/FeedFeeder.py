@@ -265,6 +265,9 @@ def dispatchItem(item):
 			insert_raw_item(item['data'])
 		elif item['type'] == 'parsed-release':
 			insert_parsed_release(item['data'])
+		elif item['type'] == 'series-metadata':
+			pass
+			# insert_parsed_release(item['data'])
 		else:
 			print(item)
 			raise ValueError("No known packet structure in item!")
