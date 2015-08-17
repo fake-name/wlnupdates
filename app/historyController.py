@@ -25,6 +25,7 @@ dispatch_table = {
 	'orig_lang'    : SeriesChanges,
 	'region'       : SeriesChanges,
 	'license_en'   : SeriesChanges,
+	'website'      : SeriesChanges,
 	'author'       : AuthorChanges,
 	'illustrators' : IllustratorsChanges,
 	'tag'          : TagsChanges,

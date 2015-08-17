@@ -16,6 +16,28 @@
 	</div>
 {%- endmacro %}
 
+{% macro singleItemLink(name, value, valId, width=3, extra_cls='') -%}
+	<div class="well well-tny info-item">
+		<div class="row singleitem"  id="{{valId}}-container">
+			<div class="col-md-{{width}} rowTitle">
+				{{ name }}:
+				<span class='text-nowrap'>
+					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				</span>
+			</div>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
+				{%- if value -%}
+					<span class='singleitem {{extra_cls}}' style='display: none;'>{{ value }}</span>
+					<span class='singleitem'><a href='{{value}}'>{{ value }}</a></span>
+				{%- else -%}
+					<span class='singleitem {{extra_cls}}'>N/A</span>
+				{%- endif -%}
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
 
 {% macro singleItemBlockDropbox(name, value, valId, values, width=3) -%}
 	<div class="well well-tny info-item">
@@ -417,6 +439,8 @@
 							)
 			}}
 
+
+
 			{% if series.tl_type == 'translated' %}
 
 				{{singleItemBlockDropbox("Country of Origin",
@@ -521,6 +545,14 @@
 								width=5
 							)
 			}}
+
+			{{singleItemLink("Homepage",
+								series.website,
+								'website',
+								width=5
+							)
+			}}
+
 			{% if g.user.is_admin() %}
 				<hr>
 				{{localLinkBlock(series.alternatenames)}}

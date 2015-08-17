@@ -10,6 +10,8 @@ import traceback
 import app.nameTools as nt
 import time
 import sqlalchemy.exc
+import bleach
+import app.series_tools
 
 # user = Users(
 # 	nickname  = form.username.data,
@@ -100,9 +102,6 @@ def insert_raw_item(item):
 
 		db.session.add(itemrow)
 		db.session.flush()
-
-
-
 
 
 	for tag in item.pop('tags'):
@@ -254,6 +253,64 @@ def insert_parsed_release(item):
 	# print(series)
 	check_insert_release(item, group, series)
 
+def update_series_info(item):
+	assert 'title'    in item
+	assert 'author'   in item
+	assert 'tags'     in item
+	assert 'homepage' in item
+	assert 'desc'     in item
+	assert 'tl_type'  in item
+
+
+	print("Series info update message!")
+	series = get_create_series(item['title'], item["tl_type"])
+
+
+	# Break if the tl type has changed, something is probably mismatched
+	if series.tl_type != item['tl_type']:
+		print("WARNING! TlType mismatch? Wat?")
+
+		print("Series:", series)
+		print("###################################")
+		print(series.title)
+		print("-----------------------------------")
+		print(item['title'])
+		print("###################################")
+		print(series.author)
+		print("-----------------------------------")
+		print(item['author'])
+		print("###################################")
+		print(series.description)
+		print("-----------------------------------")
+		print(item['desc'])
+		print("###################################")
+		print(series.tl_type)
+		print("-----------------------------------")
+		print(item['tl_type'])
+		print("###################################")
+		print(series.website)
+		print("-----------------------------------")
+		print(item['homepage'])
+		print("###################################")
+		print(series.tags)
+		print("-----------------------------------")
+		print(item['tags'])
+
+		return
+
+	if not series.description:
+		series.description =bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong'])
+
+	if not series.website:
+		series.website = bleach.clean(item['homepage'])
+
+	app.series_tools.setAuthorIllust(series, author=[item['author'], ])
+
+	app.series_tools.updateTags(series, item['tags'], deleteother=False)
+
+
+	db.session.flush()
+	db.session.commit()
 
 def dispatchItem(item):
 	item = json.loads(item)
@@ -266,8 +323,7 @@ def dispatchItem(item):
 		elif item['type'] == 'parsed-release':
 			insert_parsed_release(item['data'])
 		elif item['type'] == 'series-metadata':
-			pass
-			# insert_parsed_release(item['data'])
+			update_series_info(item['data'])
 		else:
 			print(item)
 			raise ValueError("No known packet structure in item!")

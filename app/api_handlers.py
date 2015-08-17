@@ -39,6 +39,7 @@ VALID_KEYS = {
 	'license_en-container'   : 'license_en',
 	'orig_status-container'  : 'orig_status',
 	'tl_type-container'      : 'tl_type',
+	'website-container'      : 'website',
 	}
 
 VALID_LICENSE_STATES = {
@@ -48,6 +49,16 @@ VALID_LICENSE_STATES = {
 }
 
 
+def getCurrentUserId():
+	'''
+	if current_user == None, we're not executing within the normal flask runtime,
+	which means we can probably assume that the caller is the system update
+	service.
+	'''
+	if current_user != None:
+		return current_user.id
+	else:
+		return app.app.config['SYSTEM_USERID']
 
 def validateMangaData(data):
 	# print("Manga Data:", data)
@@ -111,7 +122,7 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.description = processedData
-				series.changeuser = current_user.id
+				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
 
@@ -122,7 +133,7 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.demographic = processedData
-				series.changeuser = current_user.id
+				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'orig_status':
@@ -132,7 +143,7 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.orig_status = processedData
-				series.changeuser = current_user.id
+				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'region':
@@ -142,7 +153,7 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.region = processedData
-				series.changeuser = current_user.id
+				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'tl_type':
@@ -152,7 +163,7 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.tl_type = processedData
-				series.changeuser = current_user.id
+				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'license_en':
@@ -164,7 +175,7 @@ def processMangaUpdateJson(data):
 				lic_state = VALID_LICENSE_STATES[lic_state]
 
 			series.license_en = lic_state
-			series.changeuser = current_user.id
+			series.changeuser = getCurrentUserId()
 			series.changetime = datetime.datetime.now()
 
 
@@ -173,7 +184,7 @@ def processMangaUpdateJson(data):
 			# 	pass
 			# else:
 			# 	series.region = processedData
-			# 	series.changeuser = current_user.id
+			# 	series.changeuser = getCurrentUserId()
 			# 	series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'type':
@@ -183,7 +194,7 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.type = processedData
-				series.changeuser = current_user.id
+				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'origin_loc':
@@ -193,7 +204,7 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.origin_loc = processedData
-				series.changeuser = current_user.id
+				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'orig_lang':
@@ -203,7 +214,17 @@ def processMangaUpdateJson(data):
 				pass
 			else:
 				series.orig_lang = processedData
-				series.changeuser = current_user.id
+				series.changeuser = getCurrentUserId()
+				series.changetime = datetime.datetime.now()
+
+		elif entry['type'] == 'website':
+			processedData = bleach.clean(entry['data'], strip=True, tags=[])
+			if series.website == processedData:
+				# print("No change?")
+				pass
+			else:
+				series.website = processedData
+				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'author':
@@ -274,7 +295,7 @@ def setSeriesWatchJson(data):
 	cleaned = validateWatchedData(data)
 
 	watch_row = Watches.query.filter(
-			(Watches.user_id==current_user.id) &
+			(Watches.user_id==getCurrentUserId()) &
 			(Watches.series_id==cleaned['item-id'])
 		).scalar()
 
@@ -294,7 +315,7 @@ def setSeriesWatchJson(data):
 		# Want to watch item, item not in any extant list:
 
 		newWatch = Watches(
-			user_id   = current_user.id,
+			user_id   = getCurrentUserId(),
 			series_id = cleaned['item-id'],
 			listname  = cleaned['listName'],
 		)
@@ -406,7 +427,7 @@ def updateGroupAltNames(group, altnames):
 					cleanname  = nt.prepFilenameForMatching(cleaned[name]),
 					group     = group.id,
 					changetime = datetime.datetime.now(),
-					changeuser = current_user.id
+					changeuser = getCurrentUserId()
 				)
 			db.session.add(newname)
 
@@ -466,7 +487,7 @@ def setReadingProgressJson(data):
 	sid, progress = validateReadingProgressData(data)
 
 	watch_row = Watches.query.filter(
-			(Watches.user_id==current_user.id) &
+			(Watches.user_id==getCurrentUserId()) &
 			(Watches.series_id==sid)
 		).one()
 

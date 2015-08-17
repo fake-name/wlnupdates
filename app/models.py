@@ -34,6 +34,8 @@ class SeriesBase(object):
 	demographic = db.Column(db.Text())
 	orig_lang   = db.Column(db.Text())
 
+	website     = db.Column(db.Text())
+
 	volume      = db.Column(db.Float(), default=-1)
 	chapter     = db.Column(db.Float(), default=-1)
 

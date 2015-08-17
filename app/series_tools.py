@@ -22,6 +22,16 @@ import datetime
 import app.nameTools as nt
 
 
+def getCurrentUserId():
+	'''
+	if current_user == None, we're not executing within the normal flask runtime,
+	which means we can probably assume that the caller is the system update
+	service.
+	'''
+	if current_user != None:
+		return current_user.id
+	else:
+		return app.config['SYSTEM_USERID']
 
 def updateTags(series, tags, deleteother=True):
 	havetags = Tags.query.filter((Tags.series==series.id)).all()
@@ -33,7 +43,7 @@ def updateTags(series, tags, deleteother=True):
 		if tag in havetags:
 			havetags.pop(tag)
 		else:
-			newtag = Tags(series=series.id, tag=tag, changetime=datetime.datetime.now(), changeuser=current_user.id)
+			newtag = Tags(series=series.id, tag=tag, changetime=datetime.datetime.now(), changeuser=getCurrentUserId())
 			db.session.add(newtag)
 	if deleteother:
 		for key, value in havetags.items():
@@ -50,7 +60,7 @@ def updateGenres(series, genres, deleteother=True):
 		if genre in havegenres:
 			havegenres.pop(genre)
 		else:
-			newgenre = Genres(series=series.id, genre=genre, changetime=datetime.datetime.now(), changeuser=current_user.id)
+			newgenre = Genres(series=series.id, genre=genre, changetime=datetime.datetime.now(), changeuser=getCurrentUserId())
 			db.session.add(newgenre)
 	if deleteother:
 		for key, value in havegenres.items():
@@ -78,7 +88,7 @@ def updateAltNames(series, altnames, deleteother=True):
 					cleanname  = nt.prepFilenameForMatching(cleaned[name]),
 					series     = series.id,
 					changetime = datetime.datetime.now(),
-					changeuser = current_user.id
+					changeuser = getCurrentUserId()
 				)
 			db.session.add(newname)
 
@@ -116,7 +126,7 @@ def setAuthorIllust(series, author=None, illust=None, deleteother=True):
 					series     = series.id,
 					name       = initems[name],
 					changetime = datetime.datetime.now(),
-					changeuser = current_user.id
+					changeuser = getCurrentUserId()
 				)
 			db.session.add(newentry)
 
@@ -148,7 +158,7 @@ def updateGroupAltNames(group, altnames, deleteother=True):
 					cleanname  = nt.prepFilenameForMatching(cleaned[name]),
 					group     = group.id,
 					changetime = datetime.datetime.now(),
-					changeuser = current_user.id
+					changeuser = getCurrentUserId()
 				)
 			db.session.add(newname)
 
