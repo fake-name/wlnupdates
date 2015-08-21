@@ -31,11 +31,12 @@
 			</div>
 			<p>Total requests: {{total_requests}}</p>
 			<p>Unique visitors: {{ clients | length }}</p>
+			<p>Signed-up users: {{ users }}</p>
 		</div>
 
 		<div class="well well-large" style="min-height: 140px;">
 			<h3>Visitors:</h3>
-			<table class='table-striped table table-bordered table-condensed fullwidth'>
+			<table class='table-striped table table-bordered table-condensed'>
 
 				<col style="width: 110px">
 				<col>
@@ -49,14 +50,14 @@
 		</div>
 		<div class="well well-large" style="min-height: 140px;">
 			<h3>Referrers:</h3>
-			<table class='table-striped table table-bordered table-condensed fullwidth'>
+			<table class='table-striped table table-bordered table-condensed fullwidth' style="table-layout: fixed;">
 
-				<col style="width: 110px">
+				<col style="width: 120px">
 				<col>
 				{% for ref in referred_by %}
 					<tr>
 						<td>{{ref.originating_ip}}</td>
-						<td>{{ref.referer}}</td>
+						<td style="word-wrap: break-word;">{{ref.referer}}</td>
 					</tr>
 				{% endfor %}
 			</table>
