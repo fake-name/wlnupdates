@@ -62,15 +62,20 @@
 
 	<div class="well well-large">
 		<h2>Watched items:</h2>
-
+		<div class="pull-right">
+			<font color="#666">To delete a list, remove all items from it.</font>
+		</div>
 		{% if watches %}
+			{% for listname in lists %}
+				<h4>List: {{listname | title}}</h4>
+				<table class='table-striped table table-bordered table-condensed fullwidth'>
+					{{ headerBlock() }}
+					{% for series, read_progress, avail_progress in watches[listname] %}
+						{{singleItemBlock(series, read_progress, avail_progress)}}
+					{% endfor %}
+				</table>
+			{% endfor %}
 
-			<table class='table-striped table table-bordered table-condensed fullwidth'>
-				{{ headerBlock() }}
-				{% for series, read_progress, avail_progress in watches %}
-					{{singleItemBlock(series, read_progress, avail_progress)}}
-				{% endfor %}
-			</table>
 		{% else %}
 			<p>No watched items? <a href='/series/'>Add a few?</a></p>
 		{% endif %}

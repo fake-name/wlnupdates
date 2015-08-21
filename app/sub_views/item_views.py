@@ -99,8 +99,23 @@ def renderSeriesId(sid):
 		watch      =       Watches.query.filter(Watches.series_id==sid)     \
 		                                  .filter(Watches.user_id==g.user.id) \
 		                                  .scalar()
+
+		# This is *relatively* optimized, since the query
+		# planner is smart enough to apply the filter before the distinct.
+		# May become a performance issue if the watches table gets large
+		# enough, but I think the performance ceiling will actually
+		# be the number of watches a user has, rather then the
+		# overall table size.
+		watchlists = Watches                                 \
+					.query                                   \
+					.filter(Watches.user_id == g.user.id)    \
+					.distinct(Watches.listname)              \
+					.all()
+		watchlists = [watchitem.listname for watchitem in watchlists]
+		print(watchlists)
 	else:
 		watch = False
+		watchlists = False
 
 	if series is None:
 		flash(gettext('Series %(sid)s not found.', sid=sid))
@@ -115,11 +130,16 @@ def renderSeriesId(sid):
 
 	series.covers.sort(key=get_cover_sorter())
 
+
+
+
+
 	return render_template('series-id.html',
 						series_id    = sid,
 						series       = series,
 						releases     = releases,
 						watch        = watch,
+						watchlists   = watchlists,
 						progress     = progress,
 						latest       = latest
 						)

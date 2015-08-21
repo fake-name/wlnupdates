@@ -14,7 +14,7 @@ from app.utilities import get_latest_release
 
 
 @app.route('/watches')
-def renderUserLists():
+def renderUserWatches():
 	if not g.user.is_authenticated():
 		flash(gettext('You need to log in to create or view series watches.'))
 		return redirect(url_for('index'))
@@ -26,7 +26,7 @@ def renderUserLists():
 				.all()
 
 
-	data = []
+	data = {}
 	for watch in watches:
 		series = watch.series_row
 		latest = get_latest_release(series)
@@ -53,13 +53,22 @@ def renderUserLists():
 		if avail['chp'] > 0:
 			avail['agg'] += avail['chp']
 
-		data.append((series, prog, avail))
+		if not watch.listname in data:
+			data[watch.listname] = []
+		data[watch.listname].append((series, prog, avail))
 
-	data.sort(key=lambda x: x[0].title.lower())
+	for key in data.keys():
+		data[key].sort(key=lambda x: (x[0].title.lower()))
+
+	# data.sort(key=lambda x: (x[0].lower(), x[1].title.lower()))
+
+	lists = list(data.keys())
+	lists.sort(key=lambda x: (x.lower()))
 
 	return render_template(
 			'watched.html',
-			watches = data
+			watches = data,
+			lists   = lists
 		)
 
 

@@ -116,7 +116,7 @@ function edit(containerId){
 
 }
 
-function toggle_watch(containerId, mangaId, callback)
+function edit_watch(containerId, mangaId, callback)
 {
 	callback = typeof callback !== 'undefined' ?  callback : watchCalback;
 
@@ -143,14 +143,14 @@ function toggle_watch(containerId, mangaId, callback)
 		"list"      : "watched"
 	}
 
-	$.ajax({
-		url : "/api",
-		success : callback,
-		data: JSON.stringify(params),
-		method: "POST",
-		dataType: 'json',
-		contentType: "application/json;",
-	});
+	// $.ajax({
+	// 	url : "/api",
+	// 	success : callback,
+	// 	data: JSON.stringify(params),
+	// 	method: "POST",
+	// 	dataType: 'json',
+	// 	contentType: "application/json;",
+	// });
 }
 
 
