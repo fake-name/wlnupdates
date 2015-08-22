@@ -280,7 +280,8 @@ def validateWatchedData(data):
 
 
 	try:
-		update['listName'] = bleach.clean(str(data['list']), strip=True)
+		# Clean all html.
+		update['listName'] = bleach.clean(str(data['list']), tags=[], strip=True)
 	except ValueError:
 		raise AssertionError
 	if len(update['listName']) > 256:

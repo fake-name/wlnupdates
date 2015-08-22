@@ -233,9 +233,9 @@
 						{% if watchlists %}
 							{% for listname in watchlists %}
 								{% if watches.listname == listname %}
-									<option value='{{listname | urlencode}}' selected="selected">{{listname}}</option>
+									<option value='{{listname | safe}}' selected="selected">{{listname | safe}}</option>
 								{% else %}
-									<option value='{{listname | urlencode}}'>{{listname}}</option>
+									<option value='{{listname | safe}}'>{{listname | safe}}</option>
 								{% endif %}
 							{% endfor %}
 							<option disabled>──────────</option>
