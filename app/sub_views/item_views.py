@@ -112,7 +112,7 @@ def renderSeriesId(sid):
 					.distinct(Watches.listname)              \
 					.all()
 		watchlists = [watchitem.listname for watchitem in watchlists]
-		print(watchlists)
+		# print(watchlists)
 	else:
 		watch = False
 		watchlists = False

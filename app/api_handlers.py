@@ -293,7 +293,7 @@ def validateWatchedData(data):
 
 def setSeriesWatchJson(data):
 	cleaned = validateWatchedData(data)
-
+	print("[setSeriesWatchJson] data -> ", data)
 	watch_row = Watches.query.filter(
 			(Watches.user_id==getCurrentUserId()) &
 			(Watches.series_id==cleaned['item-id'])

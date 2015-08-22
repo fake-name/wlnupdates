@@ -226,19 +226,28 @@
 				</span>
 			</div>
 			<div class="col-sm-9-5 rowContents" id='watch'>
-
 				<div style='display: inline-block; float: left;'>
 					<select id='watch-list-select' class="list-select form-control" onchange="edit_watch('#watch-list-select');return false;">
-						{% set have = False %}
-						{% for listname in watchlists %}
-							<option value='{{listname | urlencode}}'>{{listname}}</option>
-						{% endfor %}
 
+						<option disabled>Current lists:</option>
+						{% if watchlists %}
+							{% for listname in watchlists %}
+								{% if watches.listname == listname %}
+									<option value='{{listname | urlencode}}' selected="selected">{{listname}}</option>
+								{% else %}
+									<option value='{{listname | urlencode}}'>{{listname}}</option>
+								{% endif %}
+							{% endfor %}
+							<option disabled>──────────</option>
+						{% endif %}
 						<option value='new-list'>{{"<new list>" | e}}</option>
-						<option value='no-list'>{{"<remove item>" | e}}</option>
+						{% if watches.listname %}
+							<option value='no-list'>{{"<remove item>" | e}}</option>
+						{% else %}
+							<option selected="selected" value='no-list'>{{"<not watched>" | e}}</option>
+						{% endif %}
 					</select>
 				</div>
-
 				{% if watches and watchlists %}
 					<div id='spinner-div' style='display: inline-block; float:right;'>
 						<form class="form-inline">

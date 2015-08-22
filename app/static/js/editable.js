@@ -121,14 +121,12 @@ function edit_watch(containerId, mangaId, callback)
 	callback = typeof callback !== 'undefined' ?  callback : watchCalback;
 
 	var container = $(containerId);
-	console.log("Container: ", $(containerId))
-	console.log("Contents: ", container.text())
+	// console.log("Container: ", $(containerId))
+	// console.log("Container: ", $(containerId+" option:selected").val())
+	// console.log("Contents: ", container.text())
 
-	var watch = false;
-	if (container.text().indexOf('No') > -1 ||  (container.text().indexOf('Add') > -1))
-		watch = true;
 
-	container.each(function(idx){$(this).html("[Working]");});
+	container.each(function(idx){$("#watch-state").html("[Working]");});
 
 
 	var data = [];
@@ -136,21 +134,54 @@ function edit_watch(containerId, mangaId, callback)
 	if (typeof mangaId == 'undefined')
 		mangaId = $('meta[name=manga-id]').attr('content')
 
+	var watch_val = $(containerId+" option:selected").val();
+
+	var watch;
+	if (watch_val == 'no-list')
+	{
+		// Do nothing, remove watch
+		watch = false;
+	}
+	else
+	{
+		watch = true;
+	}
+
+	if (watch_val == 'new-list')
+	{
+		// Ask user for the new list name
+		watch_val = prompt("Please enter a name for your new list.")
+	}
+
+	watch_val =  $.trim(watch_val);
+
+	if (watch_val == "")
+	{
+		alert("List names cannot be empty or whitespace");
+		return;
+	}
+
+	if (container.text().indexOf('No') > -1 ||  (container.text().indexOf('Add') > -1))
+		watch = true;
+
+
 	var params = {
 		"mode"      : "set-watch",
 		"item-id"   : mangaId,
 		"watch"     : watch,
-		"list"      : "watched"
+		"list"      : watch_val
 	}
 
-	// $.ajax({
-	// 	url : "/api",
-	// 	success : callback,
-	// 	data: JSON.stringify(params),
-	// 	method: "POST",
-	// 	dataType: 'json',
-	// 	contentType: "application/json;",
-	// });
+	console.log(params);
+
+	$.ajax({
+		url : "/api",
+		success : callback,
+		data: JSON.stringify(params),
+		method: "POST",
+		dataType: 'json',
+		contentType: "application/json;",
+	});
 }
 
 
@@ -354,7 +385,7 @@ function readCallback(result)
 
 	console.log(result)
 	console.log("Saved!")
-	$("#watch-state").text("[saved]");
+	container.each(function(idx){$("#watch-state").html("[saved]");});
 }
 
 
