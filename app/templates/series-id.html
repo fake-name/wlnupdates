@@ -218,36 +218,40 @@
 
 {% macro watchBlock(watches, watchlists, progress) -%}
 	<div class="well well-tny info-item">
-		<div class="row multiitem" id="watch-container">
-			<div class="col-sm-2-5 rowTitle" style='padding-right: 0px'>
-				In watch list:
-				<span id='watch-state' class='text-nowrap light-grey'>
-					[saved]
-				</span>
-			</div>
-			<div class="col-sm-9-5 rowContents" id='watch'>
-				<div style='display: inline-block; float: left;'>
-					<select id='watch-list-select' class="list-select form-control" onchange="edit_watch('#watch-list-select');return false;">
-
-						<option disabled>Current lists:</option>
-						{% if watchlists %}
-							{% for listname in watchlists %}
-								{% if watches.listname == listname %}
-									<option value='{{listname | safe}}' selected="selected">{{listname | safe}}</option>
-								{% else %}
-									<option value='{{listname | safe}}'>{{listname | safe}}</option>
-								{% endif %}
-							{% endfor %}
-							<option disabled>──────────</option>
-						{% endif %}
-						<option value='new-list'>{{"<new list>" | e}}</option>
-						{% if watches.listname %}
-							<option value='no-list'>{{"<remove item>" | e}}</option>
-						{% else %}
-							<option selected="selected" value='no-list'>{{"<not watched>" | e}}</option>
-						{% endif %}
-					</select>
+		<div class="row singleitem" id="watch-container">
+			<div style="display: inline-block; padding-left: 20px;">
+				<div class="rowTitle" style='display: inline-block; min-width: 130px; vertical-align: top;'>
+					In watch list:
+					<span id='watch-state' class='text-nowrap light-grey'>
+						[saved]
+					</span>
 				</div>
+				<div class="rowContents" id='watch' style="display: inline-block; align-self: center;">
+					<div style='display: inline-block; float: left;'>
+						<select id='watch-list-select' class="list-select form-control" onchange="edit_watch('#watch-list-select');return false;">
+
+							<option disabled>Current lists:</option>
+							{% if watchlists %}
+								{% for listname in watchlists %}
+									{% if watches.listname == listname %}
+										<option value='{{listname | safe}}' selected="selected">{{listname | safe}}</option>
+									{% else %}
+										<option value='{{listname | safe}}'>{{listname | safe}}</option>
+									{% endif %}
+								{% endfor %}
+								<option disabled>──────────</option>
+							{% endif %}
+							<option value='new-list'>{{"<new list>" | e}}</option>
+							{% if watches.listname %}
+								<option value='no-list'>{{"<remove item>" | e}}</option>
+							{% else %}
+								<option selected="selected" value='no-list'>{{"<not watched>" | e}}</option>
+							{% endif %}
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="rowContents"  style="float: right; padding-right: 20px;">
 				{% if watches and watchlists %}
 					<div id='spinner-div' style='display: inline-block; float:right;'>
 						<form class="form-inline">
