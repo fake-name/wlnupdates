@@ -464,7 +464,7 @@ function readCallback(result)
 
 	console.log(result)
 	console.log("Saved!")
-	container.each(function(idx){$("#watch-state").html("[saved]");});
+	$("#watch-state").each(function(idx, itm){$(itm).text("[saved]");});
 }
 
 
