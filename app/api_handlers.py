@@ -40,6 +40,8 @@ VALID_KEYS = {
 	'orig_status-container'  : 'orig_status',
 	'tl_type-container'      : 'tl_type',
 	'website-container'      : 'website',
+	'watch-container'        : None,
+
 	}
 
 VALID_LICENSE_STATES = {
@@ -95,10 +97,11 @@ def validateMangaData(data):
 
 		if item['key'] not in VALID_KEYS:
 			raise AssertionError("Invalid source key: '%s'!" % item['key'])
-		else:
-			val['type'] = VALID_KEYS[item['key']]
 
-		update['entries'].append(val)
+		# Skip entries where the target is None
+		if VALID_KEYS[item['key']]:
+			val['type'] = VALID_KEYS[item['key']]
+			update['entries'].append(val)
 
 	# Ok, the JSON is valid, and we've more or less sanitized it.
 	# Return the processed output.
