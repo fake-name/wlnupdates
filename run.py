@@ -1,4 +1,10 @@
 #!flask/bin/python
+try:
+	import logSetup
+	logSetup.initLogging()
+except:
+	print("No logging!")
+	pass
 
 from app import app
 import threading
