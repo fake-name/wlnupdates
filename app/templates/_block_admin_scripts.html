@@ -38,7 +38,7 @@
 
 	function delete_release(key, opt)
 	{
-		var itemdat = opt.$trigger.data()
+		var itemdat = opt.$trigger.parent().data()
 
 		var params = {
 			"mode"      : "release-ctrl",
@@ -46,6 +46,18 @@
 			"id"        : itemdat['id'],
 			"count"     : itemdat['counted'],
 		}
+
+
+		console.log("opt:");
+		console.log(opt)
+
+		console.log("Params:");
+		console.log(params)
+
+		console.log("itemdat:");
+		console.log(itemdat)
+
+
 		if (confirm('Are you sure you want to delete that release?'))
 		{
 			$.ajax({
@@ -62,7 +74,7 @@
 	}
 	function toggle_count_release(key, opt)
 	{
-		var itemdat = opt.$trigger.data()
+		var itemdat = opt.$trigger.parent().data()
 
 		var params = {
 			"mode"      : "release-ctrl",
