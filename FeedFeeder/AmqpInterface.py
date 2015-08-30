@@ -81,8 +81,8 @@ class RabbitQueueHandler(object):
 		ret = self.connector.getMessage()
 		if ret:
 			self.log.info("Received data size: %s bytes.", len(ret))
-		else:
-			self.log.info("No messages available.")
+		# else:
+		# 	self.log.info("No messages available.")
 
 		return ret
 
