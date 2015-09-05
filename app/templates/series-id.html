@@ -418,7 +418,7 @@
 	{% include '_block_flash.html' %}
 
 
-	<div class="well well-large">
+	<div>
 		<h2>{{ series.title }}</h2>
 			{{watchBlock(watch, watchlists, progress)}}
 			{{coversBlock(series, series.covers)}}
@@ -575,17 +575,19 @@
 			}}
 
 			{% if g.user.is_admin() %}
-				<hr>
+
+				<hr class='padded-rule'>
 				{{localLinkBlock(series.alternatenames)}}
 				{{mergeInto()}}
 			{% endif %}
 			<div style="clear: both;"></div>
+			<hr class='padded-rule'>
 
 	</div>
 
 
 	{% set release_items = releases %}
-	<div class="well well-large">
+	<div>
 		<div style='float:right'>
 			<sup>Releases found: {{ release_items | length }}</sup>
 

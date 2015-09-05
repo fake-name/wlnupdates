@@ -3,30 +3,33 @@
 
 {% block content %}
 	{% include '_block_flash.html' %}
-	<div class="well">
+	<div class="">
 		<h3>News</h3>
 		{% include '_block_news.html' %}
 		<a href='/news/'>Older news</a>
 	</div>
 
+	<hr class='padded-rule'>
 	{% set release_items = trans_release_items %}
 	{% set show_group = True %}
 
-	<div class="well well-large">
-		<h3>Latest Translated Releases:</h3>
+	<div>
+		<h3>Latest Translated Releases</h3>
 		{% include '_block_releases.html' %}
 		<a href='/translated-releases/'>More Releases</a>
 	</div>
+	<hr class='padded-rule'>
 
 	{% set release_items = oel_release_items %}
 	{% set show_group = False %}
-	<div class="well well-large">
-		<h3>Latest OEL Releases:</h3>
+	<div>
+		<h3>Latest OEL Releases</h3>
 		{% include '_block_releases.html' %}
 		<a href='/oel-releases/'>More Releases</a>
 	</div>
 
-	<div class="well">
+	<hr class='padded-rule'>
+	<div>
 		<h4>A few random series</h4>
 		{% for post in random_series %}
 			<div class="well well-tny">
@@ -37,6 +40,7 @@
 		{% endfor %}
 	</div>
 
+	<hr class='padded-rule'>
 {% endblock %}
 
 

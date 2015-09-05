@@ -32,7 +32,7 @@
 
 {% block content %}
 	{% include '_block_flash.html' %}
-	<div class="well well-large" style="min-height: 140px;">
+	<div style="min-height: 140px;">
 		<h2>Group {{ group.name }}</h2>
 
 
@@ -65,8 +65,9 @@
 
 	</div>
 
+	<hr class='padded-rule'>
 	{% set release_items = releases %}
-	<div class="well well-large">
+	<div>
 		<span><h3>Group Releases:</h3><sup style='float:right'>Releases found: {{ release_items | length }}</sup></span>
 		{% include '_block_releases.html' %}
 	</div>
