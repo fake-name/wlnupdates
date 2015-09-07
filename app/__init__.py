@@ -120,6 +120,30 @@ def utility_processor():
 				break
 		return ', '.join(dhms[start:end+1])
 
+	def terse_ago(then):
+		now = datetime.datetime.now()
+		delta = now - then
+
+		d = delta.days
+		h, s = divmod(delta.seconds, 3600)
+		m, s = divmod(s, 60)
+		labels = ['d', 'h', 'm', 's']
+		dhms = ['%s %s' % (i, lbl) for i, lbl in zip([d, h, m, s], labels)]
+		for start in range(len(dhms)):
+			if not dhms[start].startswith('0'):
+				break
+		print(dhms)
+		# for end in range(len(dhms)-1, -1, -1):
+		# 	if not dhms[end].startswith('0'):
+		# 		break
+		if d > 0:
+			dhms = dhms[:2]
+		elif h > 0:
+			dhms = dhms[1:3]
+		else:
+			dhms = dhms[2:]
+		return ', '.join(dhms)
+
 	def staleness_factor(then):
 		if not then:
 			return ""
@@ -153,6 +177,7 @@ def utility_processor():
 			getTlGroupId       = getTlGroupId,
 			format_date        = format_date,
 			date_now           = date_now,
+			terse_ago          = terse_ago,
 			ago                = ago,
 			staleness_factor   = staleness_factor,
 			build_query_string = build_qs,
