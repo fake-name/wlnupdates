@@ -132,7 +132,6 @@ def utility_processor():
 		for start in range(len(dhms)):
 			if not dhms[start].startswith('0'):
 				break
-		print(dhms)
 		# for end in range(len(dhms)-1, -1, -1):
 		# 	if not dhms[end].startswith('0'):
 		# 		break
