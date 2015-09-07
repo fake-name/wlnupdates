@@ -120,6 +120,17 @@ def utility_processor():
 				break
 		return ', '.join(dhms[start:end+1])
 
+	def staleness_factor(then):
+		if not then:
+			return ""
+		now = datetime.datetime.now()
+		delta = now - then
+		if delta.days <= 14:
+			return "updating-current"
+		if delta.days <= 45:
+			return "updating-stale"
+		return "updating-stalled"
+
 	def build_name_qs(keys, items):
 		return build_qs(keys, items, lambda x: x.name)
 
@@ -143,6 +154,7 @@ def utility_processor():
 			format_date        = format_date,
 			date_now           = date_now,
 			ago                = ago,
+			staleness_factor   = staleness_factor,
 			build_query_string = build_qs,
 			build_name_qs      = build_name_qs,
 			)

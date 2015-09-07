@@ -47,26 +47,39 @@ def build_progress(watch):
 def get_latest_release(releases):
 	max_vol = 0
 	max_chp = 0
-
+	max_release = None
 	for release in [item for item in releases if item.include]:
 
 		if release.volume and release.volume > max_vol:
 			max_vol = release.volume
 			max_chp = release.chapter
+			max_release = release
 		elif release.volume and release.chapter and release.volume >= max_vol and release.chapter >= max_chp:
 			max_vol = release.volume
 			max_chp = release.chapter
+			max_release = release
 
 		elif not release.volume and not max_vol and release.chapter and release.chapter >= max_chp:
 			max_chp = release.chapter
+			max_release = release
+	return max_release
+
+def format_latest_release(release):
+	if release == None:
+		return "none"
+	vol = release.volume
+	chp = release.chapter
+
+	if vol == None:
+		vol = -1
 
 	ret = ''
-	if max_vol > 0:
-		ret += "vol. {}".format(max_vol)
-	if max_chp:
+	if vol > 0:
+		ret += "vol. {}".format(vol)
+	if chp:
 		if len(ret) > 1:
 			ret += ", "
-		ret += "ch. {}".format(max_chp)
+		ret += "ch. {}".format(chp)
 	return ret
 
 def get_cover_sorter():
@@ -125,8 +138,9 @@ def renderSeriesId(sid):
 	releases.sort(reverse=True, key=getSort)
 
 
-	progress = build_progress(watch)
-	latest = get_latest_release(releases)
+	progress   = build_progress(watch)
+	latest     = get_latest_release(releases)
+	latest_str = format_latest_release(latest)
 
 	series.covers.sort(key=get_cover_sorter())
 
@@ -141,7 +155,8 @@ def renderSeriesId(sid):
 						watch        = watch,
 						watchlists   = watchlists,
 						progress     = progress,
-						latest       = latest
+						latest       = latest,
+						latest_str   = latest_str
 						)
 
 

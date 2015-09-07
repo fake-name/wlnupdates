@@ -11,6 +11,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import nullslast
 
 from app.utilities import get_latest_release
+from app.utilities import get_latest_releases
 
 
 @app.route('/watches')
@@ -27,9 +28,18 @@ def renderUserWatches():
 
 
 	data = {}
+
+	ids = []
+	for watch in watches:
+
+		series = watch.series_row
+		ids.append(series.id)
+
+	latest = get_latest_releases(ids)
+
 	for watch in watches:
 		series = watch.series_row
-		latest = get_latest_release(series)
+		# latest = get_latest_release(series)
 
 		# build easier-to-use dicts we can pass the template,
 		# and calculate a aggregate progress number that works for
@@ -38,8 +48,13 @@ def renderUserWatches():
 		prog  = {}
 		prog['vol']  = watch.volume   if watch and watch.volume    != None else -1
 		prog['chp']  = watch.chapter  if watch and watch.chapter   != None else -1
-		avail['vol'] = latest.volume  if latest and latest.volume  != None else -1
-		avail['chp'] = latest.chapter if latest and latest.chapter != None else -1
+
+		# avail['vol'] = latest.volume  if latest and latest.volume  != None else -1
+		# avail['chp'] = latest.chapter if latest and latest.chapter != None else -1
+
+
+		avail['vol'] = latest[series.id][0]
+		avail['chp'] = latest[series.id][1]
 
 		prog['agg']  = 0
 		if prog['vol'] > 0:

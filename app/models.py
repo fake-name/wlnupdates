@@ -105,7 +105,7 @@ class ReleasesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
 	@declared_attr
 	def series(cls):
-		return db.Column(db.Integer, db.ForeignKey('series.id'))
+		return db.Column(db.Integer, db.ForeignKey('series.id'), index=True)
 
 	published   = db.Column(db.DateTime, index=True, nullable=False)
 

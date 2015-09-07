@@ -39,6 +39,33 @@
 {%- endmacro %}
 
 
+{% macro lastUpdateBlock(value, width=5, extra_cls='') -%}
+
+	{% set staleness = staleness_factor(value.published) %}
+
+	<div class="well well-tny info-item {{staleness}}">
+		<div class="row singleitem">
+			<div class="col-md-{{width}} rowTitle">
+				Last Update:
+			</div>
+			<div class="col-md-{{12-width}} rowContents">
+				{% if value %}
+					<span class='singleitem'>{{ ago(value.published) }} ago</span>
+					{% if staleness == "updating-stale" %}
+						<span style='float:right'>Possibly stalled!</span>
+					{% endif %}
+					{% if staleness == "updating-stalled" %}
+						<span style='float:right'>Probably stalled or dropped!</span>
+					{% endif %}
+				{% else %}
+					<span class='singleitem'>Never!</span>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+
 {% macro singleItemBlockDropbox(name, value, valId, values, width=3) -%}
 	<div class="well well-tny info-item">
 		<div class="row dropitem"  id="{{valId}}-container">
@@ -558,6 +585,9 @@
 								width=5
 							)
 			}}
+
+			{{lastUpdateBlock(latest)}}
+
 			{{multiItemList("Alternate Names",
 								series.alternatenames,
 								'name',
@@ -573,6 +603,7 @@
 								width=5
 							)
 			}}
+
 
 			{% if g.user.is_admin() %}
 
@@ -597,7 +628,7 @@
 		</div>
 		<span>
 			<h3 >Series Releases: </h3>
-			<h5 >Latest release - {{latest}}</h5>
+			<h5 >Latest release - {{latest_str}}</h5>
 		</span>
 		{% include '_block_releases.html' %}
 	</div>

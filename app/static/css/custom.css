@@ -223,6 +223,14 @@ tr.green-highlight:nth-of-type(even) {
 
 }
 
+.updating-stalled
+{
+	background-color: #FFCCCC;
+}
+.updating-stale
+{
+	background-color: #FFFF99;
+}
 
 div.imgDiv {
 	position:relative;
