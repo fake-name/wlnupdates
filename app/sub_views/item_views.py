@@ -19,6 +19,7 @@ from app.models import Watches
 from sqlalchemy import desc
 from natsort import natsort_keygen
 from sqlalchemy.orm import joinedload
+import datetime
 
 def getSort(row):
 	chp = row.chapter if row.chapter else 0
@@ -62,6 +63,13 @@ def get_latest_release(releases):
 		elif not release.volume and not max_vol and release.chapter and release.chapter >= max_chp:
 			max_chp = release.chapter
 			max_release = release
+	return max_release
+
+def get_most_recent_release(releases):
+	max_release = datetime.datetime.min
+	for release in [item for item in releases if item.include]:
+		if max_release < release.published:
+			max_release = release.published
 	return max_release
 
 def format_latest_release(release):
@@ -138,9 +146,11 @@ def renderSeriesId(sid):
 	releases.sort(reverse=True, key=getSort)
 
 
-	progress   = build_progress(watch)
-	latest     = get_latest_release(releases)
-	latest_str = format_latest_release(latest)
+	progress    = build_progress(watch)
+	latest      = get_latest_release(releases)
+	most_recent = get_most_recent_release(releases)
+	latest_str  = format_latest_release(latest)
+
 
 	series.covers.sort(key=get_cover_sorter())
 
@@ -156,6 +166,7 @@ def renderSeriesId(sid):
 						watchlists   = watchlists,
 						progress     = progress,
 						latest       = latest,
+						most_recent  = most_recent,
 						latest_str   = latest_str
 						)
 

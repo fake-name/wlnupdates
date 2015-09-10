@@ -41,7 +41,7 @@
 
 {% macro lastUpdateBlock(value, width=5, extra_cls='') -%}
 
-	{% set staleness = staleness_factor(value.published) %}
+	{% set staleness = staleness_factor(value) %}
 
 	<div class="well well-tny info-item {{staleness}}">
 		<div class="row singleitem">
@@ -50,7 +50,7 @@
 			</div>
 			<div class="col-md-{{12-width}} rowContents">
 				{% if value %}
-					<span class='singleitem'>{{ terse_ago(value.published) }} ago</span>
+					<span class='singleitem'>{{ terse_ago(value) }} ago</span>
 					{% if staleness == "updating-stale" %}
 						<span style='float:right'>Possibly stalled!</span>
 					{% endif %}
@@ -586,7 +586,7 @@
 							)
 			}}
 
-			{{lastUpdateBlock(latest)}}
+			{{lastUpdateBlock(most_recent)}}
 
 			{{multiItemList("Alternate Names",
 								series.alternatenames,
