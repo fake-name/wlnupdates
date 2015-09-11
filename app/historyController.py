@@ -5,7 +5,7 @@ from flask.ext.sqlalchemy import get_debug_queries
 from flask.ext.babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
-from app import app, db, lm, babel
+from app import app, db, babel
 from .models import Users, Posts, SeriesChanges, TagsChanges, GenresChanges, AuthorChanges, IllustratorsChanges, TranslatorsChanges, ReleasesChanges, Covers, AlternateNamesChanges
 
 from .confirm import send_email
@@ -23,6 +23,8 @@ dispatch_table = {
 	'type'         : SeriesChanges,
 	'origin_loc'   : SeriesChanges,
 	'orig_lang'    : SeriesChanges,
+	'tl_type'      : SeriesChanges,
+	'orig_status'  : SeriesChanges,
 	'region'       : SeriesChanges,
 	'license_en'   : SeriesChanges,
 	'website'      : SeriesChanges,

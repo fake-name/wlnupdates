@@ -17,16 +17,18 @@ def get_latest_release(series):
 
 
 def get_latest_releases(series_ids):
-	query = Releases                                                              \
+
+	query = Releases                                                               \
 				.query                                                             \
 				.with_entities(Releases.series, Releases.volume, Releases.chapter) \
+				.order_by(Releases.series)                                         \
+				.order_by(nullslast(desc(Releases.volume)))                        \
+				.order_by(nullslast(desc(Releases.chapter)))                       \
 				.distinct(Releases.series)                                         \
 				.filter(Releases.series.in_(series_ids))                           \
 				.filter(Releases.include==True)
 
 	latest = query.all()
-				# .group_by(Releases.series)                   \
-				# .distinct(Releases.series)                   \
 
 
 

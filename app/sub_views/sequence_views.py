@@ -12,7 +12,6 @@ from flask.ext.babel import gettext
 # from guess_language import guess_language
 from app import app
 from app import db
-from app import lm
 from app import babel
 
 from app.models import Users
