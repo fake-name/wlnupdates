@@ -36,6 +36,7 @@ if "debug" in sys.argv:
 	print("Flask running in debug mode!")
 	app.debug = True
 app.config.from_object('config.BaseConfig')
+app.jinja_env.add_extension('jinja2.ext.do')
 db = SQLAlchemy(app)
 lm = LoginManager()
 lm.anonymous_user = AnonUser

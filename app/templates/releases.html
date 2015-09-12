@@ -1,26 +1,7 @@
 <!-- extend base layout -->
 {% extends "__base.html" %}
 
-
-{% macro render_pagination(pagination) %}
-	<div class=pagination>
-	{%- for page in pagination.iter_pages() %}
-		{% if page %}
-			{% if page != pagination.page %}
-				<a href="{{ page }}">{{ page }}</a>
-			{% else %}
-				<strong>{{ page }}</strong>
-			{% endif %}
-		{% else %}
-			<span class=ellipsis>…</span>
-		{% endif %}
-	{%- endfor %}
-	</div>
-{% endmacro %}
-
-
-
-
+{% import "_block_paginate.html" as paginator %}
 
 {% block content %}
 	{% include '_block_flash.html' %}
@@ -28,8 +9,6 @@
 		<div>
 			<h2>{{tl_type}}Series Releases:</h2>
 		</div>
-
-		{{ render_pagination(sequence_item) }}
 
 
 		{% set release_items = sequence_item.items %}
@@ -39,7 +18,7 @@
 			{% include '_block_releases.html' %}
 		</div>
 
-		{{ render_pagination(sequence_item) }}
+		{{ paginator.render_pagination(sequence_item) }}
 
 	</div>
 

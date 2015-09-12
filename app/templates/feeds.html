@@ -1,21 +1,6 @@
 <!-- extend base layout -->
-{% macro render_pagination(pagination) %}
-	<div class=pagination>
-	{%- for page in pagination.iter_pages() %}
-		{% if page %}
-			{% if page != pagination.page %}
-				<a href="{{ page }}">{{ page }}</a>
-			{% else %}
-				<strong>{{ page }}</strong>
-			{% endif %}
-		{% else %}
-			<span class=ellipsis>…</span>
-		{% endif %}
-	{%- endfor %}
-	</div>
-{% endmacro %}
 
-
+{% import "_block_paginate.html" as paginator %}
 
 
 {% extends "__base.html" %}
@@ -25,15 +10,13 @@
 	<div style="min-height: 140px;">
 		<h2>RSS Feed Items:</h2>
 
-		{{ render_pagination(sequence_item) }}
-
 
 		{% set raw_feeds = sequence_item.items %}
 		<div>
 			{% include '_block_feeds.html' %}
 		</div>
 
-		{{ render_pagination(sequence_item) }}
+		{{ paginator.render_pagination(sequence_item) }}
 
 
 

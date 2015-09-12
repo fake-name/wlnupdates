@@ -70,6 +70,7 @@ def renderOelSeriesTable(letter=None, page=1):
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('renderSeriesTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+
 	return render_template('series-list.html',
 						   series_entries   = series_entries,
 						   page            = page,

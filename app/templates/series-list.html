@@ -1,20 +1,7 @@
 <!-- extend base layout -->
-{% macro render_pagination(pagination) %}
-	Page:
-	{%- for page in pagination.iter_pages() %}
-		{% if page %}
-			{% if page != pagination.page %}
-				<a href="{{ page }}">{{ page }}</a>
-			{% else %}
-				<strong>{{ page }}</strong>
-			{% endif %}
-		{% else %}
-			<span class=ellipsis>…</span>
-		{% endif %}
-	{%- endfor %}
 
-{% endmacro %}
-
+{% extends "__base.html" %}
+{% import "_block_paginate.html" as paginator %}
 
 {% macro render_page_contents(pagination, access_key) %}
 
@@ -47,7 +34,6 @@
 {% endmacro %}
 
 
-{% extends "__base.html" %}
 
 {% block content %}
 	{% include '_block_flash.html' %}
@@ -66,7 +52,6 @@
 				<h2>{{title_prefix}}Book Titles</h2>
 			{% endif %}
 
-			{{ render_pagination(series_entries) }}
 			{{ render_alphanum_div(path_name) }}
 
 		</div>
@@ -76,7 +61,7 @@
 			<div>
 				{{ render_page_contents(series_entries, name_key) }}
 			</div>
-			{{ render_pagination(series_entries) }}
+			{{ paginator.render_pagination(series_entries) }}
 		{% else %}
 			<h4>No items found!</h4>
 		{% endif %}

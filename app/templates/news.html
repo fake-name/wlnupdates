@@ -1,21 +1,7 @@
 <!-- extend base layout -->
-{% macro render_pagination(pagination) %}
-	<div class=pagination>
-	{%- for page in pagination.iter_pages() %}
-		{% if page %}
-			{% if page != pagination.page %}
-				<a href="{{ page }}">{{ page }}</a>
-			{% else %}
-				<strong>{{ page }}</strong>
-			{% endif %}
-		{% else %}
-			<span class=ellipsis>…</span>
-		{% endif %}
-	{%- endfor %}
-	</div>
-{% endmacro %}
 
 {% extends "__base.html" %}
+{% import "_block_paginate.html" as paginator %}
 
 {% block header %}
 	<meta name="manga-id" content="{{ series_id }}">
@@ -52,7 +38,7 @@
 			</div>
 		{% endfor %}
 
-		{{ render_pagination(posts) }}
+		{{ paginator.render_pagination(posts) }}
 	</div>
 
 {% endblock %}
