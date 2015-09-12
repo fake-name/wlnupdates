@@ -153,6 +153,8 @@ def utility_processor():
 			return "updating-current"
 		if delta.days <= 45:
 			return "updating-stale"
+		if delta.days > 700000:
+			return "updating-never"
 		return "updating-stalled"
 
 	def build_name_qs(keys, items):

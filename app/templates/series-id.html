@@ -50,7 +50,11 @@
 			</div>
 			<div class="col-md-{{12-width}} rowContents">
 				{% if value %}
-					<span class='singleitem'>{{ terse_ago(value) }} ago</span>
+					{% if staleness == "updating-never" %}
+						<span class='singleitem'>Never!</span>
+					{% else %}
+						<span class='singleitem'>{{ terse_ago(value) }} ago</span>
+					{% endif %}
 					{% if staleness == "updating-stale" %}
 						<span style='float:right'>Possibly stalled!</span>
 					{% endif %}
