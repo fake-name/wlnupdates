@@ -38,12 +38,12 @@ class RabbitQueueHandler(object):
 												master             = False,
 												synchronous        = False,
 												flush_queues       = False,
+												durable            = True,
 												task_exchange_type = "fanout",
 												task_queue         = 'task.{name}.q'.format(name=settings['CLIENT_NAME']),
 												response_queue     = 'response.{name}.q'.format(name=settings['CLIENT_NAME']),
 												poll_rate          = 0.025,
 												prefetch           = 150,
-												prefetch_size      = 0,
 												)
 
 
