@@ -218,8 +218,10 @@ def check_insert_release(item, group, series):
 		.filter(Releases.chapter == item['chp'])     \
 		.filter(Releases.postfix == item['postfix']).all()
 	if have:
+		have = have.pop(0)
+		# print("have?", series.title, have.volume, have.chapter, have.postfix)
 		return
-	print("Adding new release at date:", datetime.datetime.fromtimestamp(item['published']))
+	print("Adding new release for series: ", series.title, " at date:", datetime.datetime.fromtimestamp(item['published']))
 	release = Releases(
 			series     = series.id,
 			published  = datetime.datetime.fromtimestamp(item['published']),
@@ -250,7 +252,6 @@ def insert_parsed_release(item):
 	group = get_create_group(item['srcname'])
 	series = get_create_series(item['series'], item["tl_type"])
 
-	# print(series)
 	check_insert_release(item, group, series)
 
 def update_series_info(item):
@@ -319,10 +320,13 @@ def dispatchItem(item):
 
 	try:
 		if item['type'] == 'raw-feed':
+			# print("Dispatching item of type: ", item['type'])
 			insert_raw_item(item['data'])
 		elif item['type'] == 'parsed-release':
+			# print("Dispatching item of type: ", item['type'])
 			insert_parsed_release(item['data'])
 		elif item['type'] == 'series-metadata':
+			# print("Dispatching item of type: ", item['type'])
 			update_series_info(item['data'])
 		else:
 			print(item)
