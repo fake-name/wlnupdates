@@ -4,6 +4,8 @@ try:
 	logSetup.initLogging()
 except:
 	print("No logging!")
+	import traceback
+	traceback.print_exc()
 	pass
 
 from app import app
