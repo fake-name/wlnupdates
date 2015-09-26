@@ -204,7 +204,14 @@ def addNewItem(add_type, sid=None):
 	have_auth = g.user.is_authenticated()
 
 	if add_type == 'release':
-		series = Series.query.filter(Series.id==sid).one()
+		series = Series.query.filter(Series.id==sid).scalar()
+
+		if not series:
+			return render_template(
+					'not-implemented-yet.html',
+					message = "Trying to add a release for series sid: '%s' that doesn't exist? Wat? This shouldn't happen. Are you abusing something?" % sid
+					)
+
 
 		form = form_class(
 				series_id = series.id,
