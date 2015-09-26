@@ -467,8 +467,10 @@
 				root.removeClass("reading-current").removeClass("reading-behind").addClass("reading-ahead");
 			else if (agg_a = agg_c)  // Up to date
 				root.removeClass("reading-ahead").removeClass("reading-behind").addClass("reading-current");
-			else
-				alert("Wat? How did this even happen?");
+			else  // Vals are NaN, item isn't watched. Remove all classes
+			{
+				root.removeClass("reading-ahead").removeClass("reading-behind").removeClass("reading-current");
+			}
 
 		}
 		$('#vol' ).change(update_read_div_color);

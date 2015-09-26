@@ -33,9 +33,10 @@ def build_progress(watch):
 	progress['vol'] = 0
 	progress['chp'] = 0
 	progress['frg'] = 0
-	raw_vol = watch.volume  if watch.volume  != None else 0
-	raw_chp = watch.chapter if watch.chapter != None else 0
+
 	if watch:
+		raw_vol = watch.volume  if watch.volume  != None else 0
+		raw_chp = watch.chapter if watch.chapter != None else 0
 		progress['vol'] = raw_vol
 		progress['chp'] = int(raw_chp)
 		progress['frg'] = int(raw_chp * 100) % 100
@@ -148,12 +149,15 @@ def renderSeriesId(sid):
 	releases.sort(reverse=True, key=getSort)
 
 
-	progress    = build_progress(watch)
 	latest      = get_latest_release(releases)
 	latest_dict = build_progress(latest)
 	most_recent = get_most_recent_release(releases)
 	latest_str  = format_latest_release(latest)
 
+	if watch:
+		progress    = build_progress(watch)
+	else:
+		progress    = latest_dict
 
 	series.covers.sort(key=get_cover_sorter())
 
