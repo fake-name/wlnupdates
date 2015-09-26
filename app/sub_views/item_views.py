@@ -33,10 +33,12 @@ def build_progress(watch):
 	progress['vol'] = 0
 	progress['chp'] = 0
 	progress['frg'] = 0
+	raw_vol = watch.volume  if watch.volume  != None else 0
+	raw_chp = watch.chapter if watch.chapter != None else 0
 	if watch:
-		progress['vol'] = watch.volume
-		progress['chp'] = int(watch.chapter)
-		progress['frg'] = int(watch.chapter * 100) % 100
+		progress['vol'] = raw_vol
+		progress['chp'] = int(raw_chp)
+		progress['frg'] = int(raw_chp * 100) % 100
 
 
 	progress['vol'] = max(progress['vol'], 0)
@@ -148,6 +150,7 @@ def renderSeriesId(sid):
 
 	progress    = build_progress(watch)
 	latest      = get_latest_release(releases)
+	latest_dict = build_progress(latest)
 	most_recent = get_most_recent_release(releases)
 	latest_str  = format_latest_release(latest)
 
@@ -166,6 +169,7 @@ def renderSeriesId(sid):
 						watchlists   = watchlists,
 						progress     = progress,
 						latest       = latest,
+						latest_dict  = latest_dict,
 						most_recent  = most_recent,
 						latest_str   = latest_str
 						)

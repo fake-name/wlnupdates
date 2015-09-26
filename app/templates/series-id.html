@@ -247,8 +247,10 @@
 {%- endmacro %}
 
 
-{% macro watchBlock(watches, watchlists, progress) -%}
-	<div class="well well-tny info-item">
+{% macro watchBlock(watches, watchlists, progress, latest_dict) -%}
+
+
+	<div class="well well-tny info-item" id="watch-root" data-vol="{{latest_dict['vol']}}" data-chp="{{latest_dict['chp']}}" data-frg="{{latest_dict['frg']}}">
 		<div class="row singleitem" id="watch-container">
 			<div style="display: inline-block; padding-left: 20px;">
 				<div class="rowTitle" style='display: inline-block; min-width: 130px; vertical-align: top;'>
@@ -440,6 +442,41 @@
 		{
 			// No images?
 		}
+
+
+		function update_read_div_color()
+		{
+			// console.log("Wat?");
+			var root = $("#watch-root");
+			// console.log(root);
+
+			var a_vol = root.data('vol')
+			var a_chp = root.data('chp');
+			var a_frg = root.data('frg');
+
+			var c_vol  = $("#vol").val();
+			var c_chp  = $("#chap").val();
+			var c_frg = $("#frag").val();
+
+			agg_a = Number(a_vol) * 1e3 + Number(a_chp) + Number(a_frg) / 100.0;
+			agg_c = Number(c_vol) * 1e3 + Number(c_chp) + Number(c_frg) / 100.0;
+
+			if (agg_a > agg_c)       // More available then read
+				root.removeClass("reading-ahead").removeClass("reading-current").addClass("reading-behind");
+			else if (agg_a < agg_c)  // Reading ahead of what's available.
+				root.removeClass("reading-current").removeClass("reading-behind").addClass("reading-ahead");
+			else if (agg_a = agg_c)  // Up to date
+				root.removeClass("reading-ahead").removeClass("reading-behind").addClass("reading-current");
+			else
+				alert("Wat? How did this even happen?");
+
+		}
+		$('#vol' ).change(update_read_div_color);
+		$('#chap').change(update_read_div_color);
+		$('#frag').change(update_read_div_color);
+
+		update_read_div_color();
+
 	</script>
 
 {% endblock %}
@@ -451,7 +488,7 @@
 
 	<div>
 		<h2>{{ series.title }}</h2>
-			{{watchBlock(watch, watchlists, progress)}}
+			{{watchBlock(watch, watchlists, progress, latest_dict)}}
 			{{coversBlock(series, series.covers)}}
 
 			{{singleItemBlock("Description",

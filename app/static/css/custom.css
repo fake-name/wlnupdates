@@ -232,6 +232,20 @@ tr.green-highlight:nth-of-type(even) {
 	background-color: #FFFF99;
 }
 
+
+.reading-behind
+{
+	background-color: #FFCCCC;
+}
+.reading-ahead
+{
+	background-color: #FFFF99;
+}
+.reading-current
+{
+	background-color: #CCFFCC;
+}
+
 div.imgDiv {
 	position:relative;
 }
