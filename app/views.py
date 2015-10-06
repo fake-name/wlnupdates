@@ -7,7 +7,7 @@ from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, lm, babel
 from .forms import  LoginForm, SearchForm, SignupForm
-from .models import Users, Posts, Series, Tags, Genres, Author
+from .models import Users, News_Posts, Series, Tags, Genres, Author
 from .models import Illustrators, Translators, Releases, Covers, Watches, AlternateNames
 from .models import Feeds, Releases, HttpRequestLog
 
@@ -105,7 +105,7 @@ def get_random_books():
 def get_news():
 	# User ID 2 is the admin acct, as created by the db migrator script
 	# Probably shouldn't be hardcoded, works for the moment.
-	newsPost = Posts.query.filter(Posts.user_id == 2).order_by(desc(Posts.timestamp)).limit(1).one()
+	newsPost = News_Posts.query.filter(News_Posts.user_id == 2).order_by(desc(News_Posts.timestamp)).limit(1).one()
 	return newsPost
 
 def get_raw_feeds():
@@ -150,7 +150,7 @@ def user(nickname, page=1):
 	if user is None:
 		flash(gettext('User %(nickname)s not found.', nickname=nickname))
 		return redirect(url_for('index'))
-	posts = user.posts.paginate(page, app.config['POSTS_PER_PAGE'], False)
+	posts = user.news_posts.paginate(page, app.config['POSTS_PER_PAGE'], False)
 	return render_template('user.html',
 						   user=user,
 						   posts=posts)

@@ -16,7 +16,7 @@ from app.models import Translators
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
 from app.models import Releases
-from app.models import Posts
+from app.models import News_Posts
 import app.nameTools as nt
 from app.forms import NewGroupForm
 from app.forms import NewSeriesForm
@@ -166,7 +166,7 @@ def add_release(form):
 def add_post(form):
 	title   = bleach.clean(form.data['title'], tags=[], strip=True)
 	content = markdown.markdown(bleach.clean(form.data['content'], strip=True))
-	new = Posts(
+	new = News_Posts(
 			title     = title,
 			body      = content,
 			timestamp = datetime.datetime.now(),

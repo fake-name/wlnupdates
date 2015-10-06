@@ -1,0 +1,13 @@
+{# Breadcrumb navigation #}
+{% macro breadcrumbs(board=none, thread=none) %}
+<div class="breadcrumbs">
+    <a href="{{ url_for('index') }}">Index</a>
+    &raquo; <a href="{{ url_for('forum.index') }}">Forum</a>
+    {% if board %}
+    &raquo; <a href="{{ url_for('forum.board', slug=board.slug) }}">{{ board.name }}</a>
+        {% if thread %}
+        &raquo; <a href="{{ url_for('forum.thread', slug=board.slug, id=thread.id) }}">{{ thread.name }}</a>
+        {% endif %}
+    {% endif %}
+</div>
+{% endmacro %}

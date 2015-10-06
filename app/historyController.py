@@ -6,7 +6,7 @@ from flask.ext.babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, babel
-from .models import Users, Posts, SeriesChanges, TagsChanges, GenresChanges, AuthorChanges, IllustratorsChanges, TranslatorsChanges, ReleasesChanges, Covers, AlternateNamesChanges
+from .models import Users, News_Posts, SeriesChanges, TagsChanges, GenresChanges, AuthorChanges, IllustratorsChanges, TranslatorsChanges, ReleasesChanges, Covers, AlternateNamesChanges
 
 from .confirm import send_email
 

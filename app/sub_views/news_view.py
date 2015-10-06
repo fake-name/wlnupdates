@@ -7,7 +7,7 @@ import app.nameTools as nt
 from sqlalchemy.sql.functions import Function
 from sqlalchemy.sql.expression import select, desc
 from app import app
-from app.models import Posts
+from app.models import News_Posts
 
 from app import db
 
@@ -15,10 +15,10 @@ from app import db
 @app.route('/news/')
 def renderNews(page=1):
 
-	posts = Posts                            \
+	posts = News_Posts                            \
 			.query                           \
-			.filter(Posts.user_id == 2)      \
-			.order_by(desc(Posts.timestamp)) \
+			.filter(News_Posts.user_id == 2)      \
+			.order_by(desc(News_Posts.timestamp)) \
 			.paginate(page, 5, False)
 
 	add_new = None

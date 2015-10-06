@@ -10,3 +10,5 @@ __pycache__
 /covers
 /FeedFeeder/cert
 /logs
+/app/static/.webassets-cache
+/application/static/.webassets-cache

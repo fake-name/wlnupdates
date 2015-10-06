@@ -499,7 +499,7 @@ class FeedTags(db.Model):
 		)
 
 
-class Posts(db.Model):
+class News_Posts(db.Model):
 	__searchable__ = ['body']
 
 	id          = db.Column(db.Integer, primary_key=True)
@@ -532,18 +532,18 @@ class Watches(db.Model):
 
 
 class Users(db.Model):
-	id        = db.Column(db.Integer, primary_key=True)
-	nickname  = db.Column(CIText(),  index=True, unique=True)
-	password  = db.Column(db.String,  index=True, unique=True)
-	email     = db.Column(db.String,  index=True, unique=True)
-	verified  = db.Column(db.Integer, nullable=False)
+	id         = db.Column(db.Integer, primary_key=True)
+	nickname   = db.Column(CIText(),  index=True, unique=True)
+	password   = db.Column(db.String,  index=True, unique=True)
+	email      = db.Column(db.String,  index=True, unique=True)
+	verified   = db.Column(db.Integer, nullable=False)
 
-	last_seen = db.Column(db.DateTime)
+	last_seen  = db.Column(db.DateTime)
 
-	has_admin = db.Column(db.Boolean, default=False)
-	has_mod   = db.Column(db.Boolean, default=False)
+	has_admin  = db.Column(db.Boolean, default=False)
+	has_mod    = db.Column(db.Boolean, default=False)
 
-	posts     = db.relationship('Posts')
+	news_posts = db.relationship('News_Posts')
 	# posts     = db.relationship('Post', backref='author', lazy='dynamic')
 
 

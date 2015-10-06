@@ -15,7 +15,7 @@ from app import db
 from app import babel
 
 from app.models import Users
-from app.models import Posts
+from app.models import News_Posts
 from app.models import Series
 from app.models import Tags
 from app.models import Genres
