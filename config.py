@@ -72,4 +72,4 @@ class BaseConfig(object):
 
 	# flask-assets
 	# ------------
-	ASSETS_DEST = 'application/static'
+	ASSETS_DEST = 'app/static'

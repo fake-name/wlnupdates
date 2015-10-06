@@ -79,6 +79,12 @@ assets.register('all-css', less)
 import forum.forum.views as forum
 app.register_blueprint(forum.bp, url_prefix='/forum')
 
+# Admin
+from forum import admin
+
+from flask.ext.markdown import Markdown
+Markdown(app, safe_mode='escape')
+
 # ========================================================
 
 

@@ -20,8 +20,8 @@
 	<hr>
 	<h4>Forum</h4>
 	<div class='nav-item'><a href='/forum/'>Forum</a></div>
-	{% if current_user.is_authenticated() %}
-
+	{% if current_user.is_admin() %}
+		<div class='nav-item'><a href='/admin/'>Forum Admin</a></div>
 	{% endif %}
 	<hr>
 	{% if current_user.is_authenticated() %}

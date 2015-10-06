@@ -5,7 +5,9 @@ from flask.ext.admin import (Admin, BaseView as _BaseView,
 from flask.ext.admin.contrib.sqlamodel import ModelView as _ModelView
 from flask.ext.security import current_user
 
-from application import app, db, models
+from app import app, db
+from forum import models as forum_models
+from app import models as app_models
 
 
 # Base classes
@@ -16,14 +18,14 @@ class AuthMixin(object):
         This method checks whether `current_user` has the ``'admin'``
         role.
         """
-        return current_user.has_role('admin')
+        return current_user.is_admin()
 
 
 class AdminIndexView(_AdminIndexView):
     """An `:class:`~flask.ext.admin.AdminIndexView` with authentication"""
     @expose('/')
     def index(self):
-        if current_user.has_role('admin'):
+        if current_user.is_admin():
             return self.render(self._template)
         else:
             abort(404)
@@ -51,19 +53,19 @@ class UserView(ModelView):
 # -----------
 admin = Admin(name='Index', index_view=AdminIndexView())
 
-admin.add_view(ModelView(models.Board, db.session,
+admin.add_view(ModelView(forum_models.Board, db.session,
                          category='Forum',
                          name='Boards'))
-admin.add_view(ModelView(models.Thread, db.session,
+admin.add_view(ModelView(forum_models.Thread, db.session,
                          category='Forum',
                          name='Threads'))
-admin.add_view(ModelView(models.Post, db.session,
+admin.add_view(ModelView(forum_models.Post, db.session,
                          category='Forum',
                          name='Posts'))
-admin.add_view(UserView(models.User, db.session,
+admin.add_view(UserView(app_models.Users, db.session,
                         category='Auth',
                         name='Users'))
-admin.add_view(ModelView(models.Role, db.session,
+admin.add_view(ModelView(forum_models.Role, db.session,
                          category='Auth',
                          name='Roles'))
 
