@@ -1,28 +1,43 @@
 {% extends 'forum/layout.html' %}
 {% import 'forum/macros.html' as m %}
 
-{# #}
 {% macro thread_row(t) %}
-    <tr>
-        <td><a href="{{ url_for('.thread', slug=board.slug, id=t.id) }}">{{ t.name }}</a></td>
-        <td>{{ t.length }}</td>
-        <td>{{ t.readable_date(t.updated) }}</td>
-    </tr>
+	<tr>
+		<td><a href="{{ url_for('.thread', slug=board.slug, id=t.id) }}">{{ t.name }}</a></td>
+		<td>{{ t.length }}</td>
+		<td>{{ t.readable_date(t.updated) }}</td>
+	</tr>
 {% endmacro %}
 
 {% block title %}{{ board.name }}{% endblock %}
 
 {% block body %}
-{{ m.breadcrumbs(board) }}
-<h1>{{ board.name }}</h1>
+	<h1>{{ board.name }}</h1>
+	{{ m.breadcrumbs(board) }}
 
-<a href="{{ url_for('.create_thread', slug=board.slug) }}">New thread</a>
-<table id="threads">
-    <tr>
-        <th>Subject</th>
-        <th>Posts</th>
-        <th>Last updated</th>
-    </tr>
-    {% for t in threads %}{{ thread_row(t) }}{% endfor %}
-</table>
+	<a href="{{ url_for('.create_thread', slug=board.slug) }}" class="btn btn-info" role="button" style='margin-bottom: 5px;'>New thread</a>
+
+	<table id="threads" class="table-striped table table-bordered table-condensed fullwidth">
+		<colgroup>
+			<col style='width:50%'>
+			<col>
+			<col style='width:20%'>
+		</colgroup>
+		<tr>
+			<th>Subject</th>
+			<th>Posts</th>
+			<th>Last updated</th>
+		</tr>
+		{% if threads: %}
+			{% for t in threads %}
+				{{ thread_row(t) }}
+			{% endfor %}
+		{% endif %}
+	</table>
+	{% if not threads: %}
+		<div>
+			<center>No threads....</center>
+		</div><br>
+	{% endif %}
+	<a href="{{ url_for('.create_thread', slug=board.slug) }}" class="btn btn-info" role="button" style='margin-bottom: 5px;'>New thread</a>
 {% endblock %}

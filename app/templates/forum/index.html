@@ -4,11 +4,17 @@
 {% block title %}Forum{% endblock %}
 
 {% block body %}
-{{ m.breadcrumbs(board) }}
-<h1>Forum</h1>
+	<h1>WLN Updates Forums</h1>
+	{{ m.breadcrumbs(board) }}
 
-{% for b in boards %}
-    <h2><a href="{{ url_for('.board', slug=b.slug) }}">{{ b.name }}</a></h2>
-    <p>{{ b.description }}</p>
-{% endfor %}
+	<table class="table-striped table table-bordered table-condensed fullwidth">
+		{% for b in boards %}
+			<tr>
+				<td>
+					<h2><a href="{{ url_for('.board', slug=b.slug) }}">{{ b.name }}</a></h2>
+					<p>{{ b.description }}</p>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
 {% endblock %}

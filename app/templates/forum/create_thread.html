@@ -5,11 +5,20 @@
 
 {% block body %}
 <h1>{{ board.name }}</h1>
-
+{{ m.breadcrumbs(board) }}
 <form method="POST" action="">
-    {{ form.csrf_token }}
-    {{ form.name }}
-    {{ form.content }}
-    {{ form.submit }}
+		{{ form.csrf_token }}
+	<div class="form-group">
+		<label>Thread title:</label>
+		{{ form.name(class_="form-control") }}
+	</div>
+	<div class="form-group">
+		<label>Content:</label>
+		{{ form.content(class_="form-control", rows='12') }}
+		Posts will be formatted with <a href="https://help.github.com/articles/markdown-basics/">markdown</a>.
+	</div>
+	<div class="form-group">
+		{{ form.submit(class_="btn btn-success") }}
+	</div>
 </form>
 {% endblock %}
