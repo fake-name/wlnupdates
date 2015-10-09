@@ -71,6 +71,25 @@ function listEditable(spans, contentDiv, containerId)
 	]
 	contentDiv.html(contentArr.join("\n"))
 }
+function dateEditable(spans, contentDiv, containerId)
+{
+	var content = ""
+	spans.each(function(){
+		content += $(this).text() + "\n"
+	})
+	// console.log(content)
+	if (content == 'N/A') content = ""
+	var contentArr = [
+			'<div class="input-group date">',
+			'  <input class="form-control" id="datetimepicker" name="releasetime" type="text" value="">',
+			'  <span class="input-group-addon">',
+			'    <span class="glyphicon glyphicon-calendar"></span>',
+			'  </span>',
+			'</div>',
+			"<script>$('#datetimepicker').datetimepicker({value:'{{date_now()}}',step:10});</script>",
+	]
+	contentDiv.html(contentArr.join("\n"))
+}
 
 
 
@@ -101,6 +120,10 @@ function edit(containerId){
 	else if (spantype.indexOf("multilist") >= 0)
 	{
 		listEditable(spans, contentDiv, containerId);
+	}
+	else if (spantype.indexOf("dateitem") >= 0)
+	{
+		dateEditable(spans, contentDiv, containerId);
 	}
 	else
 	{

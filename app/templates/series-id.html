@@ -146,6 +146,23 @@
 	</div>
 {%- endmacro %}
 
+{% macro dateBlock(name, value, valId, width=3, extra_cls='') -%}
+	<div class="well well-tny info-item">
+		<div class="row dateitem"  id="{{valId}}-container">
+			<div class="col-md-{{width}} rowTitle">
+				{{ name }}:
+				<span class='text-nowrap'>
+					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				</span>
+			</div>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
+				<span class='singleitem {{extra_cls}}'>{{ ( value if value else "N/A" ) | safe }}</span>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
 
 {% macro mergeInto() -%}
 
@@ -338,6 +355,9 @@
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
 	<script src="/static/js/bootstrap-number-input.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/static/css/jquery.datetimepicker.css"/>
+	<script src="/static/js/jquery.datetimepicker.js"></script>
 
 	{% if g.user.is_mod() %}
 		{% include '_block_admin_scripts.html' %}
@@ -612,6 +632,24 @@
 								)
 				}}
 			{% endif %}
+
+			{{multiItemBlock("Publisher(s)",
+							series.publishers,
+								'name',
+								'publisher',
+								'publisher-id',
+								width=5
+							)
+			}}
+
+
+			{{dateBlock("Initial publish date",
+								series.pub_date,
+								'pub_date',
+								width=5
+							)
+			}}
+
 			{{multiItemBlock("Tags",
 								series.tags,
 								'tag',

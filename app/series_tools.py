@@ -9,6 +9,7 @@ from app.models import Author
 from app.models import Illustrators
 from app.models import Translators
 from app.models import Watches
+from app.models import Publishers
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
 import markdown
@@ -38,6 +39,7 @@ def updateTags(series, tags, deleteother=True):
 	havetags = {item.tag.lower() : item for item in havetags}
 
 	tags = [tag.lower().strip().replace(" ", "-") for tag in tags]
+	tags = [bleach.clean(item, strip=True) for item in tags]
 	tags = [tag for tag in tags if tag.strip()]
 	for tag in tags:
 		if tag in havetags:
@@ -55,6 +57,7 @@ def updateGenres(series, genres, deleteother=True):
 	havegenres = {item.genre.lower() : item for item in havegenres}
 
 	genres = [genre.lower().strip().replace(" ", "-") for genre in genres]
+	genres = [bleach.clean(item, strip=True) for item in genres]
 	genres = [genre for genre in genres if genre.strip()]
 	for genre in genres:
 		if genre in havegenres:
@@ -64,6 +67,24 @@ def updateGenres(series, genres, deleteother=True):
 			db.session.add(newgenre)
 	if deleteother:
 		for key, value in havegenres.items():
+			db.session.delete(value)
+	db.session.commit()
+
+def updatePublishers(series, publishers, deleteother=True):
+	havePublishers = Publishers.query.filter((Publishers.series==series.id)).all()
+	havePublishers = {item.name.lower() : item for item in havePublishers}
+
+	publishers = [publisher.strip() for publisher in publishers]
+	publishers = [bleach.clean(item, strip=True) for item in publishers]
+	publishers = [publisher for publisher in publishers if publisher.strip()]
+	for publisher in publishers:
+		if publisher.lower() in havePublishers:
+			havePublishers.pop(publisher.lower())
+		else:
+			newgenre = Publishers(series=series.id, name=publisher, changetime=datetime.datetime.now(), changeuser=getCurrentUserId())
+			db.session.add(newgenre)
+	if deleteother:
+		for dummy_key, value in havePublishers.items():
 			db.session.delete(value)
 	db.session.commit()
 
@@ -77,7 +98,7 @@ def updateAltNames(series, altnames, deleteother=True):
 			cleaned[name.lower().strip()] = name
 
 	havenames = AlternateNames.query.filter(AlternateNames.series==series.id).order_by(AlternateNames.name).all()
-	havenames = {name.name.lower().strip() : name for name in havenames}
+	havenames = {bleach.clean(name.name.lower().strip(), strip=True) : name for name in havenames}
 
 	for name in cleaned.keys():
 		if name in havenames:
@@ -124,7 +145,7 @@ def setAuthorIllust(series, author=None, illust=None, deleteother=True):
 		else:
 			newentry = table(
 					series     = series.id,
-					name       = initems[name],
+					name       = bleach.clean(initems[name], strip=True),
 					changetime = datetime.datetime.now(),
 					changeuser = getCurrentUserId()
 				)
@@ -154,7 +175,7 @@ def updateGroupAltNames(group, altnames, deleteother=True):
 			havenames.pop(name)
 		else:
 			newname = AlternateTranslatorNames(
-					name       = cleaned[name],
+					name       = bleach.clean(cleaned[name], strip=True),
 					cleanname  = nt.prepFilenameForMatching(cleaned[name]),
 					group     = group.id,
 					changetime = datetime.datetime.now(),

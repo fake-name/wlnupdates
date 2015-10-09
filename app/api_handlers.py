@@ -40,9 +40,30 @@ VALID_KEYS = {
 	'orig_status-container'  : 'orig_status',
 	'tl_type-container'      : 'tl_type',
 	'website-container'      : 'website',
+	'publisher-container'    : 'publisher',
 	'watch-container'        : None,
 
 	}
+
+# {
+# 	'mode': 'manga-update',
+# 	'item-id': '532',
+# 	'entries':
+# 		[
+# 			{
+# 				'type': 'combobox',
+# 				'key': 'watch-container',
+# 				'value': 'no-list'
+# 			},
+# 			{
+# 				'type': 'multiitem',
+# 				'key': 'publisher-container',
+# 				'value': 'Test'
+# 			}
+# 		]
+# }
+
+
 
 VALID_LICENSE_STATES = {
 	"unknown" : None,
@@ -231,12 +252,18 @@ def processMangaUpdateJson(data):
 				series.changetime = datetime.datetime.now()
 
 		elif entry['type'] == 'author':
+
 			ret = app.series_tools.setAuthorIllust(series, author=entry['data'])
 			if ret:
 				return ret
 
 		elif entry['type'] == 'illustrators':
 			ret = app.series_tools.setAuthorIllust(series, illust=entry['data'])
+			if ret:
+				return ret
+
+		elif entry['type'] == 'publisher':
+			ret = app.series_tools.updatePublishers(series, publishers=entry['data'])
 			if ret:
 				return ret
 

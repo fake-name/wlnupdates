@@ -92,6 +92,7 @@
 
 		{{ createRow(row.changetime.strftime('%Y-%m-%d %H:%M'), op, row[accesskey], getUserId(idNo=row.changeuser)) }}
 	{% endfor %}
+
 {%- endmacro %}
 
 
@@ -145,8 +146,10 @@
 				{{ multiItemHistory("", tagHist,   'tag') }}
 			{% elif genreHist  %}
 				{{ multiItemHistory("", genreHist, 'genre') }}
+			{% elif pubHist  %}
+				{{ multiItemHistory("", pubHist,   'name') }}
 			{% elif nameHist  %}
-				{{ multiItemHistory("", nameHist, 'name') }}
+				{{ multiItemHistory("", nameHist,  'name') }}
 			{% else %}
 				<div>No history log for item!</div>
 			{% endif %}

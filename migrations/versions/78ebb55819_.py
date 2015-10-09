@@ -27,7 +27,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['changeuser'], ['users.id'], ),
     sa.ForeignKeyConstraint(['series'], ['series.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name'),
     sa.UniqueConstraint('series', 'name')
     )
     op.create_index(op.f('ix_publishers_changetime'), 'publishers', ['changetime'], unique=False)
@@ -45,7 +44,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['series'], ['series.id'], ),
     sa.ForeignKeyConstraint(['srccol'], ['publishers.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name')
     )
     op.create_index(op.f('ix_publisherschanges_changetime'), 'publisherschanges', ['changetime'], unique=False)
     op.create_index(op.f('ix_publisherschanges_changeuser'), 'publisherschanges', ['changeuser'], unique=False)

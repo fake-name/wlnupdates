@@ -110,7 +110,7 @@ class PublishersBase(object):
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
 
-	name  = db.Column(CIText(), nullable=False, unique=True)
+	name  = db.Column(CIText(), nullable=False)
 	site  = db.Column(db.Text())
 
 class ReleasesBase(object):
@@ -199,6 +199,8 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	alternatenames = relationship("AlternateNames", backref='Series')
 	covers         = relationship("Covers",         backref='Series')
 	releases       = relationship("Releases",       backref='Series')
+	publishers     = relationship("Publishers",     backref='Series')
+
 
 
 

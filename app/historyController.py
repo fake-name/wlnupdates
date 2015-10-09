@@ -6,7 +6,18 @@ from flask.ext.babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
 from app import app, db, babel
-from .models import Users, News_Posts, SeriesChanges, TagsChanges, GenresChanges, AuthorChanges, IllustratorsChanges, TranslatorsChanges, ReleasesChanges, Covers, AlternateNamesChanges
+from .models import Users
+from .models import News_Posts
+from .models import SeriesChanges
+from .models import TagsChanges
+from .models import GenresChanges
+from .models import AuthorChanges
+from .models import IllustratorsChanges
+from .models import TranslatorsChanges
+from .models import ReleasesChanges
+from .models import Covers
+from .models import AlternateNamesChanges
+from .models import PublishersChanges
 
 from .confirm import send_email
 
@@ -33,6 +44,7 @@ dispatch_table = {
 	'tag'          : TagsChanges,
 	'genre'        : GenresChanges,
 	'altnames'     : AlternateNamesChanges,
+	'publisher'    : PublishersChanges,
 }
 
 def rowToDict(row):
@@ -112,6 +124,7 @@ def renderHistory(histType, contentId):
 			.filter(conditional)                   \
 			.order_by(table.changetime).all()
 
+	print("History data:", data)
 
 	seriesHist = None
 	authorHist = None
@@ -119,6 +132,7 @@ def renderHistory(histType, contentId):
 	tagHist    = None
 	genreHist  = None
 	nameHist   = None
+	pubHist    = None
 
 	if table == SeriesChanges:
 		seriesHist = generateSeriesHistArray(data)
@@ -132,6 +146,8 @@ def renderHistory(histType, contentId):
 		genreHist = data
 	if table == AlternateNamesChanges:
 		nameHist = data
+	if table == PublishersChanges:
+		pubHist = data
 
 	return render_template('history.html',
 			seriesHist = seriesHist,
@@ -139,4 +155,6 @@ def renderHistory(histType, contentId):
 			illustHist = illustHist,
 			tagHist    = tagHist,
 			genreHist  = genreHist,
-			nameHist   = nameHist)
+			nameHist   = nameHist,
+			pubHist    = pubHist,
+			)
