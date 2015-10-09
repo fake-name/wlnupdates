@@ -48,6 +48,8 @@ class SeriesBase(object):
 	tl_type     = db.Column(tl_type_enum, nullable=False, index=True)
 	license_en  = db.Column(db.Boolean)
 
+	pub_date    = db.Column(db.DateTime)
+
 class TagsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
 	@declared_attr
@@ -99,6 +101,16 @@ class AlternateTranslatorNamesBase(object):
 class TranslatorsBase(object):
 	id    = db.Column(db.Integer, primary_key=True)
 	name  = db.Column(CIText(), nullable=False)
+	site  = db.Column(db.Text())
+
+class PublishersBase(object):
+	id    = db.Column(db.Integer, primary_key=True)
+
+	@declared_attr
+	def series(cls):
+		return db.Column(db.Integer, db.ForeignKey('series.id'))
+
+	name  = db.Column(CIText(), nullable=False, unique=True)
 	site  = db.Column(db.Text())
 
 class ReleasesBase(object):
@@ -259,6 +271,17 @@ class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
 	releases        = relationship("Releases",                 backref='Translators')
 	alt_names       = relationship("AlternateTranslatorNames", backref='Translators')
 
+
+class Publishers(db.Model, PublishersBase, ModificationInfoMixin):
+	__tablename__ = 'publishers'
+	__searchable__ = ['name']
+
+	__table_args__ = (
+		db.UniqueConstraint('series', 'name'),
+		)
+
+	series_row     = relationship("Series",         backref='Publisher')
+
 class Releases(db.Model, ReleasesBase, ModificationInfoMixin):
 	__tablename__ = 'releases'
 	translators      = relationship("Translators",         backref='Releases')
@@ -313,6 +336,10 @@ class CoversChanges(db.Model, CoversBase, ModificationInfoMixin, ChangeLogMixin)
 class AlternateNamesChanges(db.Model, AlternateNamesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "alternatenameschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('alternatenames.id', ondelete="SET NULL"), index=True)
+
+class PublishersChanges(db.Model, PublishersBase, ModificationInfoMixin, ChangeLogMixin):
+	__tablename__ = "publisherschanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('publishers.id', ondelete="SET NULL"), index=True)
 
 
 class AlternateTranslatorNamesChanges(db.Model, AlternateTranslatorNamesBase, ModificationInfoMixin, ChangeLogMixin):
@@ -405,6 +432,7 @@ trigger_on = [
 	Language,
 	Covers,
 	AlternateTranslatorNames,
+	Publishers,
 ]
 
 def install_trigram_indice_on_column(table, column):
