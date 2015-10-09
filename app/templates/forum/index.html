@@ -8,11 +8,25 @@
 	{{ m.breadcrumbs(board) }}
 
 	<table class="table-striped table table-bordered table-condensed fullwidth">
+		<colgroup>
+			<col>
+			<col style='width:30%'>
+		</colgroup>
 		{% for b in boards %}
 			<tr>
 				<td>
 					<h2><a href="{{ url_for('.board', slug=b.slug) }}">{{ b.name }}</a></h2>
 					<p>{{ b.description }}</p>
+				</td>
+				<td>
+					{% set latest_thread = b.threads[0]%}
+					{% if latest_thread: %}
+						Last active thread:<br>
+							<a href="{{ url_for('forum.thread', slug=b.slug, id=latest_thread.id) }}">{{ latest_thread.name }}</a><br>
+						At {{latest_thread.readable_date(latest_thread.updated)}}
+					{% else %}
+						No Threads
+					{% endif %}
 				</td>
 			</tr>
 		{% endfor %}

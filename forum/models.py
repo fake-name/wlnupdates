@@ -43,50 +43,6 @@ class UserRoleAssoc(db.Model):
     role_id = db.Column(db.ForeignKey('forum_roles.id'), primary_key=True)
 
 
-# class User(Base, UserMixin):
-
-#     """
-#     A forum user. `UserMixin` provides the following methods:
-
-#         `is_active(self)`
-#             Returns ``True`` if the user is active.
-
-#         `is_authenticated(self)`
-#             Always returns ``True``.
-
-#         `is_anonymous(self)`
-#             Always returns ``False``.
-
-#         `get_auth_token(self)`
-#             Returns the user's authentication token.
-
-#         `has_role(self, role)`
-#             Returns ``True`` if the user identifies with the specified role.
-
-#         `get_id(self)`
-#             Returns ``self.id``.
-
-#         `__eq__(self, other)`
-#             Returns ``True`` if the two users have the same id.
-
-#         `__ne__(self, other)`
-#             Returns the opposite of `__eq__`.
-#     """
-
-#     email = db.Column(db.String, unique=True)
-#     password = db.Column(db.String(255))
-#     active = db.Column(db.Boolean)
-#     created = db.Column(db.DateTime, default=datetime.utcnow)
-
-#     roles = db.relationship('Role', secondary='user_role_assoc',
-#                             backref='users')
-
-#     def __repr__(self):
-#         return '<User(%s, %s)>' % (self.id, self.email)
-
-#     def __unicode__(self):
-#         return self.email
-
 
 class Role(Base, RoleMixin):
     __tablename__ = 'forum_roles'
@@ -121,7 +77,7 @@ class Board(Base):
     description = db.Column(db.Text)
 
     #: The threads associated with this board.
-    threads = db.relationship('Thread', cascade='all,delete', backref='board')
+    threads = db.relationship('Thread', cascade='all,delete', backref='board', order_by='desc(Thread.updated)', lazy='dynamic')
 
     def __unicode__(self):
         return self.name
