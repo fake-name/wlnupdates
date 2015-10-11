@@ -71,14 +71,29 @@ function listEditable(spans, contentDiv, containerId)
 	]
 	contentDiv.html(contentArr.join("\n"))
 }
+
+
 function dateEditable(spans, contentDiv, containerId)
 {
 	var content = ""
 	spans.each(function(){
 		content += $(this).text() + "\n"
 	})
+	content = content.trim();
+	var now = new Date();
 	// console.log(content)
-	if (content == 'N/A') content = ""
+	if (content == 'N/A')
+	{
+		// This is a HORRIBLE HACK because js has no way to get /JUST/ the current date.
+		content = now.toJSON().slice(0, 10);
+	}
+	content = content.trim();
+
+
+	console.log("Evaluated content value:", content);
+
+	// Building scripts using runtime concatenation.
+	// Because yes, I am that much of a hack.
 	var contentArr = [
 			'<div class="input-group date">',
 			'  <input class="form-control" id="datetimepicker" name="releasetime" type="text" value="">',
@@ -86,7 +101,9 @@ function dateEditable(spans, contentDiv, containerId)
 			'    <span class="glyphicon glyphicon-calendar"></span>',
 			'  </span>',
 			'</div>',
-			"<script>$('#datetimepicker').datetimepicker({value:'{{date_now()}}',step:10});</script>",
+			"<script>",
+			"	$('#datetimepicker').datetimepicker({value:\"" + content + "\", timepicker:false,format:'Y-m-d'});",
+			"</script>",
 	]
 	contentDiv.html(contentArr.join("\n"))
 }
@@ -317,9 +334,8 @@ function saveEdits(containerId)
 		var member = $(this);
 		var textarea = member.find("textarea").first();
 		var combobox = member.find("select").first();
+		var datepick = member.find("input#datetimepicker").first();
 
-		console.log('this', this);
-		console.log('textarea', textarea);
 
 		if (textarea.length > 0)
 		{
@@ -346,6 +362,24 @@ function saveEdits(containerId)
 			entry['key'] = entryKey;
 			entry['type'] = entryType;
 			entry['value'] = entryArea;
+
+			data.push(entry);
+		}
+		else if (datepick.length > 0 && datepick.is(":visible"))
+		{
+
+			var entryKey  = member.find(".row").first().attr('id');
+			var entryType = 'datebox';
+			var entryValue = datepick.val();
+
+			entryValue = new Date(entryValue);
+			entryValue = (entryValue.toISOString());
+
+			var entry = {};
+			entry['key'] = entryKey;
+			entry['type'] = entryType;
+			entry['value'] = entryValue;
+			console.log(entry);
 
 			data.push(entry);
 		}
@@ -721,7 +755,10 @@ $.ajaxSetup({
 		if (b.fn.modal === c) throw new Error("$.fn.modal is not defined; please double check you have included the Bootstrap JavaScript library. See http://getbootstrap.com/javascript/ for more details.");
 		if (g(j, function(a, b) {
 				k += "<button data-bb-handler='" + a + "' type='button' class='btn " + b.className + "'>" + b.label + "</button>", l[a] = b.callback
-			}), i.find(".bootbox-body").html(a.message), a.animate === !0 && d.addClass("fade"), a.className && d.addClass(a.className), "large" === a.size ? f.addClass("modal-lg") : "small" === a.size && f.addClass("modal-sm"), a.title && i.before(n.header), a.closeButton) {
+			}), i.find(".bootbox-body").html(a.message), a.animate === !0 &&
+
+					d.addClass("fade"), a.className && d.addClass(a.className), "large" === a.size ? f.addClass("modal-lg") : "small" === a.size
+					&& f.addClass("modal-sm"), a.title && i.before(n.header), a.closeButton) {
 			var m = b(n.closeButton);
 			a.title ? d.find(".modal-header").prepend(m) : m.css("margin-top", "-10px").prependTo(i)
 		}

@@ -211,17 +211,16 @@
 	{% else %}
 		<style>
 
+
 			#x{
 				position:relative;
 				border-radius:2px;
 			}
 			#x::after,#x::before{
 				position:absolute;
-				top:200px;
 				left:0px;
 				content:'';
 				display:block;
-				width:400px;
 				height:10px;
 				background-color:red;
 
@@ -241,7 +240,6 @@
 				transform: rotate(-45deg);
 			}
 			#x-content {
-				width: 400px;
 				text-align: center !important ;
 			}
 			#x-desc-div {
@@ -250,6 +248,42 @@
 				margin-right:auto;
 				margin-left:auto;
 			}
+
+			@media (min-width: 100px) {
+				#x::after,#x::before
+				{
+					top:50px;
+					width:100px;
+				}
+				#x-content
+				{
+					width: 100px;
+				}
+			}
+			@media (min-width: 275px) {
+				#x::after,#x::before
+				{
+					top:100px;
+					width:200px;
+				}
+				#x-content
+				{
+					width: 200px;
+				}
+			}
+
+			@media (min-width: 450px) {
+				#x::after,#x::before
+				{
+					top:200px;
+					width:400px;
+				}
+				#x-content
+				{
+					width: 400px;
+				}
+			}
+
 
 		</style>
 		<div class='imgDiv' id='x'>
@@ -644,7 +678,7 @@
 
 
 			{{dateBlock("Initial publish date",
-								series.pub_date,
+								series.pub_date.date(),
 								'pub_date',
 								width=5
 							)

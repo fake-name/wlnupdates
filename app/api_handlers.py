@@ -19,8 +19,9 @@ import hashlib
 from data_uri import DataURI
 from flask.ext.login import current_user
 import datetime
+import dateutil.parser
 import app.nameTools as nt
-
+import datetime
 from app.api_common import getResponse
 import app.series_tools
 
@@ -41,6 +42,7 @@ VALID_KEYS = {
 	'tl_type-container'      : 'tl_type',
 	'website-container'      : 'website',
 	'publisher-container'    : 'publisher',
+	'pub_date-container'     : 'first_publish_date',
 	'watch-container'        : None,
 
 	}
@@ -106,10 +108,15 @@ def validateMangaData(data):
 		assert 'key' in item
 
 		itemType = item['type']
-		assert itemType in ['singleitem', 'multiitem', 'combobox']
+		assert itemType in ['singleitem', 'multiitem', 'combobox', 'datebox']
 
 		if itemType == 'singleitem' or itemType == 'combobox':
 			val['data'] = item['value'].strip()
+		elif itemType == 'datebox':
+			try:
+				val['data'] = dateutil.parser.parse(item['value'])
+			except ValueError:
+				raise AssertionError("Date updates must be a ISO 8601 string!")
 		elif itemType == 'multiitem':
 			tmp         = [entry.strip() for entry in item['value'].strip().split("\n")]
 			val['data'] = [entry for entry in tmp if entry]
@@ -247,7 +254,18 @@ def processMangaUpdateJson(data):
 				# print("No change?")
 				pass
 			else:
-				series.website = processedData
+				series.website    = processedData
+				series.changeuser = getCurrentUserId()
+				series.changetime = datetime.datetime.now()
+
+		elif entry['type'] == 'first_publish_date':
+			pub_date = entry['data']
+			if series.pub_date == pub_date:
+				# print("No change?")
+				pass
+			else:
+				series.pub_date   = pub_date
+				print("Publish date: ", series.pub_date)
 				series.changeuser = getCurrentUserId()
 				series.changetime = datetime.datetime.now()
 
@@ -268,13 +286,19 @@ def processMangaUpdateJson(data):
 				return ret
 
 		elif entry['type'] == 'tag':
-			app.series_tools.updateTags(series, entry['data'])
+			ret = app.series_tools.updateTags(series, entry['data'])
+			if ret:
+				return ret
 
 		elif entry['type'] == 'genre':
-			app.series_tools.updateGenres(series, entry['data'])
+			ret = app.series_tools.updateGenres(series, entry['data'])
+			if ret:
+				return ret
 
 		elif entry['type'] == 'alternate-names':
-			app.series_tools.updateAltNames(series, entry['data'])
+			ret = app.series_tools.updateAltNames(series, entry['data'])
+			if ret:
+				return ret
 		else:
 			raise AssertionError("Unknown modifification type!")
 
