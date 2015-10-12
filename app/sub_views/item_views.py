@@ -14,6 +14,7 @@ from app.models import Author
 from app.models import Illustrators
 from app.models import Translators
 from app.models import Releases
+from app.models import Publishers
 from app.models import Watches
 
 from sqlalchemy import desc
@@ -267,6 +268,39 @@ def renderTagId(sid, page=1):
 						   page_url_prefix = 'series-id',
 						   searchTarget    = 'Tags',
 						   searchValue     = tag.tag
+						   )
+
+@app.route('/publisher-id/<sid>/<int:page>')
+@app.route('/publisher-id/<sid>/')
+def renderPublisherId(sid, page=1):
+
+	pub = Publishers.query.filter(Publishers.id==sid).first()
+
+	if pub is None:
+		flash(gettext('Tag not found? This is probably a error!'))
+		return redirect(url_for('renderTagTable'))
+
+	# Look up the ascii value of the tag, and then find
+	# all the links containing it.
+	# Table is CITEXT, so we don't care about case.
+
+	# this should REALLY have another indirection table.
+
+	items = Publishers.query.filter(Publishers.name==pub.name).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	return render_template('search_results.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   name_key        = "title",
+						   page_url_prefix = 'series-id',
+						   searchTarget    = 'Publishers',
+						   searchValue     = pub.name
 						   )
 
 

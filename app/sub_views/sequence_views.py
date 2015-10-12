@@ -27,6 +27,7 @@ from app.models import Covers
 from app.models import Watches
 from app.models import AlternateNames
 from app.models import Feeds
+from app.models import Publishers
 from app.models import Releases
 
 from app.confirm import send_email
@@ -130,6 +131,7 @@ def renderTagTable(letter=None, page=1):
 			.order_by(Tags.tag)\
 			.distinct(Tags.tag)
 
+
 	if series is None:
 		flash(gettext('No tag items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('renderTagTable'))
@@ -143,6 +145,36 @@ def renderTagTable(letter=None, page=1):
 						   name_key        = "tag",
 						   page_url_prefix = 'tag-id',
 						   title           = 'Tags')
+
+@app.route('/publishers/<letter>/<int:page>')
+@app.route('/publishers/<page>')
+@app.route('/publishers/<int:page>')
+@app.route('/publishers/')
+def renderPublisherTable(letter=None, page=1):
+
+	if letter:
+		series = Publishers.query                                 \
+			.filter(Publishers.name.like("{}%".format(letter))) \
+			.order_by(Publishers.name)                          \
+			.distinct(Publishers.name)
+	else:
+		series = Publishers.query       \
+			.order_by(Publishers.name)\
+			.distinct(Publishers.name)
+
+	if series is None:
+		flash(gettext('No tag items with a prefix of {prefix} found.'.format(prefix=letter)))
+		return redirect(url_for('renderTagTable'))
+	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+
+	return render_template('sequence.html',
+						   sequence_item   = series_entries,
+						   page            = page,
+						   letter          = letter,
+						   path_name       = 'publishers',
+						   name_key        = "name",
+						   page_url_prefix = 'publisher-id',
+						   title           = 'Publishers')
 
 
 @app.route('/genres/<letter>/<int:page>')

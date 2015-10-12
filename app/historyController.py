@@ -38,6 +38,7 @@ dispatch_table = {
 	'orig_status'  : SeriesChanges,
 	'region'       : SeriesChanges,
 	'license_en'   : SeriesChanges,
+	'pub_date'     : SeriesChanges,
 	'website'      : SeriesChanges,
 	'author'       : AuthorChanges,
 	'illustrators' : IllustratorsChanges,

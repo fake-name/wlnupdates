@@ -136,22 +136,24 @@
 	<div>
 		<h2>Edit History:</h2>
 
-			{% if seriesHist   %}
+			{% if seriesHist   != None %}
 				{{ mainHistory("Entry data history:",      seriesHist) }}
-			{% elif authorHist %}
+			{% elif authorHist != None %}
 				{{ creatorHistory("Author entries history:",      authorHist) }}
-			{% elif illustHist %}
+			{% elif illustHist != None %}
 				{{ creatorHistory("Illustrator entries history:", illustHist) }}
-			{% elif tagHist    %}
+			{% elif tagHist    != None    %}
 				{{ multiItemHistory("", tagHist,   'tag') }}
-			{% elif genreHist  %}
+			{% elif genreHist  != None  %}
 				{{ multiItemHistory("", genreHist, 'genre') }}
-			{% elif pubHist  %}
+			{% elif pubHist    != None  %}
 				{{ multiItemHistory("", pubHist,   'name') }}
-			{% elif nameHist  %}
+			{% elif nameHist   != None  %}
 				{{ multiItemHistory("", nameHist,  'name') }}
+			{% elif pubHist    != None  %}
+				{{ multiItemHistory("", pubHist,  'name') }}
 			{% else %}
-				<div>No history log for item!</div>
+				<div>No history log found! Is that a valid history target?</div>
 			{% endif %}
 
 			<div style="clear: both;"></div>

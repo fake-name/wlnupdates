@@ -157,7 +157,7 @@
 				</span>
 			</div>
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
-				<span class='singleitem {{extra_cls}}'>{{ ( value if value else "N/A" ) | safe }}</span>
+				<span class='singleitem {{extra_cls}}'>{{ ( value.date() if value else "N/A" ) | safe }}</span>
 			</div>
 		</div>
 	</div>
@@ -362,15 +362,23 @@
 
 
 
-{% macro localLinkBlock(names) -%}
+{% macro localLinkBlock(name, value, valId, width=3, extra_cls='') -%}
 	<div class="well well-tny info-item">
-		<div class="row multiitem" id="watch-container">
-			<div class="col-md-3 rowTitle">
-				View in MangaCMS:
+		<div class="row singleitem"  id="{{valId}}-container">
+			<div class="col-md-{{width}} rowTitle">
+				{{ name }}:
 			</div>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
+				{%- if value -%}
 
-			<div class="col-sm-9 rowContents" id='watch'>
-				<a href='http://mangacms.test:8081/books/book-multisearch?{{build_name_qs('name', names)}}'>search</a>
+					{% if g.user.id == 2 %}
+						<a href='http://10.1.1.43:5001/view?url={{value | urlencode}}'>R-View - {{ value }}</a>
+					{% else %}
+						<a href='{{value}}'>{{ value }}</a>
+					{% endif %}
+				{%- else -%}
+					<span class='singleitem {{extra_cls}}'>N/A</span>
+				{%- endif -%}
 			</div>
 		</div>
 	</div>
@@ -665,24 +673,24 @@
 									width=5
 								)
 				}}
+
+				{{multiItemBlock("Publisher(s)",
+								series.publishers,
+									'name',
+									'publisher',
+									'publishers',
+									width=5
+								)
+				}}
+
+				{{dateBlock("Initial publish date",
+									series.pub_date,
+									'pub_date',
+									width=5
+								)
+				}}
 			{% endif %}
 
-			{{multiItemBlock("Publisher(s)",
-							series.publishers,
-								'name',
-								'publisher',
-								'publisher-id',
-								width=5
-							)
-			}}
-
-
-			{{dateBlock("Initial publish date",
-								series.pub_date.date(),
-								'pub_date',
-								width=5
-							)
-			}}
 
 			{{multiItemBlock("Tags",
 								series.tags,
@@ -723,7 +731,12 @@
 			{% if g.user.is_admin() %}
 
 				<hr class='padded-rule'>
-				{{localLinkBlock(series.alternatenames)}}
+				{{localLinkBlock("Homepage",
+								series.website,
+								'website',
+								width=5
+							)
+				}}
 				{{mergeInto()}}
 			{% endif %}
 			<div style="clear: both;"></div>
