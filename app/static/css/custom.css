@@ -10,8 +10,6 @@
 @media (min-width: 768px)
 {
 	.imgDiv {
-		height     : 615px !important;
-		width      : 400px !important;
 		max-height : 615px !important;
 		max-width  : 400px !important;
 		float      : right;
@@ -41,6 +39,7 @@ select.list-select
 	padding-bottom: 2px !important;
 	height: 23px !important;
 	font-size: 14px !important;
+	margin-right: 20px;
 
 }
 
@@ -60,7 +59,6 @@ select.list-select
 {
 	.imgDiv {
 		display: block;
-		height     : 600px !important;
 		padding-top: 10px;
 
 	}
