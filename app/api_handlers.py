@@ -341,6 +341,17 @@ def validateWatchedData(data):
 	if len(update['listName']) > 256:
 		raise AssertionError
 
+	# Special case handle the special list name that removes the item from the list.
+	# Set the watch to none, so the corresponsing list gets deleted.
+	# Yes, this is a hack, and I'm ignoring the "watch" boolean field in the
+	# API params, but... eh. It's easier to fix here then in the javascript.
+	if update['listName'] == '-0-0-0-0-0-0-0-no-list-0-0-0-0-0-0-0-0-':
+		# print("List deletion token!")
+		update['watch'] = False
+		# print("Doing watch:", update['watch'])
+
+	# print("update['listName'] == '-0-0-0-0-0-0-0-no-list-0-0-0-0-0-0-0-0-': ", update['listName'] == '-0-0-0-0-0-0-0-no-list-0-0-0-0-0-0-0-0-')
+
 	# Ok, the JSON is valid, and we've more or less sanitized it.
 	# Return the processed output.
 	return update
