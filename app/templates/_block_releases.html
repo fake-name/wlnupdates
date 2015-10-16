@@ -102,8 +102,11 @@
 				{% endif %}
 				{% if entry.chapter != None %}
 					<td class='numeric' {{ "colspan=2" if entry.volume == None  }} id='release-entry-cell'>
-						{% if entry.chapter != None %}
-							{{('%0.4f' % entry.chapter).rstrip('0').rstrip('.')}}
+
+						{% if entry.chapter % 1 == 0 %}
+							{{('%i' % entry.chapter).rstrip('0').rstrip('.')}}
+						{% elif entry.chapter != None %}
+							{{('%0.2f' % entry.chapter)}}
 						{% endif %}
 					</td>
 				{% endif %}
