@@ -16,6 +16,7 @@ from sqlalchemy_utils.types import TSVectorType
 import sqlalchemy.exc
 import datetime
 from settings import DATABASE_DB_NAME
+from sqlalchemy import CheckConstraint
 from sqlalchemy.dialects.postgresql import ENUM
 
 # Some of the metaclass hijinks make pylint confused,
@@ -559,6 +560,27 @@ class Watches(db.Model):
 		)
 
 	series_row       = relationship("Series",         backref='Watches')
+
+
+
+class Ratings(db.Model):
+	id          = db.Column(db.Integer, primary_key=True)
+	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'))
+	series_id   = db.Column(db.Integer, db.ForeignKey('series.id'))
+	source_ip   = db.Column(db.Text)
+
+	rating      = db.Column(db.Float(), default=-1)
+
+	__table_args__ = (
+		db.UniqueConstraint('user_id'),
+		db.UniqueConstraint('user_id', 'source_ip'),
+		db.CheckConstraint('rating >=  0', name='rating_min'),
+		db.CheckConstraint('rating <= 10', name='rating_max'),
+		db.CheckConstraint('''(user_id IS NOT NULL AND source_ip IS NULL) OR (user_id IS NULL AND source_ip IS NOT NULL)''', name='rating_src'),
+	)
+
+
+	series_row       = relationship("Series",         backref='Ratings')
 
 
 class Users(db.Model):
