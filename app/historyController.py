@@ -125,7 +125,7 @@ def renderHistory(histType, contentId):
 			.filter(conditional)                   \
 			.order_by(table.changetime).all()
 
-	print("History data:", data)
+	# print("History data:", data)
 
 	seriesHist = None
 	authorHist = None

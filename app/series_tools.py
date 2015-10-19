@@ -283,7 +283,7 @@ def set_rating(sid, new_rating):
 
 def get_rating(sid):
 	uid, ip = get_identifier()
-	print("Get-rating call for sid %s, uid %s, ip %s." % (sid, uid, ip))
+	# print("Get-rating call for sid %s, uid %s, ip %s." % (sid, uid, ip))
 	user_rtng = Ratings.query \
 		.filter(Ratings.series_id == sid) \
 		.filter(Ratings.user_id   == uid) \
@@ -294,7 +294,7 @@ def get_rating(sid):
 	avg, count = db.session.query(func.avg(Ratings.rating).label('average'), func.count(Ratings.rating).label('count')).filter(Ratings.series_id == sid).one()
 	user_rtng = -1 if user_rtng == None else user_rtng.rating
 
-	print("Rating - Average: %s from %s ratings, user-rating: %s" % (avg, count, user_rtng))
+	# print("Rating - Average: %s from %s ratings, user-rating: %s" % (avg, count, user_rtng))
 	# Rating return is the current user's rating, average rating, and the number of contributing ratings
 	# for that average.
 	ret = {

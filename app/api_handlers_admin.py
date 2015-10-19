@@ -22,6 +22,7 @@ from app.models import CoversChanges
 from app.models import Releases
 from app.models import ReleasesChanges
 from app.models import Watches
+from app.models import Publishers
 
 from flask import flash
 from flask.ext.babel import gettext
