@@ -572,8 +572,7 @@ class Ratings(db.Model):
 	rating      = db.Column(db.Float(), default=-1)
 
 	__table_args__ = (
-		db.UniqueConstraint('user_id'),
-		db.UniqueConstraint('user_id', 'source_ip'),
+		db.UniqueConstraint('user_id', 'source_ip', 'series_id'),
 		db.CheckConstraint('rating >=  0', name='rating_min'),
 		db.CheckConstraint('rating <= 10', name='rating_max'),
 		db.CheckConstraint('''(user_id IS NOT NULL AND source_ip IS NULL) OR (user_id IS NULL AND source_ip IS NOT NULL)''', name='rating_src'),
