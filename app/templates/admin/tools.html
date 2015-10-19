@@ -1,0 +1,74 @@
+<!-- extend base layout -->
+{% extends "__base.html" %}
+
+
+
+{% macro consolidator() %}
+	<div class="well well-large">
+		<div class="well well-sm">
+			Consolidate duplicate series-pages by URL.
+			<button id="consolidate-series-btn">Go</button>
+		</div>
+		<div class="well well-sm">
+			Consolidate duplicate releases by URL.
+			<button id="consolidate-releases-btn">Go</button>
+		</div>
+	</div>
+
+{% endmacro %}
+
+
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	{% if g.user.is_admin() %}
+		<div class="well well-large">
+			<div>
+				<h2>System management tools</h2>
+			</div>
+		</div>
+		{{consolidator()}}
+	{% endif %}
+
+{% endblock %}
+
+
+{% block footer %}
+	{% if g.user.is_mod() %}
+		{% include '_block_admin_scripts.html' %}
+
+		<script>
+			function handle_success(data, textStatus, jqXHR)
+			{
+
+				alert("Response: " + textStatus + "\nmessage: " + data['message']);
+			}
+
+			function do_post(post_data)
+			{
+				$.ajax({
+					url         : '/api',
+					type        : 'POST',
+					dataType    : 'json',
+					contentType : 'application/json',
+					data        : JSON.stringify(post_data),
+					success     : handle_success,
+				});
+
+			}
+			$('#consolidate-series-btn').click(function() {
+				var post_data = {
+					'mode' : 'flatten-series-by-url'
+				}
+				do_post(post_data)
+			});
+			$('#consolidate-releases-btn').click(function() {
+				var post_data = {
+					'mode' : 'delete-duplicate-releases'
+				}
+				do_post(post_data)
+			});
+		</script>
+	{% endif %}
+{% endblock %}
+

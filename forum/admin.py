@@ -53,7 +53,7 @@ class UserView(ModelView):
 
 # Admin setup
 # -----------
-admin = Admin(name='Index', index_view=AdminIndexView())
+admin = Admin(name='Index', index_view=AdminIndexView(url='/db_admin/'))
 
 # Forums
 admin.add_view(ModelView(forum_models.Board, db.session,

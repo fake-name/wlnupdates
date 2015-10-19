@@ -3,6 +3,7 @@ from flask import flash
 from flask import redirect
 from flask import url_for
 from flask import g
+from flask import request
 from flask.ext.babel import gettext
 # from guess_language import guess_language
 from app import app
@@ -22,10 +23,11 @@ from natsort import natsort_keygen
 from sqlalchemy.orm import joinedload
 import datetime
 
+from app.series_tools import get_rating
+
 def getSort(row):
 	chp = row.chapter if row.chapter else 0
 	vol = row.volume  if row.volume  else 0
-
 	return vol * 1e6 + chp
 
 def build_progress(watch):
@@ -99,6 +101,7 @@ def get_cover_sorter():
 	sorter = natsort_keygen(key=lambda x: str(x.description).replace('〈', '').replace('〉', ''))
 	return sorter
 
+
 @app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
 	series       =       Series.query
@@ -162,21 +165,24 @@ def renderSeriesId(sid):
 
 	series.covers.sort(key=get_cover_sorter())
 
+	rating = get_rating(sid)
+
 
 
 
 
 	return render_template('series-id.html',
-						series_id    = sid,
-						series       = series,
-						releases     = releases,
-						watch        = watch,
-						watchlists   = watchlists,
-						progress     = progress,
-						latest       = latest,
-						latest_dict  = latest_dict,
-						most_recent  = most_recent,
-						latest_str   = latest_str
+						series_id     = sid,
+						series        = series,
+						releases      = releases,
+						watch         = watch,
+						watchlists    = watchlists,
+						progress      = progress,
+						latest        = latest,
+						latest_dict   = latest_dict,
+						most_recent   = most_recent,
+						latest_str    = latest_str,
+						series_rating = rating,
 						)
 
 

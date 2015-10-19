@@ -73,6 +73,15 @@ def renderAdminChanges():
 	return render_template('not-implemented-yet.html')
 
 
+
+@app.route('/admin/tools/')
+def renderAdminTools():
+	if not g.user.is_authenticated():
+		return render_template('not-implemented-yet.html')
+
+	return render_template('/admin/tools.html')
+
+
 	# series       =       Series.query.filter(Series.id==sid).first()
 
 	# if g.user.is_authenticated():

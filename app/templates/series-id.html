@@ -30,18 +30,23 @@
 				<div class="box box-orange box-example-1to10">
 					<div class="box-body">
 						<div class="br-wrapper br-theme-bars-1to10">
-							<select id="item-rating" name="rating">
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-								<option value="6">6</option>
-								<option value="7" selected="selected">7</option>
-								<option value="8">8</option>
-								<option value="9">9</option>
-								<option value="10">10</option>
-							</select>
+							<div class="br-widget">
+								<select id="item-rating" name="rating">
+									<option value="">Unrated</option>
+									<option value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+								</select>
+							</div>
+							<div class="br-widget">Average of {{series_rating['num']}} ratings. Your rating: {{"None" if series_rating['user'] == -1 else series_rating['user'] | int}}</div>
+
 						</div>
 					</div>
 				</div>
@@ -566,7 +571,7 @@
 			var root = $("#watch-root");
 			// console.log(root);
 
-			var a_vol = root.data('vol')
+			var a_vol = root.data('vol');
 			var a_chp = root.data('chp');
 			var a_frg = root.data('frg');
 
@@ -593,63 +598,104 @@
 		$('#chap').change(update_read_div_color);
 		$('#frag').change(update_read_div_color);
 
+		function set_rating(value, text)
+		{
+			console.log("Updating rating to " + value);
+			value = parseInt(value);
+			var manga_id = $('meta[name=manga-id]').attr('content')
+
+			var params = {
+				'mode'      : 'set-rating',
+				'item-id'   : manga_id,
+				'rating'    : value,
+			}
+
+
+			$.ajax({
+				url : "/api",
+				success : saveCallback(false),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+			// alert('Selected rating: ' + value);
+		}
+
 		update_read_div_color();
 
 		// Plop in the jquery star rating plugin.
+		// This is easier (and probably faster) then loading ANOTHER external script.
 		// Source: http://antenna.io/demo/jquery-bar-rating/examples/
 		!function(t){"function"==typeof define&&define.amd?define(["jquery"],t):"object"==typeof module&&module.exports?module.exports=t(require("jquery")):t(jQuery)}(function(t){var e=function(){function e(){var e=this,a=function(){var a=[e.options.wrapperClass];""!==e.options.theme&&a.push("br-theme-"+e.options.theme),e.$elem.wrap(t("<div />",{"class":a.join(" ")}))},n=function(){e.$elem.unwrap()},r=function(){var a;return a=e.options.initialRating?t('option[value="'+e.options.initialRating+'"]',e.$elem):t("option:selected",e.$elem)},i=function(){var t=r();e.$elem.data("barrating",{userOptions:e.options,currentRatingValue:t.val(),currentRatingText:t.data("html")?t.data("html"):t.text(),originalRatingValue:t.val(),originalRatingText:t.data("html")?t.data("html"):t.text()}),e.$elem.data("barrating").deselectable=e.$elem.find("option:first").val()?!1:!0},s=function(){e.$elem.removeData("barrating")},l=function(){var a=t("<div />",{"class":"br-widget"});return e.$elem.find("option").each(function(){var n,r,i,s,l;n=t(this).val(),n&&(r=t(this).text(),i=t(this).data("html"),i&&(r=i),s=t("<a />",{href:"#","data-rating-value":n,"data-rating-text":r}),l=t("<span />",{html:e.options.showValues?r:""}),a.append(s.append(l)))}),e.options.showSelectedRating&&a.append(t("<div />",{text:"","class":"br-current-rating"})),e.options.reverse&&a.addClass("br-reverse"),e.options.readonly&&a.addClass("br-readonly"),a},o=function(){return e.options.reverse?"nextAll":"prevAll"},u=function(t){e.$elem.find('option[value="'+t+'"]').prop("selected",!0),e.$elem.change()},c=function(t){t=t?t:e.$elem.data("barrating").currentRatingText,e.options.showSelectedRating&&e.$elem.parent().find(".br-current-rating").text(t)},d=function(t){t.find("a").removeClass("br-selected br-current"),t.find('a[data-rating-value="'+e.$elem.data("barrating").currentRatingValue+'"]').addClass("br-selected br-current")[o()]().addClass("br-selected")},g=function(a){a.on("click",function(n){var r,i,s=t(this);return n.preventDefault(),a.removeClass("br-active br-selected"),s.addClass("br-selected")[o()]().addClass("br-selected"),r=s.attr("data-rating-value"),i=s.attr("data-rating-text"),s.hasClass("br-current")&&e.$elem.data("barrating").deselectable?(s.removeClass("br-selected br-current")[o()]().removeClass("br-selected br-current"),r="",i=""):(a.removeClass("br-current"),s.addClass("br-current")),e.$elem.data("barrating").currentRatingValue=r,e.$elem.data("barrating").currentRatingText=i,u(r),c(i),e.options.onSelect.call(this,e.$elem.data("barrating").currentRatingValue,e.$elem.data("barrating").currentRatingText),!1})},h=function(e){e.on({mouseenter:function(){var a=t(this);e.removeClass("br-active br-selected"),a.addClass("br-active")[o()]().addClass("br-active"),c(a.attr("data-rating-text"))}})},f=function(t,e){e.on({mouseleave:function(){t.removeClass("br-active"),c(),d(e)}})},m=function(e){e.on("touchstart",function(e){e.preventDefault(),e.stopPropagation(),t(this).click()})},b=function(t){t.on("click",function(t){t.preventDefault()})};this.show=function(){var t,n;e.$elem.data("barrating")||(a(),i(),t=l(),t.insertAfter(e.$elem),d(t),c(),n=t.find("a"),e.options.fastClicks&&m(n),e.options.readonly?b(n):(g(n),e.options.hoverState&&(h(n),f(n,t))),e.$elem.hide())},this.set=function(t){this.$elem.find('option[value="'+t+'"]').val()&&(this.$elem.data("barrating").currentRatingValue=t,this.$elem.data("barrating").currentRatingText=this.$elem.find('option[value="'+t+'"]').text(),u(this.$elem.data("barrating").currentRatingValue),c(this.$elem.data("barrating").currentRatingText),d(this.$widget),this.$elem.data("barrating").userOptions.onSelect.call(this,this.$elem.data("barrating").currentRatingValue,this.$elem.data("barrating").currentRatingText))},this.clear=function(){this.$elem.data("barrating").currentRatingValue=this.$elem.data("barrating").originalRatingValue,this.$elem.data("barrating").currentRatingText=this.$elem.data("barrating").originalRatingText,u(this.$elem.data("barrating").currentRatingValue),c(this.$elem.data("barrating").currentRatingText),d(this.$widget),this.$elem.data("barrating").userOptions.onClear.call(this,this.$elem.data("barrating").currentRatingValue,this.$elem.data("barrating").currentRatingText)},this.destroy=function(){var t=this.$elem.data("barrating").currentRatingValue,e=this.$elem.data("barrating").currentRatingText,a=this.$elem.data("barrating").userOptions;this.$widget.off().remove(),s(),n(),this.$elem.show(),a.onDestroy.call(this,t,e)}}return e.prototype.init=function(e,a){return this.$elem=t(a),this.options=t.extend({},t.fn.barrating.defaults,e),this.options},e}();t.fn.barrating=function(a,n){return this.each(function(){var r=new e;if(t(this).is("select")||t.error("Sorry, this plugin only works with select fields."),r.hasOwnProperty(a)){if(r.init(n,this),"show"===a)return r.show(n);if(r.$elem.data("barrating"))return r.$widget=t(this).next(".br-widget"),r[a](n)}else{if("object"==typeof a||!a)return n=a,r.init(n,this),r.show();t.error("Method "+a+" does not exist on jQuery.barrating")}})},t.fn.barrating.defaults={theme:"",initialRating:null,showValues:!1,showSelectedRating:!0,reverse:!1,readonly:!1,fastClicks:!0,hoverState:!0,wrapperClass:"br-wrapper",onSelect:function(t,e){},onClear:function(t,e){},onDestroy:function(t,e){}},t.fn.barrating.BarRating=e});
 
-		 	$(function() {
+			$(function() {
 				$('#item-rating').barrating({
-					theme: 'fontawesome-stars'
+					initialRating : {{"null" if series_rating['avg'] == -1 else series_rating['avg'] | int}},
+					onSelect      : set_rating
+					// theme: 'fontawesome-stars'
 				});
-		   });
+			});
 
 	</script>
 	<style>
-		.br-theme-bars-1to10 .br-widget {
-		  height: 50px;
-		  white-space: nowrap;
+		.br-widget
+		{
+			display: block;
+			clear  :both;
 		}
-		.br-theme-bars-1to10 .br-widget a {
-		  display: block;
-		  width: 12px;
-		  padding: 5px 0;
-		  height: 28px;
-		  float: left;
-		  background-color: #fbedd9;
-		  margin: 1px;
-		  text-align: center;
+		.br-theme-bars-1to10 .br-widget
+		{
+			/*height: 50px;*/
+			white-space: nowrap;
+
+		}
+		.br-theme-bars-1to10 .br-widget a
+		{
+			display: block;
+			width: 16px;
+			padding: 5px 0;
+			height: 28px;
+			float: left;
+			background-color: #bbcefb;
+			margin: 1px;
+			text-align: center;
 		}
 		.br-theme-bars-1to10 .br-widget a.br-active,
-		.br-theme-bars-1to10 .br-widget a.br-selected {
-		  background-color: #edb867;
+		.br-theme-bars-1to10 .br-widget a.br-selected
+		{
+			background-color: #4278f5;
 		}
-		.br-theme-bars-1to10 .br-widget .br-current-rating {
-		  font-size: 20px;
-		  line-height: 2;
-		  float: left;
-		  padding: 0 20px 0 20px;
-		  color: #edb867;
-		  font-weight: 400;
+		.br-theme-bars-1to10 .br-widget .br-current-rating
+		{
+			font-size: 20px;
+			/*line-height: 2;*/
+			float: left;
+			padding: 0 20px 0 20px;
+			color: #4278f5;
+			font-weight: 400;
 		}
-		@media print {
-		  .br-theme-bars-1to10 .br-widget a {
-			border: 1px solid #b3b3b3;
-			background: white;
-			height: 38px;
-			-webkit-box-sizing: border-box;
-			-moz-box-sizing: border-box;
-			box-sizing: border-box;
-		  }
-		  .br-theme-bars-1to10 .br-widget a.br-active,
-		  .br-theme-bars-1to10 .br-widget a.br-selected {
-			border: 1px solid black;
-			background: white;
-		  }
-		  .br-theme-bars-1to10 .br-widget .br-current-rating {
-			color: black;
-		  }
+		@media print
+		{
+			.br-theme-bars-1to10 .br-widget a
+			{
+				border: 1px solid #b3b3b3;
+				background: white;
+				height: 38px;
+				-webkit-box-sizing: border-box;
+				-moz-box-sizing: border-box;
+				box-sizing: border-box;
+			}
+			.br-theme-bars-1to10 .br-widget a.br-active,
+			.br-theme-bars-1to10 .br-widget a.br-selected
+			{
+				border: 1px solid black;
+				background: white;
+			}
+			.br-theme-bars-1to10 .br-widget .br-current-rating
+			{
+				color: black;
+			}
 		}
 	</style>
 

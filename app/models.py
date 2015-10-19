@@ -565,9 +565,9 @@ class Watches(db.Model):
 
 class Ratings(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
-	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'))
-	series_id   = db.Column(db.Integer, db.ForeignKey('series.id'))
-	source_ip   = db.Column(db.Text)
+	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+	series_id   = db.Column(db.Integer, db.ForeignKey('series.id'), index=True)
+	source_ip   = db.Column(db.Text, index=True)
 
 	rating      = db.Column(db.Float(), default=-1)
 

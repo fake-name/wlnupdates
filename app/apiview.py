@@ -16,21 +16,15 @@ import traceback
 wtforms_json.init()
 
 LOGIN_REQ =  """
-API Calls can only be made by a logged in user!
-
-If you are not logged in, please log in.
-
+API Calls can only be made by a logged in user!<br>
+<br>
+If you are not logged in, please log in.<br>
+<br>
 If you do not have an account, you must create one in order to edit things or watch series."""
 
 
 @app.route('/api', methods=['POST'])
 def handleApiPost():
-	if not current_user.is_authenticated():
-
-		resp = jsonify(getResponse(LOGIN_REQ, error=True))
-		resp.status_code = 200
-		resp.mimetype="application/json"
-		return resp
 
 	if not request.json:
 		# print("Non-JSON request!")
@@ -41,6 +35,7 @@ def handleApiPost():
 		resp = jsonify(js)
 		resp.status_code = 200
 		resp.mimetype="application/json"
+		print("Non-JSON API call! Data-type = ", request.mimetype)
 		return resp
 
 	ret = dispatchApiCall(request.json)
@@ -61,19 +56,25 @@ def handleApiGet():
 
 
 DISPATCH_TABLE = {
-	'manga-update' : api_handlers.processMangaUpdateJson,
-	'group-update' : api_handlers.processGroupUpdateJson,
-	'set-watch'    : api_handlers.setSeriesWatchJson,
-	'read-update'  : api_handlers.setReadingProgressJson,
-	'cover-update' : api_handlers.updateAddCoversJson,
+	'manga-update'              : (api_handlers.processMangaUpdateJson,          True),
+	'group-update'              : (api_handlers.processGroupUpdateJson,          True),
+	'set-watch'                 : (api_handlers.setSeriesWatchJson,              True),
+	'read-update'               : (api_handlers.setReadingProgressJson,          True),
+	'cover-update'              : (api_handlers.updateAddCoversJson,             True),
+	'set-rating'                : (api_handlers.setRatingJson,                   False),
 
-	'merge-id'     : api_handlers_admin.mergeSeriesItems,
-	'release-ctrl' : api_handlers_admin.alterReleaseItem,
+	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,          True),
+	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,          True),
+
+	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,     True),
+	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases, True),
+
 }
 
 def dispatchApiCall(reqJson):
 	# print("Json request:", reqJson)
 	if not "mode" in reqJson:
+		print("API JSON Request without mode!")
 		return getResponse("No mode in API Request!", error=True)
 
 	mode = reqJson["mode"]
@@ -81,9 +82,13 @@ def dispatchApiCall(reqJson):
 		print("Invalid mode in request: '{mode}'".format(mode=mode))
 		return getResponse("Invalid mode in API Request ({mode})!".format(mode=mode), error=True)
 
-	dispatch_method = DISPATCH_TABLE[mode]
+	dispatch_method, auth_required = DISPATCH_TABLE[mode]
 	try:
-		ret = dispatch_method(reqJson)
+		if auth_required and not current_user.is_authenticated():
+
+			return getResponse(LOGIN_REQ, error=True)
+		else:
+			ret = dispatch_method(reqJson)
 
 	except AssertionError:
 		traceback.print_exc()

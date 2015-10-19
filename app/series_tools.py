@@ -10,6 +10,7 @@ from app.models import Illustrators
 from app.models import Translators
 from app.models import Watches
 from app.models import Publishers
+from app.models import Ratings
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
 import markdown
@@ -22,6 +23,10 @@ from flask.ext.login import current_user
 import datetime
 import app.nameTools as nt
 
+from sqlalchemy.sql import func
+
+from flask import g
+from flask import request
 
 def getCurrentUserId():
 	'''
@@ -239,3 +244,62 @@ def saveCoverFile(filecont, filename):
 	if locpath.startswith("/"):
 		locpath = locpath[1:]
 	return locpath
+
+
+def get_identifier():
+	if not g.user.is_anonymous():
+		return g.user.id, None
+	else:
+		if request.headers.get('X-Originating-IP'):
+			return None, request.headers.get('X-Originating-IP')
+		else:
+			return None, request.remote_addr
+
+
+
+def set_rating(sid, new_rating):
+	uid, ip = get_identifier()
+	print("Set-rating call for sid %s, uid %s, ip %s. Rating: %s" % (sid, uid, ip, new_rating))
+	user_rtng = Ratings.query \
+		.filter(Ratings.series_id == sid) \
+		.filter(Ratings.user_id   == uid) \
+		.filter(Ratings.source_ip == ip ) \
+		.scalar()
+
+
+	if user_rtng:
+		user_rtng.rating = new_rating
+	else:
+		new_row = Ratings(
+				rating    = new_rating,
+				series_id = sid,
+				user_id   = uid,
+				source_ip = ip,
+			)
+		db.session.add(new_row)
+
+	db.session.commit()
+
+
+def get_rating(sid):
+	uid, ip = get_identifier()
+	print("Get-rating call for sid %s, uid %s, ip %s." % (sid, uid, ip))
+	user_rtng = Ratings.query \
+		.filter(Ratings.series_id == sid) \
+		.filter(Ratings.user_id   == uid) \
+		.filter(Ratings.source_ip == ip ) \
+		.scalar()
+
+
+	avg, count = db.session.query(func.avg(Ratings.rating).label('average'), func.count(Ratings.rating).label('count')).filter(Ratings.series_id == sid).one()
+	user_rtng = -1 if user_rtng == None else user_rtng.rating
+
+	print("Rating - Average: %s from %s ratings, user-rating: %s" % (avg, count, user_rtng))
+	# Rating return is the current user's rating, average rating, and the number of contributing ratings
+	# for that average.
+	ret = {
+		"user" : user_rtng,
+		"avg"  : avg,
+		"num"  : count,
+	}
+	return ret

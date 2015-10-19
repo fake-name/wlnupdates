@@ -9,6 +9,7 @@ from app.models import Author
 from app.models import Illustrators
 from app.models import Translators
 from app.models import Watches
+from flask import g
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
 import markdown
@@ -720,9 +721,19 @@ def updateAddCoversJson(data):
 			return ret
 	return getResponse("Success", False)
 
-# {'value': '',
-# 'type': 'singleitem',
-# 'key': 'demographic-container'},
 
-# {'value': 'Novel\n', 'type': 'singleitem', 'key': 'type-container'}, {'value': '', 'type': 'singleitem', 'key': 'origin_loc-container'}], 'mode': 'manga-update'}
+def setRatingJson(data):
+	assert 'mode' in data
+	assert 'rating' in data
+	assert 'item-id' in data
+	assert data['item-id']
+	sid    = int(data['item-id'])
+	rating = int(data['rating'])
+
+	app.series_tools.set_rating(sid, rating)
+
+	return getResponse("SetRating call!.", error=False)
+
+
+
 

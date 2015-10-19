@@ -28,8 +28,9 @@
 		<br>
 		<div class='nav-item'><a href='/watches'>Watched Series</a></div>
 		<div class='nav-item'><a href='/user-cp'>User Control Panel</a></div>
+		<hr>
 		{% if current_user.is_admin() %}
-			<div class='nav-item'><a href='/admin/'>Admin</a></div>
+			{% include 'admin/admin-nav-block.html' %}
 		{% endif %}
 		<hr>
 		<div class='nav-item'><a href='/logout'>Log Out</a></div>

@@ -45,6 +45,9 @@ def mergeSeriesItems(data):
 	assert 'merge_id' in data
 
 	m1, m2 = int(data['item-id']), int(data['merge_id'])
+	return merge_series_ids(m1, m2)
+
+def merge_series_ids(m1, m2):
 	merge_from = max(m1, m2)
 	merge_to   = min(m1, m2)
 
@@ -56,6 +59,7 @@ def mergeSeriesItems(data):
 	illust = []
 	tags   = []
 	genres = []
+	publs  = []
 
 	alts.append(itm_from.title)
 	for altname in AlternateNames.query.filter(AlternateNames.series==itm_from.id).all():
@@ -72,6 +76,9 @@ def mergeSeriesItems(data):
 
 	for val in Genres.query.filter(Genres.series==itm_from.id).all():
 		genres.append(val.genre)
+
+	for val in Publishers.query.filter(Publishers.series==itm_from.id).all():
+		publs.append(val.genre)
 
 
 	# !Ordering here matters!
@@ -92,11 +99,12 @@ def mergeSeriesItems(data):
 	for clearTable in delete_from:
 		clearTable.query.filter(clearTable.series==itm_from.id).delete()
 
-	app.series_tools.updateAltNames  ( itm_to, alts,            deleteother=False )
-	app.series_tools.setAuthorIllust ( itm_to, author = author, deleteother=False )
-	app.series_tools.setAuthorIllust ( itm_to, illust = illust, deleteother=False )
-	app.series_tools.updateTags      ( itm_to, tags   = tags,   deleteother=False )
-	app.series_tools.updateGenres    ( itm_to, genres = genres, deleteother=False )
+	app.series_tools.updateAltNames   ( itm_to, alts,                deleteother=False )
+	app.series_tools.setAuthorIllust  ( itm_to, author     = author, deleteother=False )
+	app.series_tools.setAuthorIllust  ( itm_to, illust     = illust, deleteother=False )
+	app.series_tools.updateTags       ( itm_to, tags       = tags,   deleteother=False )
+	app.series_tools.updateGenres     ( itm_to, genres     = genres, deleteother=False )
+	app.series_tools.updatePublishers ( itm_to, publishers = publs,  deleteother=False )
 
 	# For each user watch, if the user is already watching the merge-to item,
 	# just delete it. If not, update the user-id
@@ -140,15 +148,21 @@ def mergeSeriesItems(data):
 	if itm_from.orig_status and not itm_to.orig_status:
 		itm_to.orig_status = itm_from.orig_status
 
+	if itm_from.website and not itm_to.website:
+		itm_to.website = itm_from.website
+	if itm_from.pub_date and not itm_to.pub_date:
+		itm_to.pub_date = itm_from.pub_date
+
 	db.session.flush()
-	Covers.query.filter(Covers.series==itm_from.id).update({'series': itm_to.id})
-	CoversChanges.query.filter(CoversChanges.series==itm_from.id).update({'series': itm_to.id})
+	sid = itm_from.id
+	tid = itm_to.id
+	Covers.query.filter(Covers.series==sid).update({'series': tid})
+	CoversChanges.query.filter(CoversChanges.series==sid).update({'series': tid})
 
 	# Move releases over
-	Releases.query.filter(Releases.series==itm_from.id).update({'series': itm_to.id})
-	ReleasesChanges.query.filter(ReleasesChanges.series==itm_from.id).update({'series': itm_to.id})
+	Releases.query.filter(Releases.series==sid).update({'series': tid})
+	ReleasesChanges.query.filter(ReleasesChanges.series==sid).update({'series': tid})
 
-	sid = itm_from.id
 	Series.query.filter(Series.id==sid).delete(synchronize_session="fetch")
 	SeriesChanges.query.filter(SeriesChanges.id==sid).delete(synchronize_session="fetch")
 
@@ -209,3 +223,83 @@ def alterReleaseItem(data):
 
 	return RELEASE_OPS[data['op']](data)
 
+
+def flatten_series_by_url(data):
+	if not current_user.is_admin():
+		return getResponse(error=True, message="You have to have administrator privileges to do that!")
+
+	dups = db.engine.execute('''
+		SELECT
+			website, COUNT(*) AS dupes
+		FROM
+			series
+		WHERE
+			website IS NOT NULL AND website != ''
+		GROUP
+			BY website
+		HAVING
+			(COUNT(*) > 1);''')
+	dups = list(dups)
+
+	match_num = 0
+	for website, number in dups:
+		print(website, number)
+		matches = Series.query.filter(Series.website==website).all()
+		ids = [match.id for match in matches]
+		zipped = list(zip(ids, ids[1:]))
+		for m1, m2 in zipped:
+			match_num += 1
+			merge_series_ids(m1, m2)
+
+	return getResponse("%s Items merged." % match_num, error=False)
+
+def delete_duplicate_releases(data):
+	if not current_user.is_admin():
+		return getResponse(error=True, message="You have to have administrator privileges to do that!")
+
+	dups = db.engine.execute('''
+		SELECT
+		    srcurl, COUNT(*) AS dupes
+		FROM
+		    releases
+		WHERE
+		    srcurl IS NOT NULL AND srcurl != ''
+		GROUP
+		    BY srcurl
+		HAVING
+		    (COUNT(*) > 1);''')
+	dups = list(dups)
+
+	match_num = 0
+	mismatches = set()
+	for website, number in dups:
+		# print(website, number)
+		matches = Releases.query.filter(Releases.srcurl==website).all()
+		zipped = list(zip(matches, matches[1:]))
+		for m1, m2 in zipped:
+			if m1.series != m2.series:
+				tup = (m1.series, m2.series)
+				if tup not in mismatches:
+					print("Mismatch!")
+					print(m1.series, m2.series)
+					mismatches.add(tup)
+			else:
+				match_num += 1
+				# print(m1.series, m2.series)
+
+				# Sort by change-time, since we care more about
+				# the latest change (since it'll probably be more accurate)
+				if m1.changetime < m2.changetime:
+					older = m1
+					newer = m2
+				else:
+					older = m2
+					newer = m1
+
+				db.session.delete(older)
+				db.session.commit()
+
+	# print(dups)
+	# print(list(dups))
+
+	return getResponse("%s Items merged." % match_num, error=False)
