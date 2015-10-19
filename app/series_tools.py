@@ -250,8 +250,8 @@ def get_identifier():
 	if not g.user.is_anonymous():
 		return g.user.id, None
 	else:
-		if request.headers.get('X-Originating-IP'):
-			return None, request.headers.get('X-Originating-IP')
+		if request.headers.get('X-Forwarded-For'):
+			return None, request.headers.get('X-Forwarded-For')
 		else:
 			return None, request.remote_addr
 
