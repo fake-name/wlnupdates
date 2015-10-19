@@ -63,11 +63,14 @@ DISPATCH_TABLE = {
 	'cover-update'              : (api_handlers.updateAddCoversJson,             True),
 	'set-rating'                : (api_handlers.setRatingJson,                   False),
 
+
+	# Admin API bits
 	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,          True),
 	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,          True),
 
 	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,     True),
 	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases, True),
+	'fix-escapes'               : (api_handlers_admin.fix_escaped_quotes,        True),
 
 }
 

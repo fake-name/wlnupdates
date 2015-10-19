@@ -1,13 +1,17 @@
+Todo:
+ - Narrow viewport should shrink covers
+ - special-case annoying ALLCAPS titles, lower case them.
+
+Done:
+## add links to the legal for all the inline deps - jquery, rabbitmq, etc...
 ## Removing items from lists doesn't.
-Narrow viewport should shrink covers
+## - Fix all the escaped things: (Mostly "\'")
 
-special-case annoying ALLCAPS titles, lower case them.
-
+Notes:
 I would like to suggest that in the list of series, you have ways of sorting the series by popularity, by rating, by editor's choice (your personal favorites), by state of completion, stuff like that.
 
 I would also suggest that in the list of all the novels, next to the series, you have their state of completion and the last chapter translated. So it would read like "Akikan - Incomplete - Chapter 243/9000" or whatever.
 
-add links to the legal for all the inline deps - jquery, rabbitmq, etc...
 
 http://topwebfiction.com/
 https://www.wattpad.com/home
@@ -18,4 +22,3 @@ https://www.fanfiction.net/
 
 topwebfiction.com
 webfictionguide.com
-

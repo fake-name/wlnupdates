@@ -13,6 +13,10 @@
 			Consolidate duplicate releases by URL.
 			<button id="consolidate-releases-btn">Go</button>
 		</div>
+		<div class="well well-sm">
+			Fix double-escaped titles and descriptions.
+			<button id="fix-escapes-btn">Go</button>
+		</div>
 	</div>
 
 {% endmacro %}
@@ -65,6 +69,12 @@
 			$('#consolidate-releases-btn').click(function() {
 				var post_data = {
 					'mode' : 'delete-duplicate-releases'
+				}
+				do_post(post_data)
+			});
+			$('#fix-escapes-btn').click(function() {
+				var post_data = {
+					'mode' : 'fix-escapes'
 				}
 				do_post(post_data)
 			});

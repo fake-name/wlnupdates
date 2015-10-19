@@ -304,3 +304,70 @@ def delete_duplicate_releases(data):
 	# print(list(dups))
 
 	return getResponse("%s Items merged." % match_num, error=False)
+
+def fix_escaped_quotes(dummy_data):
+	if not current_user.is_admin():
+		return getResponse(error=True, message="You have to have administrator privileges to do that!")
+
+	# SELECT * FROM series WHERE title LIKE E'%\\\'%';
+	bad_title = 0
+
+	q = Series.query.filter(Series.title.like('%\\\\\'%'))
+	items = q.all()
+	for item in items:
+		old = item.title
+		new = old
+		while "\\\'" in new:
+			new = new.replace("\\\'", "'")
+
+		have = Series.query.filter(Series.title == new).scalar()
+		if have:
+			print("Duplicate item!")
+			merge_series_ids(have.id, item.id)
+		else:
+			print("Fixing title.")
+			item.title = new
+			db.session.commit()
+		bad_title += 1
+
+	bad_alt_title = 0
+
+	q = AlternateNames.query.filter(AlternateNames.name.like('%\\\\\'%'))
+	items = q.all()
+	for item in items:
+		old = item.name
+		new = old
+		while "\\\'" in new:
+			new = new.replace("\\\'", "'")
+		print("Old: ", old)
+		print("New: ", new)
+		if old != new:
+			have = AlternateNames.query.filter(AlternateNames.name == new).scalar()
+			if have:
+				print("Duplicate names")
+				assert have.series == item.series
+				# We don't care about duplicates if one is the escaped version of the other
+				db.session.delete(item)
+				db.session.commit()
+			else:
+				print("Fixing title.")
+				item.name = new
+				db.session.commit()
+		bad_alt_title += 1
+
+	bad_desc = 0
+	q = Series.query.filter(Series.description.like('%\\\'%'))
+	items = q.all()
+	for item in items:
+		old = item.description
+		new = old
+		while "\\\'" in new:
+			new = new.replace("\\\'", "'")
+		if old != new:
+			print("Fixing description")
+			item.description = new
+			db.session.commit()
+			bad_desc += 1
+
+
+	return getResponse("%s main titles, %s alt titles, %s descriptions required fixing." % (bad_title, bad_alt_title, bad_desc), error=False)
