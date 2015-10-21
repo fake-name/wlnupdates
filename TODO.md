@@ -1,6 +1,8 @@
 Todo:
  - Narrow viewport should shrink covers
  - special-case annoying ALLCAPS titles, lower case them.
+ 
+ unescaped https://www.wlnupdates.com/series-id/32392/
 
 Done:
 ## add links to the legal for all the inline deps - jquery, rabbitmq, etc...

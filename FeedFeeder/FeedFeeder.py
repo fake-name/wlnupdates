@@ -318,6 +318,13 @@ def dispatchItem(item):
 	assert 'type' in item
 	assert 'data' in item
 
+
+	beta_enabled = getattr(settings, "ENABLE_BETA", False)
+	if "beta" in item:
+		if item['beta'] == True and not beta_enabled:
+			return
+
+
 	try:
 		if item['type'] == 'raw-feed':
 			# print("Dispatching item of type: ", item['type'])
