@@ -71,6 +71,7 @@ DISPATCH_TABLE = {
 	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,     True),
 	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases, True),
 	'fix-escapes'               : (api_handlers_admin.fix_escaped_quotes,        True),
+	'clean-tags'                : (api_handlers_admin.clean_tags,                True),
 
 }
 

@@ -371,3 +371,47 @@ def fix_escaped_quotes(dummy_data):
 
 
 	return getResponse("%s main titles, %s alt titles, %s descriptions required fixing." % (bad_title, bad_alt_title, bad_desc), error=False)
+
+
+def clean_tags(dummy_data):
+	bad_tags = 0
+
+	bad_tags = db.session.execute('''
+		SELECT
+		    COUNT(*)
+		FROM
+		    tags
+		WHERE
+		    tag IN (
+		    SELECT tag
+		    FROM (
+		        SELECT tag
+		        FROM tags
+		        GROUP BY tag
+		        HAVING COUNT(*) = 1
+		    ) AS ONLY_ONCE
+		    )
+		''')
+
+	bad_tags = list(bad_tags)
+
+	db.session.execute('''
+		DELETE
+		FROM
+		    tags
+		WHERE
+		    tag IN (
+		    SELECT tag
+		    FROM (
+		        SELECT tag
+		        FROM tags
+		        GROUP BY tag
+		        HAVING COUNT(*) = 1
+		    ) AS ONLY_ONCE
+		    )
+		;
+		''')
+
+	return getResponse("Found %s tags that required patching." % (bad_tags), error=False)
+
+

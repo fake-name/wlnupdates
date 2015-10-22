@@ -17,6 +17,10 @@
 			Fix double-escaped titles and descriptions.
 			<button id="fix-escapes-btn">Go</button>
 		</div>
+		<div class="well well-sm">
+			Delete tags that only occur once across the entire database.
+			<button id="clean-tags-btn">Go</button>
+		</div>
 	</div>
 
 {% endmacro %}
@@ -75,6 +79,12 @@
 			$('#fix-escapes-btn').click(function() {
 				var post_data = {
 					'mode' : 'fix-escapes'
+				}
+				do_post(post_data)
+			});
+			$('#clean-tags-btn').click(function() {
+				var post_data = {
+					'mode' : 'clean-tags'
 				}
 				do_post(post_data)
 			});
