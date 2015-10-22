@@ -92,7 +92,9 @@ class RabbitQueueHandler(object):
 
 	def close(self):
 		if self.connector:
+			self.log.info("Non-null connector on shutdown. Halting interface")
 			self.connector.stop()
+			self.log.info("Connector stopped. Setting to null")
 			self.connector = None
 
 

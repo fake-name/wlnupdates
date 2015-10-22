@@ -27,6 +27,9 @@ def thread_run():
 			interface = None
 			time.sleep(60)
 		time.sleep(1)
+	print("Background thread closing interface")
+	if interface:
+		interface.close()
 
 
 def startBackgroundThread():
@@ -62,7 +65,7 @@ def go():
 		flags.RUNSTATE = False
 		bk_thread.join()
 
-	# print("Thread halted. App exiting.")
+	print("Thread halted. App exiting.")
 
 if __name__ == "__main__":
 	started = False
