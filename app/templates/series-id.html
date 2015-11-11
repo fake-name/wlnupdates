@@ -45,7 +45,7 @@
 									<option value="10">10</option>
 								</select>
 							</div>
-							<div class="br-widget">Average of {{series_rating['num']}} ratings. Your rating: {{"None" if series_rating['user'] == -1 else series_rating['user'] | int}}</div>
+							<div class="br-widget">Average of {{series_rating['num']}} ratings. {{"You have not rated this series." if series_rating['user'] == -1 else "Your rating: %s" % series_rating['user'] | int}}</div>
 
 						</div>
 					</div>
@@ -210,9 +210,32 @@
 		<div class="row multilist" id="{{valId}}-container">
 			<div class="col-md-12 rowContents" id='{{valId}}'>
 				<form class="form-inline" action="javascript:merge_ajax();">
-					<label for="exampleInputEmail1">Merge-To ID</label>
-					<input type="text" class="form-control input-sm" id="dbid" placeholder="DbId">
-					<button class="btn btn-primary btn-xs">Do Merge</button>
+
+					<div class="col-md-3 rowTitle">
+						<label style='margin-top:5px' for="exampleInputEmail1">Merge into series ID</label>
+					</div>
+					<div class="col-md-9 rowTitle">
+						<input type="text" class="form-control input-sm" id="dbid" placeholder="DbId">
+						<button class="btn btn-primary btn-xs">Do Merge</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+{% macro deleteItem() -%}
+
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-12 rowContents" id='{{valId}}'>
+				<form class="form-inline" action="javascript:delete_ajax();">
+					<div class="col-md-3 rowTitle">
+						<label style='margin-top:5px' for="exampleInputEmail1">Delete Series:</label>
+					</div>
+					<div class="col-md-9 rowTitle">
+						<button style='margin-top:4px' class="btn btn-primary btn-xs">DO IT</button>
+					</div>
 				</form>
 			</div>
 		</div>
@@ -496,6 +519,35 @@
 				contentType: "application/json;",
 			});
 		}
+
+		function delete_ajax()
+		{
+			// Hi there!
+			// Yes, you can see the function. The API
+			// endpoint it calls requires proper auth, though.
+			// It's cute you're trying to mess things up, though....
+			console.log("Ready to send!");
+
+			var mangaId  = $('meta[name=manga-id]').attr('content')
+			var params = {
+				'mode'      : 'delete-series',
+				'item-id'   : mangaId,
+			}
+
+			bootbox.confirm("Really delete series ID " + mangaId + "?", function(result) {
+
+
+				$.ajax({
+					url : "/api",
+					success : saveCallback(false),
+					data: JSON.stringify(params),
+					method: "POST",
+					dataType: 'json',
+					contentType: "application/json;",
+				});
+			});
+		}
+
 		var i = 0;
 		var pos_text = $('p[id="cover-offset"]');
 		var divs = $('div[id="cover-item"]');
@@ -512,7 +564,7 @@
 			divs.eq(i).fadeIn(400)
 					  .delay(5000)
 					  .fadeOut(400, cycle);
-				pos_text.html("Cover " + (i+1) + " of " + divs.length);
+			pos_text.html("Cover " + (i+1) + " of " + divs.length);
 
 			function cycle()
 			{
@@ -898,6 +950,7 @@
 							)
 				}}
 				{{mergeInto()}}
+				{{deleteItem()}}
 			{% endif %}
 			<div style="clear: both;"></div>
 			<hr class='padded-rule'>

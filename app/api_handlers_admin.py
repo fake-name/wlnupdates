@@ -24,6 +24,8 @@ from app.models import ReleasesChanges
 from app.models import Watches
 from app.models import Publishers
 
+from sqlalchemy import or_
+
 from flask import flash
 from flask.ext.babel import gettext
 from flask.ext.login import current_user
@@ -225,6 +227,7 @@ def alterReleaseItem(data):
 	return RELEASE_OPS[data['op']](data)
 
 
+
 def flatten_series_by_url(data):
 	if not current_user.is_admin():
 		return getResponse(error=True, message="You have to have administrator privileges to do that!")
@@ -260,15 +263,15 @@ def delete_duplicate_releases(data):
 
 	dups = db.engine.execute('''
 		SELECT
-		    srcurl, COUNT(*) AS dupes
+			srcurl, COUNT(*) AS dupes
 		FROM
-		    releases
+			releases
 		WHERE
-		    srcurl IS NOT NULL AND srcurl != ''
+			srcurl IS NOT NULL AND srcurl != ''
 		GROUP
-		    BY srcurl
+			BY srcurl
 		HAVING
-		    (COUNT(*) > 1);''')
+			(COUNT(*) > 1);''')
 	dups = list(dups)
 
 	match_num = 0
@@ -312,65 +315,99 @@ def fix_escaped_quotes(dummy_data):
 	# SELECT * FROM series WHERE title LIKE E'%\\\'%';
 	bad_title = 0
 
-	q = Series.query.filter(Series.title.like('%\\\\\'%'))
+
+	q = Series.query.filter(or_(Series.title.like(r"%'%"), Series.title.like(r"%’%"), Series.title.like(r"%‘%"), Series.title.like(r"%“%"), Series.title.like(r"%”%")))
 	items = q.all()
+	print("Name fixing processing query resulted in %s items" % len(items))
 	for item in items:
 		old = item.title
 		new = old
-		while "\\\'" in new:
-			new = new.replace("\\\'", "'")
+		while any([r"\"" in new, r"\'" in new, "’" in new, "‘" in new, "“" in new, "”" in new]):
+			new = new.replace(r"\'", "'")
+			new = new.replace(r'\"', '"')
+			new = new.replace(r"’", "'")
+			new = new.replace(r"‘", "'")
+			new = new.replace(r"“", '"')
+			new = new.replace(r"”", '"')
 
 		have = Series.query.filter(Series.title == new).scalar()
-		if have:
-			print("Duplicate item!")
-			merge_series_ids(have.id, item.id)
-		else:
-			print("Fixing title.")
-			item.title = new
-			db.session.commit()
-		bad_title += 1
+		if old != new:
+			if have:
+				print("Duplicate item!", (old, new), old==new)
+				merge_series_ids(have.id, item.id)
+			else:
+				print("Fixing title.")
+				item.title = new
+				db.session.commit()
+			bad_title += 1
 
 	bad_alt_title = 0
 
-	q = AlternateNames.query.filter(AlternateNames.name.like('%\\\\\'%'))
+
+	q = AlternateNames.query.filter(or_(AlternateNames.name.like(r"%'%"), AlternateNames.name.like(r"%’%"), AlternateNames.name.like(r"%‘%"), AlternateNames.name.like(r"%“%"), AlternateNames.name.like(r"%”%")))
+
+	conflicts = ''
 	items = q.all()
+	print("Alternate names processing query resulted in %s items" % len(items))
 	for item in items:
 		old = item.name
 		new = old
-		while "\\\'" in new:
-			new = new.replace("\\\'", "'")
-		print("Old: ", old)
-		print("New: ", new)
+		while any([r"\"" in new, r"\'" in new, "’" in new, "‘" in new, "“" in new, "”" in new]):
+			new = new.replace(r"\'", "'")
+			new = new.replace(r'\"', '"')
+			new = new.replace(r"’", "'")
+			new = new.replace(r"‘", "'")
+			new = new.replace(r"“", '"')
+			new = new.replace(r"”", '"')
 		if old != new:
 			have = AlternateNames.query.filter(AlternateNames.name == new).scalar()
+
 			if have:
-				print("Duplicate names")
-				assert have.series == item.series
-				# We don't care about duplicates if one is the escaped version of the other
-				db.session.delete(item)
-				db.session.commit()
+				if have.series == item.series:
+					print("Duplicate names")
+					assert have.series == item.series
+					# We don't care about duplicates if one is the escaped version of the other
+					db.session.delete(item)
+					db.session.commit()
+				else:
+					conflicts += """\nSeries mismatch?\nSeries %s: '%s'\nSeries %s: '%s'""" % (have.series, have.name, item.series, item.name)
+					print("Wat?", have.name, item.name)
+					print("Wat?", have.series, item.series)
 			else:
 				print("Fixing title.")
 				item.name = new
 				db.session.commit()
-		bad_alt_title += 1
+			bad_alt_title += 1
 
 	bad_desc = 0
-	q = Series.query.filter(Series.description.like('%\\\'%'))
+
+
+
+	# FUCK ALL SMART QUOTE BULLSHITS EVER
+	q = Series.query.filter(or_(Series.description.like(r"%'%"), Series.description.like(r"%’%"), Series.description.like(r"%‘%"), Series.description.like(r"%“%"), Series.description.like(r"%”%")))
+
 	items = q.all()
+	print("Series description processing query resulted in %s items" % len(items))
 	for item in items:
 		old = item.description
 		new = old
-		while "\\\'" in new:
-			new = new.replace("\\\'", "'")
+
+		while any([r"\"" in new, r"\'" in new, "’" in new, "‘" in new, "“" in new, "”" in new]):
+			new = new.replace(r"\'", "'")
+			new = new.replace(r'\"', '"')
+			new = new.replace(r"’", "'")
+			new = new.replace(r"‘", "'")
+			new = new.replace(r"“", '"')
+			new = new.replace(r"”", '"')
 		if old != new:
-			print("Fixing description")
+			print("Fixing description smart-quotes and over-escapes for series: %s" % item.id)
 			item.description = new
 			db.session.commit()
 			bad_desc += 1
 
+	print("Update complete.")
 
-	return getResponse("%s main titles, %s alt titles, %s descriptions required fixing." % (bad_title, bad_alt_title, bad_desc), error=False)
+	return getResponse("%s main titles, %s alt titles, %s descriptions required fixing.%s" % (bad_title, bad_alt_title, bad_desc, conflicts), error=False)
 
 
 def clean_tags(dummy_data):
@@ -378,19 +415,19 @@ def clean_tags(dummy_data):
 
 	bad_tags = db.session.execute('''
 		SELECT
-		    COUNT(*)
+			COUNT(*)
 		FROM
-		    tags
+			tags
 		WHERE
-		    tag IN (
-		    SELECT tag
-		    FROM (
-		        SELECT tag
-		        FROM tags
-		        GROUP BY tag
-		        HAVING COUNT(*) = 1
-		    ) AS ONLY_ONCE
-		    )
+			tag IN (
+			SELECT tag
+			FROM (
+				SELECT tag
+				FROM tags
+				GROUP BY tag
+				HAVING COUNT(*) = 1
+			) AS ONLY_ONCE
+			)
 		''')
 
 	bad_tags = list(bad_tags)
@@ -398,20 +435,43 @@ def clean_tags(dummy_data):
 	db.session.execute('''
 		DELETE
 		FROM
-		    tags
+			tags
 		WHERE
-		    tag IN (
-		    SELECT tag
-		    FROM (
-		        SELECT tag
-		        FROM tags
-		        GROUP BY tag
-		        HAVING COUNT(*) = 1
-		    ) AS ONLY_ONCE
-		    )
+			tag IN (
+			SELECT tag
+			FROM (
+				SELECT tag
+				FROM tags
+				GROUP BY tag
+				HAVING COUNT(*) = 1
+			) AS ONLY_ONCE
+			)
 		;
 		''')
 
 	return getResponse("Found %s tags that required patching." % (bad_tags), error=False)
 
+def deleteSeries(data):
+
+	if not current_user.is_admin():
+		return getResponse(error=True, message="I see what you (tried) to do there!")
+	assert 'item-id' in data
+	assert 'mode' in data
+
+	delete_id = data["item-id"]
+
+	return getResponse("Not implemented yet. Whoops?", error=True)
+
+	# assert data['mode'] == "release-ctrl"
+
+	# try:
+	#   data['id'] = int(data['id'])
+	# except ValueError:
+	#   raise AssertionError("Failure converting item ID to integer!")
+	# assert data['count'] in BOOL_LUT
+	# data['count'] = BOOL_LUT[data['count']]
+
+	# assert data['op'] in RELEASE_OPS
+
+	# return RELEASE_OPS[data['op']](data)
 

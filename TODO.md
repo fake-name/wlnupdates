@@ -1,12 +1,13 @@
 Todo:
- - Narrow viewport should shrink covers
  - special-case annoying ALLCAPS titles, lower case them.
+ - Add wiki for tags, etc...
  
  unescaped https://www.wlnupdates.com/series-id/32392/
 
 Done:
-## add links to the legal for all the inline deps - jquery, rabbitmq, etc...
-## Removing items from lists doesn't.
+## - Narrow viewport should shrink covers
+## - add links to the legal for all the inline deps - jquery, rabbitmq, etc...
+## - Removing items from lists doesn't.
 ## - Fix all the escaped things: (Mostly "\'")
 
 Notes:
@@ -16,11 +17,11 @@ I would also suggest that in the list of all the novels, next to the series, you
 
 
 http://topwebfiction.com/
-https://www.wattpad.com/home
 http://webfictionguide.com/
-http://storiesonline.net/
-https://www.fictionpress.com
-https://www.fanfiction.net/
 
-topwebfiction.com
-webfictionguide.com
+## https://www.wattpad.com/home
+## http://storiesonline.net/
+## https://www.fictionpress.com
+## http://www.booksie.com/
+## https://www.fanfiction.net/
+
