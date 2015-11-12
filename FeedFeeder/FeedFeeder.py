@@ -247,7 +247,7 @@ def insert_parsed_release(item):
 
 
 	if item["tl_type"] not in ['oel', 'translated']:
-		raise ValueError("Invalid TL Type! Wat?")
+		raise ValueError("Invalid TL Type '%s'! Wat?" % item["tl_type"])
 
 	group = get_create_group(item['srcname'])
 	series = get_create_series(item['series'], item["tl_type"])

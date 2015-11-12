@@ -1,10 +1,10 @@
 Todo:
- - special-case annoying ALLCAPS titles, lower case them.
  - Add wiki for tags, etc...
  
  unescaped https://www.wlnupdates.com/series-id/32392/
 
 Done:
+## - special-case annoying ALLCAPS titles, lower case them.
 ## - Narrow viewport should shrink covers
 ## - add links to the legal for all the inline deps - jquery, rabbitmq, etc...
 ## - Removing items from lists doesn't.
