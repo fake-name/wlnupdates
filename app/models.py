@@ -180,6 +180,13 @@ class ModificationInfoMixin(object):
 
 
 
+class WikiBase(object):
+	id          = db.Column(db.Integer, primary_key=True)
+	title       = db.Column(CIText())
+	slug        = db.Column(CIText())
+
+	content     = db.Column(db.Text())
+
 
 
 
@@ -202,6 +209,16 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	releases       = relationship("Releases",       backref='Series')
 	publishers     = relationship("Publishers",     backref='Series')
 
+
+class WikiPage(db.Model, WikiBase, ModificationInfoMixin):
+	__tablename__ = 'wiki_page'
+
+	__searchable__ = ['title']
+
+	__table_args__ = (
+		db.UniqueConstraint('title'),
+		db.UniqueConstraint('slug'),
+		)
 
 
 
@@ -303,10 +320,13 @@ class Covers(db.Model, CoversBase, ModificationInfoMixin):
 	__tablename__ = 'covers'
 
 
-
 class SeriesChanges(db.Model, SeriesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "serieschanges"
 	srccol   = db.Column(db.Integer, db.ForeignKey('series.id', ondelete="SET NULL"), index=True)
+
+class WikiChanges(db.Model, WikiBase, ModificationInfoMixin, ChangeLogMixin):
+	__tablename__ = "wiki_pagechanges"
+	srccol   = db.Column(db.Integer, db.ForeignKey('wiki_page.id', ondelete="SET NULL"), index=True)
 
 class TagsChanges(db.Model, TagsBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "tagschanges"
@@ -436,6 +456,7 @@ trigger_on = [
 	Covers,
 	AlternateTranslatorNames,
 	Publishers,
+	WikiPage,
 ]
 
 def install_trigram_indice_on_column(table, column):
