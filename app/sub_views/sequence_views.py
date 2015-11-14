@@ -75,8 +75,6 @@ def renderAuthorTable(letter=None, page=1):
 						   name_key        = "name",
 						   page_url_prefix = 'author-id',
 						   title           = 'Authors',
-						   # add_new         = 'author',
-						   # add_new_text    = 'Add a Author',
 						   )
 
 
@@ -95,6 +93,7 @@ def renderArtistTable(letter=None, page=1):
 		series = Illustrators.query       \
 			.order_by(Illustrators.name)\
 			.distinct(Illustrators.name)
+
 	if series is None:
 		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
 		return redirect(url_for('renderArtistTable'))
@@ -108,8 +107,6 @@ def renderArtistTable(letter=None, page=1):
 						   name_key        = "name",
 						   page_url_prefix = 'artist-id',
 						   title           = 'Artists',
-						   # add_new         = 'artist',
-						   # add_new_text    = 'Add a Artist',
 
 						   )
 

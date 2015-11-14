@@ -1,0 +1,20 @@
+
+<div class="well well-sm">
+	{% if content: %}
+		<div>
+			<h4>{{content_title}} wiki:</h4>
+			{{content}}
+		</div>
+		<div>
+			Full wiki page: <a href='/wiki/{{page_slug}}'>{{link_name}}</a>
+		</div>
+	{% else: %}
+		<div>
+			<h4>No wiki page for: {{content_title}}</h4>
+
+			{% if g.user.is_authenticated() %}
+				<a href='/wiki/{{page_slug}}'>Create a page for: {{link_name}}</a>
+			{% endif %}
+		</div>
+	{% endif %}
+</div>
