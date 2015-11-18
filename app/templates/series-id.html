@@ -312,6 +312,19 @@
 				margin-left:auto;
 			}
 
+
+		</style>
+		<div class='imgDiv' id='x'>
+			<div id='x-desc-div'>
+				<p id='x-content'>
+					<a id='editlink' href="/series-id/{{ series.id }}/edit-covers/">No covers! Add one, maybe?</a>
+				</p>
+			</div>
+		</div>
+	{% endif %}
+
+	<style>
+
 			@media (min-width: 100px) {
 				#x::after,#x::before
 				{
@@ -366,17 +379,7 @@
 			}
 
 
-
-		</style>
-		<div class='imgDiv' id='x'>
-			<div id='x-desc-div'>
-				<p id='x-content'>
-					<a id='editlink' href="/series-id/{{ series.id }}/edit-covers/">No covers! Add one, maybe?</a>
-				</p>
-			</div>
-		</div>
-	{% endif %}
-
+	</style>
 {%- endmacro %}
 
 
