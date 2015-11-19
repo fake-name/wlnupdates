@@ -16,6 +16,28 @@
 	</div>
 {%- endmacro %}
 
+{% macro singleItemNonEditable(name, value, width=3) -%}
+	<div class="well well-tny info-item">
+		<div class="row">
+			<div class="col-md-12">
+				List Stats:
+				<span style='float:right'>
+					{% if not value: %}
+						Not on anyone's reading list.
+					{% elif value == 1: %}
+						{{value}} person follows this series.
+					{% elif value > 1: %}
+						{{value}} people follow this series.
+					{% else %}
+						Wat? (On {{value}} reading lists)
+					{% endif %}
+
+				</span>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
 {% macro ratingBlock(rating_value, overall_rating) -%}
 	<css>
 
@@ -769,6 +791,10 @@
 
 			{{
 				ratingBlock(1.5, 2.5)
+			}}
+
+			{{
+				singleItemNonEditable("People watching", total_watches)
 			}}
 
 			{{singleItemBlockDropbox("OEL/Translated",

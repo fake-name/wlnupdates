@@ -1,10 +1,10 @@
 Todo:
  - Add wiki for tags, etc...
- 
- unescaped https://www.wlnupdates.com/series-id/32392/
 
 Done:
+## - show how many people watching each ite,
 ## - special-case annoying ALLCAPS titles, lower case them.
+## - unescaped https://www.wlnupdates.com/series-id/32392/
 ## - Narrow viewport should shrink covers
 ## - add links to the legal for all the inline deps - jquery, rabbitmq, etc...
 ## - Removing items from lists doesn't.

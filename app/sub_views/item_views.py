@@ -147,6 +147,10 @@ def renderSeriesId(sid):
 		watch = False
 		watchlists = False
 
+
+
+	total_watches =       Watches.query.filter(Watches.series_id==sid).count()
+
 	if series is None:
 		flash(gettext('Series %(sid)s not found.', sid=sid))
 		return redirect(url_for('index'))
@@ -185,6 +189,7 @@ def renderSeriesId(sid):
 						most_recent   = most_recent,
 						latest_str    = latest_str,
 						series_rating = rating,
+						total_watches = total_watches,
 						)
 
 
