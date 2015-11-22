@@ -299,16 +299,33 @@ def update_series_info(item):
 
 		return
 
-	if not series.description:
-		series.description =bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong'])
+	if 'desc' in item and item['desc'] and not series.description:
+		series.description = bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong', 'b', 'i', 'a'])
 
-	if not series.website:
+	if 'homepage' in item and item['homepage'] and not series.website:
 		series.website = bleach.clean(item['homepage'])
 
-	app.series_tools.setAuthorIllust(series, author=[item['author'], ])
+	if 'author' in item and item['author']:
+		app.series_tools.setAuthorIllust(series, author=item['author'], deleteother=False)
 
-	app.series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=False)
+	if 'illust' in item and item['illust']:
+		app.series_tools.setAuthorIllust(series, illust=item['illust'], deleteother=False)
 
+	if 'tags' in item and item['tags']:
+		app.series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=False)
+
+	if 'alt_titles' in item and item['alt_titles']:
+		app.series_tools.updateAltNames(series, item['alt_titles'], deleteother=False)
+
+	if 'pubdate' in item and item['pubdate']:
+		if not series.pub_date:
+			series.pub_date = datetime.datetime.utcfromtimestamp(item['pubdate'])
+
+	if 'sourcesite' in item and item['sourcesite']:
+		if not series.website:
+		pass
+
+	series.changeuser = RSS_USER_ID
 
 	db.session.flush()
 	db.session.commit()
