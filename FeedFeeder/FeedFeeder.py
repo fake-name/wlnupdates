@@ -322,7 +322,6 @@ def update_series_info(item):
 			series.pub_date = datetime.datetime.utcfromtimestamp(item['pubdate'])
 
 	if 'sourcesite' in item and item['sourcesite']:
-		if not series.website:
 		pass
 
 	series.changeuser = RSS_USER_ID
