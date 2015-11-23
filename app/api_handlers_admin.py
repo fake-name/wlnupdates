@@ -23,6 +23,7 @@ from app.models import Releases
 from app.models import ReleasesChanges
 from app.models import Watches
 from app.models import Publishers
+from app.models import PublishersChanges
 
 from sqlalchemy import or_
 
@@ -81,7 +82,7 @@ def merge_series_ids(m1, m2):
 		genres.append(val.genre)
 
 	for val in Publishers.query.filter(Publishers.series==itm_from.id).all():
-		publs.append(val.genre)
+		publs.append(val.name)
 
 
 	# !Ordering here matters!
@@ -97,6 +98,8 @@ def merge_series_ids(m1, m2):
 			TagsChanges,
 			Genres,
 			GenresChanges,
+			Publishers,
+			PublishersChanges,
 		]
 
 	for clearTable in delete_from:
