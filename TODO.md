@@ -1,6 +1,8 @@
 Todo:
  - Add wiki for tags, etc...
 
+deal with single-character author issues (whoops, something wasn't converted to a list).
+
 Done:
 ## - show how many people watching each ite,
 ## - special-case annoying ALLCAPS titles, lower case them.

@@ -306,9 +306,15 @@ def update_series_info(item):
 		series.website = bleach.clean(item['homepage'])
 
 	if 'author' in item and item['author']:
-		app.series_tools.setAuthorIllust(series, author=item['author'], deleteother=False)
+		tmp = item['author']
+		if isinstance(tmp, str):
+			tmp = [tmp, ]
+		app.series_tools.setAuthorIllust(series, author=tmp, deleteother=False)
 
 	if 'illust' in item and item['illust']:
+		tmp = item['illust']
+		if isinstance(tmp, str):
+			tmp = [tmp, ]
 		app.series_tools.setAuthorIllust(series, illust=item['illust'], deleteother=False)
 
 	if 'tags' in item and item['tags']:
