@@ -263,7 +263,7 @@ def update_series_info(item):
 	assert 'tl_type'  in item
 
 
-	print("Series info update message!")
+	print("Series info update message for '%s'!" % item['title'])
 	series = get_create_series(item['title'], item["tl_type"])
 
 
@@ -316,6 +316,9 @@ def update_series_info(item):
 
 	if 'alt_titles' in item and item['alt_titles']:
 		app.series_tools.updateAltNames(series, item['alt_titles'], deleteother=False)
+
+	if 'pubnames' in item and item['pubnames']:
+		app.series_tools.updatePublishers(series, item['pubnames'], deleteother=False)
 
 	if 'pubdate' in item and item['pubdate']:
 		if not series.pub_date:
