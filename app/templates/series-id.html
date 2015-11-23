@@ -270,7 +270,7 @@
 		<div class='imgDiv'>
 			{% for cover in covers %}
 				<div id="cover-item" style="display: none;">
-					<img src='/cover-img/{{ cover.id }}' style='max-width: 350px; max-height: 500px;'>
+					<img class='coverimg' src='/cover-img/{{ cover.id }}'>
 					{% if cover.description %}
 						<h4>{{cover.description}}</h4>
 					{% else %}
@@ -360,8 +360,14 @@
 
 				.imgDiv
 				{
-					height     : 165px;
+					height     : 270px;
 					width      : 100px;
+				}
+				.coverimg
+				{
+					max-height: 150px;
+					max-width: 90px;
+					vertical-align: top;
 				}
 			}
 			@media (min-width: 275px) {
@@ -377,8 +383,14 @@
 
 				.imgDiv
 				{
-					height     : 315px;
+					height     : 370px;
 					width      : 200px;
+				}
+				.coverimg
+				{
+					max-height: 270px;
+					max-width: 190px;
+					vertical-align: top;
 				}
 			}
 
@@ -397,6 +409,12 @@
 				{
 					height     : 615px;
 					width      : 400px;
+				}
+				.coverimg
+				{
+					max-width: 350px;
+					max-height: 500px;
+					vertical-align: top;
 				}
 			}
 

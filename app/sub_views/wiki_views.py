@@ -41,7 +41,7 @@ def render_wiki(type, name):
 
 	wiki = get_wiki(page_slug)
 	content = wiki
-	print("Content = ", content)
+	# print("Content = ", content)
 
 	return render_template(
 			'/wiki/wiki_panel.html',
