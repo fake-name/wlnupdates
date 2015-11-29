@@ -30,10 +30,15 @@ def renderUserWatches():
 	data = {}
 
 	ids = []
-	for watch in watches:
+	for watch in [tmp for tmp in watches]:
 
 		series = watch.series_row
-		ids.append(series.id)
+		if not series:
+			watches.remove(watch)
+			db.session.delete(watch)
+			db.session.commit()
+		else:
+			ids.append(series.id)
 
 	latest = get_latest_releases(ids)
 
