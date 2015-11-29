@@ -68,6 +68,7 @@ DISPATCH_TABLE = {
 	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,          True),
 	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,          True),
 	'delete-series'             : (api_handlers_admin.deleteSeries,              True),
+	'delete-auto-releases'      : (api_handlers_admin.deleteAutoReleases,        True),
 
 	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,     True),
 	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases, True),

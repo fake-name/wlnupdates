@@ -35,6 +35,7 @@ from flask.ext.login import current_user
 import app.series_tools
 from app.api_common import getResponse
 
+import FeedFeeder.FeedFeeder
 
 
 
@@ -451,6 +452,7 @@ def clean_tags(dummy_data):
 			)
 		;
 		''')
+	db.session.commit()
 
 	return getResponse("Found %s tags that required patching." % (bad_tags), error=False)
 
@@ -462,19 +464,68 @@ def deleteSeries(data):
 	assert 'mode' in data
 
 	delete_id = data["item-id"]
+	clean_item = Series.query.filter(Series.id==delete_id).one()
 
-	return getResponse("Not implemented yet. Whoops?", error=True)
 
-	# assert data['mode'] == "release-ctrl"
+	# !Ordering here matters!
+	# Change-tables have to go second.
+	delete_from = [
+			AlternateNames,
+			AlternateNamesChanges,
+			Author,
+			AuthorChanges,
+			Illustrators,
+			IllustratorsChanges,
+			Tags,
+			TagsChanges,
+			Genres,
+			GenresChanges,
+			Publishers,
+			PublishersChanges,
+			Covers,
+			CoversChanges,
+			Releases,
+			ReleasesChanges,
+			# Series,
+			# SeriesChanges,
+		]
 
-	# try:
-	#   data['id'] = int(data['id'])
-	# except ValueError:
-	#   raise AssertionError("Failure converting item ID to integer!")
-	# assert data['count'] in BOOL_LUT
-	# data['count'] = BOOL_LUT[data['count']]
 
-	# assert data['op'] in RELEASE_OPS
+	for clearTable in delete_from:
+		clearTable.query.filter(clearTable.series==clean_item.id).delete()
 
-	# return RELEASE_OPS[data['op']](data)
+	Series.query.filter(Series.id==clean_item.id).delete()
+	SeriesChanges.query.filter(SeriesChanges.srccol==clean_item.id).delete()
+	# db.session.delete(clean_item)
+	db.session.commit()
 
+	return getResponse("Series was deleted entirely!", error=False)
+
+def deleteAutoReleases(data):
+
+	if not current_user.is_admin():
+		return getResponse(error=True, message="I see what you (tried) to do there!")
+
+	assert 'item-id' in data
+	assert 'mode' in data
+	assert data['mode'] == "delete-auto-releases"
+
+	try:
+		delete_id = int(data["item-id"])
+	except ValueError:
+		raise AssertionError("Failure converting item ID to integer!")
+
+
+	clean_item = Series.query.filter(Series.id==delete_id).one()
+
+	print(clean_item)
+	for release in clean_item.releases:
+		if release.changeuser == FeedFeeder.FeedFeeder.RSS_USER_ID:
+			db.session.delete(release)
+			# print(release.id, release.volume, release.chapter, release.postfix, release.changeuser)
+		else:
+			print("Not deleting: ", release.id, release.volume, release.chapter, release.postfix, release.changeuser)
+
+	db.session.commit()
+
+	return getResponse("Autogen releases deleted. Reloading.", error=False)

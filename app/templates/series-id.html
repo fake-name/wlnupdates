@@ -234,7 +234,7 @@
 				<form class="form-inline" action="javascript:merge_ajax();">
 
 					<div class="col-md-3 rowTitle">
-						<label style='margin-top:5px' for="exampleInputEmail1">Merge into series ID</label>
+						<label style='margin-top:5px'>Merge into series ID</label>
 					</div>
 					<div class="col-md-9 rowTitle">
 						<input type="text" class="form-control input-sm" id="dbid" placeholder="DbId">
@@ -253,7 +253,21 @@
 			<div class="col-md-12 rowContents" id='{{valId}}'>
 				<form class="form-inline" action="javascript:delete_ajax();">
 					<div class="col-md-3 rowTitle">
-						<label style='margin-top:5px' for="exampleInputEmail1">Delete Series:</label>
+						<label style='margin-top:5px'>Delete Series:</label>
+					</div>
+					<div class="col-md-9 rowTitle">
+						<button style='margin-top:4px' class="btn btn-primary btn-xs">DO IT</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-12 rowContents" id='{{valId}}'>
+				<form class="form-inline" action="javascript:delete_releases_ajax();">
+					<div class="col-md-3 rowTitle">
+						<label style='margin-top:5px'>Delete Auto-Releases:</label>
 					</div>
 					<div class="col-md-9 rowTitle">
 						<button style='margin-top:4px' class="btn btn-primary btn-xs">DO IT</button>
@@ -563,12 +577,13 @@
 			});
 		}
 
+
+		// Hi there!
+		// Yes, you can see the function. The API
+		// endpoint it calls requires proper auth.
+		// It's cute you're trying to mess things up, though....
 		function delete_ajax()
 		{
-			// Hi there!
-			// Yes, you can see the function. The API
-			// endpoint it calls requires proper auth, though.
-			// It's cute you're trying to mess things up, though....
 			console.log("Ready to send!");
 
 			var mangaId  = $('meta[name=manga-id]').attr('content')
@@ -578,6 +593,29 @@
 			}
 
 			bootbox.confirm("Really delete series ID " + mangaId + "?", function(result) {
+
+				$.ajax({
+					url : "/api",
+					success : saveCallback(false),
+					data: JSON.stringify(params),
+					method: "POST",
+					dataType: 'json',
+					contentType: "application/json;",
+				});
+			});
+		}
+
+		function delete_releases_ajax()
+		{
+			console.log("Ready to send!");
+
+			var mangaId  = $('meta[name=manga-id]').attr('content')
+			var params = {
+				'mode'      : 'delete-auto-releases',
+				'item-id'   : mangaId,
+			}
+
+			bootbox.confirm("Really delete auto-sourced series release items for " + mangaId + "?", function(result) {
 
 
 				$.ajax({
