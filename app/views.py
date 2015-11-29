@@ -108,8 +108,13 @@ def get_news():
 	newsPost = News_Posts.query.filter(News_Posts.user_id == 2).order_by(desc(News_Posts.timestamp)).limit(1).one()
 	return newsPost
 
-def get_raw_feeds():
-	raw_feeds = Feeds.query.order_by(desc(Feeds.published)).limit(10).all()
+def get_raw_feeds(limit=20):
+	raw_feeds = Feeds.query              \
+		.options(joinedload('tags'))     \
+		.options(joinedload('authors'))  \
+		.order_by(desc(Feeds.published)) \
+		.limit(20)                       \
+		.all()
 	if raw_feeds:
 		tmp = raw_feeds[0]
 
@@ -136,7 +141,7 @@ def index(page=1):
 						   title               = 'Home',
 						   random_series       = get_random_books(),
 						   news                = get_news(),
-						   # raw_feeds         = get_raw_feeds(),
+						   raw_feeds           = get_raw_feeds(),
 						   oel_release_items   = get_release_feeds(srctype='oel'),
 						   trans_release_items = get_release_feeds(srctype='translated'),
 						   )

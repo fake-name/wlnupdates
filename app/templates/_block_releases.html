@@ -51,93 +51,93 @@
 {%- endmacro %}
 
 {% if release_items: %}
-		{% if chunk %}
+	{% if chunk %}
+		<h4>
+			{{ format_date(release_items[0].published) }}
+		</h4>
+		{% set lastitemday = release_items[0].published.day %}
+	{% endif %}
+	{{ tableHeader() }}
+	{% for entry in release_items: %}
+
+		{% if chunk and entry.published.day != lastitemday %}
+
+			{{ tableFooter() }}
+
 			<h4>
-				{{ format_date(release_items[0].published) }}
+				{{ format_date(entry.published) }}
 			</h4>
-			{% set lastitemday = release_items[0].published.day %}
+			{{ tableHeader() }}
+			{% set lastitemday = entry.published.day %}
 		{% endif %}
-		{{ tableHeader() }}
-		{% for entry in release_items: %}
 
-			{% if chunk and entry.published.day != lastitemday %}
+		{% if g.user.is_mod() %}
+			<tr id='release-entry'
+				data-id="{{entry.id}}"
+				data-counted="{{entry.include}}"
+				data-added-by="{{getUserId(entry.changeuser)}}"
+				data-added-on='{{entry.published}}'
+				data-added-ago='{{ago(entry.published)}}'
+				>
+		{% else %}
+			<tr id='release-entry'>
+		{% endif %}
 
-				{{ tableFooter() }}
-
-				<h4>
-					{{ format_date(entry.published) }}
-				</h4>
-				{{ tableHeader() }}
-				{% set lastitemday = entry.published.day %}
-			{% endif %}
-
-			{% if g.user.is_mod() %}
-				<tr id='release-entry'
-					data-id="{{entry.id}}"
-					data-counted="{{entry.include}}"
-					data-added-by="{{getUserId(entry.changeuser)}}"
-					data-added-on='{{entry.published}}'
-					data-added-ago='{{ago(entry.published)}}'
-					>
-			{% else %}
-				<tr id='release-entry'>
-			{% endif %}
-
-				<td>
-					{% if g.user.id == 2 %}
-						<a href='http://10.1.1.43:5001/view?url={{entry.srcurl | urlencode}}'>R-View</a>
-					{% else %}
-						<a href='{{entry.srcurl}}'>View</a>
-					{% endif %}
-
-				</td>
-				<td>
-					<a href='/series-id/{{entry.series}}/'>{{entry.series_row.title}}</a>
-
-				</td>
-				{% if entry.volume != None %}
-					<td class='numeric' id='release-entry-cell'>
-						{{entry.volume | int}}
-					</td>
-				{% endif %}
-				{% if entry.chapter != None %}
-					<td class='numeric' {{ "colspan=2" if entry.volume == None  }} id='release-entry-cell'>
-
-						{% if entry.chapter % 1 == 0 %}
-							{{('%i' % entry.chapter)}}
-						{% elif entry.chapter != None %}
-							{{('%0.2f' % entry.chapter)}}
-						{% endif %}
-					</td>
-				{% endif %}
-
-				{% if entry.chapter == None and entry.volume == None %}
-					<td class='postfix' {{ "colspan=3" if entry.chapter == None  }} id='release-entry-cell'>
-				{% elif entry.chapter == None %}
-					<td class='postfix' {{ "colspan=2" if entry.chapter == None  }} id='release-entry-cell'>
+			<td>
+				{% if g.user.id == 2 %}
+					<a href='http://10.1.1.43:5001/view?url={{entry.srcurl | urlencode}}'>R-View</a>
 				{% else %}
-					<td class='postfix' id='release-entry-cell'>
+					<a href='{{entry.srcurl}}'>View</a>
 				{% endif %}
-					{{entry.postfix | safe}}
-				</td>
 
-				{% if show_group != False %}
-					<td id='release-entry-cell'>
-						<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
-					</td>
-				{% endif %}
-				{% if g.user.is_mod() %}
-					<td id='release-entry-cell'>
-						{% if entry.include %}
-							◯
-						{% else %}
-							✖
-						{% endif %}
-					</td>
-				{% endif %}
-			</tr>
-		{% endfor %}
-		{{ tableFooter() }}
+			</td>
+			<td>
+				<a href='/series-id/{{entry.series}}/'>{{entry.series_row.title}}</a>
+
+			</td>
+			{% if entry.volume != None %}
+				<td class='numeric' id='release-entry-cell'>
+					{{entry.volume | int}}
+				</td>
+			{% endif %}
+			{% if entry.chapter != None %}
+				<td class='numeric' {{ "colspan=2" if entry.volume == None  }} id='release-entry-cell'>
+
+					{% if entry.chapter % 1 == 0 %}
+						{{('%i' % entry.chapter)}}
+					{% elif entry.chapter != None %}
+						{{('%0.2f' % entry.chapter)}}
+					{% endif %}
+				</td>
+			{% endif %}
+
+			{% if entry.chapter == None and entry.volume == None %}
+				<td class='postfix' {{ "colspan=3" if entry.chapter == None  }} id='release-entry-cell'>
+			{% elif entry.chapter == None %}
+				<td class='postfix' {{ "colspan=2" if entry.chapter == None  }} id='release-entry-cell'>
+			{% else %}
+				<td class='postfix' id='release-entry-cell'>
+			{% endif %}
+				{{entry.postfix | safe}}
+			</td>
+
+			{% if show_group != False %}
+				<td id='release-entry-cell'>
+					<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
+				</td>
+			{% endif %}
+			{% if g.user.is_mod() %}
+				<td id='release-entry-cell'>
+					{% if entry.include %}
+						◯
+					{% else %}
+						✖
+					{% endif %}
+				</td>
+			{% endif %}
+		</tr>
+	{% endfor %}
+	{{ tableFooter() }}
 {% else: %}
 	<strong>No releases found!</strong>
 {% endif %}

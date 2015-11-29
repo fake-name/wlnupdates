@@ -25,15 +25,19 @@
 
 {% if raw_feeds: %}
 
-	<h4>
-		{{ format_date(raw_feeds[0].published) }}
-	</h4>
+	{% if chunk %}
+		<h4>
+			{{ format_date(raw_feeds[0].published) }}
+		</h4>
+		{% set lastitemday = raw_feeds[0].published.day %}
+	{% endif %}
 	{% set lastitemday = raw_feeds[0].published.day %}
 
 	{{ tableHeader() }}
 	{% for entry in raw_feeds: %}
 
-		{% if entry.published.day != lastitemday %}
+		{% if chunk and entry.published.day != lastitemday %}
+
 			{{ tableFooter() }}
 
 			<h4>
@@ -47,12 +51,12 @@
 				<a href='{{entry.linkurl}}'>{{entry.title}}</a>
 			</td>
 			<td>
-				{% for tag in entry.tags %}
-					{{ tag.tag }}{% if not loop.last %},{% endif %}
-				{% endfor %}
+				{%- for tag in entry.tags -%}
+					<a href='/feeds/tag/{{ tag.tag | urlencode }}/'>{{ tag.tag }}</a>{% if not loop.last %}, {% endif %}
+				{%- endfor -%}
 			</td>
 			<td>
-				{{entry.srcname}}
+				<a href='/feeds/source/{{ entry.srcname | urlencode }}/'>{{entry.srcname}}</a>
 			</td>
 		</tr>
 	{% endfor %}

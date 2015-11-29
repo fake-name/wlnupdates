@@ -675,3 +675,160 @@ class HttpRequestLog(db.Model):
 	referer        = db.Column(db.String)
 	forwarded_for  = db.Column(db.String)
 	originating_ip = db.Column(db.String)
+
+'''
+DELETE FROM
+    feed_authors
+WHERE
+    article_id IN (
+        SELECT
+            feeds.id
+        FROM
+            feeds
+        WHERE
+            srcname IN (
+                'www.asstr.tv',
+                'inmydaydreams.com',
+                'www.tgstorytime.org',
+                'pokegirls.com',
+                'storiesonline.net',
+                'www.adult-fanfiction.tv',
+                'www.asstr.org',
+                'www.fictionmania.com',
+                'storiesonline.org',
+                'storiesonline.tv',
+                'pokegirls.org',
+                'www.booksiesilk.com',
+                'www.tgstorytime.com',
+                'www.tgstorytime.tv',
+                'pokegirls.tv',
+                'www.booksiesilk.tv',
+                'www.asstr.net',
+                'www.adult-fanfiction.com',
+                'storiesonline.com',
+                'www.booksiesilk.org',
+                'www.adult-fanfiction.net',
+                'www.booksiesilk.net',
+                'www.adult-fanfiction.org',
+                'www.asstr.com',
+                'www.fictionmania.net',
+                'www.fictionmania.tv',
+                'www.tgstorytime.net',
+                'pokegirls.net',
+                'www.fictionmania.org',
+                'archiveofourown.org',
+                'www.baka-tsuki.org',
+                'www.booksie.com',
+                'www.fanfiction.net',
+                'www.fictionpress.com',
+                'lndb.info',
+                're-monster.wikia.com',
+                'royalroadl.com',
+                'www.royalroadl.com',
+                'a.wattpad.com',
+                'www.wattpad.com'
+            )
+    )
+;
+DELETE FROM
+    feed_tags
+WHERE
+    article_id IN (
+        SELECT
+            feeds.id
+        FROM
+            feeds
+        WHERE
+            srcname IN (
+                'www.asstr.tv',
+                'inmydaydreams.com',
+                'www.tgstorytime.org',
+                'pokegirls.com',
+                'storiesonline.net',
+                'www.adult-fanfiction.tv',
+                'www.asstr.org',
+                'www.fictionmania.com',
+                'storiesonline.org',
+                'storiesonline.tv',
+                'pokegirls.org',
+                'www.booksiesilk.com',
+                'www.tgstorytime.com',
+                'www.tgstorytime.tv',
+                'pokegirls.tv',
+                'www.booksiesilk.tv',
+                'www.asstr.net',
+                'www.adult-fanfiction.com',
+                'storiesonline.com',
+                'www.booksiesilk.org',
+                'www.adult-fanfiction.net',
+                'www.booksiesilk.net',
+                'www.adult-fanfiction.org',
+                'www.asstr.com',
+                'www.fictionmania.net',
+                'www.fictionmania.tv',
+                'www.tgstorytime.net',
+                'pokegirls.net',
+                'www.fictionmania.org',
+                'archiveofourown.org',
+                'www.baka-tsuki.org',
+                'www.booksie.com',
+                'www.fanfiction.net',
+                'www.fictionpress.com',
+                'lndb.info',
+                're-monster.wikia.com',
+                'royalroadl.com',
+                'www.royalroadl.com',
+                'a.wattpad.com',
+                'www.wattpad.com'
+            )
+    )
+;
+DELETE FROM
+    feeds
+WHERE
+    srcname IN (
+        'www.asstr.tv',
+        'inmydaydreams.com',
+        'www.tgstorytime.org',
+        'pokegirls.com',
+        'storiesonline.net',
+        'www.adult-fanfiction.tv',
+        'www.asstr.org',
+        'www.fictionmania.com',
+        'storiesonline.org',
+        'storiesonline.tv',
+        'pokegirls.org',
+        'www.booksiesilk.com',
+        'www.tgstorytime.com',
+        'www.tgstorytime.tv',
+        'pokegirls.tv',
+        'www.booksiesilk.tv',
+        'www.asstr.net',
+        'www.adult-fanfiction.com',
+        'storiesonline.com',
+        'www.booksiesilk.org',
+        'www.adult-fanfiction.net',
+        'www.booksiesilk.net',
+        'www.adult-fanfiction.org',
+        'www.asstr.com',
+        'www.fictionmania.net',
+        'www.fictionmania.tv',
+        'www.tgstorytime.net',
+        'pokegirls.net',
+        'www.fictionmania.org',
+        'archiveofourown.org',
+        'www.baka-tsuki.org',
+        'www.booksie.com',
+        'www.fanfiction.net',
+        'www.fictionpress.com',
+        'lndb.info',
+        're-monster.wikia.com',
+        'royalroadl.com',
+        'www.royalroadl.com',
+        'a.wattpad.com',
+        'www.wattpad.com'
+    );
+
+
+'''
+

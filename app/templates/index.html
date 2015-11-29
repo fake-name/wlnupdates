@@ -30,6 +30,15 @@
 
 	<hr class='padded-rule'>
 	<div>
+		<h3>Latest RSS Feeds</h3>
+		{% include '_block_feeds.html' %}
+		<a href='/feeds/'>More Feeds</a>
+	</div>
+
+	<hr class='padded-rule'>
+
+	{% set show_group = False %}
+	<div>
 		<h4>A few random series</h4>
 		{% for post in random_series %}
 			<div class="well well-tny">

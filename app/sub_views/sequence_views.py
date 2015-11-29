@@ -28,6 +28,7 @@ from app.models import Watches
 from app.models import AlternateNames
 from app.models import Feeds
 from app.models import Publishers
+from app.models import FeedTags
 from app.models import Releases
 
 from app.confirm import send_email
@@ -248,5 +249,61 @@ def renderFeedsTable(page=1):
 
 	return render_template('feeds.html',
 						   sequence_item   = feed_entries,
-						   page            = page
+						   page            = page,
+						   chunk           = True
 						   )
+
+
+@app.route('/feeds/tag/<tag>/<page>')
+@app.route('/feeds/tag/<tag>/<int:page>')
+@app.route('/feeds/tag/<tag>/')
+def renderFeedsTagTable(tag, page=1):
+	query = Feeds.query                      \
+			.join(FeedTags)                  \
+			.filter(FeedTags.tag == tag)     \
+			.order_by(desc(Feeds.published)) \
+			.options(joinedload('tags'))     \
+			.options(joinedload('authors'))
+
+
+
+	feeds = query
+
+	if feeds is None:
+		flash(gettext('No feeds? Something is /probably/ broken!.'))
+		return redirect(url_for('renderFeedsTable'))
+
+	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
+
+	return render_template('feeds.html',
+						   subheader = "Tag = '%s'" % tag,
+						   sequence_item   = feed_entries,
+						   page            = page,
+						   chunk           = True
+						   )
+
+@app.route('/feeds/source/<source>/<page>')
+@app.route('/feeds/source/<source>/<int:page>')
+@app.route('/feeds/source/<source>/')
+def renderFeedsSourceTable(source, page=1):
+	feeds = Feeds.query                   \
+		.filter(Feeds.srcname == source)  \
+		.order_by(desc(Feeds.published))
+
+
+	feeds = feeds.options(joinedload('tags'))
+	feeds = feeds.options(joinedload('authors'))
+
+	if feeds is None:
+		flash(gettext('No feeds? Something is /probably/ broken!.'))
+		return redirect(url_for('renderFeedsTable'))
+
+	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
+
+	return render_template('feeds.html',
+						   subheader = "Source = '%s'" % source,
+						   sequence_item   = feed_entries,
+						   page            = page,
+						   chunk           = True
+						   )
+
