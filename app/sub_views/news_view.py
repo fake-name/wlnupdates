@@ -11,7 +11,7 @@ from app.models import News_Posts
 
 from app import db
 
-@app.route('/news/<page>/')
+@app.route('/news/<int:page>')
 @app.route('/news/')
 def renderNews(page=1):
 
