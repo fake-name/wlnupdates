@@ -12,7 +12,7 @@ import time
 import sqlalchemy.exc
 import bleach
 import app.series_tools
-
+import sqlalchemy.exc
 # user = Users(
 # 	nickname  = form.username.data,
 # 	password  = form.password.data,
@@ -150,65 +150,104 @@ def get_create_group(groupname):
 		return new
 	return have
 
-# {
-# 	'series': 'I’m Back in the Other World?',
-# 	'srcname': 'お兄ちゃん、やめてぇ！',
-# 	'published': 1427995197.0,
-# 	'chp': '9',
-# 	'vol': None,
-# 	'postfix': '',
-# 	'itemurl': 'https://oniichanyamete.wordpress.com/2015/04/02/im-back-in-the-other-world-chapter-9/'
-# }
+
+def get_create_series(seriesname, tl_type, author_name=False):
+	# print("get_create_series(): '%s', '%s', '%s'" % (seriesname, tl_type, author_name))
+	while 1:
+		try:
+			have  = AlternateNames                             \
+					.query                                     \
+					.filter(AlternateNames.name == seriesname) \
+					.order_by(AlternateNames.id)               \
+					.all()
+
+			# for item in have:
+			# 	print((item.series_row.id, item.series_row.title, [tmp.name.lower() for tmp in item.series_row.author]))
+			# print("Want:", author_name)
+
+			# Try to match any alt-names we have.
+			if have:
+				for item in [tmp for tmp in have if tmp.series_row.tl_type == tl_type]:
+					if author_name:
+						if author_name.lower() in [tmp.name.lower() for tmp in item.series_row.author]:
+							# print("AuthorName match!")
+							return item.series_row
+					else:
+						return item.series_row
+
+			# print("No match found while filtering by author-name!")
 
 
-def get_create_series(seriesname, tl_type):
-	# If two series have the same alt-name, pick the one with
-	# the lower database-id
-	have  = AlternateNames                             \
-			.query                                     \
-			.filter(AlternateNames.name == seriesname) \
-			.order_by(AlternateNames.id)               \
-			.limit(1)                                  \
-			.scalar()
+			haveS  = Series                              \
+					.query                              \
+					.filter(Series.title == seriesname) \
+					.limit(1)                           \
+					.scalar()
 
-	if not have:
-
-		haveS  = Series                              \
-				.query                              \
-				.filter(Series.title == seriesname) \
-				.limit(1)                           \
-				.scalar()
-
-		if haveS:
-			print("Wat? Item that isn't in the altname table but still exists?")
-			return haveS
-
-		print("Need to create new series entry for ", seriesname)
-		new = Series(
-				title=seriesname,
-				changeuser = RSS_USER_ID,  # Hard coded RSS user ID. Probably a bad idea.
-				changetime = datetime.datetime.now(),
-				tl_type    = tl_type,
-
-			)
-		db.session.add(new)
-		db.session.flush()
+			if haveS and author_name:
+				sName = "{} ({})".format(seriesname, author_name)
+			elif haveS:
+				if haveS.tl_type != tl_type:
+					if tl_type == "oel":
+						st = "OEL"
+					else:
+						st = tl_type.title()
+					sName = "{} ({})".format(seriesname, st)
+				else:
+					# print("Wat? Item that isn't in the altname table but still exists?")
+					return haveS
+			else:
+				sName = seriesname
 
 
-		newname = AlternateNames(
-				name       = seriesname,
-				cleanname  = nt.prepFilenameForMatching(seriesname),
-				series     = new.id,
-				changetime = datetime.datetime.now(),
-				changeuser = RSS_USER_ID
-			)
-		db.session.add(newname)
-		db.session.flush()
-		db.session.commit()
+			print("Need to create new series entry for ", seriesname)
+			new = Series(
+					title=sName,
+					changeuser = RSS_USER_ID,  # Hard coded RSS user ID. Probably a bad idea.
+					changetime = datetime.datetime.now(),
+					tl_type    = tl_type,
 
-		return new
 
-	return have.series_row
+				)
+			db.session.add(new)
+			db.session.flush()
+
+			if author_name:
+				app.series_tools.setAuthorIllust(new, author=[author_name])
+
+			altn1 = AlternateNames(
+					name       = seriesname,
+					cleanname  = nt.prepFilenameForMatching(seriesname),
+					series     = new.id,
+					changetime = datetime.datetime.now(),
+					changeuser = RSS_USER_ID
+				)
+			db.session.add(altn1)
+
+			if sName != seriesname:
+				altn2 = AlternateNames(
+						name       = sName,
+						cleanname  = nt.prepFilenameForMatching(seriesname),
+						series     = new.id,
+						changetime = datetime.datetime.now(),
+						changeuser = RSS_USER_ID
+					)
+				db.session.add(altn2)
+			db.session.commit()
+
+
+			return new
+		except sqlalchemy.exc.IntegrityError:
+			print("Concurrency issue?")
+			print("'%s', '%s', '%s'" % (seriesname, tl_type, author_name))
+			db.session.rollback()
+			raise
+		except Exception:
+			print("Error!")
+			raise
+
+
+	# return have.series_row
 
 def check_insert_release(item, group, series):
 	have = Releases.query                            \
@@ -250,7 +289,12 @@ def insert_parsed_release(item):
 		raise ValueError("Invalid TL Type '%s'! Wat?" % item["tl_type"])
 
 	group = get_create_group(item['srcname'])
-	series = get_create_series(item['series'], item["tl_type"])
+
+	if 'match_author' in item and item['match_author']:
+		series = get_create_series(item['series'], item["tl_type"], item['author'])
+	else:
+		series = get_create_series(item['series'], item["tl_type"])
+
 
 	check_insert_release(item, group, series)
 
@@ -264,8 +308,8 @@ def update_series_info(item):
 
 
 	print("Series info update message for '%s'!" % item['title'])
-	series = get_create_series(item['title'], item["tl_type"])
 
+	series = get_create_series(item['title'], item["tl_type"], item['author'])
 
 	# Break if the tl type has changed, something is probably mismatched
 	if series.tl_type != item['tl_type']:
@@ -409,3 +453,9 @@ class FeedFeeder(object):
 
 	def __del__(self):
 		print("FeedFeeder being deleted")
+
+
+if __name__ == "__main__":
+	ret = get_create_series("World Seed", "oel", author_name='karami92')
+	print(ret)
+	pass
