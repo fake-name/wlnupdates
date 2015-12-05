@@ -18,6 +18,7 @@ from .models import ReleasesChanges
 from .models import Covers
 from .models import AlternateNamesChanges
 from .models import PublishersChanges
+from .models import AlternateTranslatorNamesChanges
 
 from .confirm import send_email
 
@@ -29,23 +30,24 @@ from sqlalchemy.sql.expression import func
 
 
 dispatch_table = {
-	'description'  : SeriesChanges,
-	'demographic'  : SeriesChanges,
-	'type'         : SeriesChanges,
-	'origin_loc'   : SeriesChanges,
-	'orig_lang'    : SeriesChanges,
-	'tl_type'      : SeriesChanges,
-	'orig_status'  : SeriesChanges,
-	'region'       : SeriesChanges,
-	'license_en'   : SeriesChanges,
-	'pub_date'     : SeriesChanges,
-	'website'      : SeriesChanges,
-	'author'       : AuthorChanges,
-	'illustrators' : IllustratorsChanges,
-	'tag'          : TagsChanges,
-	'genre'        : GenresChanges,
-	'altnames'     : AlternateNamesChanges,
-	'publisher'    : PublishersChanges,
+	'description'    : SeriesChanges,
+	'demographic'    : SeriesChanges,
+	'type'           : SeriesChanges,
+	'origin_loc'     : SeriesChanges,
+	'orig_lang'      : SeriesChanges,
+	'tl_type'        : SeriesChanges,
+	'orig_status'    : SeriesChanges,
+	'region'         : SeriesChanges,
+	'license_en'     : SeriesChanges,
+	'pub_date'       : SeriesChanges,
+	'website'        : SeriesChanges,
+	'author'         : AuthorChanges,
+	'illustrators'   : IllustratorsChanges,
+	'tag'            : TagsChanges,
+	'genre'          : GenresChanges,
+	'altnames'       : AlternateNamesChanges,
+	'publisher'      : PublishersChanges,
+	'group-altnames' : AlternateTranslatorNamesChanges,
 }
 
 def rowToDict(row):
@@ -109,6 +111,7 @@ def generateSeriesHistArray(inRows):
 
 
 def renderHistory(histType, contentId):
+	print("histType", histType)
 	if histType not in dispatch_table:
 		return render_template('not-implemented-yet.html', message='Error! Invalid history type.')
 
@@ -116,6 +119,8 @@ def renderHistory(histType, contentId):
 
 	if table == SeriesChanges:
 		conditional = (table.srccol==contentId)
+	if table == AlternateTranslatorNamesChanges:
+		conditional = (table.group==contentId)
 	else:
 		conditional = (table.series==contentId)
 
@@ -125,15 +130,16 @@ def renderHistory(histType, contentId):
 			.filter(conditional)                   \
 			.order_by(table.changetime).all()
 
-	# print("History data:", data)
+	print("History data:", data)
 
-	seriesHist = None
-	authorHist = None
-	illustHist = None
-	tagHist    = None
-	genreHist  = None
-	nameHist   = None
-	pubHist    = None
+	seriesHist    = None
+	authorHist    = None
+	illustHist    = None
+	tagHist       = None
+	genreHist     = None
+	nameHist      = None
+	pubHist       = None
+	groupAltNames = None
 
 	if table == SeriesChanges:
 		seriesHist = generateSeriesHistArray(data)
@@ -147,15 +153,18 @@ def renderHistory(histType, contentId):
 		genreHist = data
 	if table == AlternateNamesChanges:
 		nameHist = data
+	if table == AlternateTranslatorNamesChanges:
+		groupAltNames = data
 	if table == PublishersChanges:
 		pubHist = data
 
 	return render_template('history.html',
-			seriesHist = seriesHist,
-			authorHist = authorHist,
-			illustHist = illustHist,
-			tagHist    = tagHist,
-			genreHist  = genreHist,
-			nameHist   = nameHist,
-			pubHist    = pubHist,
+			seriesHist    = seriesHist,
+			authorHist    = authorHist,
+			illustHist    = illustHist,
+			tagHist       = tagHist,
+			genreHist     = genreHist,
+			nameHist      = nameHist,
+			pubHist       = pubHist,
+			groupAltNames = groupAltNames,
 			)

@@ -365,7 +365,6 @@ def renderGroupId(sid):
 		flash(gettext('Group/Translator not found? This is probably a error!'))
 		return redirect(url_for('renderGroupsTable'))
 
-
 	items = Releases.query.filter(Releases.tlgroup==group.id).order_by(desc(Releases.published)).all()
 	ids = []
 	for item in items:
@@ -376,6 +375,7 @@ def renderGroupId(sid):
 	return render_template('group.html',
 						   series   = series,
 						   releases = items,
-						   group    = group
+						   group    = group,
+						   wiki     = wiki_views.render_wiki("Group", group.name)
 						   )
 

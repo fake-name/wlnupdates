@@ -152,6 +152,10 @@
 				{{ multiItemHistory("", nameHist,  'name') }}
 			{% elif pubHist    != None  %}
 				{{ multiItemHistory("", pubHist,  'name') }}
+			{% elif pubHist    != None  %}
+				{{ multiItemHistory("", pubHist,  'name') }}
+			{% elif groupAltNames != None  %}
+				{{ multiItemHistory("Group Alternate Names", groupAltNames,  'name') }}
 			{% else %}
 				<div>No history log found! Is that a valid history target?</div>
 			{% endif %}
