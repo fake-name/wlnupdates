@@ -119,7 +119,7 @@ def renderHistory(histType, contentId):
 
 	if table == SeriesChanges:
 		conditional = (table.srccol==contentId)
-	if table == AlternateTranslatorNamesChanges:
+	elif table == AlternateTranslatorNamesChanges:
 		conditional = (table.group==contentId)
 	else:
 		conditional = (table.series==contentId)
