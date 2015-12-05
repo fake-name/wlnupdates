@@ -363,7 +363,7 @@ def renderGroupId(sid):
 
 	if group is None:
 		flash(gettext('Group/Translator not found? This is probably a error!'))
-		return redirect(url_for('renderTagTable'))
+		return redirect(url_for('renderGroupsTable'))
 
 
 	items = Releases.query.filter(Releases.tlgroup==group.id).order_by(desc(Releases.published)).all()

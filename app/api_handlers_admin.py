@@ -4,6 +4,7 @@ from app import app
 from app.models import AlternateNames
 from app.models import AlternateNamesChanges
 from app.models import AlternateTranslatorNames
+from app.models import AlternateTranslatorNamesChanges
 from app.models import Author
 from app.models import AuthorChanges
 from app.models import Genres
@@ -37,6 +38,7 @@ from app.api_common import getResponse
 
 import FeedFeeder.FeedFeeder
 
+import app.api_handlers
 
 
 def mergeSeriesItems(data):
@@ -51,6 +53,47 @@ def mergeSeriesItems(data):
 
 	m1, m2 = int(data['item-id']), int(data['merge_id'])
 	return merge_series_ids(m1, m2)
+
+def mergeGroupItems(data):
+	if not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+
+	assert 'mode' in data
+	assert data['mode'] == 'merge-group'
+	assert 'item-id' in data
+	assert 'merge_id' in data
+
+	m1, m2 = int(data['item-id']), int(data['merge_id'])
+
+	return merge_tl_group_ids(m1, m2)
+
+
+
+def merge_tl_group_ids(m1, m2):
+	merge_from = max(m1, m2)
+	merge_to   = min(m1, m2)
+
+	itm_from = Translators.query.filter(Translators.id==merge_from).one()
+	itm_to   = Translators.query.filter(Translators.id==merge_to).one()
+
+	print(itm_from)
+	print(itm_to)
+
+
+	Releases       .query.filter(Releases.tlgroup       ==merge_from).update({'tlgroup': merge_to})
+	ReleasesChanges.query.filter(ReleasesChanges.tlgroup==merge_from).update({'tlgroup': merge_to})
+
+	app.api_handlers.updateGroupAltNames(itm_to, [itm.name for itm in itm_from.alt_names], delete=False)
+
+	AlternateTranslatorNamesChanges.query                   \
+		.filter(AlternateTranslatorNamesChanges.group==itm_from.id) \
+		.delete(synchronize_session="fetch")
+
+	db.session.delete(itm_from)
+	db.session.commit()
+
+	return getResponse("Success", False)
 
 def merge_series_ids(m1, m2):
 	merge_from = max(m1, m2)

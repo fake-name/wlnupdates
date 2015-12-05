@@ -1,5 +1,6 @@
 Todo:
  - Add wiki for tags, etc...
+ - Fold multiple releases for the same item in sequence.
 
 deal with single-character author issues (whoops, something wasn't converted to a list).
 

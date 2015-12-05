@@ -474,7 +474,7 @@ def validateGroupData(data):
 
 
 
-def updateGroupAltNames(group, altnames):
+def updateGroupAltNames(group, altnames, delete=True):
 	print("Alt names:", altnames)
 	altnames = [name.strip() for name in altnames]
 	cleaned = {}
@@ -492,14 +492,16 @@ def updateGroupAltNames(group, altnames):
 			newname = AlternateTranslatorNames(
 					name       = cleaned[name],
 					cleanname  = nt.prepFilenameForMatching(cleaned[name]),
-					group     = group.id,
+					group      = group.id,
 					changetime = datetime.datetime.now(),
 					changeuser = getCurrentUserId()
 				)
 			db.session.add(newname)
 
-	for key, value in havenames.items():
-		db.session.delete(value)
+	if delete:
+		for key, value in havenames.items():
+			db.session.delete(value)
+
 	db.session.commit()
 
 

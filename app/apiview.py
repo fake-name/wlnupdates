@@ -55,6 +55,7 @@ def handleApiGet():
 
 
 
+# call_name : (function_to_call, auth_required_bool)
 DISPATCH_TABLE = {
 	'manga-update'              : (api_handlers.processMangaUpdateJson,          True),
 	'group-update'              : (api_handlers.processGroupUpdateJson,          True),
@@ -66,6 +67,7 @@ DISPATCH_TABLE = {
 
 	# Admin API bits
 	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,          True),
+	'merge-group'               : (api_handlers_admin.mergeGroupItems,           True),
 	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,          True),
 	'delete-series'             : (api_handlers_admin.deleteSeries,              True),
 	'delete-auto-releases'      : (api_handlers_admin.deleteAutoReleases,        True),
