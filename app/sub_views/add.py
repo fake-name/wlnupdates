@@ -219,7 +219,7 @@ def addNewItem(add_type, sid=None):
 			)
 
 		altn = AlternateTranslatorNames.query.all()
-		altfmt = [(x.group, x.name) for x in altn]
+		altfmt = [(x.group, x.name) for x in altn if x.group]
 		altfmt.sort(key=lambda x:x[1])
 		form.group.choices = altfmt
 	else:
@@ -242,7 +242,6 @@ def addNewItem(add_type, sid=None):
 
 
 	if add_type == 'release':
-
 
 		altfmt = [(-1, "")] + altfmt
 		form.group.choices = altfmt
