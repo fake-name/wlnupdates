@@ -93,25 +93,8 @@ def generateSeriesHistArray(inRows):
 	return ret
 
 
-
-# {
-# 	'id': 2299,
-# 	'changeuser': 2,
-# 	'operation': 'U',
-# 	'srccol': 2200,
-# 	'changetime': datetime.datetime(2015, 5, 4, 19, 53, 6, 993234),
-
-# 	'origin_loc': 'Japan',
-# 	'demographic': '',
-# 	'orig_lang': None,
-# 	'title': 'Jinsei Reset Button',
-# 	'type': 'Novel',
-# 	'description': '<p>Based on the popular Vocaloid song "<a href="http://vocadb.net/S/8250">\nJinsei Reset Button</a>" by kemu.</p>'
-# }
-
-
 def renderHistory(histType, contentId):
-	print("histType", histType)
+	# print("histType", histType)
 	if histType not in dispatch_table:
 		return render_template('not-implemented-yet.html', message='Error! Invalid history type.')
 

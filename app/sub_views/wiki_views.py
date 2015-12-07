@@ -21,15 +21,34 @@ from slugify import slugify
 
 def get_wiki(slug):
 
-	watchlists = WikiPage                      \
+	row = WikiPage                             \
 				.query                         \
 				.filter(WikiPage.slug == slug) \
 				.scalar()
-	return watchlists
+	return row
+
+
+
+@app.route('/wiki/<page_slug>/')
+def renderWikiPage(page_slug):
+
+	wiki = get_wiki(page_slug)
+
+	is_edit = request.args.get('edit')
+
+	if is_edit:
+		return render_template('/wiki/wiki_edit.html',
+							   slug  = page_slug,
+							   wiki  = wiki,
+							   )
+	else:
+		return render_template('/wiki/wiki_page.html',
+							   slug  = page_slug,
+							   wiki  = wiki,
+							   )
+
 
 def render_wiki(type, name):
-
-
 	if type:
 		content_title = "{}: {}".format(type, name)
 		link_name = "{}:{}".format(type, name)

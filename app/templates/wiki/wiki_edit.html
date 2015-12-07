@@ -1,0 +1,91 @@
+<!-- extend base layout -->
+
+
+
+
+{% extends "__base.html" %}
+
+{% block header %}
+	<meta name="wiki-id" content="{{ wiki.id }}">
+
+{% endblock %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div style="min-height: 140px;">
+		{%- if wiki %}
+			Page Exists!
+		{%- else %}
+			<h2>Editing page for '{{ slug }}'</h2>
+
+			<div class="well well-sm">
+				<div class="row info-item">
+					<div class="col-md-6">
+						Create a page for that item:
+
+					</div>
+				</div>
+			</div>
+			{% if wiki %}
+				{{ wiki | safe }}
+			{% endif %}
+
+		{%- endif %}
+
+	</div>
+
+
+
+{% endblock %}
+
+
+
+{% block footer %}
+	<script src="/static/js/editable.js"></script>
+	<script src="/static/js/autogrow.js"></script>
+	<script src="/static/js/bootstrap-number-input.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/static/css/jquery.datetimepicker.css"/>
+	<script src="/static/js/jquery.datetimepicker.js"></script>
+
+	{% if g.user.is_mod() %}
+		{% include '_block_admin_scripts.html' %}
+	{% endif %}
+
+
+	<script>
+		$('#vol' ).bootstrapNumber();
+		$('#vol' ).change(readChange);
+		$('#chap').bootstrapNumber();
+		$('#chap').change(readChange);
+		$('#frag').bootstrapNumber();
+		$('#frag').change(readChange);
+
+		function merge_ajax()
+		{
+			console.log("Ready to send!");
+			var merge_id  = $("#dbid").val();
+			console.log("merge_id", merge_id)
+
+			var mangaId  = $('meta[name=group-id]').attr('content')
+			var params = {
+				'mode'      : 'merge-group',
+				'item-id'   : mangaId,
+				'merge_id'  : merge_id
+			}
+
+
+			$.ajax({
+				url : "/api",
+				success : saveCallback(false),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
+
+	</script>
+
+{% endblock %}
+
