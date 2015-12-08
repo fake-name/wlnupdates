@@ -1021,7 +1021,7 @@
 
 			{% if g.user.is_mod() %}
 				<hr class='padded-rule'>
-				{% if g.user.admin() %}
+				{% if g.user.is_admin() %}
 
 					{{localLinkBlock("Homepage",
 									series.website,
