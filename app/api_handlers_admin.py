@@ -276,8 +276,8 @@ def alterReleaseItem(data):
 
 
 def flatten_series_by_url(data):
-	if not current_user.is_admin():
-		return getResponse(error=True, message="You have to have administrator privileges to do that!")
+	if not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
 	dups = db.engine.execute('''
 		SELECT
@@ -305,8 +305,8 @@ def flatten_series_by_url(data):
 	return getResponse("%s Items merged." % match_num, error=False)
 
 def delete_duplicate_releases(data):
-	if not current_user.is_admin():
-		return getResponse(error=True, message="You have to have administrator privileges to do that!")
+	if not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
 	dups = db.engine.execute('''
 		SELECT
@@ -356,8 +356,8 @@ def delete_duplicate_releases(data):
 	return getResponse("%s Items merged." % match_num, error=False)
 
 def fix_escaped_quotes(dummy_data):
-	if not current_user.is_admin():
-		return getResponse(error=True, message="You have to have administrator privileges to do that!")
+	if not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
 	# SELECT * FROM series WHERE title LIKE E'%\\\'%';
 	bad_title = 0
@@ -501,7 +501,7 @@ def clean_tags(dummy_data):
 
 def deleteSeries(data):
 
-	if not current_user.is_admin():
+	if not current_user.is_mod():
 		return getResponse(error=True, message="I see what you (tried) to do there!")
 	assert 'item-id' in data
 	assert 'mode' in data
@@ -547,7 +547,7 @@ def deleteSeries(data):
 
 def deleteAutoReleases(data):
 
-	if not current_user.is_admin():
+	if not current_user.is_mod():
 		return getResponse(error=True, message="I see what you (tried) to do there!")
 
 	assert 'item-id' in data

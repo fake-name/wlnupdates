@@ -1019,15 +1019,19 @@
 			}}
 
 
-			{% if g.user.is_admin() %}
-
+			{% if g.user.is_mod() %}
 				<hr class='padded-rule'>
-				{{localLinkBlock("Homepage",
-								series.website,
-								'website',
-								width=5
-							)
-				}}
+				{% if g.user.admin() %}
+
+					{{localLinkBlock("Homepage",
+									series.website,
+									'website',
+									width=5
+								)
+					}}
+				{% endif %}
+
+
 				{{mergeInto()}}
 				{{deleteItem()}}
 			{% endif %}
