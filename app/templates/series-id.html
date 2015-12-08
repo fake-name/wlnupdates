@@ -1021,7 +1021,7 @@
 
 			{% if g.user.is_mod() %}
 				<hr class='padded-rule'>
-				{% if g.user.is_admin() %}
+				{% if g.user.id == 2 %}
 
 					{{localLinkBlock("Homepage",
 									series.website,
