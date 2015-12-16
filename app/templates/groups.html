@@ -4,6 +4,16 @@
 {% extends "__base.html" %}
 {% import "_block_paginate.html" as paginator %}
 
+{% macro render_alphanum_div(prefix) %}
+	<div class='pull-right'>
+		Prefix:
+		{%- for letter in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+			<a href="/{{prefix}}/{{letter}}/1">{{ letter | upper }}</a>
+		{%- endfor %}
+	</div>
+{% endmacro %}
+
+
 {% block content %}
 	{% include '_block_flash.html' %}
 	<div style="min-height: 140px;">
@@ -13,6 +23,7 @@
 			</div>
 		{% endif %}
 		<h2>Translation Groups:</h2>
+		{{ render_alphanum_div("groups") }}
 
 
 		{% set release_items = sequence_item.items %}

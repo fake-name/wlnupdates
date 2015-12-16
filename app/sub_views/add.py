@@ -97,7 +97,7 @@ def add_release(form):
 	sub = int(form.data['subChap'])   if form.data['subChap']   and int(form.data['subChap'])   >= 0 else None
 	group = int(form.data['group'])
 
-	assert form.data['is_oel'] in ['oel', 'translated']
+	itemurl = url_fix(form.data['release_pg'])
 
 	oel = False
 	if form.data['is_oel'] == 'oel':
@@ -105,6 +105,7 @@ def add_release(form):
 		group = None
 
 	pubdate = form.data['releasetime']
+	postfix = bleach.clean(form.data['postfix'], strip=True)
 
 	# Limit publication dates to now to prevent post-dating.
 	if pubdate > datetime.datetime.now():
@@ -115,17 +116,19 @@ def add_release(form):
 	if sub:
 		chp += sub /100
 
-	flt = [(Releases.series == sid)]
+	assert form.data['is_oel'] in ['oel', 'translated']
+
+	flt = [(Releases.series == sid), (Releases.srcurl == itemurl)]
 	if chp:
 		flt.append((Releases.chapter == chp))
-
 	if vol:
 		flt.append((Releases.chapter == vol))
 
+	if not any((vol, chp, postfix)):
+		flash(gettext('Releases without content in any of the chapter, volume or postfix are not valid.'))
+		return redirect(url_for('renderSeriesId', sid=sid))
+
 	have = Releases.query.filter(and_(*flt)).all()
-
-	itemurl = url_fix(form.data['release_pg'])
-
 
 	if have:
 		flash(gettext('That release appears to already have been added.'))
@@ -152,7 +155,7 @@ def add_release(form):
 		published = pubdate,
 		volume    = vol,
 		chapter   = chp,
-		postfix   = bleach.clean(form.data['postfix'], strip=True),
+		postfix   = postfix,
 		srcurl    = itemurl,
 		changetime = datetime.datetime.now(),
 		changeuser = g.user.id,

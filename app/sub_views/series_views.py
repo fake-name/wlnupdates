@@ -53,6 +53,7 @@ def renderTranslatedSeriesTable(letter=None, page=1):
 						   series_entries   = series_entries,
 						   page            = page,
 						   name_key        = "title",
+						   path_name       = "translated-series",
 						   letter          = letter,
 						   title_prefix    = "Translated ",
 						   )
@@ -75,6 +76,7 @@ def renderOelSeriesTable(letter=None, page=1):
 						   series_entries   = series_entries,
 						   page            = page,
 						   name_key        = "title",
+						   path_name       = "oel-series",
 						   letter          = letter,
 						   title_prefix    = "OEL ",
 						   )

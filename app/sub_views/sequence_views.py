@@ -205,13 +205,21 @@ def renderGenreTable(letter=None, page=1):
 						   title           = 'Genres')
 
 
+@app.route('/groups/<letter>/<int:page>')
 @app.route('/groups/<page>')
 @app.route('/groups/<int:page>')
 @app.route('/groups/')
-def renderGroupsTable(page=1):
+def renderGroupsTable(letter=None, page=1):
 
-	groups = Translators.query       \
-		.order_by(Translators.name)
+
+	if letter:
+		groups = Translators.query       \
+			.filter(Translators.name.like("{}%".format(letter))) \
+			.order_by(Translators.name)
+	else:
+		groups = Translators.query       \
+			.order_by(Translators.name)
+
 
 	if groups is None:
 		flash(gettext('No Translators? Something is /probably/ broken!.'))
