@@ -78,7 +78,7 @@
 	</div>
 {%- endmacro %}
 
-{% macro singleItemLink(name, value, valId, width=3, extra_cls='') -%}
+{% macro multiItemLink(name, value, valId, width=3, extra_cls='') -%}
 	<div class="well well-tny info-item">
 		<div class="row singleitem"  id="{{valId}}-container">
 			<div class="col-md-{{width}} rowTitle">
@@ -90,8 +90,14 @@
 			</div>
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				{%- if value -%}
+					{% set links = value.split('\n') %}
+
 					<span class='singleitem {{extra_cls}}' style='display: none;'>{{ value }}</span>
-					<span class='singleitem'><a href='{{value}}'>{{ value }}</a></span>
+					<span class='singleitem'>
+						{% for linkurl in links %}
+							<a href='{{linkurl}}'>{{ linkurl }}</a>{% if not loop.last %}<br>{% endif %}
+						{% endfor %}
+					</span>
 				{%- else -%}
 					<span class='singleitem {{extra_cls}}'>N/A</span>
 				{%- endif -%}
@@ -511,7 +517,13 @@
 				{%- if value -%}
 
 					{% if g.user.id == 2 %}
-						<a href='http://10.1.1.43:5001/view?url={{value | urlencode}}'>R-View - {{ value }}</a>
+						{% set links = value.split('\n') %}
+						<span class='singleitem'>
+							{% for linkurl in links %}
+								<a href='http://10.1.1.43:5001/view?url={{linkurl | urlencode}}'>R-View - {{ linkurl }}</a>{% if not loop.last %}<br>{% endif %}
+							{% endfor %}
+						</span>
+
 					{% else %}
 						<a href='{{value}}'>{{ value }}</a>
 					{% endif %}
@@ -1011,7 +1023,7 @@
 							)
 			}}
 
-			{{singleItemLink("Homepage",
+			{{multiItemLink("Homepage",
 								series.website,
 								'website',
 								width=5
