@@ -44,6 +44,24 @@ import sqlalchemy.exc
 # 	article_id  = db.Column(db.Integer, db.ForeignKey('feeds.id'))
 # 	tag         = db.Column(CIText(), index=True, nullable=False)
 
+
+
+# Error!
+# Error!
+# Traceback (most recent call last):
+#   File "/media/Storage/Scripts/wlnupdates/FeedFeeder/FeedFeeder.py", line 444, in process
+#     beta_enabled = getattr(settings, "ENABLE_BETA", False)
+#   File "/media/Storage/Scripts/wlnupdates/FeedFeeder/FeedFeeder.py", line 406, in dispatchItem
+#     tmp = item['author']
+#   File "/media/Storage/Scripts/wlnupdates/FeedFeeder/FeedFeeder.py", line 294, in insert_parsed_release
+#     # return have.series_row
+#   File "/media/Storage/Scripts/wlnupdates/FeedFeeder/FeedFeeder.py", line 172, in get_create_series
+#     # print("AuthorName match!")
+# AttributeError: 'list' object has no attribute 'lower'
+# Main.Feeds.RPC.Thread-1 - INFO - Received data size: 563 bytes.
+# Beta release!
+
+
 # Hard coded RSS user ID. Probably a bad idea.
 RSS_USER_ID = 3
 
@@ -150,7 +168,6 @@ def get_create_group(groupname):
 		return new
 	return have
 
-
 def get_create_series(seriesname, tl_type, author_name=False):
 	# print("get_create_series(): '%s', '%s', '%s'" % (seriesname, tl_type, author_name))
 	while 1:
@@ -169,9 +186,14 @@ def get_create_series(seriesname, tl_type, author_name=False):
 			if have:
 				for item in [tmp for tmp in have if tmp.series_row.tl_type == tl_type]:
 					if author_name:
-						if author_name.lower() in [tmp.name.lower() for tmp in item.series_row.author]:
-							# print("AuthorName match!")
-							return item.series_row
+						if isinstance(author_name, list):
+							if any([auth_tmp.lower() in [tmp.name.lower() for tmp in item.series_row.author] for auth_tmp in author_name]):
+								# print("AuthorName match!")
+								return item.series_row
+						else:
+							if author_name.lower() in [tmp.name.lower() for tmp in item.series_row.author]:
+								# print("AuthorName match!")
+								return item.series_row
 					else:
 						return item.series_row
 
@@ -185,7 +207,10 @@ def get_create_series(seriesname, tl_type, author_name=False):
 					.scalar()
 
 			if haveS and author_name:
-				sName = "{} ({})".format(seriesname, author_name)
+				if isinstance(author_name, str):
+					sName = "{} ({})".format(seriesname, author_name)
+				else:
+					sName = "{} ({})".format(seriesname, ", ".join(author_name))
 			elif haveS:
 				if haveS.tl_type != tl_type:
 					if tl_type == "oel":
@@ -213,7 +238,9 @@ def get_create_series(seriesname, tl_type, author_name=False):
 			db.session.flush()
 
 			if author_name:
-				app.series_tools.setAuthorIllust(new, author=[author_name])
+				if isinstance(author_name, str):
+					author_name = [author_name, ]
+				app.series_tools.setAuthorIllust(new, author=author_name)
 
 			altn1 = AlternateNames(
 					name       = seriesname,
@@ -246,6 +273,51 @@ def get_create_series(seriesname, tl_type, author_name=False):
 			print("Error!")
 			raise
 
+
+	# return have.series_row
+
+def get_series_from_any(title_list, tl_type, author_name=False):
+	# print("get_create_series(): '%s', '%s', '%s'" % (seriesname, tl_type, author_name))
+	for seriesname in title_list:
+		try:
+			have  = AlternateNames                             \
+					.query                                     \
+					.filter(AlternateNames.name == seriesname) \
+					.order_by(AlternateNames.id)               \
+					.all()
+
+			# for item in have:
+			# 	print((item.series_row.id, item.series_row.title, [tmp.name.lower() for tmp in item.series_row.author]))
+			# print("Want:", author_name)
+
+			# Try to match any alt-names we have.
+			if have:
+				for item in [tmp for tmp in have if tmp.series_row.tl_type == tl_type]:
+					if author_name:
+						if author_name.lower() in [tmp.name.lower() for tmp in item.series_row.author]:
+							# print("AuthorName match!")
+							return item.series_row
+					else:
+						return item.series_row
+
+				for item in [tmp for tmp in have if tmp.series_row.tl_type == tl_type]:
+					if not item.series_row.author:
+						return item.series_row
+
+			# print("No match found while filtering by author-name!")
+
+
+
+		except sqlalchemy.exc.IntegrityError:
+			print("Concurrency issue?")
+			print("'%s', '%s', '%s'" % (seriesname, tl_type, author_name))
+			db.session.rollback()
+			raise
+		except Exception:
+			print("Error!")
+			raise
+
+	return None
 
 	# return have.series_row
 
@@ -299,17 +371,26 @@ def insert_parsed_release(item):
 	check_insert_release(item, group, series)
 
 def update_series_info(item):
+	# print("update_series_info", item)
 	assert 'title'    in item
 	assert 'author'   in item
 	assert 'tags'     in item
-	assert 'homepage' in item
 	assert 'desc'     in item
 	assert 'tl_type'  in item
 
 
 	print("Series info update message for '%s'!" % item['title'])
 
-	series = get_create_series(item['title'], item["tl_type"], item['author'])
+	if not 'update_only' in item:
+		item['update_only'] = False
+	if not 'alt_titles' in item:
+		item['alt_titles'] = []
+
+	item['alt_titles'].append(item['title'])
+	if item['update_only']:
+		series = get_series_from_any(item['alt_titles'], item["tl_type"], item['author'])
+	else:
+		series = get_create_series(item['title'], item["tl_type"], item['author'])
 
 	# Break if the tl type has changed, something is probably mismatched
 	if series.tl_type != item['tl_type']:
@@ -333,10 +414,6 @@ def update_series_info(item):
 		print("-----------------------------------")
 		print(item['tl_type'])
 		print("###################################")
-		print(series.website)
-		print("-----------------------------------")
-		print(item['homepage'])
-		print("###################################")
 		print(series.tags)
 		print("-----------------------------------")
 		print(item['tags'])
@@ -359,7 +436,7 @@ def update_series_info(item):
 		tmp = item['illust']
 		if isinstance(tmp, str):
 			tmp = [tmp, ]
-		app.series_tools.setAuthorIllust(series, illust=item['illust'], deleteother=False)
+		app.series_tools.setAuthorIllust(series, illust=tmp, deleteother=False)
 
 	if 'tags' in item and item['tags']:
 		app.series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=False)
@@ -456,6 +533,18 @@ class FeedFeeder(object):
 
 
 if __name__ == "__main__":
-	ret = get_create_series("World Seed", "oel", author_name='karami92')
-	print(ret)
+	# ret = get_create_series("World Seed", "oel", author_name='karami92')
+	assert None != get_series_from_any(["World Seed"], "oel", author_name='karami92')
+	assert None != get_series_from_any(["Sendai Yuusha wa Inkyou Shitai", 'Sendai Yuusha wa Inkyoshitai', 'The Previous Hero wants to Retire', '先代勇者は隠居したい'], "translated", author_name='Iida K')
+	assert None == get_series_from_any(["Sendai Yuusha wa Inkyou Shitai", 'Sendai Yuusha wa Inkyoshitai', 'The Previous Hero wants to Retire', '先代勇者は隠居したい'], "translated", author_name='BLURKKKK')
+	assert None != get_series_from_any(["Sendai Yuusha wa Inkyou Shitai", 'Sendai Yuusha wa Inkyoshitai', 'The Previous Hero wants to Retire', '先代勇者は隠居したい'], "translated", author_name=None)
+	assert None != get_series_from_any(['Kenkyo, Kenjitsu o Motto ni Ikite Orimasu', '謙虚、堅実をモットーに生きております！'], "translated", author_name=None)
+	assert None != get_series_from_any(['Kenkyo, Kenjitsu o Motto ni Ikite Orimasu', '謙虚、堅実をモットーに生きております！'], "translated", author_name='Hiyoko no kēki')
+	assert None != get_series_from_any(['Mythical Tyrant', '神魔灞体'], "translated", author_name='Yun Ting Fei')
+	# print(get_series_from_any(['Mythical Tyrant', '神魔灞体'], "translated", author_name='BLHOOGLE!'))
+	# assert None == get_series_from_any(['Mythical Tyrant', '神魔灞体'], "translated", author_name='BLHOOGLE!')
+
+	# assert None != get_series_from_any(['Night Ranger', 'An Ye You Xia', '暗夜游侠'], "translated", author_name=None)
+	# assert None != get_series_from_any(['Night Ranger', 'An Ye You Xia', '暗夜游侠'], "translated", author_name='Dark Blue Coconut Milk')
+	# assert None != get_series_from_any(['Night Ranger', 'An Ye You Xia', '暗夜游侠'], "translated", author_name='深蓝椰子汁')
 	pass

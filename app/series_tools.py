@@ -136,6 +136,7 @@ def updateAltNames(series, altnames, deleteother=True):
 
 
 def setAuthorIllust(series, author=None, illust=None, deleteother=True):
+	print(("setAuthorIllust: ", series, author, illust, deleteother))
 	if author and illust:
 		return {'error' : True, 'message' : "How did both author and illustrator get passed here?"}
 	elif author:
