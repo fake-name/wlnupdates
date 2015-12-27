@@ -182,20 +182,43 @@ def get_create_series(seriesname, tl_type, author_name=False):
 			# 	print((item.series_row.id, item.series_row.title, [tmp.name.lower() for tmp in item.series_row.author]))
 			# print("Want:", author_name)
 
+			# There's 4 options here:
+			#  - Update and have item has author ->
+			#         match, fail if match fails.
+			#  - Update has author, have does not ->
+			#         only allow matches after haves with authors exhausted.
+			#  - have has author, update does not ->
+			#         Glob onto series anyways.
+			#  - Update and have do not have author ->
+			#         do best match.
+
+			# From the perspective of our approach, if we have a name, we try for that, then
+			# look for empty items, finally return none if nothing present.
+			# if we don't have a name, we look for
+
 			# Try to match any alt-names we have.
-			if have:
-				for item in [tmp for tmp in have if tmp.series_row.tl_type == tl_type]:
-					if author_name:
-						if isinstance(author_name, list):
-							if any([auth_tmp.lower() in [tmp.name.lower() for tmp in item.series_row.author] for auth_tmp in author_name]):
-								# print("AuthorName match!")
-								return item.series_row
-						else:
-							if author_name.lower() in [tmp.name.lower() for tmp in item.series_row.author]:
-								# print("AuthorName match!")
-								return item.series_row
+
+			valid_haves = [tmp for tmp in have if tmp.series_row.tl_type == tl_type]
+
+			# Try for author match first:
+			if author_name:
+				for item in [tmp for tmp in valid_haves if tmp.series_row.author]:
+					if isinstance(author_name, list):
+						if any([auth_tmp.lower() in [tmp.name.lower() for tmp in item.series_row.author] for auth_tmp in author_name]):
+							# print("AuthorName match!")
+							return item.series_row
 					else:
-						return item.series_row
+						if author_name.lower() in [tmp.name.lower() for tmp in item.series_row.author]:
+							return item.series_row
+
+				for item in [tmp for tmp in valid_haves if not tmp.series_row.author]:
+					return item.series_row
+			else:
+				# No author specified globs onto first possible match.
+				for item in valid_haves:
+					return item.series_row
+
+
 
 			# print("No match found while filtering by author-name!")
 
@@ -541,8 +564,10 @@ if __name__ == "__main__":
 	assert None != get_series_from_any(['Kenkyo, Kenjitsu o Motto ni Ikite Orimasu', '謙虚、堅実をモットーに生きております！'], "translated", author_name=None)
 	assert None != get_series_from_any(['Kenkyo, Kenjitsu o Motto ni Ikite Orimasu', '謙虚、堅実をモットーに生きております！'], "translated", author_name='Hiyoko no kēki')
 	assert None != get_series_from_any(['Mythical Tyrant', '神魔灞体'], "translated", author_name='Yun Ting Fei')
-	# print(get_series_from_any(['Mythical Tyrant', '神魔灞体'], "translated", author_name='BLHOOGLE!'))
+	print(get_series_from_any(['Peerless Martial God'], "translated", author_name=["Jing Wu Hen", "净无痕"]))
 	# assert None == get_series_from_any(['Mythical Tyrant', '神魔灞体'], "translated", author_name='BLHOOGLE!')
+
+
 
 	# assert None != get_series_from_any(['Night Ranger', 'An Ye You Xia', '暗夜游侠'], "translated", author_name=None)
 	# assert None != get_series_from_any(['Night Ranger', 'An Ye You Xia', '暗夜游侠'], "translated", author_name='Dark Blue Coconut Milk')
