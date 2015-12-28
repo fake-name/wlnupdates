@@ -78,7 +78,7 @@ def go():
 			server.socket_host = "127.0.0.1"
 
 		server.socket_port = 5000
-		server.thread_pool = 30
+		server.thread_pool = 8
 
 		# For SSL Support
 		# server.ssl_module            = 'pyopenssl'
