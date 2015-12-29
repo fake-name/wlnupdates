@@ -99,8 +99,13 @@ def merge_series_ids(m1, m2):
 	merge_from = max(m1, m2)
 	merge_to   = min(m1, m2)
 
-	itm_from = Series.query.filter(Series.id==merge_from).one()
-	itm_to = Series.query.filter(Series.id==merge_to).one()
+	itm_from = Series.query.filter(Series.id==merge_from).scalar()
+	itm_to = Series.query.filter(Series.id==merge_to).scalar()
+	if not itm_from:
+		return getResponse("Item from (id: {num}) not found?".format(num=merge_from), error=True)
+	if not itm_to:
+		return getResponse("Item to (id: {num}) not found?".format(num=merge_to), error=True)
+
 
 	alts   = []
 	author = []
