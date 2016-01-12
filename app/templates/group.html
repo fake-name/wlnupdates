@@ -1,5 +1,6 @@
 <!-- extend base layout -->
 
+{% import "_block_paginate.html" as paginator %}
 
 {% macro render_page_contents(series) %}
 
@@ -90,6 +91,14 @@
 		{% include '_block_releases.html' %}
 	</div>
 
+
+	<hr class='padded-rule'>
+	{% set raw_feeds = sequence_item.items %}
+	<div>
+		<h3>Group RSS Entries:</h3>
+		{% include '_block_feeds.html' %}
+	</div>
+	{{ paginator.render_pagination(sequence_item) }}
 
 {% endblock %}
 

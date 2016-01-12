@@ -19,6 +19,9 @@ def help_site():
 @app.route('/legal')
 def legal_site():
 	return render_template('legal.html')
+@app.route('/api-docs')
+def api_docs_site():
+	return render_template('api-docs.html')
 
 
 

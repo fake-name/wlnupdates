@@ -48,7 +48,11 @@
 		{% endif %}
 		<tr>
 			<td>
-				<a href='{{entry.linkurl}}'>{{entry.title}}</a>
+				{% if g.user.id == 2 %}
+					<a href='http://10.1.1.43:5001/view?url={{entry.linkurl | urlencode}}'>R-View - {{ entry.title }}</a>
+				{% else %}
+					<a href='{{entry.linkurl}}'>{{entry.title}}</a>
+				{% endif %}
 			</td>
 			<td>
 				{%- for tag in entry.tags -%}

@@ -732,6 +732,9 @@ def setRatingJson(data):
 	sid    = int(data['item-id'])
 	rating = int(data['rating'])
 
+	assert rating >= 0
+	assert rating <= 10
+
 	app.series_tools.set_rating(sid, rating)
 
 	return getResponse("SetRating call!.", error=False)

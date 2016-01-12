@@ -10,6 +10,7 @@ from app import app
 
 from app.models import Series
 from app.models import Tags
+from app.models import Feeds
 from app.models import Genres
 from app.models import Author
 from app.models import Illustrators
@@ -356,8 +357,36 @@ def renderGenreId(sid, page=1):
 						   )
 
 
+
+# @app.route('/feeds/source/<source>/<page>')
+# @app.route('/feeds/source/<source>/<int:page>')
+# @app.route('/feeds/source/<source>/')
+# def renderFeedsSourceTable(source, page=1):
+# 	feeds = Feeds.query                   \
+# 		.filter(Feeds.srcname == source)  \
+# 		.order_by(desc(Feeds.published))
+
+
+# 	feeds = feeds.options(joinedload('tags'))
+# 	feeds = feeds.options(joinedload('authors'))
+
+# 	if feeds is None:
+# 		flash(gettext('No feeds? Something is /probably/ broken!.'))
+# 		return redirect(url_for('renderFeedsTable'))
+
+# 	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
+
+# 	return render_template('feeds.html',
+# 						   subheader = "Source = '%s'" % source,
+# 						   sequence_item   = feed_entries,
+# 						   page            = page,
+# 						   chunk           = True
+# 						   )
+
+
+@app.route('/group-id/<sid>/<int:page>')
 @app.route('/group-id/<sid>/')
-def renderGroupId(sid):
+def renderGroupId(sid, page=1):
 
 	group = Translators.query.filter(Translators.id==sid).scalar()
 
@@ -365,7 +394,16 @@ def renderGroupId(sid):
 		flash(gettext('Group/Translator not found? This is probably a error!'))
 		return redirect(url_for('renderGroupsTable'))
 
+	names = [tmp.name for tmp in group.alt_names]
+
+	feeds = Feeds.query                   \
+		.filter(Feeds.srcname.in_(names))  \
+		.order_by(desc(Feeds.published))
+
+
 	items = Releases.query.filter(Releases.tlgroup==group.id).order_by(desc(Releases.published)).all()
+	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
+
 	ids = []
 	for item in items:
 		ids.append(item.series)
@@ -373,9 +411,10 @@ def renderGroupId(sid):
 	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title).all()
 
 	return render_template('group.html',
-						   series   = series,
-						   releases = items,
-						   group    = group,
-						   wiki     = wiki_views.render_wiki("Group", group.name)
+						   series        = series,
+						   releases      = items,
+						   sequence_item = feed_entries,
+						   group         = group,
+						   wiki          = wiki_views.render_wiki("Group", group.name)
 						   )
 
