@@ -46,7 +46,7 @@ lm.login_view = 'login'
 lm.login_message = lazy_gettext('Please log in to access this page.')
 mail = Mail(app)
 babel = Babel(app)
-CsrfProtect(app)
+csrf = CsrfProtect(app)
 
 if "debug" in sys.argv:
 	print("Installing debug toolbar!")

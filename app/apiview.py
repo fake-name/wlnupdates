@@ -4,6 +4,7 @@ from flask import render_template
 from flask import request
 from flask.ext.login import current_user
 import wtforms_json
+from app import csrf
 
 from app import app
 
@@ -48,34 +49,34 @@ def handleApiPost():
 	resp.mimetype="application/json"
 	return resp
 
-
+@csrf.exempt
 @app.route('/api', methods=['GET'])
 def handleApiGet():
 	return render_template('not-implemented-yet.html', message="API Endpoint requires a POST request.")
 
 
 
-# call_name : (function_to_call, auth_required_bool)
+# call_name : (function_to_call, auth_required_bool, csrf_protect)
+# CSRF protection is not needed if
 DISPATCH_TABLE = {
-	'manga-update'              : (api_handlers.processMangaUpdateJson,          True),
-	'group-update'              : (api_handlers.processGroupUpdateJson,          True),
-	'set-watch'                 : (api_handlers.setSeriesWatchJson,              True),
-	'read-update'               : (api_handlers.setReadingProgressJson,          True),
-	'cover-update'              : (api_handlers.updateAddCoversJson,             True),
-	'set-rating'                : (api_handlers.setRatingJson,                   False),
-
+	'manga-update'              : (api_handlers.processMangaUpdateJson,          True,  False),
+	'group-update'              : (api_handlers.processGroupUpdateJson,          True,  False),
+	'set-watch'                 : (api_handlers.setSeriesWatchJson,              True,  False),
+	'read-update'               : (api_handlers.setReadingProgressJson,          True,  False),
+	'cover-update'              : (api_handlers.updateAddCoversJson,             True,  False),
+	'set-rating'                : (api_handlers.setRatingJson,                   False, True),
 
 	# Admin API bits
-	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,          True),
-	'merge-group'               : (api_handlers_admin.mergeGroupItems,           True),
-	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,          True),
-	'delete-series'             : (api_handlers_admin.deleteSeries,              True),
-	'delete-auto-releases'      : (api_handlers_admin.deleteAutoReleases,        True),
+	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,          True,  False),
+	'merge-group'               : (api_handlers_admin.mergeGroupItems,           True,  False),
+	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,          True,  False),
+	'delete-series'             : (api_handlers_admin.deleteSeries,              True,  False),
+	'delete-auto-releases'      : (api_handlers_admin.deleteAutoReleases,        True,  False),
 
-	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,     True),
-	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases, True),
-	'fix-escapes'               : (api_handlers_admin.fix_escaped_quotes,        True),
-	'clean-tags'                : (api_handlers_admin.clean_tags,                True),
+	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,     True,  False),
+	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases, True,  False),
+	'fix-escapes'               : (api_handlers_admin.fix_escaped_quotes,        True,  False),
+	'clean-tags'                : (api_handlers_admin.clean_tags,                True,  False),
 
 }
 
@@ -90,11 +91,14 @@ def dispatchApiCall(reqJson):
 		print("Invalid mode in request: '{mode}'".format(mode=mode))
 		return getResponse("Invalid mode in API Request ({mode})!".format(mode=mode), error=True)
 
-	dispatch_method, auth_required = DISPATCH_TABLE[mode]
+	dispatch_method, auth_required, csrf_required = DISPATCH_TABLE[mode]
 	try:
-		if auth_required and not current_user.is_authenticated():
+		if csrf_required:
+			csrf.protect()
 
+		if auth_required and not current_user.is_authenticated():
 			return getResponse(LOGIN_REQ, error=True)
+
 		else:
 			ret = dispatch_method(reqJson)
 
