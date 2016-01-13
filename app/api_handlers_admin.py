@@ -134,7 +134,7 @@ def merge_series_ids(m1, m2):
 	for val in Publishers.query.filter(Publishers.series==itm_from.id).all():
 		publs.append(val.name)
 
-	Ratings.query.filter(Ratings.series_id==merge_from).update({'series_id': tid})
+	Ratings.query.filter(Ratings.series_id==merge_from).update({'series_id': merge_to})
 
 	# !Ordering here matters!
 	# Change-tables have to go second.
