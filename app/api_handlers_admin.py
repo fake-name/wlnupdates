@@ -16,6 +16,7 @@ from app.models import SeriesChanges
 from app.models import Tags
 from app.models import TagsChanges
 from app.models import Translators
+from app.models import Ratings
 
 from app.models import Covers
 from app.models import CoversChanges
@@ -133,6 +134,7 @@ def merge_series_ids(m1, m2):
 	for val in Publishers.query.filter(Publishers.series==itm_from.id).all():
 		publs.append(val.name)
 
+	Ratings.query.filter(Ratings.series_id==sid).update({'series_id': tid})
 
 	# !Ordering here matters!
 	# Change-tables have to go second.
