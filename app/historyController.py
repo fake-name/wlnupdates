@@ -1,32 +1,14 @@
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_file, abort
-from flask.ext.login import login_user, logout_user, current_user, login_required
-from itsdangerous import URLSafeTimedSerializer, BadSignature
-from flask.ext.sqlalchemy import get_debug_queries
-from flask.ext.babel import gettext
-from datetime import datetime
-# from guess_language import guess_language
-from app import app, db, babel
-from .models import Users
-from .models import News_Posts
+from flask import render_template
 from .models import SeriesChanges
 from .models import TagsChanges
 from .models import GenresChanges
 from .models import AuthorChanges
 from .models import IllustratorsChanges
-from .models import TranslatorsChanges
-from .models import ReleasesChanges
-from .models import Covers
 from .models import AlternateNamesChanges
 from .models import PublishersChanges
 from .models import AlternateTranslatorNamesChanges
 
-from .confirm import send_email
 
-from .apiview import handleApiPost, handleApiGet
-
-import config
-import os.path
-from sqlalchemy.sql.expression import func
 
 
 dispatch_table = {

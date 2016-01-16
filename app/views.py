@@ -1,38 +1,59 @@
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_file, abort
-from flask.ext.login import login_user, logout_user, current_user, login_required
-from itsdangerous import URLSafeTimedSerializer, BadSignature
+from flask import render_template
+from flask import flash
+from flask import redirect
+from flask import url_for
+from flask import request
+from flask import g
+from flask import send_file
+from flask.ext.login import login_user
+from flask.ext.login import logout_user
+from flask.ext.login import current_user
+from flask.ext.login import login_required
+from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import BadSignature
 from flask.ext.sqlalchemy import get_debug_queries
 from flask.ext.babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
-from app import app, db, lm, babel
+from app import app
+from app import db
+from app import lm
+from app import babel
 from .forms import  LoginForm, SearchForm, SignupForm
-from .models import Users, News_Posts, Series, Tags, Genres, Author
-from .models import Illustrators, Translators, Releases, Covers, Watches, AlternateNames
-from .models import Feeds, Releases, HttpRequestLog
+from .models import Users
+from .models import News_Posts
+from .models import Series
+from .models import Releases
+from .models import Covers
+from .models import Feeds
+from .models import HttpRequestLog
 
 from .confirm import send_email
 
-from .apiview import handleApiPost, handleApiGet
-from app.sub_views.search import execute_search
 
-import sqlalchemy.sql.expression
 
 import os.path
 from sqlalchemy.sql.expression import func
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
-from app.sub_views import item_views
-from app.sub_views import stub_views
-from app.sub_views import user_views
-from app.sub_views import admin_views
-from app.sub_views import add
-from app.sub_views import sequence_views
-from app.sub_views import release_views
-from app.sub_views import series_views
-from app.sub_views import history_view
-from app.sub_views import cover_edit_view
-from app.sub_views import news_view
+
+# These imports /look/ unused, but they cause the installation
+# of most of the site routes.
+from .sub_views import item_views
+from .sub_views import stub_views
+from .sub_views import user_views
+from .sub_views import admin_views
+from .sub_views import add
+from .sub_views import sequence_views
+from .sub_views import release_views
+from .sub_views import series_views
+from .sub_views import history_view
+from .sub_views import cover_edit_view
+from .sub_views import news_view
+from .sub_views.search import execute_search
+
+from .apiview import handleApiPost
+from .apiview import handleApiGet
 
 
 import traceback

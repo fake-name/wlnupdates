@@ -1,58 +1,20 @@
 from flask import render_template
-from flask import flash
-from flask import redirect
-from flask import session
-from flask import url_for
-from flask import request
-from flask import g
-from flask import jsonify
-from flask import send_file
-from flask import abort
-from flask.ext.babel import gettext
 # from guess_language import guess_language
 from app import app
-from app import db
-from app import babel
-
-from app.models import Users
-from app.models import News_Posts
-from app.models import Series
 from app.models import Tags
 from app.models import Genres
 from app.models import Author
 from app.models import Illustrators
 from app.models import Translators
-from app.models import Releases
-from app.models import Covers
-from app.models import Watches
-from app.models import AlternateNames
 from app.models import Feeds
 from app.models import Publishers
 from app.models import FeedTags
-from app.models import Releases
 
-from app.confirm import send_email
-
-from app.apiview import handleApiPost
-from app.apiview import  handleApiGet
-
-from app.sub_views.search import execute_search
-
-from app.historyController import renderHistory
-import os.path
-from sqlalchemy.sql.expression import func
 from sqlalchemy import desc
-
 from sqlalchemy.orm import joinedload
-import traceback
 
 
-
-@app.route('/authors/<letter>/<int:page>')
-@app.route('/authors/<page>')
-@app.route('/authors/<int:page>')
-@app.route('/authors/')
-def renderAuthorTable(letter=None, page=1):
+def get_author_entries(letter, page):
 
 	if letter:
 		series = Author.query                                 \
@@ -63,13 +25,16 @@ def renderAuthorTable(letter=None, page=1):
 		series = Author.query       \
 			.order_by(Author.name) \
 			.distinct(Author.name)
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderAuthorTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	return series_entries
 
+@app.route('/authors/<letter>/<int:page>')
+@app.route('/authors/<page>')
+@app.route('/authors/<int:page>')
+@app.route('/authors/')
+def renderAuthorTable(letter=None, page=1):
 	return render_template('sequence.html',
-						   sequence_item   = series_entries,
+						   sequence_item   = get_author_entries(letter, page),
 						   page            = page,
 						   letter          = letter,
 						   path_name       = "authors",
@@ -79,12 +44,7 @@ def renderAuthorTable(letter=None, page=1):
 						   )
 
 
-@app.route('/artists/<letter>/<int:page>')
-@app.route('/artists/<page>')
-@app.route('/artists/<int:page>')
-@app.route('/artists/')
-def renderArtistTable(letter=None, page=1):
-
+def get_artist_entries(letter, page):
 	if letter:
 		series = Illustrators.query                                 \
 			.filter(Illustrators.name.like("{}%".format(letter))) \
@@ -94,14 +54,19 @@ def renderArtistTable(letter=None, page=1):
 		series = Illustrators.query       \
 			.order_by(Illustrators.name)\
 			.distinct(Illustrators.name)
-
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderArtistTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	return series_entries
+
+
+@app.route('/artists/<letter>/<int:page>')
+@app.route('/artists/<page>')
+@app.route('/artists/<int:page>')
+@app.route('/artists/')
+def renderArtistTable(letter=None, page=1):
+
 
 	return render_template('sequence.html',
-						   sequence_item   = series_entries,
+						   sequence_item   = get_artist_entries(letter, page),
 						   page            = page,
 						   letter          = letter,
 						   path_name       = "artists",
@@ -112,13 +77,7 @@ def renderArtistTable(letter=None, page=1):
 						   )
 
 
-
-@app.route('/tags/<letter>/<int:page>')
-@app.route('/tags/<page>')
-@app.route('/tags/<int:page>')
-@app.route('/tags/')
-def renderTagTable(letter=None, page=1):
-
+def get_tag_entries(letter, page):
 	if letter:
 		series = Tags.query                                 \
 			.filter(Tags.tag.like("{}%".format(letter))) \
@@ -129,14 +88,18 @@ def renderTagTable(letter=None, page=1):
 			.order_by(Tags.tag)\
 			.distinct(Tags.tag)
 
-
-	if series is None:
-		flash(gettext('No tag items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderTagTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	return series_entries
+
+@app.route('/tags/<letter>/<int:page>')
+@app.route('/tags/<page>')
+@app.route('/tags/<int:page>')
+@app.route('/tags/')
+def renderTagTable(letter=None, page=1):
+
 
 	return render_template('sequence.html',
-						   sequence_item   = series_entries,
+						   sequence_item   = get_tag_entries(letter, page),
 						   page            = page,
 						   letter          = letter,
 						   path_name       = 'tags',
@@ -144,12 +107,8 @@ def renderTagTable(letter=None, page=1):
 						   page_url_prefix = 'tag-id',
 						   title           = 'Tags')
 
-@app.route('/publishers/<letter>/<int:page>')
-@app.route('/publishers/<page>')
-@app.route('/publishers/<int:page>')
-@app.route('/publishers/')
-def renderPublisherTable(letter=None, page=1):
 
+def get_publisher_entries(letter, page):
 	if letter:
 		series = Publishers.query                                 \
 			.filter(Publishers.name.like("{}%".format(letter))) \
@@ -159,14 +118,18 @@ def renderPublisherTable(letter=None, page=1):
 		series = Publishers.query       \
 			.order_by(Publishers.name)\
 			.distinct(Publishers.name)
-
-	if series is None:
-		flash(gettext('No tag items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderTagTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	return series_entries
+
+@app.route('/publishers/<letter>/<int:page>')
+@app.route('/publishers/<page>')
+@app.route('/publishers/<int:page>')
+@app.route('/publishers/')
+def renderPublisherTable(letter=None, page=1):
+
 
 	return render_template('sequence.html',
-						   sequence_item   = series_entries,
+						   sequence_item   = get_publisher_entries(letter, page),
 						   page            = page,
 						   letter          = letter,
 						   path_name       = 'publishers',
@@ -175,12 +138,7 @@ def renderPublisherTable(letter=None, page=1):
 						   title           = 'Publishers')
 
 
-@app.route('/genres/<letter>/<int:page>')
-@app.route('/genres/<page>')
-@app.route('/genres/<int:page>')
-@app.route('/genres/')
-def renderGenreTable(letter=None, page=1):
-
+def get_genre_entries(letter, page):
 	if letter:
 		series = Genres.query                                \
 			.filter(Genres.genre.like("{}%".format(letter))) \
@@ -190,13 +148,18 @@ def renderGenreTable(letter=None, page=1):
 		series = Genres.query       \
 			.order_by(Genres.genre) \
 			.distinct(Genres.genre)
-	if series is None:
-		flash(gettext('No genre items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderGenreTable'))
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	return series_entries
+
+@app.route('/genres/<letter>/<int:page>')
+@app.route('/genres/<page>')
+@app.route('/genres/<int:page>')
+@app.route('/genres/')
+def renderGenreTable(letter=None, page=1):
+
 
 	return render_template('sequence.html',
-						   sequence_item   = series_entries,
+						   sequence_item   = get_genre_entries(letter, page),
 						   page            = page,
 						   letter          = letter,
 						   path_name       = "genres",
@@ -204,14 +167,7 @@ def renderGenreTable(letter=None, page=1):
 						   page_url_prefix = 'genre-id',
 						   title           = 'Genres')
 
-
-@app.route('/groups/<letter>/<int:page>')
-@app.route('/groups/<page>')
-@app.route('/groups/<int:page>')
-@app.route('/groups/')
-def renderGroupsTable(letter=None, page=1):
-
-
+def get_groups_entries(letter, page):
 	if letter:
 		groups = Translators.query       \
 			.filter(Translators.name.like("{}%".format(letter))) \
@@ -220,19 +176,26 @@ def renderGroupsTable(letter=None, page=1):
 		groups = Translators.query       \
 			.order_by(Translators.name)
 
-
-	if groups is None:
-		flash(gettext('No Translators? Something is /probably/ broken!.'))
-		return redirect(url_for('renderGroupsTable'))
-
 	groups_entries = groups.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	return groups_entries
+
+@app.route('/groups/<letter>/<int:page>')
+@app.route('/groups/<page>')
+@app.route('/groups/<int:page>')
+@app.route('/groups/')
+def renderGroupsTable(letter=None, page=1):
+
+
 
 	return render_template('groups.html',
-						   sequence_item   = groups_entries,
+						   sequence_item   = get_groups_entries(letter, page),
 						   page            = page,
 						   add_new         = 'group',
 						   add_new_text    = 'Add a Group',
 						   )
+
+# def get_artist_entries(letter, page):
+# 	return series_entries
 
 
 @app.route('/feeds/<page>')
@@ -243,15 +206,8 @@ def renderFeedsTable(page=1):
 	feeds = Feeds.query       \
 		.order_by(desc(Feeds.published))
 
-
 	feeds = feeds.options(joinedload('tags'))
 	feeds = feeds.options(joinedload('authors'))
-
-
-
-	if feeds is None:
-		flash(gettext('No feeds? Something is /probably/ broken!.'))
-		return redirect(url_for('renderFeedsTable'))
 
 	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
@@ -260,6 +216,9 @@ def renderFeedsTable(page=1):
 						   page            = page,
 						   chunk           = True
 						   )
+
+# def get_artist_entries(letter, page):
+# 	return series_entries
 
 
 @app.route('/feeds/tag/<tag>/<page>')
@@ -273,14 +232,6 @@ def renderFeedsTagTable(tag, page=1):
 			.options(joinedload('tags'))     \
 			.options(joinedload('authors'))
 
-
-
-	feeds = query
-
-	if feeds is None:
-		flash(gettext('No feeds? Something is /probably/ broken!.'))
-		return redirect(url_for('renderFeedsTable'))
-
 	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
 
 	return render_template('feeds.html',
@@ -289,6 +240,9 @@ def renderFeedsTagTable(tag, page=1):
 						   page            = page,
 						   chunk           = True
 						   )
+
+# def get_artist_entries(letter, page):
+# 	return series_entries
 
 @app.route('/feeds/source/<source>/<page>')
 @app.route('/feeds/source/<source>/<int:page>')
@@ -301,10 +255,6 @@ def renderFeedsSourceTable(source, page=1):
 
 	feeds = feeds.options(joinedload('tags'))
 	feeds = feeds.options(joinedload('authors'))
-
-	if feeds is None:
-		flash(gettext('No feeds? Something is /probably/ broken!.'))
-		return redirect(url_for('renderFeedsTable'))
 
 	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
 

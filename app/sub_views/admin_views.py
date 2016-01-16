@@ -1,21 +1,9 @@
 from flask import render_template
-from flask import flash
-from flask import redirect
-from flask import url_for
 from flask import g
-from flask.ext.babel import gettext
 # from guess_language import guess_language
 from app import app
 
-from app.models import Series
-from app.models import Tags
-from app.models import Genres
-from app.models import Author
-from app.models import Illustrators
-from app.models import Translators
-from app.models import Releases
 from app.models import HttpRequestLog
-from app.models import Watches
 from app.models import Users
 
 import sqlalchemy

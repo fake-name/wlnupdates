@@ -3,7 +3,6 @@ from flask import flash
 from flask import redirect
 from flask import url_for
 from flask import g
-from flask import request
 from flask.ext.babel import gettext
 # from guess_language import guess_language
 from app import app
