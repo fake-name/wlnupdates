@@ -25,9 +25,9 @@ If you are not logged in, please log in.<br>
 If you do not have an account, you must create one in order to edit things or watch series."""
 
 
+@csrf.exempt
 @app.route('/api', methods=['POST'])
 def handleApiPost():
-
 	if not request.json:
 		# print("Non-JSON request!")
 		js = {
@@ -37,7 +37,6 @@ def handleApiPost():
 		resp = jsonify(js)
 		resp.status_code = 200
 		resp.mimetype="application/json"
-		print("Non-JSON API call! Data-type = ", request.mimetype)
 		return resp
 
 	ret = dispatchApiCall(request.json)
@@ -108,7 +107,7 @@ DISPATCH_TABLE = {
 }
 
 def dispatchApiCall(reqJson):
-	# print("Json request:", reqJson)
+	print("Json request:", reqJson)
 	if not "mode" in reqJson:
 		print("API JSON Request without mode!")
 		return getResponse("No mode in API Request!", error=True)
@@ -129,10 +128,10 @@ def dispatchApiCall(reqJson):
 		else:
 			ret = dispatch_method(reqJson)
 
-	except AssertionError:
+	except AssertionError as e:
 		traceback.print_exc()
 		print(reqJson)
-		return getResponse("Error processing API request!", error=True)
+		return getResponse("Error processing API request: '%s'!" % e, error=True)
 
 
 

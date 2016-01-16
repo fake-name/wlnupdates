@@ -12,3 +12,7 @@ __pycache__
 /logs
 /app/static/.webassets-cache
 /application/static/.webassets-cache
+/test/logs
+/*.xz
+/test/cookies.lwp
+/test/cookietemp.lwp

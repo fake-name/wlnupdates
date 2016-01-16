@@ -82,7 +82,6 @@ class IllustratorsBase(object):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
 	name        = db.Column(CIText(), nullable=False, index=True)
 
-
 class AlternateNamesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
 	@declared_attr
