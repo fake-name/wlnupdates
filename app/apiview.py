@@ -60,29 +60,33 @@ def handleApiGet():
 # CSRF protection is not needed if
 DISPATCH_TABLE = {
 	#
-	'get-artist-id'             : (api_handlers_anon.get_artist_id,              False, False),
 	'get-artists'               : (api_handlers_anon.get_artists,                False, False),
-	'get-author-id'             : (api_handlers_anon.get_author_id,              False, False),
 	'get-authors'               : (api_handlers_anon.get_authors,                False, False),
-	'get-cover-img'             : (api_handlers_anon.get_cover_img,              False, False),
-	'get-feeds'                 : (api_handlers_anon.get_feeds,                  False, False),
-	'get-genre-id'              : (api_handlers_anon.get_genre_id,               False, False),
 	'get-genres'                : (api_handlers_anon.get_genres,                 False, False),
-	'get-group-id'              : (api_handlers_anon.get_group_id,               False, False),
 	'get-groups'                : (api_handlers_anon.get_groups,                 False, False),
 	'get-oel-releases'          : (api_handlers_anon.get_oel_releases,           False, False),
 	'get-oel-series'            : (api_handlers_anon.get_oel_series,             False, False),
-	'get-publisher-id'          : (api_handlers_anon.get_publisher_id,           False, False),
 	'get-publishers'            : (api_handlers_anon.get_publishers,             False, False),
 	'get-releases'              : (api_handlers_anon.get_releases,               False, False),
-	'get-search'                : (api_handlers_anon.get_search,                 False, False),
-	'get-series-id'             : (api_handlers_anon.get_series_id,              False, False),
 	'get-series'                : (api_handlers_anon.get_series,                 False, False),
-	'get-tag-id'                : (api_handlers_anon.get_tag_id,                 False, False),
 	'get-tags'                  : (api_handlers_anon.get_tags,                   False, False),
 	'get-translated-releases'   : (api_handlers_anon.get_translated_releases,    False, False),
 	'get-translated-series'     : (api_handlers_anon.get_translated_series,      False, False),
+
 	'get-watches'               : (api_handlers_anon.get_watches,                False, False),
+	'get-search'                : (api_handlers_anon.get_search,                 False, False),
+
+	'get-feeds'                 : (api_handlers_anon.get_feeds,                  False, False),
+	'get-cover-img'             : (api_handlers_anon.get_cover_img,              False, False),
+
+	'get-artist-id'             : (api_handlers_anon.get_artist_id,              False, False),
+	'get-author-id'             : (api_handlers_anon.get_author_id,              False, False),
+	'get-genre-id'              : (api_handlers_anon.get_genre_id,               False, False),
+	'get-group-id'              : (api_handlers_anon.get_group_id,               False, False),
+	'get-publisher-id'          : (api_handlers_anon.get_publisher_id,           False, False),
+	'get-series-id'             : (api_handlers_anon.get_series_id,              False, False),
+	'get-tag-id'                : (api_handlers_anon.get_tag_id,                 False, False),
+
 
 	# Logged in stuff
 	'manga-update'              : (api_handlers.processMangaUpdateJson,          True,  False),

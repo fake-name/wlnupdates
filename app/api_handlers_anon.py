@@ -149,8 +149,48 @@ def get_translated_releases(data):
 ############################################################################################################################################################
 ############################################################################################################################################################
 
+
 def unpack_series(release_items):
-	# This is VERY inelegant.
+	# Sequence views only get the id and title.
+	release_items = [{
+
+		'id'          : row.id,
+		'title'       : row.title,
+		'type'        : row.type,
+
+	} for row in release_items]
+
+	return release_items
+
+
+def get_oel_series(data):
+	data = check_validate_range(data)
+	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='oel')
+	tmp = unpack_paginator(seq)
+	tmp['items'] = unpack_series(tmp['items'])
+	return getDataResponse(tmp)
+
+def get_series(data):
+	data = check_validate_range(data)
+	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'])
+	tmp = unpack_paginator(seq)
+	tmp['items'] = unpack_series(tmp['items'])
+	return getDataResponse(tmp)
+
+def get_translated_series(data):
+	data = check_validate_range(data)
+	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='translated')
+	tmp = unpack_paginator(seq)
+	tmp['items'] = unpack_series(tmp['items'])
+	return getDataResponse(tmp)
+
+
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
+
+def unpack_series_page(row):
+	# This is rather inelegant.
 
 	# Primary attributes
 	# 	id
@@ -181,7 +221,7 @@ def unpack_series(release_items):
 	# 	releases
 	# 	publishers
 
-	release_items = [{
+	ret = {
 
 		'id'          : row.id,
 		'title'       : row.title,
@@ -259,35 +299,9 @@ def unpack_series(release_items):
 		# Hurrah for function reuse
 		'releases'           : unpack_releases(row.releases)
 
-	} for row in release_items]
+	}
 
-	return release_items
-
-def get_oel_series(data):
-	data = check_validate_range(data)
-	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='oel')
-	tmp = unpack_paginator(seq)
-	tmp['items'] = unpack_series(tmp['items'])
-	return getDataResponse(tmp)
-
-def get_series(data):
-	data = check_validate_range(data)
-	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'])
-	tmp = unpack_paginator(seq)
-	tmp['items'] = unpack_series(tmp['items'])
-	return getDataResponse(tmp)
-
-def get_translated_series(data):
-	data = check_validate_range(data)
-	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='translated')
-	tmp = unpack_paginator(seq)
-	tmp['items'] = unpack_series(tmp['items'])
-	return getDataResponse(tmp)
-
-
-############################################################################################################################################################
-############################################################################################################################################################
-############################################################################################################################################################
+	return ret
 
 
 def get_search(data):
@@ -296,7 +310,6 @@ def get_search(data):
 
 def get_watches(data):
 	return getResponse(error=True, message="Not yet implemented")
-
 
 
 
