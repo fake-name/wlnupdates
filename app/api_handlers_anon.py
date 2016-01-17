@@ -112,7 +112,7 @@ def unpack_releases(release_items):
 		'published' : row.published,
 		'volume'    : row.volume,
 		'chapter'   : row.chapter,
-		'fragment'  : 0,
+		'fragment'  : None,
 		'postfix'   : row.postfix,
 		'srcurl'    : row.srcurl,
 		'tlgroup'   : {
@@ -150,51 +150,114 @@ def get_translated_releases(data):
 ############################################################################################################################################################
 
 def unpack_series(release_items):
+	# This is VERY inelegant.
 
-	# id
-	# title
-	# description
-	# type
-	# origin_loc
-	# demographic
-	# orig_lang
-	# website
-	# volume
-	# chapter
-	# orig_status
-	# tot_volume
-	# tot_chapter
-	# region
-	# tl_type
-	# license_en
-	# pub_date
+	# Primary attributes
+	# 	id
+	# 	title
+	# 	description
+	# 	type
+	# 	origin_loc
+	# 	demographic
+	# 	orig_lang
+	# 	website
+	# 	volume
+	# 	chapter
+	# 	orig_status
+	# 	tot_volume
+	# 	tot_chapter
+	# 	region
+	# 	tl_type
+	# 	license_en
+	# 	pub_date
 
-	# tags
-	# genres
-	# author
-	# illustrators
-	# alternatenames
-	# covers
-	# releases
-	# publishers
-
-
+	# Links:
+	# 	tags
+	# 	genres
+	# 	author
+	# 	illustrators
+	# 	alternatenames
+	# 	covers
+	# 	releases
+	# 	publishers
 
 	release_items = [{
-		'series'    : {
-				"name" : row.series_row.title,
-				"id"   : row.series_row.id,
-			},
-		'published' : row.published,
-		'volume'    : row.volume,
-		'chapter'   : row.chapter,
-		'fragment'  : 0,
-		'postfix'   : row.postfix,
-		'srcurl'    : row.srcurl,
-		'tlgroup'   : {
-				"name" : row.translators.name,
-				"id"   : row.translators.id,
-			},
+
+		'id'          : row.id,
+		'title'       : row.title,
+		'description' : row.description,
+		'type'        : row.type,
+		'origin_loc'  : row.origin_loc,
+		'demographic' : row.demographic,
+		'orig_lang'   : row.orig_lang,
+		'website'     : row.website,
+		'volume'      : row.volume,
+		'chapter'     : row.chapter,
+		'orig_status' : row.orig_status,
+		'tot_volume'  : row.tot_volume,
+		'tot_chapter' : row.tot_chapter,
+		'region'      : row.region,
+		'tl_type'     : row.tl_type,
+		'license_en'  : row.license_en,
+		'pub_date'    : row.pub_date,
+
+		'tags'           : [
+			{
+				'id'  : tag.id,
+				'tag' : tag.tag,
+			}
+			for tag in row.tags
+		],
+
+		'genres'           : [
+			{
+				'id'    : genre.id,
+				'genre' : genre.genre,
+			}
+			for genre in row.genres
+		],
+
+		'authors'           : [
+			{
+				'id'     : author.id,
+				'author' : author.name,
+			}
+			for author in row.author
+		],
+
+		'illustrators'           : [
+			{
+				'id'           : illustrators.id,
+				'illustrators' : illustrators.name,
+			}
+			for illustrators in row.illustrators
+		],
+
+		'alternatenames'           : [
+			alternatename.name for alternatename in row.alternatenames
+		],
+
+		'covers'           : [
+			{
+				'id'          : cover.id,
+				'srcfname'    : cover.srcfname,
+				'volume'      : cover.volume,
+				'chapter'     : cover.chapter,
+				'description' : cover.description,
+			}
+			for cover in row.covers
+		],
+
+		'publishers'           : [
+			{
+				'id'        : publisher.id,
+				'publisher' : publisher.name,
+			}
+			for publisher in row.publishers
+		],
+
+		# Hurrah for function reuse
+		'releases'           : unpack_releases(row.releases)
 
 	} for row in release_items]
 
@@ -213,7 +276,6 @@ def get_series(data):
 	tmp = unpack_paginator(seq)
 	tmp['items'] = unpack_series(tmp['items'])
 	return getDataResponse(tmp)
-
 
 def get_translated_series(data):
 	data = check_validate_range(data)
