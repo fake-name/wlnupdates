@@ -8,13 +8,15 @@ from app.models import Series
 
 
 
-def getSeries(letter=None, type=None):
+def getSeries(page, letter=None, type=None):
 	series = Series.query
 	if letter:
 		series = series.filter(Series.title.like("{}%".format(letter)))
 	if type:
 		series = series.filter(Series.tl_type==type)
 	series = series.order_by(Series.title)
+
+	series = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return series
 
 @app.route('/series/<letter>/<int:page>')
@@ -22,14 +24,9 @@ def getSeries(letter=None, type=None):
 @app.route('/series/<int:page>')
 @app.route('/series/')
 def renderSeriesTable(letter=None, page=1):
-	series = getSeries(letter)
-
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderSeriesTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	series = getSeries(letter=letter, page=page)
 	return render_template('series-list.html',
-						   series_entries   = series_entries,
+						   series_entries   = series,
 						   page            = page,
 						   name_key        = "title",
 						   letter          = letter,
@@ -43,14 +40,9 @@ def renderSeriesTable(letter=None, page=1):
 @app.route('/translated-series/<int:page>')
 @app.route('/translated-series/')
 def renderTranslatedSeriesTable(letter=None, page=1):
-	series = getSeries(letter, type='translated')
-
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderSeriesTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	series = getSeries(letter=letter, type='translated', page=page)
 	return render_template('series-list.html',
-						   series_entries   = series_entries,
+						   series_entries   = series,
 						   page            = page,
 						   name_key        = "title",
 						   path_name       = "translated-series",
@@ -65,15 +57,9 @@ def renderTranslatedSeriesTable(letter=None, page=1):
 @app.route('/oel-series/<int:page>')
 @app.route('/oel-series/')
 def renderOelSeriesTable(letter=None, page=1):
-	series = getSeries(letter, type='oel')
-
-	if series is None:
-		flash(gettext('No series items with a prefix of {prefix} found.'.format(prefix=letter)))
-		return redirect(url_for('renderSeriesTable'))
-	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
-
+	series = getSeries(letter=letter, type='oel', page=page)
 	return render_template('series-list.html',
-						   series_entries   = series_entries,
+						   series_entries   = series,
 						   page            = page,
 						   name_key        = "title",
 						   path_name       = "oel-series",

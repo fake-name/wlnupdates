@@ -2,6 +2,8 @@
 from app.api_common import getResponse
 from app.api_common import getDataResponse
 import app.sub_views.sequence_views as sequence_view_items
+import app.sub_views.release_views  as release_view_items
+import app.sub_views.series_views   as series_view_items
 
 def check_validate_range(data):
 	if "offset" in data:
@@ -20,7 +22,6 @@ def check_validate_range(data):
 	return data
 
 def unpack_paginator(paginator):
-
 	ret_data = {
 		'items'    : paginator.items,
 		'pages'    : paginator.pages,
@@ -33,6 +34,10 @@ def unpack_paginator(paginator):
 	}
 	return ret_data
 
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
 def get_artists(data):
 	data = check_validate_range(data)
 	seq = sequence_view_items.get_artist_entries(data['prefix'], data['offset'])
@@ -43,8 +48,6 @@ def get_artists(data):
 		'id'   : row.id,
 	} for row in rows]
 	return getDataResponse(tmp)
-
-
 def get_authors(data):
 	data = check_validate_range(data)
 	seq = sequence_view_items.get_author_entries(data['prefix'], data['offset'])
@@ -55,7 +58,6 @@ def get_authors(data):
 		'id'   : row.id,
 	} for row in rows]
 	return getDataResponse(tmp)
-
 def get_genres(data):
 	data = check_validate_range(data)
 	seq = sequence_view_items.get_genre_entries(data['prefix'], data['offset'])
@@ -66,7 +68,6 @@ def get_genres(data):
 		'id'   : row.id,
 	} for row in rows]
 	return getDataResponse(tmp)
-
 def get_groups(data):
 	data = check_validate_range(data)
 	seq = sequence_view_items.get_groups_entries(data['prefix'], data['offset'])
@@ -77,7 +78,6 @@ def get_groups(data):
 		'id'   : row.id,
 	} for row in rows]
 	return getDataResponse(tmp)
-
 def get_publishers(data):
 	data = check_validate_range(data)
 	seq = sequence_view_items.get_publisher_entries(data['prefix'], data['offset'])
@@ -88,45 +88,147 @@ def get_publishers(data):
 		'id'   : row.id,
 	} for row in rows]
 	return getDataResponse(tmp)
-
 def get_tags(data):
 	data = check_validate_range(data)
 	seq = sequence_view_items.get_tag_entries(data['prefix'], data['offset'])
-	return getDataResponse(data=unpack_paginator(seq))
+	tmp = unpack_paginator(seq)
+	rows = tmp['items']
+	tmp['items'] = [{
+		'tag' : row.tag,
+		'id'   : row.id,
+	} for row in rows]
+	return getDataResponse(tmp)
 
-def get_cover_img(data):
-	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
 
-def get_feeds(data):
-	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
+def unpack_releases(release_items):
+	release_items = [{
+		'series'    : {
+				"name" : row.series_row.title,
+				"id"   : row.series_row.id,
+			},
+		'published' : row.published,
+		'volume'    : row.volume,
+		'chapter'   : row.chapter,
+		'fragment'  : 0,
+		'postfix'   : row.postfix,
+		'srcurl'    : row.srcurl,
+		'tlgroup'   : {
+				"name" : row.translators.name,
+				"id"   : row.translators.id,
+			},
 
+	} for row in release_items]
+
+	return release_items
 def get_oel_releases(data):
 	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
+	releases = release_view_items.get_releases(page = data['offset'])
+	tmp = unpack_paginator(releases)
+
+	tmp['items'] = unpack_releases(tmp['items'])
+	return getDataResponse(tmp)
+def get_releases(data):
+	data = check_validate_range(data)
+	releases = release_view_items.get_releases(page = data['offset'], srctype='oel')
+	tmp = unpack_paginator(releases)
+
+	tmp['items'] = unpack_releases(tmp['items'])
+	return getDataResponse(tmp)
+def get_translated_releases(data):
+	data = check_validate_range(data)
+	releases = release_view_items.get_releases(page = data['offset'], srctype='translated')
+	tmp = unpack_paginator(releases)
+
+	tmp['items'] = unpack_releases(tmp['items'])
+	return getDataResponse(tmp)
+
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
+
+def unpack_series(release_items):
+
+	# id
+	# title
+	# description
+	# type
+	# origin_loc
+	# demographic
+	# orig_lang
+	# website
+	# volume
+	# chapter
+	# orig_status
+	# tot_volume
+	# tot_chapter
+	# region
+	# tl_type
+	# license_en
+	# pub_date
+
+	# tags
+	# genres
+	# author
+	# illustrators
+	# alternatenames
+	# covers
+	# releases
+	# publishers
+
+
+
+	release_items = [{
+		'series'    : {
+				"name" : row.series_row.title,
+				"id"   : row.series_row.id,
+			},
+		'published' : row.published,
+		'volume'    : row.volume,
+		'chapter'   : row.chapter,
+		'fragment'  : 0,
+		'postfix'   : row.postfix,
+		'srcurl'    : row.srcurl,
+		'tlgroup'   : {
+				"name" : row.translators.name,
+				"id"   : row.translators.id,
+			},
+
+	} for row in release_items]
+
+	return release_items
 
 def get_oel_series(data):
 	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
-
-def get_releases(data):
-	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
-
-def get_search(data):
-	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
+	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='oel')
+	tmp = unpack_paginator(seq)
+	tmp['items'] = unpack_series(tmp['items'])
+	return getDataResponse(tmp)
 
 def get_series(data):
 	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
+	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'])
+	tmp = unpack_paginator(seq)
+	tmp['items'] = unpack_series(tmp['items'])
+	return getDataResponse(tmp)
 
-def get_translated_releases(data):
-	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
 
 def get_translated_series(data):
+	data = check_validate_range(data)
+	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='translated')
+	tmp = unpack_paginator(seq)
+	tmp['items'] = unpack_series(tmp['items'])
+	return getDataResponse(tmp)
+
+
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
+
+
+def get_search(data):
 	data = check_validate_range(data)
 	return getResponse(error=True, message="Not yet implemented")
 
@@ -165,3 +267,10 @@ def get_tag_id(data):
 	return getResponse(error=True, message="Not yet implemented")
 
 
+def get_cover_img(data):
+	data = check_validate_range(data)
+	return getResponse(error=True, message="Not yet implemented")
+
+def get_feeds(data):
+	data = check_validate_range(data)
+	return getResponse(error=True, message="Not yet implemented")

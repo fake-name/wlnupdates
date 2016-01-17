@@ -1,26 +1,30 @@
 
 import logSetup
 import webFunctions
-if __name__ == "__main__":
-	logSetup.initLogging()
+# if __name__ == "__main__":
+# 	logSetup.initLogging()
 
 
 MODES = [
-	'get-artists',
-	'get-authors',
-	'get-genres',
-	'get-groups',
-	'get-publishers',
+	# 'get-artists',
+	# 'get-authors',
+	# 'get-genres',
+	# 'get-groups',
+	# 'get-publishers',
 
-# 'get-cover-img',
-	# 'get-oel-releases',
-	# 'get-oel-series',
-	# 'get-releases',
+	# 'get-cover-img',
 	# 'get-search',
-	# 'get-series',
+
 	# 'get-tags',
+
+	# 'get-oel-releases',
+	# 'get-releases',
 	# 'get-translated-releases',
-	# 'get-translated-series',
+
+	'get-oel-series',
+	'get-series',
+	'get-translated-series',
+
 	# 'get-watches',
 	# 'get-artist-id',
 	# 'get-author-id',
@@ -41,6 +45,7 @@ def test():
 			'mode'   : mode,
 			# 'id'     : 1,
 		}
+		print("Request: ", post)
 		pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
 		print(pg)
 
@@ -48,12 +53,17 @@ def test():
 		# 	for page in range(4):
 		# 		post = {
 		# 			'mode'   : mode,
-		# 			'offset' : page,
+		# 			'offset' : page+1,
 		# 			'prefix' : letter,
 		# 		}
 
-
-		# 		pg = wg.getpage("http://127.0.0.1:5000/api", postData=post)
+		# 		# post = {
+		# 		# 	'mode'   : mode,
+		# 		# 	# 'id'     : 1,
+		# 		# }
+		# 		print("Request: ", post)
+		# 		pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+		# 		print(pg)
 
 
 

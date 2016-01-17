@@ -11,7 +11,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
 
-def get_releases(srctype=None):
+def get_releases(page, srctype=None):
 	releases = Releases.query
 	if srctype:
 		releases = releases.filter(Releases.series_row.has(tl_type = srctype))
@@ -20,6 +20,7 @@ def get_releases(srctype=None):
 	# Join on the series entry. Cuts the total page-rendering queries in half.
 	releases = releases.options(joinedload('series_row'))
 	releases = releases.options(joinedload('translators'))
+	releases = releases.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return releases
 
 
@@ -29,16 +30,10 @@ def get_releases(srctype=None):
 @app.route('/releases/')
 def renderReleasesTable(page=1):
 
-	releases = get_releases()
-
-	if releases is None:
-		flash(gettext('No releases? Something is /probably/ broken!.'))
-		return redirect(url_for('renderReleasesTable'))
-
-	releases_entries = releases.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	releases = get_releases(page=page)
 
 	return render_template('releases.html',
-						   sequence_item   = releases_entries,
+						   sequence_item   = releases,
 						   page            = page,
 						   tl_type         = ''
 						   )
@@ -51,16 +46,10 @@ def renderReleasesTable(page=1):
 @app.route('/translated-releases/')
 def renderTranslatedReleasesTable(page=1):
 
-	releases = get_releases(srctype='translated')
-
-	if releases is None:
-		flash(gettext('No releases? Something is /probably/ broken!.'))
-		return redirect(url_for('renderReleasesTable'))
-
-	releases_entries = releases.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	releases = get_releases(page=page, srctype='translated')
 
 	return render_template('releases.html',
-						   sequence_item   = releases_entries,
+						   sequence_item   = releases,
 						   page            = page,
 						   tl_type         = 'Translated '
 						   )
@@ -72,16 +61,10 @@ def renderTranslatedReleasesTable(page=1):
 @app.route('/oel-releases/')
 def renderOelReleasesTable(page=1):
 
-	releases = get_releases(srctype='oel')
-
-	if releases is None:
-		flash(gettext('No releases? Something is /probably/ broken!.'))
-		return redirect(url_for('renderReleasesTable'))
-
-	releases_entries = releases.paginate(page, app.config['SERIES_PER_PAGE'], False)
+	releases = get_releases(page=page, srctype='oel')
 
 	return render_template('releases.html',
-						   sequence_item   = releases_entries,
+						   sequence_item   = releases,
 						   page            = page,
 						   tl_type         = 'OEL ',
 						   show_group      = False
