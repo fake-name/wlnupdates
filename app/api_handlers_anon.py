@@ -4,6 +4,7 @@ from app.api_common import getDataResponse
 import app.sub_views.sequence_views as sequence_view_items
 import app.sub_views.release_views  as release_view_items
 import app.sub_views.series_views   as series_view_items
+import app.sub_views.item_views     as item_view_items
 
 def check_validate_range(data):
 	if "offset" in data:
@@ -161,22 +162,18 @@ def unpack_series(release_items):
 	} for row in release_items]
 
 	return release_items
-
-
 def get_oel_series(data):
 	data = check_validate_range(data)
 	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='oel')
 	tmp = unpack_paginator(seq)
 	tmp['items'] = unpack_series(tmp['items'])
 	return getDataResponse(tmp)
-
 def get_series(data):
 	data = check_validate_range(data)
 	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'])
 	tmp = unpack_paginator(seq)
 	tmp['items'] = unpack_series(tmp['items'])
 	return getDataResponse(tmp)
-
 def get_translated_series(data):
 	data = check_validate_range(data)
 	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='translated')
@@ -303,13 +300,23 @@ def unpack_series_page(row):
 
 	return ret
 
+def get_series_id(data):
+	assert "id" in data, "You must specify a id to query for."
 
-def get_search(data):
-	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
+	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches = item_view_items.load_series_data(data['id'])
 
-def get_watches(data):
-	return getResponse(error=True, message="Not yet implemented")
+	ret                  = unpack_series_page(series)
+	ret['releases']      = unpack_releases(releases)
+	ret['watch']         = watch
+	ret['watchlists']    = watchlists
+	ret['progress']      = progress
+	ret['latest']        = latest_dict
+	ret['most_recent']   = most_recent
+	ret['latest_str']    = latest_str
+	ret['rating']        = rating
+	ret['total_watches'] = total_watches
+
+	return getDataResponse(ret)
 
 
 
@@ -333,13 +340,21 @@ def get_publisher_id(data):
 	assert "id" in data, "You must specify a id to query for."
 	return getResponse(error=True, message="Not yet implemented")
 
-def get_series_id(data):
-	assert "id" in data, "You must specify a id to query for."
-	return getResponse(error=True, message="Not yet implemented")
 
 def get_tag_id(data):
 	assert "id" in data, "You must specify a id to query for."
 	return getResponse(error=True, message="Not yet implemented")
+
+
+
+def get_search(data):
+	data = check_validate_range(data)
+	return getResponse(error=True, message="Not yet implemented")
+
+def get_watches(data):
+	return getResponse(error=True, message="Not yet implemented")
+
+
 
 
 def get_cover_img(data):

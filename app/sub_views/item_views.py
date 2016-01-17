@@ -104,8 +104,7 @@ def get_cover_sorter():
 	return sorter
 
 
-@app.route('/series-id/<sid>/')
-def renderSeriesId(sid):
+def load_series_data(sid):
 	series       =       Series.query
 
 	# Adding these additional joinedload values, while they /should/
@@ -173,8 +172,12 @@ def renderSeriesId(sid):
 
 	rating = get_rating(sid)
 
+	return series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches
 
+@app.route('/series-id/<sid>/')
+def renderSeriesId(sid):
 
+	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches = load_series_data(sid)
 
 
 	return render_template('series-id.html',
