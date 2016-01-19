@@ -232,7 +232,7 @@ def renderFeedsTagTable(tag, page=1):
 			.options(joinedload('tags'))     \
 			.options(joinedload('authors'))
 
-	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
+	feed_entries = query.paginate(page, app.config['SERIES_PER_PAGE'])
 
 	return render_template('feeds.html',
 						   subheader = "Tag = '%s'" % tag,
