@@ -21,7 +21,8 @@ def legal_site():
 	return render_template('legal.html')
 @app.route('/api-docs')
 def api_docs_site():
-	return render_template('api-docs.html')
+	with open("./app/templates/api-docs.md", "r") as fp:
+		return render_template('api-docs.html', markdown_content=fp.read())
 
 
 
