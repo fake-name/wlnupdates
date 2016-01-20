@@ -1,5 +1,12 @@
 #!/bin/bash
 
+set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "Please allow the script to `sudo` internally, it has to be done a specific"
+   echo "way to properly preserve some environment variables."
+   exit 1
+fi
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root. Please enter your password for sudo." 1>&2
    sudo -H env PATH=$PATH "$0" "$@"
