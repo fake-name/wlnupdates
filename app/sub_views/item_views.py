@@ -174,6 +174,84 @@ def load_series_data(sid):
 
 	return series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches
 
+def get_author(sid):
+	author = Author.query.filter(Author.id==sid).first()
+	if not author:
+		return None, None
+
+	items = Author.query.filter(Author.name==author.name).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+
+	return author, series
+def get_artist(sid):
+	artist = Illustrators.query.filter(Illustrators.id==sid).first()
+	if not artist:
+		return None, None
+
+
+	items = Illustrators.query.filter(Illustrators.name==artist.name).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+
+	return artist, series
+
+
+
+
+def get_tag_id(sid, page=1):
+
+	tag = Tags.query.filter(Tags.id==sid).first()
+
+	if tag is None:
+		return None, None
+
+
+	items = Tags.query.filter(Tags.tag==tag.tag).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+	return tag, series
+
+def get_publisher_id(sid, page=1):
+
+	pub = Publishers.query.filter(Publishers.id==sid).first()
+
+	if pub is None:
+		return None, None
+
+
+	items = Publishers.query.filter(Publishers.name==pub.name).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+	return pub, series
+
+def get_genre_id(sid, page=1):
+
+	genre = Genres.query.filter(Genres.id==sid).first()
+	if genre is None:
+		return None, None
+
+	items = Genres.query.filter(Genres.genre==genre.genre).all()
+	ids = []
+	for item in items:
+		ids.append(item.series)
+
+	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
+	return genre, series
+
 @app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
 
@@ -199,19 +277,12 @@ def renderSeriesId(sid):
 @app.route('/author-id/<sid>/<int:page>')
 @app.route('/author-id/<sid>/')
 def renderAuthorId(sid, page=1):
-	author = Author.query.filter(Author.id==sid).first()
+	author, series = get_author(sid)
 	# print("Author search result: ", author)
 
 	if author is None:
 		flash(gettext('Author not found? This is probably a error!'))
 		return redirect(url_for('renderAuthorTable'))
-
-	items = Author.query.filter(Author.name==author.name).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
@@ -228,19 +299,13 @@ def renderAuthorId(sid, page=1):
 @app.route('/artist-id/<sid>/<int:page>')
 @app.route('/artist-id/<sid>/')
 def renderArtistId(sid, page=1):
-	artist = Illustrators.query.filter(Illustrators.id==sid).first()
+
+	artist, series = get_artist(sid)
 	# print("Artist search result: ", artist)
 
 	if artist is None:
 		flash(gettext('Tag not found? This is probably a error!'))
 		return redirect(url_for('renderArtistTable'))
-
-	items = Illustrators.query.filter(Illustrators.name==artist.name).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 
@@ -259,22 +324,11 @@ def renderArtistId(sid, page=1):
 @app.route('/tag-id/<sid>/')
 def renderTagId(sid, page=1):
 
-	tag = Tags.query.filter(Tags.id==sid).first()
+	tag, series = get_tag_id(sid)
 
 	if tag is None:
 		flash(gettext('Tag not found? This is probably a error!'))
 		return redirect(url_for('renderTagTable'))
-
-	# Look up the ascii value of the tag, and then find
-	# all the links containing it.
-	# Table is CITEXT, so we don't care about case.
-
-	# this should REALLY have another indirection table.
-
-	items = Tags.query.filter(Tags.tag==tag.tag).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
 
 	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
@@ -293,24 +347,11 @@ def renderTagId(sid, page=1):
 @app.route('/publisher-id/<sid>/')
 def renderPublisherId(sid, page=1):
 
-	pub = Publishers.query.filter(Publishers.id==sid).first()
+	pub, series = get_publisher_id(sid)
 
 	if pub is None:
 		flash(gettext('Tag not found? This is probably a error!'))
 		return redirect(url_for('renderTagTable'))
-
-	# Look up the ascii value of the tag, and then find
-	# all the links containing it.
-	# Table is CITEXT, so we don't care about case.
-
-	# this should REALLY have another indirection table.
-
-	items = Publishers.query.filter(Publishers.name==pub.name).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return render_template('search_results.html',
@@ -328,24 +369,12 @@ def renderPublisherId(sid, page=1):
 @app.route('/genre-id/<sid>/')
 def renderGenreId(sid, page=1):
 
-	genre = Genres.query.filter(Genres.id==sid).first()
+	genre, series = get_genre_id(sid)
 
 	if genre is None:
 		flash(gettext('Genre not found? This is probably a error!'))
 		return redirect(url_for('renderGenreTable'))
 
-	# Look up the ascii value of the tag, and then find
-	# all the links containing it.
-	# Table is CITEXT, so we don't care about case.
-
-	# this should REALLY have another indirection table.
-
-	items = Genres.query.filter(Genres.genre==genre.genre).all()
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title)
 
 	series_entries = series.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return render_template('search_results.html',

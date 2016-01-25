@@ -35,6 +35,13 @@ def unpack_paginator(paginator):
 	}
 	return ret_data
 
+def is_integer(in_str):
+	try:
+		int(in_str)
+		return True
+	except ValueError:
+		return False
+
 ############################################################################################################################################################
 ############################################################################################################################################################
 ############################################################################################################################################################
@@ -299,7 +306,6 @@ def unpack_series_page(row):
 	}
 
 	return ret
-
 def get_series_id(data):
 	assert "id" in data, "You must specify a id to query for."
 
@@ -320,31 +326,120 @@ def get_series_id(data):
 
 
 
+############################################################################################################################################################
+############################################################################################################################################################
+############################################################################################################################################################
+
+
+def unpack_artist_or_illustrator(row_item, series):
+	ret = {
+		"name" : row_item.name,
+		"series" : [
+						{
+							"title" : series_row.title,
+							"id"   : series_row.id
+						}
+						for
+							series_row
+						in
+							series.all()
+					],
+	}
+
+	return ret
+
+def unpack_tag_genre_publisher(row_item, series):
+
+	row_keys = row_item.__table__.columns.keys()
+
+	if "tag" in row_keys:
+		name = "tag"
+		val  = row_item.tag
+
+	if "genre" in row_keys:
+		name = "genre"
+		val  = row_item.genre
+	if "name" in row_keys:
+		name = "name"
+		val  = row_item.name
+
+	ret = {
+		name     : val,
+		"series" : [
+						{
+							"title" : series_row.title,
+							"id"   : series_row.id
+						}
+						for
+							series_row
+						in
+							series.all()
+					],
+	}
+	if "site" in row_keys:
+		ret['site'] = row_item.site
+
+	return ret
+
 def get_artist_id(data):
 	assert "id" in data, "You must specify a id to query for."
-	return getResponse(error=True, message="Not yet implemented")
+	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
+	a_id = int(data['id'])
+	artist, series = item_view_items.get_artist(a_id)
+	if not artist:
+		return getResponse(error=True, message='No item found for that ID!')
+	data = unpack_artist_or_illustrator(artist, series)
+	return getDataResponse(data)
 
 def get_author_id(data):
 	assert "id" in data, "You must specify a id to query for."
-	return getResponse(error=True, message="Not yet implemented")
+	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
+	a_id = int(data['id'])
+	author, series = item_view_items.get_author(a_id)
+	if not author:
+		return getResponse(error=True, message='No item found for that ID!')
+	data = unpack_artist_or_illustrator(author, series)
+	return getDataResponse(data)
+
+
 
 def get_genre_id(data):
 	assert "id" in data, "You must specify a id to query for."
-	return getResponse(error=True, message="Not yet implemented")
-
-def get_group_id(data):
-	assert "id" in data, "You must specify a id to query for."
-	return getResponse(error=True, message="Not yet implemented")
-
-def get_publisher_id(data):
-	assert "id" in data, "You must specify a id to query for."
-	return getResponse(error=True, message="Not yet implemented")
-
+	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
+	a_id = int(data['id'])
+	tag, series = item_view_items.get_tag_id(a_id)
+	if not tag:
+		return getResponse(error=True, message='No item found for that ID!')
+	data = unpack_tag_genre_publisher(tag, series)
+	return getDataResponse(data)
 
 def get_tag_id(data):
 	assert "id" in data, "You must specify a id to query for."
-	return getResponse(error=True, message="Not yet implemented")
+	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
+	a_id = int(data['id'])
+	genre, series = item_view_items.get_genre_id(a_id)
+	if not genre:
+		return getResponse(error=True, message='No item found for that ID!')
+	data = unpack_tag_genre_publisher(genre, series)
+	return getDataResponse(data)
 
+
+def get_publisher_id(data):
+	assert "id" in data, "You must specify a id to query for."
+	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
+	a_id = int(data['id'])
+	pub, series = item_view_items.get_publisher_id(a_id)
+	if not pub:
+		return getResponse(error=True, message='No item found for that ID!')
+	data = unpack_tag_genre_publisher(pub, series)
+	return getDataResponse(data)
+
+
+def get_group_id(data):
+	assert "id" in data, "You must specify a id to query for."
+	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
+	a_id = int(data['id'])
+	return getResponse(error=True, message="Not yet implemented")
 
 
 def get_search(data):

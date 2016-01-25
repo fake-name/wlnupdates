@@ -12,7 +12,7 @@ MODES = [
 	# 'get-groups',
 	# 'get-publishers',
 
-	'get-tags',
+	# 'get-tags',
 
 	# 'get-oel-releases',
 	# 'get-releases',
@@ -25,16 +25,17 @@ MODES = [
 	# 'get-cover-img',
 	# 'get-search',
 
-	# 'get-watches',
 	# 'get-artist-id',
 	# 'get-author-id',
-	# 'get-genre-id',
-	# 'get-group-id',
-	# 'get-publisher-id',
 	# 'get-tag-id',
+	# 'get-genre-id',
+	# 'get-publisher-id',
+	'get-group-id',
 
 	# 'get-series-id',
 	# 'get-feeds',
+
+	# 'get-watches',
 ]
 
 def test():
@@ -43,7 +44,7 @@ def test():
 
 		post = {
 			'mode'   : mode,
-			# 'id'     : 1,
+			'id'     : 3,
 		}
 		print("Request: ", post)
 		pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
