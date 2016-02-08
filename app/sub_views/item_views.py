@@ -151,8 +151,7 @@ def load_series_data(sid):
 	total_watches =       Watches.query.filter(Watches.series_id==sid).count()
 
 	if series is None:
-		flash(gettext('Series %(sid)s not found.', sid=sid))
-		return redirect(url_for('index'))
+		return None
 
 	releases = series.releases
 	releases.sort(reverse=True, key=getSort)
@@ -255,7 +254,14 @@ def get_genre_id(sid, page=1):
 @app.route('/series-id/<sid>/')
 def renderSeriesId(sid):
 
-	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches = load_series_data(sid)
+
+
+	data = load_series_data(sid)
+	if data is None:
+		flash(gettext('Series %(sid)s not found.', sid=sid))
+		return redirect(url_for('index'))
+
+	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches = data
 
 
 	return render_template('series-id.html',
