@@ -81,6 +81,7 @@ app.register_blueprint(forum.bp, url_prefix='/forum')
 
 # Admin
 from forum import admin
+admin.attach_admin(app)
 
 from flask.ext.markdown import Markdown
 Markdown(app, safe_mode='escape')
@@ -212,6 +213,4 @@ def utility_processor():
 			)
 
 
-def format_price(amount, currency=u'€'):
-	return u'{0:.2f}{1}'.format(amount, currency)
 
