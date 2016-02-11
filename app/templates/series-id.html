@@ -254,6 +254,24 @@
 		</div>
 	</div>
 {%- endmacro %}
+{% macro dbAdminItem() -%}
+
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-12 rowContents" id='{{valId}}'>
+				<form class="form-inline" action="javascript:merge_ajax();">
+
+					<div class="col-md-3 rowTitle">
+						<label style='margin-top:5px'>DB Admin View</label>
+					</div>
+					<div class="col-md-9 rowTitle">
+						<a href="/db_admin/series/edit/?id={{series_id}}&url=%2Fdb_admin%2Fseries%2F">view</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
 
 {% macro deleteItem() -%}
 
@@ -1049,6 +1067,7 @@
 
 				{{mergeInto()}}
 				{{deleteItem()}}
+				{{dbAdminItem()}}
 			{% endif %}
 			<div style="clear: both;"></div>
 			<hr class='padded-rule'>

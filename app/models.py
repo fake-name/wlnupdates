@@ -10,7 +10,6 @@ from sqlalchemy import event
 from sqlalchemy.schema import DDL
 from sqlalchemy import Table
 
-from citext import CIText
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 import sqlalchemy.exc
@@ -18,6 +17,7 @@ import datetime
 from settings import DATABASE_DB_NAME
 from sqlalchemy import CheckConstraint
 from sqlalchemy.dialects.postgresql import ENUM
+from citext import CIText
 
 # Some of the metaclass hijinks make pylint confused,
 # so disable the warnings for those aspects of things

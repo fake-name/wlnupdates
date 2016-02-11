@@ -51,6 +51,54 @@ class UserView(ModelView):
     column_exclude_list = form_excluded_columns = ['password']
 
 
+class SeriesView(ModelView):
+    column_auto_select_related = False
+    column_display_all_relations = False
+    column_hide_backrefs = True
+    column_display_pk = True
+
+    column_list = (
+            'id',
+            'title',
+            'description',
+            'type',
+            'origin_loc',
+            'demographic',
+            'orig_lang',
+            'website',
+            'volume',
+            'chapter',
+            'orig_status',
+            'tot_volume',
+            'tot_chapter',
+            'region',
+            'tl_type',
+            'license_en',
+            'pub_date',
+        )
+    form_columns = column_list
+
+    column_exclude_list = [
+                'tags',
+                'genres',
+                'author',
+                'illustrators',
+                'alternatenames',
+                'covers',
+                'releases',
+                'publishers',
+
+                "Tags.series_row",
+                "Genres.series_row",
+                "Author.series_row",
+                "Illustrators.series_row",
+                "AlternateNames.series_row",
+                "Covers.series_row",
+                "Releases.series_row",
+                "Publishers.series_row",
+            ]
+    form_excluded_columns = column_exclude_list
+
 def attach_admin(app):
 
     # Admin setup
@@ -85,7 +133,7 @@ def attach_admin(app):
     # FeedTags
     # Watches
 
-    admin.add_view(ModelView(models.Series, db.session,
+    admin.add_view(SeriesView(models.Series, db.session,
                              category='Content',
                              name='Series'))
     admin.add_view(ModelView(models.Tags, db.session,
