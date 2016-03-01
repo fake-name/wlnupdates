@@ -8,7 +8,7 @@ from . import askUser
 
 import app.api_handlers_admin as api_admin
 
-import bleach
+import sqlalchemy.orm.exc
 from app.models import AlternateNames
 from app.models import Series
 from sqlalchemy.sql.functions import Function
@@ -91,6 +91,10 @@ def levenshein_merger():
 		for name in item.alternatenames:
 			matches = search_for_name(name.name)
 			if matches:
-				match_to(name, matches)
+				try:
+					match_to(name, matches)
+				except sqlalchemy.orm.exc.NoResultFound:
+					print("Row merged already?")
+
 	print(len(items))
 	print("wat?")
