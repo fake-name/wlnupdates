@@ -61,11 +61,13 @@ def merge_query(id1, id2, n1, n2, distance):
 	print("	Authors:")
 	for altn in s1.author: print("			A1: '{}'".format(altn.name))
 	if not s1.author: print("			A2: <none>")
+	print("		----------")
 	for altn in s2.author: print("			A2: '{}'".format(altn.name))
 	if not s2.author: print("			A2: <none>")
 	print("	Illustrators:")
 	for altn in s1.illustrators: print("			A1: '{}'".format(altn.name))
 	if not s1.illustrators: print("			A1: <none>")
+	print("		----------")
 	for altn in s2.illustrators: print("			A2: '{}'".format(altn.name))
 	if not s2.illustrators: print("			A2: <none>")
 
