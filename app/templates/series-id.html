@@ -878,6 +878,8 @@
 							)
 			}}
 
+
+
 			{{
 				ratingBlock(1.5, 2.5)
 			}}
@@ -1054,6 +1056,13 @@
 
 			{% if g.user.is_mod() %}
 				<hr class='padded-rule'>
+
+				{{singleItemBlock("Change Title",
+									series.title,
+									'title'
+								)
+				}}
+
 				{% if g.user.id == 2 %}
 
 					{{localLinkBlock("Homepage",

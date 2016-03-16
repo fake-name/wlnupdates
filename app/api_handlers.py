@@ -143,8 +143,9 @@ def updateTitle(series, newTitle):
 
 	conflict_series = Series.query.filter(Series.title==newTitle).scalar()
 
-	if conflict_series:
+	if conflict_series and conflict_series.id != series.id:
 		return getResponse("A series with that name already exists! Please choose another name", error=True)
+
 
 	oldTitle = series.title
 	series.title = newTitle

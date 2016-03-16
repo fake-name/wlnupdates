@@ -196,11 +196,12 @@ def get_create_group(groupname):
 	else:
 
 		if len(have) == 1:
-			group = have.pop()
+			group = have[0]
 		else:
 			group = pick_best_match(have, groupname)
 
-		row = Translators.query.filter(Translators.id == group.group).scalar()
+
+		row = Translators.query.filter(Translators.id == group.group).one()
 		return row
 
 def get_create_series(seriesname, tl_type, author_name=False):
