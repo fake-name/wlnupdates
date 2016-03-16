@@ -167,13 +167,19 @@ def pick_best_match(group_rows, targetname):
 			best = item
 			best_distance = dist
 
-	assert best
+	assert best, "Failed to find best match for name: %s, candidates '%s'" % (targetname, [(tmp.name, tmp.id) for tmp in group_rows])
 	return best
 
 def get_create_group(groupname):
 	groupname = groupname[:500]
 	cleanName = nt.prepFilenameForMatching(groupname)
-	have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname==cleanName).all()
+
+	# If the group name collapses down to nothing when cleaned, search for it without cleaning.
+	if len(cleanName):
+		have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname==cleanName).all()
+	else:
+		have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.name==groupname).all()
+
 	if not have:
 		print("Need to create new translator entry for ", groupname)
 		new = Translators(
@@ -197,11 +203,13 @@ def get_create_group(groupname):
 
 		if len(have) == 1:
 			group = have[0]
-		else:
+		elif len(have) > 1:
 			group = pick_best_match(have, groupname)
-
+		else:
+			raise ValueError("Wat for groupname: '%s'" % groupname)
 
 		row = group.group_row
+		assert row is not None
 		return row
 
 def get_create_series(seriesname, tl_type, author_name=False):
@@ -426,7 +434,7 @@ def insert_parsed_release(item):
 	else:
 		series = get_create_series(item['series'], item["tl_type"])
 
-
+	assert group is not None
 	check_insert_release(item, group, series)
 
 def update_series_info(item):
