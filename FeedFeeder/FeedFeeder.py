@@ -161,13 +161,15 @@ def pick_best_match(group_rows, targetname):
 	best = None
 	for item in group_rows:
 		dist = Levenshtein.distance(item.name, targetname)
-		if dist == 0:
-			return item
 		if dist < best_distance:
 			best = item
 			best_distance = dist
 
+	print("Flushing")
+	db.session.flush()
 	assert best, "Failed to find best match for name: %s, candidates '%s'" % (targetname, [(tmp.name, tmp.id) for tmp in group_rows])
+	assert best.group_row, "Group_Row is null - Failed to find best match for name: %s, candidates '%s' row = %s:%s" % \
+			(targetname, [(tmp.name, tmp.id) for tmp in group_rows], best.id, best.group_row)
 	return best
 
 def get_create_group(groupname):
@@ -203,13 +205,13 @@ def get_create_group(groupname):
 
 		if len(have) == 1:
 			group = have[0]
+			assert group.group_row is not None, ("Wat? Row: '%s', '%s'" % (group, group.group_row))
 		elif len(have) > 1:
 			group = pick_best_match(have, groupname)
 		else:
 			raise ValueError("Wat for groupname: '%s'" % groupname)
 
 		row = group.group_row
-		assert row is not None
 		return row
 
 def get_create_series(seriesname, tl_type, author_name=False):
