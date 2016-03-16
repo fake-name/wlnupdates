@@ -201,7 +201,7 @@ def get_create_group(groupname):
 			group = pick_best_match(have, groupname)
 
 
-		row = Translators.query.filter(Translators.id == group.group).one()
+		row = group.group_row
 		return row
 
 def get_create_series(seriesname, tl_type, author_name=False):
