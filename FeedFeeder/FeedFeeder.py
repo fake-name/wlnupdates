@@ -13,6 +13,7 @@ import sqlalchemy.exc
 import bleach
 import app.series_tools
 import sqlalchemy.exc
+import Levenshtein
 # user = Users(
 # 	nickname  = form.username.data,
 # 	password  = form.password.data,
@@ -145,8 +146,34 @@ def insert_raw_item(item):
 
 	db.session.commit()
 
+
+def pick_best_match(group_rows, targetname):
+
+	gmap = {}
+
+	for group_row in group_rows:
+		name = group_row.name
+		if not name in gmap:
+			gmap[name] = []
+		gmap[name].append(group_row)
+
+	best_distance = 999
+	best = None
+	for item in group_rows:
+		dist = Levenshtein.distance(item.name, targetname)
+		if dist == 0:
+			return item
+		if dist < best_distance:
+			best = item
+			best_distance = dist
+
+	assert best
+	return best
+
 def get_create_group(groupname):
-	have = Translators.query.filter(Translators.name==groupname).scalar()
+	groupname = groupname[:500]
+	cleanName = nt.prepFilenameForMatching(groupname)
+	have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname==cleanName).all()
 	if not have:
 		print("Need to create new translator entry for ", groupname)
 		new = Translators(
@@ -166,7 +193,15 @@ def get_create_group(groupname):
 		db.session.add(newalt)
 		db.session.commit()
 		return new
-	return have
+	else:
+
+		if len(have) == 1:
+			group = have.pop()
+		else:
+			group = pick_best_match(have, groupname)
+
+		row = Translators.query.filter(Translators.id == group.group).scalar()
+		return row
 
 def get_create_series(seriesname, tl_type, author_name=False):
 	# print("get_create_series(): '%s', '%s', '%s'" % (seriesname, tl_type, author_name))

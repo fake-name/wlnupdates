@@ -47,3 +47,4 @@ WTForms==2.0.2
 WTForms-JSON==0.2.10
 AmqpConnector>=0.0.19
 awesome-slugify
+python-levenshtein
