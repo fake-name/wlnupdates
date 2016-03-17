@@ -562,11 +562,25 @@ def dispatchItem(item):
 				raise ValueError("No known packet structure in item!")
 
 			return
+		except AssertionError:
+
+			print("ERROR INSERTING ROW (attempt %s)!" % x)
+			traceback.print_exc()
+			try:
+				db.session.rollback()
+			except Exception:
+				print("Rollback failed!")
+
+
 		except sqlalchemy.exc.IntegrityError:
 
-			print("ERROR INSERTING ROW!")
+			print("ERROR INSERTING ROW (attempt %s)!" % x)
 			traceback.print_exc()
 			db.session.rollback()
+
+	print("CRITICAL:")
+	print("Failed to update item!")
+
 
 class FeedFeeder(object):
 	die = False
