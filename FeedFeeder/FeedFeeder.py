@@ -543,26 +543,30 @@ def dispatchItem(item):
 			print("Beta release!")
 
 
+	for x in range(3):
 
-	try:
-		if item['type'] == 'raw-feed':
-			# print("Dispatching item of type: ", item['type'])
-			insert_raw_item(item['data'])
-		elif item['type'] == 'parsed-release':
-			# print("Dispatching item of type: ", item['type'])
-			insert_parsed_release(item['data'])
-		elif item['type'] == 'series-metadata':
-			# print("Dispatching item of type: ", item['type'])
-			update_series_info(item['data'])
-		else:
-			print(item)
-			raise ValueError("No known packet structure in item!")
-	except sqlalchemy.exc.IntegrityError:
+		try:
 
-		print("ERROR INSERTING ROW!")
-		traceback.print_exc()
-		db.session.rollback()
-		return
+			db.session.flush()
+			if item['type'] == 'raw-feed':
+				# print("Dispatching item of type: ", item['type'])
+				insert_raw_item(item['data'])
+			elif item['type'] == 'parsed-release':
+				# print("Dispatching item of type: ", item['type'])
+				insert_parsed_release(item['data'])
+			elif item['type'] == 'series-metadata':
+				# print("Dispatching item of type: ", item['type'])
+				update_series_info(item['data'])
+			else:
+				print(item)
+				raise ValueError("No known packet structure in item!")
+
+			return
+		except sqlalchemy.exc.IntegrityError:
+
+			print("ERROR INSERTING ROW!")
+			traceback.print_exc()
+			db.session.rollback()
 
 class FeedFeeder(object):
 	die = False
