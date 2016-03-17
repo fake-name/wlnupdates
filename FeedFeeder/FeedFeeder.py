@@ -543,7 +543,7 @@ def dispatchItem(item):
 			print("Beta release!")
 
 
-	for x in range(3):
+	for x in range(9999):
 
 		try:
 
@@ -562,7 +562,7 @@ def dispatchItem(item):
 				raise ValueError("No known packet structure in item!")
 
 			return
-		except AssertionError:
+		except AssertionError as e:
 
 			print("ERROR INSERTING ROW (attempt %s)!" % x)
 			traceback.print_exc()
@@ -571,12 +571,17 @@ def dispatchItem(item):
 			except Exception:
 				print("Rollback failed!")
 
+			if x > 3:
+				raise e
 
-		except sqlalchemy.exc.IntegrityError:
+		except sqlalchemy.exc.IntegrityError as e:
 
 			print("ERROR INSERTING ROW (attempt %s)!" % x)
 			traceback.print_exc()
 			db.session.rollback()
+
+			if x > 3:
+				raise e
 
 	print("CRITICAL:")
 	print("Failed to update item!")

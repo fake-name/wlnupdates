@@ -23,6 +23,7 @@ from flask.ext.login import current_user
 import datetime
 import app.nameTools as nt
 
+from sqlalchemy import or_
 from sqlalchemy.sql import func
 
 from flask import g
@@ -63,7 +64,7 @@ def updateTags(series, tags, deleteother=True, allow_new=True):
 
 
 	if deleteother:
-		for key, value in havetags.items():
+		for dummy_key, value in havetags.items():
 			db.session.delete(value)
 	db.session.commit()
 
@@ -81,7 +82,7 @@ def updateGenres(series, genres, deleteother=True):
 			newgenre = Genres(series=series.id, genre=genre, changetime=datetime.datetime.now(), changeuser=getCurrentUserId())
 			db.session.add(newgenre)
 	if deleteother:
-		for key, value in havegenres.items():
+		for dummy_key, value in havegenres.items():
 			db.session.delete(value)
 	db.session.commit()
 
@@ -119,17 +120,23 @@ def updateAltNames(series, altnames, deleteother=True):
 		if name in havenames:
 			havenames.pop(name)
 		else:
-			newname = AlternateNames(
-					name       = cleaned[name],
-					cleanname  = nt.prepFilenameForMatching(cleaned[name]),
-					series     = series.id,
-					changetime = datetime.datetime.now(),
-					changeuser = getCurrentUserId()
-				)
-			db.session.add(newname)
+			have = AlternateNames.query.filter(AlternateNames.series==series.id).filter(or_(
+				AlternateNames.name      == cleaned[name],
+				AlternateNames.cleanname == nt.prepFilenameForMatching(cleaned[name])
+
+			)).count()
+			if not have:
+				newname = AlternateNames(
+						name       = cleaned[name],
+						cleanname  = nt.prepFilenameForMatching(cleaned[name]),
+						series     = series.id,
+						changetime = datetime.datetime.now(),
+						changeuser = getCurrentUserId()
+					)
+				db.session.add(newname)
 
 	if deleteother:
-		for key, value in havenames.items():
+		for dummy_key, value in havenames.items():
 			db.session.delete(value)
 	db.session.commit()
 
