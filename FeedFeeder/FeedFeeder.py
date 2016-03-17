@@ -162,8 +162,9 @@ def pick_best_match(group_rows, targetname):
 	for item in group_rows:
 		dist = Levenshtein.distance(item.name, targetname)
 		if dist < best_distance:
-			best = item
-			best_distance = dist
+			if item.group_row:
+				best = item
+				best_distance = dist
 
 	print("Flushing")
 	db.session.flush()
