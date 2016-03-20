@@ -206,7 +206,7 @@ def get_create_group(groupname):
 
 		if len(have) == 1:
 			group = have[0]
-			assert group.group_row is not None, ("Wat? Row: '%s', '%s'" % (group, group.group_row))
+			assert group.group_row is not None, ("Wat? Row: '%s', '%s', '%s'" % (group.id, group.name, group.group_row))
 		elif len(have) > 1:
 			group = pick_best_match(have, groupname)
 		else:

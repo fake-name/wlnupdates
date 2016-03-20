@@ -1,0 +1,125 @@
+<!-- extend base layout -->
+
+{% import "_block_paginate.html" as paginator %}
+
+
+{% macro render_page_watches(prefix, pagination, access_key) %}
+
+	<table class='table-striped table table-bordered table-condensed fullwidth'>
+		<colgroup>
+			<col />
+			<col />
+		</colgroup>
+		<tr>
+			<th>Title</th>
+			<th>Watchers</th>
+		</tr>
+		{%- for page, watch_cnt in pagination.items %}
+			<tr>
+				<td>
+					{% if page.tl_type == 'oel' %}
+						<div class='pull-right'>
+							<a href='/help#what-is-oel'>OEL</a>
+						</div>
+					{% endif %}
+					<a href="/series-id/{{page.id}}/">{{ page.title }}</a><br>
+				</td>
+				<td style='text-align: right;'>
+					{{watch_cnt}}
+				</td>
+
+			</tr>
+		{%- endfor %}
+	</table>
+
+{% endmacro %}
+
+
+{% macro render_page_ratings(prefix, pagination, access_key) %}
+
+	<table class='table-striped table table-bordered table-condensed fullwidth'>
+		<colgroup>
+			<col />
+			<col style="width:  50px;"/>
+			<col style="width: 110px;"/>
+		</colgroup>
+		<tr>
+			<th>Title</th>
+			<th>Rating</th>
+			<th>Rating Count</th>
+		</tr>
+		{%- for page, rating, rating_cnt in pagination.items %}
+			<tr>
+				<td>
+					{% if page.tl_type == 'oel' %}
+						<div class='pull-right'>
+							<a href='/help#what-is-oel'>OEL</a>
+						</div>
+					{% endif %}
+					<a href="/series-id/{{page.id}}/">{{ page.title }}</a><br>
+				</td>
+				<td style='text-align: right;'>
+					{{rating | round(precision=1)}}
+				</td>
+				<td style='text-align: right;'>
+					{{rating_cnt}}
+				</td>
+
+			</tr>
+		{%- endfor %}
+	</table>
+
+{% endmacro %}
+
+
+{% macro render_alphanum_div(prefix) %}
+	<div class='pull-right'>
+		Prefix:
+		{%- for letter in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+			<a href="/{{prefix}}/{{letter}}/1">{{ letter | upper }}</a>
+		{%- endfor %}
+	</div>
+{% endmacro %}
+
+
+{% extends "__base.html" %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div style="min-height: 140px;">
+		<div>
+			{% if add_new %}
+				<div class='pull-right'>
+					<h4><a href='/add/{{add_new}}/'>{{add_new_text}}</a></h4>
+				</div>
+			{% endif %}
+			<h2>{{ title }}</h2>
+		</div>
+
+		{% if footnote %}
+			<div>{{footnote}}</div>
+		{% endif %}
+
+		{% if sequence_item.items %}
+
+			<div>
+				{% if page_mode == "watches" %}
+					{{ render_page_watches(page_url_prefix, sequence_item, name_key) }}
+				{% elif page_mode == "ratings" %}
+					{{ render_page_ratings(page_url_prefix, sequence_item, name_key) }}
+				{% else %}
+					Wat?
+				{% endif %}
+			</div>
+			{{ paginator.render_pagination(sequence_item) }}
+		{% else %}
+			<h4>No items found!</h4>
+		{% endif %}
+
+
+
+
+	</div>
+
+	</ul>
+{% endblock %}

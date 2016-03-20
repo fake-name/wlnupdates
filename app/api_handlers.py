@@ -150,7 +150,7 @@ def updateTitle(series, newTitle):
 	oldTitle = series.title
 	series.title = newTitle
 
-	ret = app.series_tools.updateAltNames(series, [newTitle, oldTitle])
+	ret = app.series_tools.updateAltNames(series, [newTitle, oldTitle], deleteother=False)
 	if ret:
 		return ret
 

@@ -50,6 +50,7 @@ from .sub_views import series_views
 from .sub_views import history_view
 from .sub_views import cover_edit_view
 from .sub_views import news_view
+from .sub_views import popular_views
 from .sub_views.search import execute_search
 
 from .apiview import handleApiPost
