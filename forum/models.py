@@ -97,7 +97,7 @@ class Thread(Base, TimestampMixin):
     #: An ordered collection of posts
     posts = db.relationship('Post', backref='threads',
                             cascade='all,delete',
-                            order_by='Post.index',
+                            order_by='Post.id',
                             collection_class=ordering_list('index'))
 
     #: Length of the threads
