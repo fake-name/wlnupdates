@@ -217,6 +217,8 @@ def get_create_group(groupname):
 
 def get_create_series(seriesname, tl_type, author_name=False):
 	# print("get_create_series(): '%s', '%s', '%s'" % (seriesname, tl_type, author_name))
+
+	tries = 0
 	while 1:
 		try:
 			have  = AlternateNames                             \
@@ -295,6 +297,18 @@ def get_create_series(seriesname, tl_type, author_name=False):
 				sName = seriesname
 
 
+			# We've built a new series title by appending the author/tl_type
+			# Now we need to check if that exists too.
+			if sName != seriesname:
+				haveS  = Series                              \
+						.query                              \
+						.filter(Series.title == seriesname) \
+						.limit(1)                           \
+						.scalar()
+
+				return haveS
+
+
 			print("Need to create new series entry for ", seriesname)
 			new = Series(
 					title=sName,
@@ -338,7 +352,12 @@ def get_create_series(seriesname, tl_type, author_name=False):
 			print("Concurrency issue?")
 			print("'%s', '%s', '%s'" % (seriesname, tl_type, author_name))
 			db.session.rollback()
-			raise
+
+			tries += 1
+
+			if tries > 3:
+				raise
+
 		except Exception:
 			print("Error!")
 			raise
