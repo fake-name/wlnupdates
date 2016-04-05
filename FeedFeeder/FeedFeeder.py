@@ -226,7 +226,8 @@ def get_create_series(seriesname, tl_type, author_name=False):
 					.filter(AlternateNames.name == seriesname) \
 					.order_by(AlternateNames.id)               \
 					.all()
-
+			# print("get_create_series for title: '%s'" % seriesname)
+			# print("Altnames matches: ", have)
 			# for item in have:
 			# 	print((item.series_row.id, item.series_row.title, [tmp.name.lower() for tmp in item.series_row.author]))
 			# print("Want:", author_name)

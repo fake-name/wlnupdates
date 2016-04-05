@@ -541,7 +541,7 @@
 						{% set links = value.split('\n') %}
 						<span class='singleitem'>
 							{% for linkurl in links %}
-								<a href='http://10.1.1.43:5001/view?url={{linkurl | urlencode}}'>R-View - {{ linkurl }}</a>{% if not loop.last %}<br>{% endif %}
+								<a href='http://10.1.1.60:5001/view?url={{linkurl | urlencode}}'>R-View - {{ linkurl }}</a>{% if not loop.last %}<br>{% endif %}
 							{% endfor %}
 						</span>
 
