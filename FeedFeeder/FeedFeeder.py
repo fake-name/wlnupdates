@@ -577,9 +577,13 @@ def dispatchItem(item):
 			elif item['type'] == 'series-metadata':
 				# print("Dispatching item of type: ", item['type'])
 				update_series_info(item['data'])
+			elif item['type'] == "system-feed-counts":
+				pass
+			elif item['type'] == "system-update-times":
+				pass
 			else:
 				print(item)
-				raise ValueError("No known packet structure in item!")
+				raise ValueError("No known packet structure in item: '%s'" % item)
 
 			return
 		except AssertionError as e:
