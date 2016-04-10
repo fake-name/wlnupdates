@@ -164,6 +164,7 @@ def add_release(form):
 	db.session.add(new)
 	db.session.commit()
 	flash(gettext('New release added. Thanks for contributing!'))
+	flash(gettext('If the release you\'re adding has a RSS feed, you can ask for it to be added to the automatic feed system on the forum!</a>'))
 	return redirect(url_for('renderSeriesId', sid=sid))
 
 def add_post(form):
