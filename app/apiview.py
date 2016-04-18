@@ -108,6 +108,9 @@ DISPATCH_TABLE = {
 	'fix-escapes'               : (api_handlers_admin.fix_escaped_quotes,        True,  False),
 	'clean-tags'                : (api_handlers_admin.clean_tags,                True,  False),
 
+	'delete-group'              : (api_handlers_admin.deleteGroup,               True,  False),
+	'delete-auto-from-group'    : (api_handlers_admin.deleteGroupAutoReleases,   True,  False),
+
 }
 
 def dispatchApiCall(reqJson):

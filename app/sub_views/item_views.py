@@ -431,8 +431,8 @@ def renderGroupId(sid, page=1):
 
 	names = [tmp.name for tmp in group.alt_names]
 
-	feeds = Feeds.query                   \
-		.filter(Feeds.srcname.in_(names))  \
+	feeds = Feeds.query.options(joinedload('tags')) \
+		.filter(Feeds.srcname.in_(names))            \
 		.order_by(desc(Feeds.published))
 
 

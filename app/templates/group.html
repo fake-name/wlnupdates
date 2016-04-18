@@ -18,6 +18,36 @@
 {% endmacro %}
 
 
+{% macro deleteItem(valId) -%}
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-12 rowContents" id='{{valId}}'>
+				<form class="form-inline" action="javascript:delete_ajax();">
+					<div class="col-md-3 rowTitle">
+						<label style='margin-top:5px'>Delete Group:</label>
+					</div>
+					<div class="col-md-9 rowTitle">
+						<button style='margin-top:4px' class="btn btn-primary btn-xs">DO IT</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-12 rowContents" id='{{valId}}'>
+				<form class="form-inline" action="javascript:delete_releases_ajax();">
+					<div class="col-md-3 rowTitle">
+						<label style='margin-top:5px'>Delete Auto-Releases:</label>
+					</div>
+					<div class="col-md-9 rowTitle">
+						<button style='margin-top:4px' class="btn btn-primary btn-xs">DO IT</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
 
 {% extends "__base.html" %}
 
@@ -25,6 +55,8 @@
 	<meta name="group-id" content="{{ group.id }}">
 
 {% endblock %}
+
+
 
 {% block content %}
 	{% include '_block_flash.html' %}
@@ -59,6 +91,7 @@
 		</div>
 
 		{% if g.user.is_mod() %}
+			<hr class='padded-rule'>
 			<div class="well well-tny info-item">
 				<div class="row multilist" id="{{valId}}-container">
 					<div class="col-md-12 rowContents" id='{{valId}}'>
@@ -78,6 +111,8 @@
 					</div>
 				</div>
 			</div>
+
+			{{deleteItem(group.id)}}
 
 		{% endif %}
 
@@ -146,6 +181,56 @@
 				method: "POST",
 				dataType: 'json',
 				contentType: "application/json;",
+			});
+		}
+
+		// Hi there!
+		// Yes, you can see the function. The API
+		// endpoint it calls requires proper auth.
+		// It's cute you're trying to mess things up, though....
+		function delete_ajax()
+		{
+			console.log("Ready to send!");
+
+			var groupid  = $('meta[name=group-id]').attr('content')
+			var params = {
+				'mode'      : 'delete-group',
+				'item-id'   : groupid,
+			}
+
+			bootbox.confirm("Really delete group ID " + groupid + "?", function(result) {
+
+				$.ajax({
+					url : "/api",
+					success : saveCallback(false),
+					data: JSON.stringify(params),
+					method: "POST",
+					dataType: 'json',
+					contentType: "application/json;",
+				});
+			});
+		}
+		function delete_releases_ajax()
+		{
+			console.log("Ready to send!");
+
+			var groupid  = $('meta[name=group-id]').attr('content')
+			var params = {
+				'mode'      : 'delete-auto-from-group',
+				'item-id'   : groupid,
+			}
+
+			bootbox.confirm("Really delete auto-sourced series release items for group " + groupid + "?", function(result) {
+
+
+				$.ajax({
+					url : "/api",
+					success : saveCallback(false),
+					data: JSON.stringify(params),
+					method: "POST",
+					dataType: 'json',
+					contentType: "application/json;",
+				});
 			});
 		}
 
