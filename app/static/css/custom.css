@@ -190,6 +190,12 @@ tr.red-highlight:nth-of-type(odd) {
 tr.red-highlight:nth-of-type(even) {
 	background-color: #ffe0e0 !important;
 }
+tr.yellow-highlight:nth-of-type(odd) {
+	background-color: #fdfdbb !important;
+}
+tr.yellow-highlight:nth-of-type(even) {
+	background-color: #ffffdd !important;
+}
 
 tr.green-highlight:nth-of-type(odd) {
 	background-color: #eaffea !important;

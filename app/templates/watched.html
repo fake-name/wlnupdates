@@ -4,7 +4,9 @@
 {% macro singleItemBlock(series, read, latest) -%}
 	{% if latest['agg'] > read['agg'] %}
 		<tr class="row singleitem red-highlight">
-	{% elif latest['agg'] <= read['agg'] and read['agg'] %}
+	{% elif latest['agg'] < read['agg'] and read['agg'] %}
+		<tr class="row singleitem yellow-highlight">
+	{% elif latest['agg'] == read['agg'] and read['agg'] %}
 		<tr class="row singleitem green-highlight">
 	{% else %}
 		<tr class="row singleitem ">
