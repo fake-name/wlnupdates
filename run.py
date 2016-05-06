@@ -11,12 +11,13 @@ except:
 from app import app
 import threading
 import time
-import calendar
+import maintenance_scheduler
 
 import FeedFeeder.FeedFeeder
 import flags
 
-def thread_run():
+def amqp_thread_run():
+	print("AMQP Thread running.")
 	interface = None
 	while flags.RUNSTATE:
 		try:
@@ -32,12 +33,15 @@ def thread_run():
 		interface.close()
 
 
-def startBackgroundThread():
+def startBackgroundThreads():
 	print("ThreadStarter")
 
-	bk_thread = threading.Thread(target = thread_run)
-	bk_thread.start()
-	return bk_thread
+	amqp_bk_thread = threading.Thread(target = amqp_thread_run)
+	amqp_bk_thread.start()
+
+	scheduler_bk_thread = threading.Thread(target = maintenance_scheduler.run_scheduler)
+	scheduler_bk_thread.start()
+	return [amqp_bk_thread, scheduler_bk_thread]
 
 
 def go():
@@ -45,7 +49,7 @@ def go():
 
 	if not "debug" in sys.argv:
 		print("Starting background thread")
-		bk_thread = startBackgroundThread()
+		bk_threads = startBackgroundThreads()
 
 	if "debug" in sys.argv:
 		from gevent.pywsgi import WSGIServer
@@ -105,7 +109,8 @@ def go():
 	if not "debug" in sys.argv:
 		print("Joining on background thread")
 		flags.RUNSTATE = False
-		bk_thread.join()
+		for bk_thread in bk_threads:
+			bk_thread.join()
 
 	print("Thread halted. App exiting.")
 

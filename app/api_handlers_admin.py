@@ -282,8 +282,8 @@ def alterReleaseItem(data):
 
 
 
-def flatten_series_by_url(data):
-	if not current_user.is_mod():
+def flatten_series_by_url(data, admin_override=False):
+	if admin_override is False and (not current_user.is_mod()):
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
 	dups = db.engine.execute('''
@@ -311,8 +311,8 @@ def flatten_series_by_url(data):
 
 	return getResponse("%s Items merged." % match_num, error=False)
 
-def delete_duplicate_releases(data):
-	if not current_user.is_mod():
+def delete_duplicate_releases(data, admin_override=False):
+	if admin_override is False and (not current_user.is_mod()):
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
 	dups = db.engine.execute('''
@@ -362,8 +362,8 @@ def delete_duplicate_releases(data):
 
 	return getResponse("%s Items merged." % match_num, error=False)
 
-def fix_escaped_quotes(dummy_data):
-	if not current_user.is_mod():
+def fix_escaped_quotes(dummy_data, admin_override=False):
+	if admin_override is False and not current_user.is_mod():
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
 	# SELECT * FROM series WHERE title LIKE E'%\\\'%';
