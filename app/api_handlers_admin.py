@@ -338,8 +338,7 @@ def delete_duplicate_releases(data, admin_override=False):
 			if m1.series != m2.series:
 				tup = (m1.series, m2.series)
 				if tup not in mismatches:
-					print("Mismatch!")
-					print(m1.series, m2.series)
+					print("Mismatch: ", m1.series, m2.series, m1.srcurl, m2.srcurl)
 					mismatches.add(tup)
 			else:
 				match_num += 1
@@ -464,7 +463,9 @@ def fix_escaped_quotes(dummy_data, admin_override=False):
 	return getResponse("%s main titles, %s alt titles, %s descriptions required fixing.%s" % (bad_title, bad_alt_title, bad_desc, conflicts), error=False)
 
 
-def clean_tags(dummy_data):
+def clean_tags(dummy_data, admin_override=False):
+	if admin_override is False and not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 	bad_tags = 0
 
 	bad_tags = db.session.execute('''

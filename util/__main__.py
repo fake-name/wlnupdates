@@ -10,6 +10,9 @@ import signal
 import sys
 import os.path
 
+from app import app
+from app import api_handlers_admin
+import util.db_organize
 
 def printHelp():
 
@@ -27,6 +30,11 @@ def printHelp():
 	return
 
 
+one_arg_map = {
+
+}
+
+
 def parseOneArgCall(cmd):
 
 
@@ -35,12 +43,22 @@ def parseOneArgCall(cmd):
 	print ("Passed arg", mainArg)
 
 
-	if mainArg.lower() == "lv-merge":
-		from .db_organize import levenshein_merger
-		levenshein_merger()
+	with app.app_context():
+		arg = mainArg.lower()
 
-	else:
-		print("Unknown arg!")
+
+		if arg == "flatten-series-by-url":
+			print(api_handlers_admin.flatten_series_by_url(None, admin_override=True))
+		elif arg == "delete-duplicate-releases":
+			print(api_handlers_admin.delete_duplicate_releases(None, admin_override=True))
+		elif arg == "fix-escaped-quotes":
+			print(api_handlers_admin.fix_escaped_quotes(None, admin_override=True))
+		elif arg == "clean-tags":
+			print(api_handlers_admin.clean_tags(None, admin_override=True))
+		elif arg == "lv-merge":
+			util.db_organize.levenshein_merger()
+		else:
+			print("Unknown arg!")
 
 
 def parseTwoArgCall(cmd, val):
