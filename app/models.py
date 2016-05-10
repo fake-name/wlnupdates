@@ -266,7 +266,7 @@ class AlternateNames(db.Model, AlternateNamesBase, ModificationInfoMixin):
 	__table_args__ = (
 		db.UniqueConstraint('series', 'name'),
 		)
-	series_row       = relationship("Series",         backref='AlternateNames')
+	series_row       = relationship("Series",         backref='AlternateNames', lazy='joined')
 
 
 class AlternateTranslatorNames(db.Model, AlternateTranslatorNamesBase, ModificationInfoMixin):
