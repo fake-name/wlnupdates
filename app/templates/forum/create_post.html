@@ -1,20 +1,40 @@
 {% extends 'forum/layout.html' %}
 {% import 'forum/macros.html' as m %}
+{% import 'forum/post_editor.html' as e %}
 
 {% block title %}New post in "{{ thread.name }}"{% endblock %}
 
 {% block body %}
-<h1>{{ thread.name }}</h1>
+	<h1>{{ thread.name }}</h1>
 
-{{ m.breadcrumbs(board, thread) }}
+	{{ m.breadcrumbs(board, thread) }}
 
-<form method="POST" action="">
-	{{ form.csrf_token }}
-	<div class="form-group">
-		<label>Edit Content:</label>
-		{{ form.content(class_="form-control", rows='12') }}
-		Posts will be formatted with <a href="https://help.github.com/articles/markdown-basics/">markdown</a>.
+
+	<table class="table-striped table table-bordered table-condensed fullwidth">
+		<colgroup>
+			<col width="150px">
+		</colgroup>
+		{% for p in thread.posts %}
+			<tr>
+				<td>
+					<a href="{{ url_for('.user', id=p.author_id) }}">{{ p.author.nickname }}</a><br>
+					posted on<br>
+					{{ p.readable_date(p.created) }}
+				</td>
+				<td>
+					{{ p.content|markdown }}
+					{% if p.author_id == current_user.id %}<a href="{{ url_for('.edit_post', slug=board.slug, thread_id=thread.id, post_id=p.id) }}">[edit]</a>{% endif %}
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+	<div class='fullwidth'>
+		{{ e.post_editor(form) }}
 	</div>
-	{{ form.submit(class_="btn btn-success") }}
-</form>
+
+{% endblock %}
+
+
+{% block footer %}
+	{{ e.post_edit_footer() }}
 {% endblock %}

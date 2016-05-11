@@ -43,7 +43,7 @@ lm = LoginManager()
 lm.anonymous_user = AnonUser
 lm.init_app(app)
 lm.login_view = 'login'
-lm.login_message = lazy_gettext('Please log in to access this page.')
+lm.login_message = 'Please log in to access this page.'
 mail = Mail(app)
 babel = Babel(app)
 csrf = CsrfProtect(app)

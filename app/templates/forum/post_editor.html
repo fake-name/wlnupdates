@@ -1,0 +1,223 @@
+
+
+{% macro post_editor(form) %}
+	<div id='post-entry'></div>
+	<form method="POST" action="">
+		{{ form.csrf_token }}
+		<div class="form-group">
+
+			<label>Post Content:</label>
+			<div class="wmd-panel">
+				<div id="wmd-button-bar"></div>
+				{{ form.content(class_="form-control wmd-input", rows='12', id="wmd-input") }}
+			</div>
+
+			Live preview:
+			<div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+
+			<div class="pull-right">{{ form.submit(class_="btn btn-success") }}</div>
+			Posts are be formatted with <a href="https://help.github.com/articles/markdown-basics/">markdown</a>.
+		</div>
+	</form>
+{% endmacro %}
+
+
+{% macro post_edit_footer() %}
+	<style>
+
+		.wmd-input {
+			box-sizing: border-box;
+			min-height: 300px;
+		}
+		.wmd-preview {
+			background-color: #f5f5f5;
+			border: 1px solid rgba(0, 0, 0, 0.05);
+			border-radius: 4px;
+			box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+			box-sizing: border-box;
+			margin-bottom: 20px;
+			min-height: 20px;
+			padding: 19px;
+			width: 100%;
+		}
+		.wmd-preview blockquote {
+			border-color: rgba(0, 0, 0, 0.15);
+		}
+		.wmd-panel .btn-toolbar {
+			margin-bottom: 0;
+			padding: 0;
+			width: 100%;
+		}
+
+		.btn {
+			-moz-border-bottom-colors: none;
+			-moz-border-left-colors: none;
+			-moz-border-right-colors: none;
+			-moz-border-top-colors: none;
+			background-color: #f5f5f5;
+			background-image: -moz-linear-gradient(center top , #ffffff, #e6e6e6);
+			background-repeat: repeat-x;
+			border-color: #ccc #ccc #bbb;
+			border-image: none;
+			border-radius: 4px;
+			border-style: solid;
+			border-width: 1px;
+			box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+			color: #333333;
+			cursor: pointer;
+			display: inline-block;
+			font-size: 13px;
+			line-height: 18px;
+			margin-bottom: 0;
+			padding: 4px 10px;
+			text-align: center;
+			text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+			vertical-align: middle;
+		}
+		.btn:hover, .btn:active, .btn.active, .btn.disabled, .btn[disabled] {
+			background-color: #e6e6e6;
+		}
+		.btn:active, .btn.active {
+		}
+		.btn:first-child {
+		}
+		.btn:hover {
+			background-color: #e6e6e6;
+			background-position: 0 -15px;
+			color: #333333;
+			text-decoration: none;
+			transition: background-position 0.1s linear 0s;
+		}
+		.btn:focus {
+			outline: thin dotted #333;
+			outline-offset: -2px;
+		}
+		.btn.active, .btn:active {
+			background-color: #e6e6e6;
+			background-image: none;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+			outline: 0 none;
+		}
+		.btn.disabled, .btn[disabled] {
+			background-color: #e6e6e6;
+			background-image: none;
+			box-shadow: none;
+			cursor: default;
+			opacity: 0.65;
+		}
+		.btn-group {
+			position: relative;
+		}
+		.btn-group::before, .btn-group::after {
+			content: "";
+			display: table;
+		}
+		.btn-group::after {
+			clear: both;
+		}
+		.btn-group:first-child {
+		}
+		.btn-group + .btn-group {
+			margin-left: 5px;
+		}
+
+		[class^="icon-"], [class*=" icon-"] {
+			background-image: url("/static/img/glyphicons-halflings.png");
+			background-position: 14px 14px;
+			background-repeat: no-repeat;
+			display: inline-block;
+			height: 14px;
+			line-height: 14px;
+			vertical-align: text-top;
+			width: 16px;
+		}
+		[class^="icon-"]:last-child, [class*=" icon-"]:last-child {
+		}
+		.icon-bold {
+			background-position: -167px -48px;
+		}
+		.icon-italic {
+			background-position: -192px -48px;
+		}
+		.icon-share-alt {
+			background-position: -336px -96px;
+		}
+
+		.icon-link,
+		.icon-blockquote,
+		.icon-code,
+		.icon-bullet-list,
+		.icon-list,
+		.icon-header,
+		.icon-hr-line,
+		.icon-undo {
+			background-image: url("/static/img/Markdown.Editor.Icons.png");
+		}
+		.icon-link {
+			background-position: 0 0;
+		}
+		.icon-blockquote {
+			background-position: -24px 0;
+		}
+		.icon-code {
+			background-position: -48px 0;
+		}
+		.icon-bullet-list {
+			background-position: -72px 0;
+		}
+		.icon-list {
+			background-position: -96px 0;
+		}
+		.icon-header {
+			background-position: -120px 0;
+		}
+		.icon-hr-line {
+			background-position: -144px 0;
+		}
+		.icon-undo {
+			background-position: -168px 0;
+		}
+
+
+		.wmd-prompt-background {
+			background-color: Black;
+		}
+		.wmd-prompt-dialog {
+			background-color: #f5f5f5;
+			border: 1px solid #999999;
+		}
+		.wmd-prompt-dialog > div {
+			font-family: arial,helvetica,sans-serif;
+			font-size: 0.8em;
+		}
+		.wmd-prompt-dialog > form > input[type="text"] {
+			border: 1px solid #999999;
+			color: black;
+		}
+		.wmd-prompt-dialog > form > input[type="button"] {
+			border: 1px solid #888888;
+			font-family: trebuchet MS,helvetica,sans-serif;
+			font-size: 0.8em;
+			font-weight: bold;
+		}
+
+
+
+	</style>
+	<script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
+	<script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
+	<script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+
+	<script>
+		var element_to_scroll_to = document.getElementById('post-entry');
+		element_to_scroll_to.scrollIntoView();
+
+
+		(function () {
+			var converter2 = new Markdown.Converter();
+			var editor2 = new Markdown.Editor(converter2);
+			editor2.run();
+		})();
+
+	</script>
+{% endmacro %}
