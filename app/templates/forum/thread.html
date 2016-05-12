@@ -26,5 +26,8 @@
 		{% endfor %}
 	</table>
 
-	<a href="{{ url_for('.create_post', slug=board.slug, id=thread.id) }}" class="btn btn-primary")>Reply</a>
+	<div style='margin-bottom: 15px;' class='pull-right'>
+		<a href="{{ url_for('.create_post', slug=board.slug, id=thread.id) }}" class="btn btn-primary")>Reply</a>
+	</div>
+
 {% endblock %}

@@ -104,8 +104,10 @@ def create_post(slug, id):
 
 		return redirect(url_for('.thread', slug=slug, id=id))
 
-	return render_template('forum/create_post.html', board=board,
-						   thread=thread, form=form)
+	return render_template('forum/create_post.html',
+						board=board,
+						thread=thread,
+						form=form)
 
 
 @bp.route('/<slug>/<int:thread_id>/<int:post_id>/edit', methods=GET_POST)
@@ -136,5 +138,8 @@ def edit_post(slug, thread_id, post_id):
 	else:
 		form.content.data = post.content
 
-	return render_template('forum/create_post.html', board=board,
-						   thread=thread, form=form)
+	return render_template('forum/edit_post.html',
+						board=board,
+						thread=thread,
+						form=form,
+						edit_post=post)

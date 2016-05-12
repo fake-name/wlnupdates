@@ -1,21 +1,51 @@
 {% extends 'forum/layout.html' %}
 {% import 'forum/macros.html' as m %}
+{% import 'forum/post_editor.html' as e %}
 
 {% block title %}Edit post in "{{ thread.name }}"{% endblock %}
 
-{% block body %}
-<h1>{{ thread.name }}</h1>
-{{ m.breadcrumbs(board) }}
 
-<form method="POST" action="">
-	{{ form.csrf_token }}
-	<div class="form-group">
-		<label>Content:</label>
-		{{ form.content(class_="form-control", rows='12') }}
-		Posts will be formatted with <a href="https://help.github.com/articles/markdown-basics/">markdown</a>.
-	</div>
-	<div class="form-group">
-		{{ form.submit(class_="btn btn-success") }}
-	</div>
-</form>
+
+{% block body %}
+	<h1>{{ thread.name }}</h1>
+
+	{{ m.breadcrumbs(board, thread) }}
+
+
+	<table class="table-striped table table-bordered table-condensed fullwidth">
+		<colgroup>
+			<col width="150px">
+		</colgroup>
+		{% for p in thread.posts %}
+			{% if edit_post.id == p.id %}
+				</table>
+				<div class='fullwidth'>
+					{{ e.post_editor(form, label="Edit Post:") }}
+				</div>
+				<table class="table-striped table table-bordered table-condensed fullwidth">
+					<colgroup>
+						<col width="150px">
+					</colgroup>
+			{% else %}
+				<tr>
+					<td>
+						<a href="{{ url_for('.user', id=p.author_id) }}">{{ p.author.nickname }}</a><br>
+						posted on<br>
+						{{ p.readable_date(p.created) }}<br>
+						{{ p.id }}
+					</td>
+					<td>
+						{{ p.content|markdown }}
+						{% if p.author_id == current_user.id %}<a href="{{ url_for('.edit_post', slug=board.slug, thread_id=thread.id, post_id=p.id) }}">[edit]</a>{% endif %}
+					</td>
+				</tr>
+			{% endif %}
+		{% endfor %}
+	</table>
+
+{% endblock %}
+
+
+{% block footer %}
+	{{ e.post_edit_footer() }}
 {% endblock %}
