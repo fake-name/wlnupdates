@@ -83,8 +83,9 @@ app.register_blueprint(forum.bp, url_prefix='/forum')
 from forum import admin
 admin.attach_admin(app)
 
+from util import urlify
 from flask.ext.markdown import Markdown
-Markdown(app, safe_mode='escape')
+Markdown(app, safe_mode='escape', extensions=[urlify.URLifyExtension()])
 
 # ========================================================
 
