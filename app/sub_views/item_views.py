@@ -228,7 +228,11 @@ def load_series_data(sid):
 
 	rating = get_rating(sid)
 
-	similar_series = get_similar_by_tags(sid, series.tags)
+	if series.tags:
+		similar_series = get_similar_by_tags(sid, series.tags)
+	else:
+		similar_series = []
+
 
 	return series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches, similar_series
 

@@ -312,13 +312,18 @@
 		</a>
 		<strong>Similar series</strong>
 
-		<ul>
-			{% for item_name, item_id in similar_series %}
-				<li>
-					<a href="/series-id/{{item_id}}/">{{item_name}}</a>
-				</li>
-			{% endfor %}
-		</ul>
+		{% if similar_series %}
+			<ul>
+				{% for item_name, item_id in similar_series %}
+					<li>
+						<a href="/series-id/{{item_id}}/">{{item_name}}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<br>No results found! Does this series not have any tags?
+		{% endif %}
+
 {%- endmacro %}
 
 {% macro coversBlock(series, covers) -%}
