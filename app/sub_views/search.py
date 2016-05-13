@@ -6,6 +6,7 @@ from app.models import AlternateNames
 from app.models import Series
 from app.models import Watches
 import app.nameTools as nt
+from sqlalchemy import or_
 from sqlalchemy.sql.functions import Function
 from sqlalchemy.sql.expression import select, desc
 
@@ -26,7 +27,10 @@ def title_search(searchterm, page=1):
 			from_obj=[AlternateNames],
 			order_by=desc(similarity)
 		).where(
-			AlternateNames.cleanname.op("%%")(searchterm)
+			or_(
+				AlternateNames.cleanname.op("%%")(searchterm),
+				AlternateNames.cleanname.like(searchterm + "%%")
+				)
 		).limit(
 			50
 		)

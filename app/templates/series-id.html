@@ -305,6 +305,22 @@
 	</div>
 {%- endmacro %}
 
+{% macro similarSeriesBlock(similar_series) -%}
+
+		<a class='pull-right' href="/help#similar-series">
+			<i class="glyphicon glyphicon-question-sign"></i>
+		</a>
+		<strong>Similar series</strong>
+
+		<ul>
+			{% for item_name, item_id in similar_series %}
+				<li>
+					<a href="/series-id/{{item_id}}/">{{item_name}}</a>
+				</li>
+			{% endfor %}
+		</ul>
+{%- endmacro %}
+
 {% macro coversBlock(series, covers) -%}
 
 	{% if covers %}
@@ -377,7 +393,7 @@
 
 
 		</style>
-		<div class='imgDiv' id='x'>
+		<div class='imgDiv right-div' id='x'>
 			<div id='x-desc-div'>
 				<p id='x-content'>
 					<a id='editlink' href="/series-id/{{ series.id }}/edit-covers/">No covers! Add one, maybe?</a>
@@ -869,7 +885,10 @@
 	<div>
 		<h2>{{ series.title }}</h2>
 			{{watchBlock(watch, watchlists, progress, latest_dict)}}
-			{{coversBlock(series, series.covers)}}
+			<div class='right-div'>
+				{{coversBlock(series, series.covers)}}
+				{{similarSeriesBlock(similar_series)}}
+			</div>
 
 			{{singleItemBlock("Description",
 								series.description,

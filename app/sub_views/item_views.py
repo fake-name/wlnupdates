@@ -6,6 +6,7 @@ from flask import g
 from flask.ext.babel import gettext
 # from guess_language import guess_language
 from app import app
+from app import db
 
 from app.models import Series
 from app.models import Tags
@@ -19,9 +20,12 @@ from app.models import Publishers
 from app.models import Watches
 
 from sqlalchemy import desc
-from natsort import natsort_keygen
+from sqlalchemy import select
+from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
+from sqlalchemy import func
 import datetime
+from natsort import natsort_keygen
 
 from app.series_tools import get_rating
 
@@ -103,6 +107,58 @@ def get_cover_sorter():
 	sorter = natsort_keygen(key=lambda x: str(x.description).replace('〈', '').replace('〉', ''))
 	return sorter
 
+def get_similar_by_tags(sid, taglist):
+	'''
+	Example query:
+		SELECT p.*
+		    FROM series p
+		WHERE p.id IN (
+		    SELECT
+		        tg.series, COUNT(DISTINCT tg.tag)
+		    FROM tags tg
+		    WHERE tg.tag IN (
+		        'world-travel',
+		        'rape',
+		        'popular-male-lead',
+		        'politics-involving-royalty',
+		        'parallel-dimension',
+		        'otaku',
+		        'older-female-younger-male',
+		        'military',
+		        'magic')
+		    GROUP BY tg.series
+		    ORDER BY
+		        COUNT(DISTINCT tg.tag) DESC
+		    LIMIT 10
+		);
+	'''
+
+	count_metric = func.count(func.distinct(Tags.tag))
+	query = select(
+			[Series.title, Series.id],
+			from_obj=[Series]
+			).where(
+				Series.id.in_(
+					select(
+						[Tags.series],
+						from_obj=[Tags],
+						order_by=desc(count_metric)
+					).group_by(
+						Tags.series
+					).where(
+						and_(
+							Tags.tag.in_([tag.tag for tag in taglist[:100]]),
+							Tags.series != sid
+							)
+					).limit(
+						6
+					)
+				)
+			)
+
+
+	results = db.session.execute(query).fetchall()
+	return results
 
 def load_series_data(sid):
 	series       =       Series.query
@@ -118,6 +174,7 @@ def load_series_data(sid):
 	series = series.options(joinedload('author'))
 	series = series.options(joinedload('alternatenames'))
 	series = series.options(joinedload('illustrators'))
+	series = series.options(joinedload('tags'))
 	series = series.options(joinedload('releases.translators'))
 
 	series = series.filter(Series.id==sid)
@@ -171,7 +228,9 @@ def load_series_data(sid):
 
 	rating = get_rating(sid)
 
-	return series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches
+	similar_series = get_similar_by_tags(sid, series.tags)
+
+	return series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches, similar_series
 
 def get_author(sid):
 	author = Author.query.filter(Author.id==sid).first()
@@ -261,22 +320,23 @@ def renderSeriesId(sid):
 		flash(gettext('Series %(sid)s not found.', sid=sid))
 		return redirect(url_for('index'))
 
-	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches = data
+	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches, similar_series = data
 
 
 	return render_template('series-id.html',
-						series_id     = sid,
-						series        = series,
-						releases      = releases,
-						watch         = watch,
-						watchlists    = watchlists,
-						progress      = progress,
-						latest        = latest,
-						latest_dict   = latest_dict,
-						most_recent   = most_recent,
-						latest_str    = latest_str,
-						series_rating = rating,
-						total_watches = total_watches,
+						series_id      = sid,
+						series         = series,
+						releases       = releases,
+						watch          = watch,
+						watchlists     = watchlists,
+						progress       = progress,
+						latest         = latest,
+						latest_dict    = latest_dict,
+						most_recent    = most_recent,
+						latest_str     = latest_str,
+						series_rating  = rating,
+						total_watches  = total_watches,
+						similar_series = similar_series,
 						)
 
 
