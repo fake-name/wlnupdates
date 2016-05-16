@@ -1,5 +1,11 @@
 ## API Documentation
 
+### Note: the API is unfinished, because the person asking for it apparently evaporated.
+
+#### I'd be happy to finish both the API and the associated documentation as soon as someone indicate they'll actually *use* it. Feel free to show interest on the [issue](https://github.com/fake-name/wlnupdates/issues/3) on github.
+
+------
+
 WLNUpdates has a fairly simple API. It talks JSON, both for commands and the response.
 There is only one endpoint, different operations are denoted by the contents of the
 POSTed JSON. The endpoint path is `/api`.
