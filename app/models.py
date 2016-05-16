@@ -121,8 +121,9 @@ class ReleasesBase(object):
 
 	published   = db.Column(db.DateTime, index=True, nullable=False)
 
-	volume      = db.Column(db.Float(), index=True)
-	chapter     = db.Column(db.Float(), index=True)
+	volume      = db.Column(db.Integer, index=True)
+	chapter     = db.Column(db.Integer, index=True)
+	fragment    = db.Column(db.Integer, index=True)
 	postfix     = db.Column(db.Text())
 
 	# We need to be able to filter the chapters to include in the logic for
@@ -156,8 +157,9 @@ class CoversBase(object):
 	@declared_attr
 	def series(cls):
 		return db.Column(db.Integer, db.ForeignKey('series.id'))
-	volume      = db.Column(db.Float())
-	chapter     = db.Column(db.Float())
+	volume      = db.Column(db.Integer)
+	chapter     = db.Column(db.Integer)
+	fragment    = db.Column(db.Integer)
 	description = db.Column(db.Text)
 	fspath      = db.Column(db.Text)
 	hash        = db.Column(db.Text, nullable=False)
@@ -572,8 +574,9 @@ class Watches(db.Model):
 	listname    = db.Column(db.Text, nullable=False, default='', server_default='')
 
 
-	volume      = db.Column(db.Float(), default=-1)
-	chapter     = db.Column(db.Float(), default=-1)
+	volume      = db.Column(db.Integer, default=-1)
+	chapter     = db.Column(db.Integer, default=-1)
+	fragment    = db.Column(db.Integer, default=-1)
 
 	__table_args__ = (
 		db.UniqueConstraint('user_id', 'series_id'),

@@ -103,11 +103,7 @@
 			{% if entry.chapter != None %}
 				<td class='numeric' {{ "colspan=2" if entry.volume == None  }} id='release-entry-cell'>
 
-					{% if entry.chapter % 1 == 0 %}
-						{{('%i' % entry.chapter)}}
-					{% elif entry.chapter != None %}
-						{{('%0.2f' % entry.chapter)}}
-					{% endif %}
+					{{('%i' % entry.chapter)}}{% if entry.fragment %}-{{('%i' % entry.fragment)}}{% endif %}
 				</td>
 			{% endif %}
 

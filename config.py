@@ -73,3 +73,6 @@ class BaseConfig(object):
 	# flask-assets
 	# ------------
 	ASSETS_DEST = 'app/static'
+
+
+	SQLALCHEMY_TRACK_MODIFICATIONS = False

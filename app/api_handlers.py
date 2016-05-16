@@ -572,13 +572,8 @@ def validateReadingProgressData(inDat):
 	if any([item < 0 for item in (vol, chp, frag)]):
 		raise AssertionError("Values cannot be lower then 0!")
 
-	if frag > 99:
-		raise AssertionError("A chapter can only have a maximum of 99 fragments!")
 
-	chp += frag / 100.0
-
-
-	return sid, (vol, chp)
+	return sid, (vol, chp, frag)
 
 def setReadingProgressJson(data):
 	sid, progress = validateReadingProgressData(data)
@@ -588,29 +583,22 @@ def setReadingProgressJson(data):
 			(Watches.series_id==sid)
 		).one()
 
-	vol, chp = progress
+	vol, chp, frag = progress
 
 	if chp == 0 and vol == 0:
 		vol = -1
 		chp = -1
 
 	if vol == 0:
-		vol = -1
+		vol = None
 
-	watch_row.volume  = vol
-	watch_row.chapter = chp
+	if frag == 0:
+		frag = None
+
+	watch_row.volume   = vol
+	watch_row.chapter  = chp
+	watch_row.fragment = frag
 	db.session.commit()
-
-	# sid = validated['id']
-	# group = Translators.query.filter(Translators.id==sid).one()
-
-	# for entry in validated['entries']:
-	# 	print(entry)
-
-	# 	if entry['type'] == 'alternate-names':
-	# 		updateGroupAltNames(group, entry['data'])
-	# 	else:
-	# 		raise AssertionError("Unknown modifification type!")
 
 	return getResponse('Succeeded')
 

@@ -32,9 +32,10 @@ from app.series_tools import get_rating
 from app.sub_views import wiki_views
 
 def getSort(row):
-	chp = row.chapter if row.chapter else 0
-	vol = row.volume  if row.volume  else 0
-	return vol * 1e6 + chp
+	chp = row.chapter   if row.chapter else 0
+	vol = row.volume    if row.volume  else 0
+	frg = row.fragment  if row.fragment  else 0
+	return (vol * 1e6) + chp + (frg * 1e-6)
 
 def build_progress(watch):
 
@@ -44,38 +45,37 @@ def build_progress(watch):
 	progress['frg'] = 0
 
 	if watch:
-		raw_vol = watch.volume  if watch.volume  != None else 0
-		raw_chp = watch.chapter if watch.chapter != None else 0
-		progress['vol'] = raw_vol
+		raw_vol = watch.volume   if watch.volume   != None else 0
+		raw_chp = watch.chapter  if watch.chapter  != None else 0
+		raw_frg = watch.fragment if watch.fragment != None else 0
+		progress['vol'] = int(raw_vol)
 		progress['chp'] = int(raw_chp)
-		progress['frg'] = int(raw_chp * 100) % 100
+		progress['frg'] = int(raw_frg)
 
 
 	progress['vol'] = max(progress['vol'], 0)
 	progress['chp'] = max(progress['chp'], 0)
 	progress['frg'] = max(progress['frg'], 0)
-
 	return progress
 
 def get_latest_release(releases):
-	max_vol = 0
-	max_chp = 0
-	max_release = None
-	for release in [item for item in releases if item.include]:
 
-		if release.volume and release.volume > max_vol:
-			max_vol = release.volume
-			max_chp = release.chapter
-			max_release = release
-		elif release.volume and release.chapter and release.volume >= max_vol and release.chapter >= max_chp:
-			max_vol = release.volume
-			max_chp = release.chapter
-			max_release = release
+	if not releases:
+		return None
 
-		elif not release.volume and not max_vol and release.chapter and release.chapter >= max_chp:
-			max_chp = release.chapter
-			max_release = release
-	return max_release
+	releases = [(
+			release.volume   if release.volume   is not None else -1,
+			release.chapter  if release.chapter  is not None else -1,
+			release.fragment if release.fragment is not None else -1,
+			release.id,  # row id is guaranteed unique, and should prevent the sort from ever reaching the release item
+			release
+			) for release in releases]
+	releases.sort()
+
+	latest = releases[-1][-1]
+
+
+	return latest
 
 def get_most_recent_release(releases):
 	max_release = datetime.datetime.min
@@ -87,8 +87,9 @@ def get_most_recent_release(releases):
 def format_latest_release(release):
 	if release == None:
 		return "none"
-	vol = release.volume
-	chp = release.chapter
+	vol  = release.volume
+	chp  = release.chapter
+	frag = release.fragment
 
 	if vol == None:
 		vol = -1
@@ -100,6 +101,8 @@ def format_latest_release(release):
 		if len(ret) > 1:
 			ret += ", "
 		ret += "ch. {}".format(chp)
+	if frag:
+		ret += " pt. {}".format(frag)
 	return ret
 
 def get_cover_sorter():

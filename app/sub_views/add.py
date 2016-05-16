@@ -113,12 +113,12 @@ def add_release(form):
 
 	# Sub-chapters are packed into the chapter value.
 	# I /may/ change this
-	if sub:
-		chp += sub /100
 
 	assert form.data['is_oel'] in ['oel', 'translated']
 
 	flt = [(Releases.series == sid), (Releases.srcurl == itemurl)]
+	if sub:
+		flt.append((Releases.fragment == sub))
 	if chp:
 		flt.append((Releases.chapter == chp))
 	if vol:
@@ -155,6 +155,7 @@ def add_release(form):
 		published = pubdate,
 		volume    = vol,
 		chapter   = chp,
+		fragment  = sub,
 		postfix   = postfix,
 		srcurl    = itemurl,
 		changetime = datetime.datetime.now(),

@@ -13,7 +13,7 @@ from flask.ext.migrate import Migrate, MigrateCommand
 
 from app import models
 
-Migrate(app, db)
+Migrate(app, db, compare_type=True)
 manager = Manager(app)
 
 # Unfortuntely, this couldn't be hooked into the `db upgrade` command, because it appears the changes to the DB
