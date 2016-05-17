@@ -647,6 +647,8 @@
 			}
 
 			bootbox.confirm("Really delete series ID " + mangaId + "?", function(result) {
+				if (result != true)
+					return;
 
 				$.ajax({
 					url : "/api",
@@ -670,7 +672,8 @@
 			}
 
 			bootbox.confirm("Really delete auto-sourced series release items for " + mangaId + "?", function(result) {
-
+				if (result != true)
+					return;
 
 				$.ajax({
 					url : "/api",
