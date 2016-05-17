@@ -412,23 +412,9 @@ def get_series_from_any(title_list, tl_type, author_name=False):
 	# return have.series_row
 
 def check_insert_release(item, group, series):
-	if not 'frag' in item:
-		print("WARN: No fragment in release update!")
-
-		if  item['chp'] is not None:
-			item['frag'] = int(float(item['chp']) * 100) % 100
-			item['chp']  = int(float(item['chp']))
-		else:
-			item['frag'] = None
-
-		if item['vol'] is not None:
-			item['vol']  = int(float(item['vol']))
-
-	else:
-		item['vol']  = int(float(item['vol']))
-		item['chp']  = int(float(item['chp']))
-		item['frag']  = int(float(item['frag']))
-
+	for key in ['vol', 'chp', 'frag']:
+		if item[key] is not None:
+			item[key]  = int(float(item[key]))
 
 	have = Releases.query                            \
 		.filter(Releases.series   == series.id)       \
