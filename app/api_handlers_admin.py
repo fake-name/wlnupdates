@@ -301,7 +301,9 @@ def flatten_series_by_url(data, admin_override=False):
 
 	match_num = 0
 	for website, number in dups:
-		print(website, number)
+		if not "royalroadl" in website.lower():
+			continue
+
 		matches = Series.query.filter(Series.website==website).all()
 		ids = [match.id for match in matches]
 		zipped = list(zip(ids, ids[1:]))
