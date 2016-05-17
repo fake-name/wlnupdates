@@ -48,7 +48,7 @@ def printer():
 	print("Background task!")
 
 tasks = [
-	(printer,                   "printer",                   15),
+	# (printer,                   "printer",                   15),
 	(fix_escaped_quotes,        "fix_escaped_quotes",        hours(1)),
 	(clean_tags,                "clean_tags",                hours(1)),
 	(delete_duplicate_releases, "delete_duplicate_releases", hours(6)),

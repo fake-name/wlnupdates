@@ -201,7 +201,7 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	__table_args__ = (
 		db.UniqueConstraint('title'),
 		)
-	tags           = relationship("Tags",           backref='Series')
+	tags           = relationship("Tags",           backref='Series', order_by="Tags.tag")
 	genres         = relationship("Genres",         backref='Series')
 	author         = relationship("Author",         backref='Series')
 	illustrators   = relationship("Illustrators",   backref='Series')
