@@ -100,16 +100,16 @@
 					{{entry.volume | int}}
 				</td>
 			{% endif %}
-			{% if entry.chapter != None %}
+			{% if entry.chapter != None or entry.fragment != None %}
 				<td class='numeric' {{ "colspan=2" if entry.volume == None  }} id='release-entry-cell'>
 
-					{{('%i' % entry.chapter)}}{% if entry.fragment %}-{{('%i' % entry.fragment)}}{% endif %}
+					{% if entry.chapter %}{{('%i' % entry.chapter)}}{% endif %}{% if entry.chapter and entry.fragment %}-{% endif %}{% if entry.fragment %}{{('%i' % entry.fragment)}}{% endif %}
 				</td>
 			{% endif %}
 
 			{% if entry.chapter == None and entry.volume == None %}
 				<td class='postfix' {{ "colspan=3" if entry.chapter == None  }} id='release-entry-cell'>
-			{% elif entry.chapter == None %}
+			{% elif entry.chapter == None and entry.fragment == None %}
 				<td class='postfix' {{ "colspan=2" if entry.chapter == None  }} id='release-entry-cell'>
 			{% else %}
 				<td class='postfix' id='release-entry-cell'>
