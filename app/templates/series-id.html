@@ -577,6 +577,19 @@
 	</div>
 {%- endmacro %}
 
+{% macro stagingLinkBlock(name, itemid, valId, width=3, extra_cls='') -%}
+	<div class="well well-tny info-item">
+		<div class="row singleitem"  id="{{valId}}-container">
+			<div class="col-md-{{width}} rowTitle">
+				{{ name }}:
+			</div>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
+					<a href='https://www.wlnupdates.com/series-id/{{itemid}}/'>Test-View - {{ itemid }}</a>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
 {% extends "__base.html" %}
 
 {% block header %}
@@ -1098,12 +1111,18 @@
 									width=5
 								)
 					}}
+					{{stagingLinkBlock("Test-Site",
+									series.id,
+									'staging',
+									width=5
+								)
+					}}
+					{{dbAdminItem()}}
 				{% endif %}
 
 
 				{{mergeInto()}}
 				{{deleteItem()}}
-				{{dbAdminItem()}}
 			{% endif %}
 			<div style="clear: both;"></div>
 			<hr class='padded-rule'>
