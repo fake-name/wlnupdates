@@ -364,7 +364,7 @@ def delete_duplicate_releases(data, admin_override=False):
 	return getResponse("%s Items merged." % match_num, error=False)
 
 def fix_escaped_quotes(dummy_data, admin_override=False):
-	if admin_override is False and not current_user.is_mod():
+	if admin_override is False and (not current_user.is_mod()):
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
 	# SELECT * FROM series WHERE title LIKE E'%\\\'%';
@@ -466,7 +466,7 @@ def fix_escaped_quotes(dummy_data, admin_override=False):
 
 
 def clean_tags(dummy_data, admin_override=False):
-	if admin_override is False and not current_user.is_mod():
+	if admin_override is False and (not current_user.is_mod()):
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 	bad_tags = 0
 

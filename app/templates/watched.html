@@ -17,24 +17,20 @@
 			</a>
 		</td>
 		<td class="col-md-2 rowContents" id='{{valId}}'>
-			{% if latest['vol'] >= 0 and latest['chp'] >= 0 %}
-				v{{latest['vol']}}, c{{latest['chp']}}
-			{% elif latest['vol'] and latest['vol'] >= 0 %}
-				v{{latest['vol']}}
-			{% elif latest['chp'] and latest['chp'] >= 0 %}
-				c{{latest['chp']}}
+			{% if latest['vol'] >= 0 or latest['chp'] >= 0 or latest['frag'] >= 0 %}
+				{% if latest['vol'] >= 0 %}v{{latest['vol']}}{% endif %}
+				{% if latest['chp'] >= 0 %}c{{latest['chp']}}{% endif %}
+				{% if latest['frag'] >= 0 %}p{{latest['frag']}}{% endif %}
 			{% else %}
 				No Releases!
 			{% endif %}
 
 		</td>
 		<td class="col-md-2 rowContents" id='{{valId}}'>
-			{% if read['vol'] >= 0 and read['chp'] >= 0 %}
-				v{{read['vol']}}, c{{read['chp']}}
-			{% elif read['vol'] >= 0 %}
-				v{{read['vol']}}
-			{% elif read['chp'] >= 0 %}
-				c{{read['chp']}}
+			{% if read['vol'] >= 0 or read['chp'] >= 0 or read['frag'] >= 0 %}
+				{% if read['vol'] >= 0 %}v{{read['vol']}}{% endif %}
+				{% if read['chp'] >= 0 %}c{{read['chp']}}{% endif %}
+				{% if read['frag'] >= 0 %}p{{read['frag']}}{% endif %}
 			{% else %}
 				Unread!
 			{% endif %}

@@ -53,25 +53,31 @@ def renderUserWatches():
 		prog  = {}
 		prog['vol']  = watch.volume   if watch and watch.volume    != None else -1
 		prog['chp']  = watch.chapter  if watch and watch.chapter   != None else -1
+		prog['frag'] = watch.fragment if watch and watch.fragment  != None else -1
 
 		# avail['vol'] = latest.volume  if latest and latest.volume  != None else -1
 		# avail['chp'] = latest.chapter if latest and latest.chapter != None else -1
 
 
-		avail['vol'] = latest[series.id][0]
-		avail['chp'] = latest[series.id][1]
+		avail['vol']  = latest[series.id][0]
+		avail['chp']  = latest[series.id][1]
+		avail['frag'] = latest[series.id][2]
 
 		prog['agg']  = 0
 		if prog['vol'] > 0:
 			prog['agg'] += prog['vol'] * 1e4
 		if prog['chp'] > 0:
 			prog['agg'] += prog['chp']
+		if prog['frag'] > 0:
+			prog['agg'] += prog['frag'] * 1e-4
 
 		avail['agg'] = 0
 		if avail['vol'] > 0:
 			avail['agg'] += avail['vol'] * 1e4
 		if avail['chp'] > 0:
 			avail['agg'] += avail['chp']
+		if avail['frag'] > 0:
+			avail['agg'] += avail['frag'] * 1e-4
 
 		if not watch.listname in data:
 			data[watch.listname] = []

@@ -41,7 +41,7 @@ def fix_escaped_quotes():
 		api_handlers_admin.fix_escaped_quotes(None, admin_override=True)
 def clean_tags():
 	with app.app_context():
-		api_handlers_admin.clean_tags(None, )
+		api_handlers_admin.clean_tags(None, admin_override=True)
 
 
 def printer():

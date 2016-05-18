@@ -69,7 +69,7 @@ def get_latest_release(releases):
 			release.fragment if release.fragment is not None else -1,
 			release.id,  # row id is guaranteed unique, and should prevent the sort from ever reaching the release item
 			release
-			) for release in releases]
+			) for release in releases if release.include]
 	releases.sort()
 
 	latest = releases[-1][-1]
