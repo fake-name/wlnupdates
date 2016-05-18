@@ -20,7 +20,7 @@
 			{% if latest['vol'] >= 0 or latest['chp'] >= 0 or latest['frag'] >= 0 %}
 				{% if latest['vol'] >= 0 %}v{{latest['vol']}}{% endif %}
 				{% if latest['chp'] >= 0 %}c{{latest['chp']}}{% endif %}
-				{% if latest['frag'] >= 0 %}p{{latest['frag']}}{% endif %}
+				{% if latest['frag'] > 0 %}p{{latest['frag']}}{% endif %}
 			{% else %}
 				No Releases!
 			{% endif %}
@@ -30,7 +30,7 @@
 			{% if read['vol'] >= 0 or read['chp'] >= 0 or read['frag'] >= 0 %}
 				{% if read['vol'] >= 0 %}v{{read['vol']}}{% endif %}
 				{% if read['chp'] >= 0 %}c{{read['chp']}}{% endif %}
-				{% if read['frag'] >= 0 %}p{{read['frag']}}{% endif %}
+				{% if read['frag'] > 0 %}p{{read['frag']}}{% endif %}
 			{% else %}
 				Unread!
 			{% endif %}
