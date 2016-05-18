@@ -107,7 +107,7 @@
 				</td>
 			{% endif %}
 
-			{% if entry.chapter == None and entry.volume == None %}
+			{% if entry.chapter == None and entry.volume == None and entry.fragment == None %}
 				<td class='postfix' {{ "colspan=3" if entry.chapter == None  }} id='release-entry-cell'>
 			{% elif entry.chapter == None and entry.fragment == None %}
 				<td class='postfix' {{ "colspan=2" if entry.chapter == None  }} id='release-entry-cell'>
