@@ -14,6 +14,7 @@ import bleach
 import app.series_tools
 import sqlalchemy.exc
 import Levenshtein
+import pprint
 # user = Users(
 # 	nickname  = form.username.data,
 # 	password  = form.password.data,
@@ -610,7 +611,8 @@ def dispatchItem(item):
 			traceback.print_exc()
 			db.session.rollback()
 
-			if x > 3:
+			if x > 20:
+
 				raise e
 
 	print("CRITICAL:")
@@ -644,6 +646,11 @@ class FeedFeeder(object):
 					dispatchItem(data)
 				except Exception:
 					with open("error - %s.txt" % time.time(), 'w') as fp:
+						fp.write("Error inserting item!\n")
+						fp.write("\n")
+						fp.write(pprint.pformat(data))
+						fp.write("\n")
+						fp.write("\n")
 						fp.write(traceback.format_exc())
 					print("Error!")
 					traceback.print_exc()

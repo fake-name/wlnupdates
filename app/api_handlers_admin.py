@@ -344,7 +344,7 @@ def delete_duplicate_releases(data, admin_override=False):
 					mismatches.add(tup)
 			else:
 				match_num += 1
-				# print(m1.series, m2.series)
+				print(m1.series, m2.series)
 
 				# Sort by change-time, since we care more about
 				# the latest change (since it'll probably be more accurate)
