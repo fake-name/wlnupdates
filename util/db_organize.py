@@ -1,5 +1,5 @@
 
-import sys
+import re
 
 from app import models
 from app import db
@@ -110,4 +110,31 @@ def levenshein_merger():
 					print("Row merged already?")
 
 	print(len(items))
+	print("wat?")
+
+
+def delete_postfix():
+	print("fetching series")
+	items = models.Releases.query.filter(models.Releases.postfix != "").all()
+
+	mismatch = 0
+
+	for item in items:
+		if re.match(r'^(V\d+)?(C\d+)?( part\d+)?$', item.postfix, re.IGNORECASE):
+			item.postfix = ""
+			mismatch += 1
+
+
+	# for item in items:
+	# 	for name in item.alternatenames:
+	# 		matches = search_for_name(name.name)
+	# 		if matches:
+	# 			try:
+	# 				match_to(name, matches)
+	# 			except sqlalchemy.orm.exc.NoResultFound:
+	# 				print("Row merged already?")
+
+	db.session.commit()
+	print(len(items))
+	print(mismatch)
 	print("wat?")

@@ -31,6 +31,8 @@ def printHelp():
 	print("		")
 	print("	clean-tags")
 	print("		")
+	print("	delete-postfix")
+	print("		")
 	print("	lv-merge")
 	print("		Use levenshtein string distance metrics to try to heuristically automatically")
 	print("		merge series with multiple instances.")
@@ -63,6 +65,8 @@ def parseOneArgCall(cmd):
 			print(api_handlers_admin.fix_escaped_quotes(None, admin_override=True))
 		elif arg == "clean-tags":
 			print(api_handlers_admin.clean_tags(None, admin_override=True))
+		elif arg == "delete-postfix":
+			util.db_organize.delete_postfix()
 		elif arg == "lv-merge":
 			util.db_organize.levenshein_merger()
 		else:
