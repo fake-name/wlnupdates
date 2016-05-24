@@ -570,7 +570,7 @@ def dispatchItem(item):
 			print("Beta release!")
 
 
-	for x in range(9999):
+	for x in range(100):
 
 		try:
 
@@ -606,14 +606,26 @@ def dispatchItem(item):
 				raise e
 
 		except sqlalchemy.exc.IntegrityError as e:
-
 			print("ERROR INSERTING ROW (attempt %s)!" % x)
 			traceback.print_exc()
 			db.session.rollback()
-
 			if x > 20:
-
 				raise e
+
+		except Exception:
+			print("Unknown error inserting row")
+			traceback.print_exc()
+			try:
+				db.session.rollback()
+			except Exception:
+				print("Rollback failed!")
+			raise e
+
+
+	try:
+		db.session.rollback()
+	except Exception:
+		print("Rollback failed!")
 
 	print("CRITICAL:")
 	print("Failed to update item!")
