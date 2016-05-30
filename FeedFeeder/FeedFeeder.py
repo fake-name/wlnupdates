@@ -415,7 +415,7 @@ def get_series_from_any(title_list, tl_type, author_name=False):
 def check_insert_release(item, group, series):
 	for key in ['vol', 'chp', 'frag']:
 		if item[key] is not None:
-			item[key]  = int(float(item[key]))
+			item[key]  = float(item[key])
 
 	have = Releases.query                            \
 		.filter(Releases.series   == series.id)       \
