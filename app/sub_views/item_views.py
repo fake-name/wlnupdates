@@ -48,9 +48,9 @@ def build_progress(watch):
 		raw_vol = watch.volume   if watch.volume   != None else 0
 		raw_chp = watch.chapter  if watch.chapter  != None else 0
 		raw_frg = watch.fragment if watch.fragment != None else 0
-		progress['vol'] = int(raw_vol)
-		progress['chp'] = int(raw_chp)
-		progress['frg'] = int(raw_frg)
+		progress['vol'] = float(raw_vol)
+		progress['chp'] = float(raw_chp)
+		progress['frg'] = float(raw_frg)
 
 
 	progress['vol'] = max(progress['vol'], 0)

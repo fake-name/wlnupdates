@@ -562,12 +562,12 @@ def validateReadingProgressData(inDat):
 	assert 'frag'    in inDat
 
 	try:
-		vol  = int(inDat['vol'])
-		chp  = int(inDat['chp'])
-		frag = int(inDat['frag'])
+		vol  = float(inDat['vol'])
+		chp  = float(inDat['chp'])
+		frag = float(inDat['frag'])
 		sid  = int(inDat['item-id'])
 	except ValueError:
-		raise AssertionError("Volume, chapter, and fragment must be integers!")
+		raise AssertionError("Volume, chapter, and fragment must be numbers!")
 
 	if any([item < 0 for item in (vol, chp, frag)]):
 		raise AssertionError("Values cannot be lower then 0!")

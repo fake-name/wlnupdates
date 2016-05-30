@@ -18,9 +18,9 @@
 		</td>
 		<td class="col-md-2 rowContents" id='{{valId}}'>
 			{% if latest['vol'] >= 0 or latest['chp'] >= 0 or latest['frag'] >= 0 %}
-				{% if latest['vol'] >= 0 %}v{{latest['vol']}}{% endif %}
-				{% if latest['chp'] >= 0 %}c{{latest['chp']}}{% endif %}
-				{% if latest['frag'] > 0 %}p{{latest['frag']}}{% endif %}
+				{% if latest['vol'] >= 0 %}v{{ ( latest['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
+				{% if latest['chp'] >= 0 %}c{{ ( latest['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
+				{% if latest['frag'] > 0 %}p{{ ( latest['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
 			{% else %}
 				No Releases!
 			{% endif %}
@@ -28,13 +28,12 @@
 		</td>
 		<td class="col-md-2 rowContents" id='{{valId}}'>
 			{% if read['vol'] >= 0 or read['chp'] >= 0 or read['frag'] >= 0 %}
-				{% if read['vol'] >= 0 %}v{{read['vol']}}{% endif %}
-				{% if read['chp'] >= 0 %}c{{read['chp']}}{% endif %}
-				{% if read['frag'] > 0 %}p{{read['frag']}}{% endif %}
+				{% if read['vol'] >= 0 %}v{{ ( read['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
+				{% if read['chp'] >= 0 %}c{{ ( read['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
+				{% if read['frag'] > 0 %}p{{ ( read['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
 			{% else %}
 				Unread!
 			{% endif %}
-
 
 		</td>
 	</tr>

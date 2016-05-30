@@ -97,13 +97,13 @@
 			</td>
 			{% if entry.volume != None %}
 				<td class='numeric' id='release-entry-cell'>
-					{{entry.volume | int}}
+					{{ ( entry.volume | float |round(2)|string).rstrip('0').rstrip('.') }}
 				</td>
 			{% endif %}
 			{% if entry.chapter != None or entry.fragment != None %}
 				<td class='numeric' {{ "colspan=2" if entry.volume == None  }} id='release-entry-cell'>
 
-					{% if entry.chapter %}{{('%i' % entry.chapter)}}{% endif %}{% if entry.chapter and entry.fragment %}-{% endif %}{% if entry.fragment %}{{('%i' % entry.fragment)}}{% endif %}
+					{% if entry.chapter %}{{ ( entry.chapter | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}{% if entry.chapter and entry.fragment %}-{% endif %}{% if entry.fragment %}{{ ( entry.fragment | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
 				</td>
 			{% endif %}
 

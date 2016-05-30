@@ -70,9 +70,9 @@ def check_group(form, field):
 def check_volume(form, field):
 	if field.data:
 		try:
-			dat = int(field.data)
+			dat = float(field.data)
 		except ValueError:
-			raise ValidationError("Volume must be an integer value!")
+			raise ValidationError("Volume must be an numeric value!")
 	if not (field.data or form.chapter.data):
 		raise ValidationError("Volume and chapter cannot both be empty!")
 
@@ -80,18 +80,18 @@ def check_volume(form, field):
 def check_chapter(form, field):
 	if field.data:
 		try:
-			dat = int(field.data)
+			dat = float(field.data)
 		except ValueError:
-			raise ValidationError("Chapter must be an integer value!")
+			raise ValidationError("Chapter must be an numeric value!")
 	if not (field.data or form.volume.data):
 		raise ValidationError("Volume and chapter cannot both be empty!")
 
 def check_sub_chapter(form, field):
 	if field.data:
 		try:
-			dat = int(field.data)
+			dat = float(field.data)
 		except ValueError:
-			raise ValidationError("Sub-Chapter must be an integer value!")
+			raise ValidationError("Sub-Chapter must be an numeric value!")
 
 
 
