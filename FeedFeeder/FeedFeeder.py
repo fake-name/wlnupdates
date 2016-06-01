@@ -15,57 +15,11 @@ import app.series_tools
 import sqlalchemy.exc
 import Levenshtein
 import pprint
-# user = Users(
-# 	nickname  = form.username.data,
-# 	password  = form.password.data,
-# 	email     = form.email.data,
-# 	verified  = 0
-# )
-# print("User:", user)
-# db.session.add(user)
-# db.session.commit()
-
-# class Feeds(db.Model):
-
-# 	id          = db.Column(db.Integer, primary_key=True)
-# 	title       = db.Column(db.Text, nullable=False)
-# 	contents    = db.Column(db.Text, nullable=False)
-# 	guid        = db.Column(db.Text, unique=True)
-# 	linkurl     = db.Column(db.Text, nullable=False)
-# 	published   = db.Column(db.DateTime, index=True, nullable=False)
-# 	updated     = db.Column(db.DateTime, index=True)
-# 	region      = db.Column(region_enum, default='unknown')
-
-# class FeedAuthors(db.Model):
-# 	id          = db.Column(db.Integer, primary_key=True)
-# 	article_id  = db.Column(db.Integer, db.ForeignKey('feeds.id'))
-# 	name        = db.Column(CIText(), index=True, nullable=False)
-
-# class FeedTags(db.Model):
-# 	id          = db.Column(db.Integer, primary_key=True)
-# 	article_id  = db.Column(db.Integer, db.ForeignKey('feeds.id'))
-# 	tag         = db.Column(CIText(), index=True, nullable=False)
-
-
-
-# Error!
-# Error!
-# Traceback (most recent call last):
-#   File "/media/Storage/Scripts/wlnupdates/FeedFeeder/FeedFeeder.py", line 444, in process
-#     beta_enabled = getattr(settings, "ENABLE_BETA", False)
-#   File "/media/Storage/Scripts/wlnupdates/FeedFeeder/FeedFeeder.py", line 406, in dispatchItem
-#     tmp = item['author']
-#   File "/media/Storage/Scripts/wlnupdates/FeedFeeder/FeedFeeder.py", line 294, in insert_parsed_release
-#     # return have.series_row
-#   File "/media/Storage/Scripts/wlnupdates/FeedFeeder/FeedFeeder.py", line 172, in get_create_series
-#     # print("AuthorName match!")
-# AttributeError: 'list' object has no attribute 'lower'
-# Main.Feeds.RPC.Thread-1 - INFO - Received data size: 563 bytes.
-# Beta release!
 
 
 # Hard coded RSS user ID. Probably a bad idea.
-RSS_USER_ID = 3
+RSS_USER_ID    = 3
+NU_SRC_USER_ID = 4
 
 def insert_raw_item(item):
 	'''
@@ -174,7 +128,7 @@ def pick_best_match(group_rows, targetname):
 			(targetname, [(tmp.name, tmp.id) for tmp in group_rows], best.id, best.group_row)
 	return best
 
-def get_create_group(groupname):
+def get_create_group(groupname, changeuser):
 	groupname = groupname[:500]
 	cleanName = nt.prepFilenameForMatching(groupname)
 
@@ -188,7 +142,7 @@ def get_create_group(groupname):
 		print("Need to create new translator entry for ", groupname)
 		new = Translators(
 				name = groupname,
-				changeuser = RSS_USER_ID,
+				changeuser = changeuser,
 				changetime = datetime.datetime.now()
 				)
 		db.session.add(new)
@@ -198,7 +152,7 @@ def get_create_group(groupname):
 			name       = new.name,
 			cleanname  = nt.prepFilenameForMatching(new.name),
 			changetime = datetime.datetime.now(),
-			changeuser = RSS_USER_ID,
+			changeuser = changeuser,
 			)
 		db.session.add(newalt)
 		db.session.commit()
@@ -216,7 +170,7 @@ def get_create_group(groupname):
 		row = group.group_row
 		return row
 
-def get_create_series(seriesname, tl_type, author_name=False):
+def get_create_series(seriesname, tl_type, changeuser, author_name=False):
 	# print("get_create_series(): '%s', '%s', '%s'" % (seriesname, tl_type, author_name))
 
 	tries = 0
@@ -314,7 +268,7 @@ def get_create_series(seriesname, tl_type, author_name=False):
 			print("Need to create new series entry for ", seriesname)
 			new = Series(
 					title=sName,
-					changeuser = RSS_USER_ID,  # Hard coded RSS user ID. Probably a bad idea.
+					changeuser = changeuser,  # Hard coded RSS user ID. Probably a bad idea.
 					changetime = datetime.datetime.now(),
 					tl_type    = tl_type,
 
@@ -333,7 +287,7 @@ def get_create_series(seriesname, tl_type, author_name=False):
 					cleanname  = nt.prepFilenameForMatching(seriesname),
 					series     = new.id,
 					changetime = datetime.datetime.now(),
-					changeuser = RSS_USER_ID
+					changeuser = changeuser
 				)
 			db.session.add(altn1)
 
@@ -343,7 +297,7 @@ def get_create_series(seriesname, tl_type, author_name=False):
 						cleanname  = nt.prepFilenameForMatching(seriesname),
 						series     = new.id,
 						changetime = datetime.datetime.now(),
-						changeuser = RSS_USER_ID
+						changeuser = changeuser
 					)
 				db.session.add(altn2)
 			db.session.commit()
@@ -412,7 +366,7 @@ def get_series_from_any(title_list, tl_type, author_name=False):
 
 	# return have.series_row
 
-def check_insert_release(item, group, series):
+def check_insert_release(item, group, series, update_id):
 	for key in ['vol', 'chp', 'frag']:
 		if item[key] is not None:
 			item[key]  = float(item[key])
@@ -439,7 +393,7 @@ def check_insert_release(item, group, series):
 			postfix    = item['postfix'],
 			tlgroup    = group.id,
 			changetime = datetime.datetime.now(),
-			changeuser = RSS_USER_ID,
+			changeuser = update_id,
 			srcurl     = item['itemurl'],
 		)
 
@@ -453,19 +407,24 @@ def insert_parsed_release(item):
 	assert 'srcname' in item
 	assert 'series'  in item
 
+	if "nu_release" in item:
+		update_id = NU_SRC_USER_ID
+	else:
+		update_id = RSS_USER_ID
+
 
 	if item["tl_type"] not in ['oel', 'translated']:
 		raise ValueError("Invalid TL Type '%s'! Wat?" % item["tl_type"])
 
-	group = get_create_group(item['srcname'])
+	group = get_create_group(item['srcname'], update_id)
 
 	if 'match_author' in item and item['match_author']:
-		series = get_create_series(item['series'], item["tl_type"], item['author'])
+		series = get_create_series(item['series'], item["tl_type"], update_id, item['author'])
 	else:
-		series = get_create_series(item['series'], item["tl_type"])
+		series = get_create_series(item['series'], item["tl_type"], update_id)
 
 	assert group is not None
-	check_insert_release(item, group, series)
+	check_insert_release(item, group, series, update_id)
 
 def update_series_info(item):
 	# print("update_series_info", item)
@@ -487,7 +446,7 @@ def update_series_info(item):
 	if item['update_only']:
 		series = get_series_from_any(item['alt_titles'], item["tl_type"], item['author'])
 	else:
-		series = get_create_series(item['title'], item["tl_type"], item['author'])
+		series = get_create_series(item['title'], item["tl_type"], RSS_USER_ID, item['author'])
 
 	# Break if the tl type has changed, something is probably mismatched
 	if series.tl_type != item['tl_type']:
@@ -672,23 +631,3 @@ class FeedFeeder(object):
 
 	def __del__(self):
 		print("FeedFeeder being deleted")
-
-
-if __name__ == "__main__":
-	# ret = get_create_series("World Seed", "oel", author_name='karami92')
-	assert None != get_series_from_any(["World Seed"], "oel", author_name='karami92')
-	assert None != get_series_from_any(["Sendai Yuusha wa Inkyou Shitai", 'Sendai Yuusha wa Inkyoshitai', 'The Previous Hero wants to Retire', '先代勇者は隠居したい'], "translated", author_name='Iida K')
-	assert None == get_series_from_any(["Sendai Yuusha wa Inkyou Shitai", 'Sendai Yuusha wa Inkyoshitai', 'The Previous Hero wants to Retire', '先代勇者は隠居したい'], "translated", author_name='BLURKKKK')
-	assert None != get_series_from_any(["Sendai Yuusha wa Inkyou Shitai", 'Sendai Yuusha wa Inkyoshitai', 'The Previous Hero wants to Retire', '先代勇者は隠居したい'], "translated", author_name=None)
-	assert None != get_series_from_any(['Kenkyo, Kenjitsu o Motto ni Ikite Orimasu', '謙虚、堅実をモットーに生きております！'], "translated", author_name=None)
-	assert None != get_series_from_any(['Kenkyo, Kenjitsu o Motto ni Ikite Orimasu', '謙虚、堅実をモットーに生きております！'], "translated", author_name='Hiyoko no kēki')
-	assert None != get_series_from_any(['Mythical Tyrant', '神魔灞体'], "translated", author_name='Yun Ting Fei')
-	print(get_series_from_any(['Peerless Martial God'], "translated", author_name=["Jing Wu Hen", "净无痕"]))
-	# assert None == get_series_from_any(['Mythical Tyrant', '神魔灞体'], "translated", author_name='BLHOOGLE!')
-
-
-
-	# assert None != get_series_from_any(['Night Ranger', 'An Ye You Xia', '暗夜游侠'], "translated", author_name=None)
-	# assert None != get_series_from_any(['Night Ranger', 'An Ye You Xia', '暗夜游侠'], "translated", author_name='Dark Blue Coconut Milk')
-	# assert None != get_series_from_any(['Night Ranger', 'An Ye You Xia', '暗夜游侠'], "translated", author_name='深蓝椰子汁')
-	pass
