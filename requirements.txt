@@ -9,7 +9,7 @@ coverage==3.7.1
 decorator==3.4.2
 defusedxml==0.4.1
 Flask-Babel
-Flask-Bcrypt
+Flask-Bcrypt<0.7.0
 Flask-DebugToolbar
 Flask-Login
 Flask-Mail
