@@ -1,3 +1,5 @@
+
+import binascii
 from flask.ext.wtf import Form
 from wtforms import StringField
 from wtforms import BooleanField
@@ -16,6 +18,7 @@ from wtforms.validators import URL
 from .models import Users
 from flask.ext.bcrypt import check_password_hash
 from app.models import Users
+from app import db
 
 def loginError():
 	raise ValidationError("Your username or password is incorrect.")
@@ -32,6 +35,15 @@ class LoginForm(Form):
 		user = Users.query.filter_by(nickname=form.username.data).first()
 		if user is None:
 			loginError()
+
+		# Handle flask's new annoying way of mis-packing password strings. Sigh.
+		if user.password.startswith("\\x"):
+			print("Mis-packed password! Fixing!")
+			old = user.password
+			user.password = binascii.unhexlify(user.password[2:]).decode("utf-8")
+			print("Old: ", old, "new: ", user.password)
+			db.session.commit()
+
 		if not check_password_hash(user.password, form.password.data):
 			loginError()
 
