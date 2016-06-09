@@ -4,7 +4,7 @@ from hashlib import md5
 import re
 from app import db
 from sqlalchemy.orm import relationship
-from flask.ext.bcrypt import generate_password_hash
+from flask_bcrypt import generate_password_hash
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import event
 from sqlalchemy.schema import DDL

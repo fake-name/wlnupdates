@@ -2,7 +2,7 @@ from flask import render_template
 from flask import flash
 from flask import redirect
 from flask import url_for
-from flask.ext.babel import gettext
+from flask_babel import gettext
 from app import app
 from app.models import Series
 

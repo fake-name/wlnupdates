@@ -1,16 +1,16 @@
 import os
 from flask import Flask
 from flask.json import JSONEncoder
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager
-from flask.ext.mail import Mail
-from flask.ext.babel import Babel, lazy_gettext
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_babel import Babel, lazy_gettext
 from flask_wtf.csrf import CsrfProtect
 from flask_debugtoolbar import DebugToolbarExtension
 from config import basedir
 import datetime
 from babel.dates import format_datetime
-from flask.ext.assets import Bundle, Environment
+from flask_assets import Bundle, Environment
 
 import urllib.parse
 

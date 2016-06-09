@@ -1,9 +1,9 @@
 from flask import abort
-from flask.ext.admin import (Admin, BaseView as _BaseView,
+from flask_admin import (Admin, BaseView as _BaseView,
                             AdminIndexView as _AdminIndexView,
                              expose)
-from flask.ext.admin.contrib.sqlamodel import ModelView as _ModelView
-from flask.ext.security import current_user
+from flask_admin.contrib.sqlamodel import ModelView as _ModelView
+from flask_security import current_user
 
 from app import db
 from app import models

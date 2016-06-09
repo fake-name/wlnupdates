@@ -2,7 +2,7 @@
 from flask import jsonify
 from flask import render_template
 from flask import request
-from flask.ext.login import current_user
+from flask_login import current_user
 import wtforms_json
 from app import csrf
 

@@ -1,8 +1,8 @@
 # from flask import Flask, render_template
-# from flask.ext.assets import Bundle, Environment
+# from flask_assets import Bundle, Environment
 # from flask.ext.markdown import Markdown
-# from flask.ext.security import Security, SQLAlchemyUserDatastore
-# from flask.ext.sqlalchemy import SQLAlchemy
+# from flask_security import Security, SQLAlchemyUserDatastore
+# from flask_sqlalchemy import SQLAlchemy
 
 
 # app = Flask(__name__)

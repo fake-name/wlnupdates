@@ -1,6 +1,6 @@
 
 import binascii
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms import StringField
 from wtforms import BooleanField
 from wtforms import TextAreaField
@@ -16,7 +16,7 @@ from wtforms.validators import EqualTo
 from wtforms.validators import ValidationError
 from wtforms.validators import URL
 from .models import Users
-from flask.ext.bcrypt import check_password_hash
+from flask_bcrypt import check_password_hash
 from app.models import Users
 from app import db
 

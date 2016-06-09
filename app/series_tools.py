@@ -19,7 +19,7 @@ import os.path
 import os
 import hashlib
 from data_uri import DataURI
-from flask.ext.login import current_user
+from flask_login import current_user
 import datetime
 import app.nameTools as nt
 

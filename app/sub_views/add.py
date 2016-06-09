@@ -3,7 +3,7 @@ from flask import flash
 from flask import redirect
 from flask import url_for
 from flask import g
-from flask.ext.babel import gettext
+from flask_babel import gettext
 from werkzeug.urls import url_fix
 # from guess_language import guess_language
 from app import db
@@ -165,7 +165,7 @@ def add_release(form):
 	db.session.add(new)
 	db.session.commit()
 	flash(gettext('New release added. Thanks for contributing!'))
-	flash(gettext('If the release you\'re adding has a RSS feed, you can ask for it to be added to the automatic feed system on the forum!</a>'))
+	flash(gettext('If the release you\'re adding has a RSS feed, you can ask for it to be added to the automatic feed system on the forum!'))
 	return redirect(url_for('renderSeriesId', sid=sid))
 
 def add_post(form):

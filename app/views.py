@@ -5,14 +5,14 @@ from flask import url_for
 from flask import request
 from flask import g
 from flask import send_file
-from flask.ext.login import login_user
-from flask.ext.login import logout_user
-from flask.ext.login import current_user
-from flask.ext.login import login_required
+from flask_login import login_user
+from flask_login import logout_user
+from flask_login import current_user
+from flask_login import login_required
 from itsdangerous import URLSafeTimedSerializer
 from itsdangerous import BadSignature
-from flask.ext.sqlalchemy import get_debug_queries
-from flask.ext.babel import gettext
+from flask_sqlalchemy import get_debug_queries
+from flask_babel import gettext
 from datetime import datetime
 # from guess_language import guess_language
 from app import app

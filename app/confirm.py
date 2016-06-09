@@ -1,6 +1,6 @@
 # project/email.py
 
-from flask.ext.mail import Message
+from flask_mail import Message
 from . import app, mail
 
 

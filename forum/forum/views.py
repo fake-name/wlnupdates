@@ -1,6 +1,6 @@
 from sqlalchemy.exc import SQLAlchemyError as sql_exc
 from flask import Blueprint, redirect, render_template, url_for
-from flask.ext.security import current_user, login_required
+from flask_security import current_user, login_required
 
 from app import db
 from forum.models import Board, Thread, Post

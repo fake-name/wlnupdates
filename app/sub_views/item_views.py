@@ -3,7 +3,7 @@ from flask import flash
 from flask import redirect
 from flask import url_for
 from flask import g
-from flask.ext.babel import gettext
+from flask_babel import gettext
 # from guess_language import guess_language
 from app import app
 from app import db
@@ -71,6 +71,11 @@ def get_latest_release(releases):
 			release
 			) for release in releases if release.include]
 	releases.sort()
+
+	if not releases:
+		return None
+	if not releases[-1]:
+		return None
 
 	latest = releases[-1][-1]
 

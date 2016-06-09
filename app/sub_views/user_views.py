@@ -6,7 +6,7 @@ from app.models import Series
 from app.models import Releases
 from sqlalchemy import desc
 from app import db
-from flask.ext.babel import gettext
+from flask_babel import gettext
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import nullslast
 

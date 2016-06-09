@@ -30,10 +30,10 @@ from app.models import PublishersChanges
 from sqlalchemy import or_
 
 from flask import flash
-from flask.ext.babel import gettext
-from flask.ext.login import current_user
+from flask_babel import gettext
+from flask_login import current_user
 
-from flask.ext.login import current_user
+from flask_login import current_user
 import app.series_tools
 from app.api_common import getResponse
 

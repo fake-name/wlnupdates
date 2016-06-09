@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from flask.ext.security import UserMixin
-from flask.ext.security import RoleMixin
+from flask_security import UserMixin
+from flask_security import RoleMixin
 from sqlalchemy import event
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.orderinglist import ordering_list
