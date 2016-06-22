@@ -42,7 +42,7 @@ class RabbitQueueHandler(object):
 												task_exchange_type = "fanout",
 												task_queue         = 'task.{name}.q'.format(name=settings['CLIENT_NAME']),
 												response_queue     = 'response.{name}.q'.format(name=settings['CLIENT_NAME']),
-												poll_rate          = 0.010,
+												poll_rate          = 0.001,
 												prefetch           = 1000,
 
 												# Allow the queue to be potentially lossy here.
