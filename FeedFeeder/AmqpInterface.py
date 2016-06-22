@@ -44,6 +44,9 @@ class RabbitQueueHandler(object):
 												response_queue     = 'response.{name}.q'.format(name=settings['CLIENT_NAME']),
 												poll_rate          = 0.010,
 												prefetch           = 1000,
+
+												# Allow the queue to be potentially lossy here.
+												ack_rx             = False,
 												)
 
 
