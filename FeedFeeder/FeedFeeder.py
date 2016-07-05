@@ -516,6 +516,8 @@ def update_series_info(item):
 	db.session.commit()
 
 def dispatchItem(item):
+	if isinstance(item, bytes):
+		item = item.decode("utf-8")
 	item = json.loads(item)
 	assert 'type' in item
 	assert 'data' in item
