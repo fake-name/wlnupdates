@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-#
-#
 import rabbitpy
 import urllib.parse
 import socket
@@ -18,7 +16,7 @@ class Heartbeat_Timeout_Exception(Exception):
 	pass
 
 class ConnectorManager:
-	def __init__(self, config, runstate, active, task_queue, response_queue):
+	def __init__(self, config, runstate, active, connected, task_queue, response_queue):
 
 		assert 'host'                     in config
 		assert 'userid'                   in config
@@ -50,6 +48,7 @@ class ConnectorManager:
 		self.config             = config
 		self.task_queue         = task_queue
 		self.active_connections = active
+		self.connected          = connected
 		self.response_queue     = response_queue
 
 
@@ -134,6 +133,7 @@ class ConnectorManager:
 
 		assert self.active_connections.value == 0
 		self.active_connections.value = 1
+		self.connected.value = 1
 
 		self.log.info("Initializing AMQP connection.")
 		# Connect to server
@@ -242,7 +242,7 @@ class ConnectorManager:
 		# we /should/ be connected by the time this point is reached. In any
 		# event, it should fine even if that is somehow not true, since
 		# the interface calls should
-		connected = True
+
 
 
 		print_time = 15              # Print a status message every n seconds
@@ -253,9 +253,8 @@ class ConnectorManager:
 		# we've flushed the outgoing items out the queue
 		while self.runstate.value or self.response_queue.qsize():
 
-			if not connected:
+			if not self.connected.value:
 				self._connect()
-				connected = True
 
 			time.sleep(loop_delay)
 
@@ -282,37 +281,60 @@ class ConnectorManager:
 		try:
 			self.in_q.stop_consuming()
 			self.connection.close()
+		except rabbitpy.exceptions.ConnectionResetException as e:
+			# We don't really care about exceptions on teardown
+			self.log.error("Error on interface teardown!")
+			self.log.error("	%s", e)
+			self.connected.value = 0
+			self.active_connections.value = 0
 		except rabbitpy.exceptions.RabbitpyException as e:
 			# We don't really care about exceptions on teardown
 			self.log.error("Error on interface teardown!")
 			self.log.error("	%s", e)
 			# for line in traceback.format_exc().split('\n'):
 			# 	self.log.error(line)
+			self.active_connections.value = 0
+			self.connected.value = 0
+
 
 		self.log.info("AMQP Thread exited")
 
 	def _processReceiving(self):
-		for item in self.in_q:
-			# Prevent never breaking from the loop if the feeding queue is backed up.
 
-			if item:
-				self.log.info("Received packet from queue '%s'! Processing.", self.in_queue)
-				self.task_queue.put(item.body)
+		while self.runstate.value:
+			try:
+				for item in self.in_q:
+					# Prevent never breaking from the loop if the feeding queue is backed up.
 
-				with self.active_lock:
-					self.active += 1
-					self.recv_messages += 1
-					self.session_fetched += 1
+					if item:
+						self.log.info("Received packet from queue '%s'! Processing.", self.in_queue)
+						self.task_queue.put(item.body)
 
-				item.ack()
+						with self.active_lock:
+							self.active += 1
+							self.recv_messages += 1
+							self.session_fetched += 1
 
-				while self.task_queue.qsize() > self.config['prefetch']:
-					time.sleep(1)
+						item.ack()
 
-				if self.atFetchLimit():
-					self.log.info("Session fetch limit reached. Not fetching any additional content.")
-					break
+						while self.task_queue.qsize() > self.config['prefetch']:
+							time.sleep(1)
 
+						if self.atFetchLimit():
+							self.log.info("Session fetch limit reached. Not fetching any additional content.")
+							break
+
+
+			except rabbitpy.exceptions.ConnectionResetException as e:
+				self.log.error("Error while polling interface!")
+				self.log.error("	%s", e)
+				self.connected.value = 0
+				self.active_connections.value = 0
+			except rabbitpy.exceptions.RabbitpyException as e:
+				self.log.error("Error while polling interface!")
+				self.log.error("	%s", e)
+				self.connected.value = 0
+				self.active_connections.value = 0
 
 	def _publishOutgoing(self):
 		if self.config['master']:
@@ -359,6 +381,7 @@ def run_fetcher(config, runstate, tx_q, rx_q):
 
 	# Active instances tracker
 	active = multiprocessing.Value("i", 0)
+	connected = multiprocessing.Value("i", 0)
 
 	log = logging.getLogger("Main.Connector.Manager")
 
@@ -367,7 +390,7 @@ def run_fetcher(config, runstate, tx_q, rx_q):
 	while runstate.value != 0:
 		try:
 			if connection is False:
-				connection = ConnectorManager(config, runstate, active, tx_q, rx_q)
+				connection = ConnectorManager(config, runstate, active, connected, tx_q, rx_q)
 			connection.poll()
 
 		except Exception:
