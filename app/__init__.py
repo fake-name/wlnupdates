@@ -69,12 +69,12 @@ if not app.debug:
 # Forum
 # ========================================================
 
-assets = Environment(app)
-assets.url = '/static'
-assets.directory = app.config['ASSETS_DEST']
+# assets = Environment(app)
+# assets.url = '/static'
+# assets.directory = app.config['ASSETS_DEST']
 
-less = Bundle('less/style.less', filters='less', output='gen/style.css')
-assets.register('all-css', less)
+# less = Bundle('less/style.less', filters='less', output='gen/style.css')
+# assets.register('all-css', less)
 
 import forum.forum.views as forum
 app.register_blueprint(forum.bp, url_prefix='/forum')

@@ -28,6 +28,11 @@
 	}
 }
 
+.well-tny {
+  padding: 4px;
+  margin-bottom: 5px;
+  border-radius: 0;
+}
 
 .col-sm-9-5, .col-sm-2-5 {
   position: relative;
