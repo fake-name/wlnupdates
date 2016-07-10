@@ -200,26 +200,6 @@ body
 	/*background-color: #ccc;*/
 }
 
-tr.red-highlight:nth-of-type(odd) {
-	background-color: #ffeaea !important;
-}
-tr.red-highlight:nth-of-type(even) {
-	background-color: #ffe0e0 !important;
-}
-tr.yellow-highlight:nth-of-type(odd) {
-	background-color: #fdfdbb !important;
-}
-tr.yellow-highlight:nth-of-type(even) {
-	background-color: #ffffdd !important;
-}
-
-tr.green-highlight:nth-of-type(odd) {
-	background-color: #eaffea !important;
-}
-tr.green-highlight:nth-of-type(even) {
-	background-color: #e0ffe0 !important;
-}
-
 .control-label-sm {
 	padding-right: 5px;
 	padding-left: 0px;
@@ -248,28 +228,6 @@ tr.green-highlight:nth-of-type(even) {
 
 }
 
-.updating-stalled
-{
-	background-color: #FFCCCC;
-}
-.updating-stale
-{
-	background-color: #FFFF99;
-}
-
-
-.reading-behind
-{
-	background-color: #FFCCCC;
-}
-.reading-ahead
-{
-	background-color: #FFFF99;
-}
-.reading-current
-{
-	background-color: #CCFFCC;
-}
 
 div.imgDiv {
 	position:relative;

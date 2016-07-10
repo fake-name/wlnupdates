@@ -7269,3 +7269,52 @@ a.list-group-item-danger.active:focus {
 .panel-info .panel-heading {
   border-color: #000;
 }
+
+
+
+
+
+tr.red-highlight:nth-of-type(odd) {
+  background-color: #4c4646 !important;
+}
+tr.red-highlight:nth-of-type(even) {
+  background-color: #4c4343 !important;
+}
+tr.yellow-highlight:nth-of-type(odd) {
+  background-color: #4b4b38 !important;
+}
+tr.yellow-highlight:nth-of-type(even) {
+  background-color: #4c4c42 !important;
+}
+
+tr.green-highlight:nth-of-type(odd) {
+  background-color: #464c46 !important;
+}
+tr.green-highlight:nth-of-type(even) {
+  background-color: #434c43 !important;
+}
+
+
+.updating-stalled
+{
+  background-color: #4c3d3d;
+}
+.updating-stale
+{
+  background-color: #4c4c2d;
+}
+
+
+.reading-behind
+{
+  background-color: #4c3d3d;
+}
+.reading-ahead
+{
+  background-color: #4c4c2d;
+}
+.reading-current
+{
+  background-color: #3d4c3d;
+}
+
