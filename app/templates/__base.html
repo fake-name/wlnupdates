@@ -118,11 +118,6 @@
 				document.getElementById('dark-style').disabled  = true;
 			}
 		}
-		window.onload = function()
-		{
-			console.log("Toggling themes: ", theme);
-			set_theme(theme);
-		}
 		function toggle_theme()
 		{
 			var current = get_theme();
@@ -133,6 +128,9 @@
 			set_theme_cookie(new_theme);
 			set_theme(new_theme);
 		}
+
+		console.log("Toggling themes: ", theme);
+		set_theme(theme);
 
 
 	</script>
