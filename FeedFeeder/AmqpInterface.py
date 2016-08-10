@@ -440,7 +440,7 @@ class Connector:
 			'heartbeat'                : kwargs.get('heartbeat',                 120),
 			'sslopts'                  : kwargs.get('ssl',                      None),
 			'poll_rate'                : kwargs.get('poll_rate',                  0.25),
-			'prefetch'                 : kwargs.get('prefetch',                   1),
+			'prefetch'                 : kwargs.get('prefetch',                   100),
 			'session_fetch_limit'      : kwargs.get('session_fetch_limit',      None),
 			'durable'                  : kwargs.get('durable',                  False),
 			'socket_timeout'           : kwargs.get('socket_timeout',            10),
@@ -463,7 +463,7 @@ class Connector:
 		assert config['response_exchange'].endswith(".e") is True
 
 		# Patch in the port number to the host name if it's not present.
-		# This is really clumsy, but you can't explicitly specify the port
+		# This is really clumsy, buzt you can't explicitly specify the port
 		# in the amqp library
 		if not ":" in config['host']:
 			if config['ssl']:
