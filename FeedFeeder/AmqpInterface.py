@@ -184,6 +184,11 @@ class ConnectorManager:
 				prefetch_count = self.config['prefetch'],
 				global_flag    = False
 			)
+		self.channel.basic_qos(
+				prefetch_size  = 0,
+				prefetch_count = self.config['prefetch'],
+				global_flag    = True
+			)
 
 
 		self.log.info("Connection established. Setting up consumer.")
