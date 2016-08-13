@@ -59,9 +59,10 @@ def renderUserWatches():
 		# avail['chp'] = latest.chapter if latest and latest.chapter != None else -1
 
 
-		avail['vol']  = latest[series.id][0]
-		avail['chp']  = latest[series.id][1]
-		avail['frag'] = latest[series.id][2]
+		avail['date'] = latest[series.id][1]
+		avail['vol']  = latest[series.id][0][0]
+		avail['chp']  = latest[series.id][0][1]
+		avail['frag'] = latest[series.id][0][2]
 
 		prog['agg']  = 0
 		if prog['vol'] > 0:
@@ -81,7 +82,7 @@ def renderUserWatches():
 
 		if not watch.listname in data:
 			data[watch.listname] = []
-		data[watch.listname].append((series, prog, avail))
+		data[watch.listname].append((series, prog, avail, watch.watch_as_name))
 
 	for key in data.keys():
 		data[key].sort(key=lambda x: (x[0].title.lower()))

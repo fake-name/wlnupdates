@@ -168,16 +168,12 @@ select.list-select
 	margin-bottom: 10px;
 }
 
-a#editlink
+.light-text, .light-text a
 {
 	color: #999;
 	font-size: 75%;
 }
-a#historylink
-{
-	color: #999;
-	font-size: 75%;
-}
+
 textarea
 {
 	width: 100%;

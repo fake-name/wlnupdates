@@ -370,6 +370,10 @@ def validateWatchedData(data):
 	if len(update['listName']) > 256:
 		raise AssertionError
 
+	update['watchAs'] = None
+	if 'watch-as' in data:
+		update['watchAs'] = bleach.clean(str(data['watch-as']), tags=[], strip=True)
+
 	# Special case handle the special list name that removes the item from the list.
 	# Set the watch to none, so the corresponsing list gets deleted.
 	# Yes, this is a hack, and I'm ignoring the "watch" boolean field in the
@@ -414,8 +418,16 @@ def setSeriesWatchJson(data):
 			series_id = cleaned['item-id'],
 			listname  = cleaned['listName'],
 		)
+		if cleaned['watchAs']:
+			newWatch.watch_as_name = cleaned['watchAs']
 
 		db.session.add(newWatch)
+		db.session.commit()
+		watch_str = "Yes"
+
+	elif watch_row and cleaned['watchAs'] and cleaned['watchAs'] != watch_row.watch_as_name:
+		# Want to watch item, item in extant list:
+		watch_row.watch_as_name = cleaned['watchAs']
 		db.session.commit()
 		watch_str = "Yes"
 

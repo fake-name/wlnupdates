@@ -23,8 +23,9 @@ from citext import CIText
 # so disable the warnings for those aspects of things
 # pylint: disable=E0213, R0903
 
-region_enum  = ENUM('western', 'eastern', 'unknown', name='region_enum')
-tl_type_enum = ENUM('oel', 'translated',             name='tl_type_enum')
+region_enum      = ENUM('western', 'eastern', 'unknown',             name='region_enum')
+tl_type_enum     = ENUM('oel', 'translated',                         name='tl_type_enum')
+series_sort_enum = ENUM('parsed_title_order', 'chronological_order', name='series_sort_mode_enum')
 
 class SeriesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -46,6 +47,7 @@ class SeriesBase(object):
 	tot_chapter = db.Column(db.Float(), default=-1)
 
 	region      = db.Column(region_enum, default='unknown')
+	sort_mode   = db.Column(series_sort_enum, default='parsed_title_order')
 	tl_type     = db.Column(tl_type_enum, nullable=False, index=True)
 	license_en  = db.Column(db.Boolean)
 
@@ -568,15 +570,16 @@ class News_Posts(db.Model):
 
 
 class Watches(db.Model):
-	id          = db.Column(db.Integer, primary_key=True)
-	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'))
-	series_id   = db.Column(db.Integer, db.ForeignKey('series.id'))
-	listname    = db.Column(db.Text, nullable=False, default='', server_default='')
+	id            = db.Column(db.Integer, primary_key=True)
+	user_id       = db.Column(db.Integer, db.ForeignKey('users.id'))
+	series_id     = db.Column(db.Integer, db.ForeignKey('series.id'))
+	listname      = db.Column(db.Text, nullable=False, default='', server_default='')
 
+	watch_as_name = db.Column(db.Text)
 
-	volume      = db.Column(db.Float(), default=-1)
-	chapter     = db.Column(db.Float(), default=-1)
-	fragment    = db.Column(db.Float(), default=-1)
+	volume        = db.Column(db.Float(), default=-1)
+	chapter       = db.Column(db.Float(), default=-1)
+	fragment      = db.Column(db.Float(), default=-1)
 
 	__table_args__ = (
 		db.UniqueConstraint('user_id', 'series_id'),

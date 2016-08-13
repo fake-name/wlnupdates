@@ -4,7 +4,7 @@
 		<div class="row singleitem"  id="{{valId}}-container">
 			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<span class='text-nowrap'>
+				<span class='text-nowrap light-text'>
 					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
 				</span>
@@ -83,7 +83,7 @@
 		<div class="row singleitem"  id="{{valId}}-container">
 			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<span class='text-nowrap'>
+				<span class='text-nowrap light-text'>
 					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
 				</span>
@@ -143,7 +143,7 @@
 		<div class="row dropitem"  id="{{valId}}-container">
 			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<span class='text-nowrap'>
+				<span class='text-nowrap light-text'>
 					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
 				</span>
@@ -170,7 +170,7 @@
 		<div class="row multiitem" id="{{valId}}-container">
 			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<span class='text-nowrap'>
+				<span class='text-nowrap light-text'>
 					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
 				</span>
@@ -194,7 +194,7 @@
 		<div class="row multilist" id="{{valId}}-container">
 			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<span class='text-nowrap'>
+				<span class='text-nowrap light-text'>
 					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
 				</span>
@@ -219,7 +219,7 @@
 		<div class="row dateitem"  id="{{valId}}-container">
 			<div class="col-md-{{width}} rowTitle">
 				{{ name }}:
-				<span class='text-nowrap'>
+				<span class='text-nowrap light-text'>
 					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
 					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
 				</span>
@@ -254,6 +254,37 @@
 		</div>
 	</div>
 {%- endmacro %}
+{% macro listSortMode(series_val) -%}
+
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-12 rowContents" id='{{valId}}'>
+				<form class="form-inline" action="javascript:merge_ajax();">
+
+					<div class="col-md-3 rowTitle">
+						<label style='margin-top:5px'>Series sort mode</label>
+					</div>
+					<div class="col-md-9 rowTitle">
+
+						<select id='sort-mode-select' class="list-select form-control" onchange="edit_sort_mode();return false;">
+							{% if series_val.sort_mode == 'parsed_title_order' %}
+								<option value='parsed_title_order' selected="selected">Parsed Numeric Order</option>
+								<option value='chronological_order'>Chronological Order</option>
+							{% else %}
+								<option value='parsed_title_order'>Parsed Numeric Order</option>
+								<option value='chronological_order' selected="selected">Chronological Order</option>
+
+							{% endif %}
+						</select>
+
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+
 {% macro dbAdminItem() -%}
 
 	<div class="well well-tny info-item">
@@ -493,7 +524,7 @@
 			<div style="display: inline-block; padding-left: 20px;">
 				<div class="rowTitle" style='display: inline-block; min-width: 130px; vertical-align: top;'>
 					In watch list:
-					<span id='watch-state' class='text-nowrap light-grey'>
+					<span id='watch-state' class='text-nowrap light-text light-grey'>
 						[saved]
 					</span>
 				</div>
@@ -643,6 +674,33 @@
 				contentType: "application/json;",
 			});
 		}
+
+
+		function edit_sort_mode()
+		{
+			var mangaId  = $('meta[name=manga-id]').attr('content')
+			var new_setting  = $("#sort-mode-select option:selected");
+			var sort_mode = new_setting.val();
+
+			console.log(new_setting)
+			console.log(new_setting.val())
+
+			var params = {
+				'mode'      : 'set-sort-mode',
+				'sort-mode'   : sort_mode,
+				'item-id'   : mangaId,
+			}
+
+			$.ajax({
+				url : "/api",
+				success : saveCallback(false),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
+
 
 
 		// Hi there!
@@ -1121,6 +1179,7 @@
 				{% endif %}
 
 
+				{{listSortMode(series)}}
 				{{mergeInto()}}
 				{{deleteItem()}}
 			{% endif %}

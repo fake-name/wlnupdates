@@ -98,6 +98,7 @@ DISPATCH_TABLE = {
 
 	# Admin API bits
 	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,          True,  False),
+	'set-sort-mode'             : (api_handlers_admin.setSortOrder,              True,  False),
 	'merge-group'               : (api_handlers_admin.mergeGroupItems,           True,  False),
 	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,          True,  False),
 	'delete-series'             : (api_handlers_admin.deleteSeries,              True,  False),

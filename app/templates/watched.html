@@ -1,22 +1,31 @@
 <!-- extend base layout -->
 {% extends "__base.html" %}
 
-{% macro singleItemBlock(series, read, latest) -%}
+{% macro singleItemBlock(series, read, latest, watch_as) -%}
 	{% if latest['agg'] > read['agg'] %}
-		<tr class="row singleitem red-highlight">
+		<tr class="row singleitem red-highlight"  data-availvol='{{latest['vol']}}' data-availchp='{{latest['chp']}}' data-availfrag='{{latest['frag']}}'>
 	{% elif latest['agg'] < read['agg'] and read['agg'] %}
-		<tr class="row singleitem yellow-highlight">
+		<tr class="row singleitem yellow-highlight"  data-availvol='{{latest['vol']}}' data-availchp='{{latest['chp']}}' data-availfrag='{{latest['frag']}}'>
 	{% elif latest['agg'] == read['agg'] and read['agg'] %}
-		<tr class="row singleitem green-highlight">
+		<tr class="row singleitem green-highlight"  data-availvol='{{latest['vol']}}' data-availchp='{{latest['chp']}}' data-availfrag='{{latest['frag']}}'>
 	{% else %}
-		<tr class="row singleitem ">
+		<tr class="row singleitem "  data-availvol='{{latest['vol']}}' data-availchp='{{latest['chp']}}' data-availfrag='{{latest['frag']}}'>
 	{% endif %}
 		<td class="col-md-8 rowTitle">
 			<a href='/series-id/{{ series.id }}/'>
-				{{ series.title }}
+				{% if watch_as: %}
+					{{ watch_as }}
+				{% else %}
+					{{ series.title }}
+				{% endif %}
 			</a>
+			{% if latest['date'] %}
+				<span class='pull-right light-text'>{{terse_ago(latest['date'])}} ago</span>
+			{% else %}
+				<span class='pull-right light-text'>Never Updated</span>
+			{% endif %}
 		</td>
-		<td class="col-md-2 rowContents" id='{{valId}}'>
+		<td class="col-md-2 rowContents" id='avail-series-{{series.id}}'>
 			{% if latest['vol'] >= 0 or latest['chp'] >= 0 or latest['frag'] >= 0 %}
 				{% if latest['vol'] >= 0 %}v{{ ( latest['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
 				{% if latest['chp'] >= 0 %}c{{ ( latest['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
@@ -26,11 +35,11 @@
 			{% endif %}
 
 		</td>
-		<td class="col-md-2 rowContents" id='{{valId}}'>
+		<td class="col-md-2 rowContents" id='read-series-{{series.id}}'>
 			{% if read['vol'] >= 0 or read['chp'] >= 0 or read['frag'] >= 0 %}
-				{% if read['vol'] >= 0 %}v{{ ( read['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
-				{% if read['chp'] >= 0 %}c{{ ( read['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
-				{% if read['frag'] > 0 %}p{{ ( read['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
+				{% if read['vol'] >= 0 %}<a class='read-component volume'   href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('vol', 'read-series-{{series.id}}', {{series.id}});return false;">v{{ ( read['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif %}
+				{% if read['chp'] >= 0 %}<a class='read-component chapter'  href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('chp', 'read-series-{{series.id}}', {{series.id}});return false;">c{{ ( read['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif %}
+				{% if read['frag'] > 0 %}<a class='read-component fragment' href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('frg', 'read-series-{{series.id}}', {{series.id}});return false;">p{{ ( read['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif %}
 			{% else %}
 				Unread!
 			{% endif %}
@@ -67,8 +76,8 @@
 				<h4>List: {{listname | title}}</h4>
 				<table class='table-striped table table-bordered table-condensed fullwidth'>
 					{{ headerBlock() }}
-					{% for series, read_progress, avail_progress in watches[listname] %}
-						{{singleItemBlock(series, read_progress, avail_progress)}}
+					{% for series, read_progress, avail_progress, watch_as in watches[listname] %}
+						{{singleItemBlock(series, read_progress, avail_progress, watch_as)}}
 					{% endfor %}
 				</table>
 			{% endfor %}
@@ -80,7 +89,177 @@
 		<div style="clear: both;"></div>
 
 	</div>
-
-
-	</ul>
 {% endblock %}
+
+
+
+{% block footer %}
+	<script src="/static/js/editable.js"></script>
+	<script>
+
+
+		function updateReadProgress(htmlid, newVol, newChp, newFrag)
+		{
+			return function(result)
+			{
+				if (result['error'])
+				{
+					bootbox.alert("Error incrementing reading progress!<br/><br/>"+result["message"], function()
+						{
+							location.reload()
+						}
+					)
+					return;
+				}
+
+				console.log(result)
+				var row = $("#"+htmlid).first();
+				var container = row.parent('tr.row');
+
+
+				// Update the parent class color.
+				var avail_vol  = container.data()['availvol']
+				var avail_chp  = container.data()['availchp']
+				var avail_frag = container.data()['availfrag']
+
+
+
+				console.log("ID: ", htmlid);
+				console.log("row: ", row);
+				console.log("states: ", newVol, newChp, newFrag);
+				console.log("container: ", container);
+				console.log("container: ", avail_vol, avail_chp, avail_frag);
+
+
+				var aggavail  = Math.max(avail_vol, 0) * 1000000 + Math.max(avail_chp, 0) * 1000 + Math.max(avail_frag, 0);
+				var readavail = Math.max(newVol, 0)    * 1000000 + Math.max(newChp, 0)    * 1000 + Math.max(newFrag, 0);
+				console.log("Items: ", aggavail, readavail)
+
+				if (aggavail > readavail) // More chapters available
+				{
+					container.removeClass("red-highlight yellow-highlight green-highlight").addClass("red-highlight")
+				}
+				else if (aggavail < readavail) // Read more then available (?)
+				{
+					container.removeClass("red-highlight yellow-highlight green-highlight").addClass("yellow-highlight")
+				}
+				else // Up to date.
+				{
+					container.removeClass("red-highlight yellow-highlight green-highlight").addClass("green-highlight")
+				}
+
+
+				var volume_item   = row.find('a.volume').first()
+				var chapter_item  = row.find('a.chapter').first()
+				var fragment_item = row.find('a.fragment').first()
+
+				console.log("Wut:", volume_item, chapter_item, fragment_item)
+
+				if (volume_item.length)
+				{
+					var tgt = volume_item.first();
+					var progstring = "v" + parseInt(newVol);
+					tgt.data('vol', newVol)
+					tgt.data('chp', newChp)
+					tgt.data('frg', newFrag)
+					tgt.text(progstring);
+				}
+				if (chapter_item.length)
+				{
+					var tgt = chapter_item.first();
+					var progstring = "c" + parseInt(newChp);
+					tgt.data('vol', newVol)
+					tgt.data('chp', newChp)
+					tgt.data('frg', newFrag)
+					tgt.text(progstring);
+				}
+				if (fragment_item.length)
+				{
+					var tgt = fragment_item.first();
+					var progstring = "p" + parseInt(newFrag);
+					tgt.data('vol', newVol)
+					tgt.data('chp', newChp)
+					tgt.data('frg', newFrag)
+					tgt.text(progstring);
+				}
+
+
+
+			}
+		}
+
+		function increment_progress(mode, htmlid, srcid)
+		{
+			console.log("Ready to send!", srcid);
+			var row = $("#"+htmlid).first();
+			// console.log(row)
+			// console.log(row.html())
+			// console.log(row.length)
+			var vol;
+			var chp;
+			var frg;
+
+			// console.log("Progress trigger: ", mode, srcid, vol, chp, frag)
+			if (mode == 'vol')
+			{
+				var tgt = row.find(".volume").first();
+				// console.log(tgt)
+				// console.log(tgt.data())
+				vol = Number(tgt.data()['vol']);
+				chp = Number(tgt.data()['chp']);
+				frg = Number(tgt.data()['frg']);
+				// console.log("volume Parsed numbers: ", vol, chp, frg)
+				vol += 1;
+			}
+			else if (mode == 'chp')
+			{
+				var tgt = row.find(".chapter").first();
+				// console.log(tgt)
+				// console.log(tgt.data())
+				vol = Number(tgt.data()['vol']);
+				chp = Number(tgt.data()['chp']);
+				frg = Number(tgt.data()['frg']);
+				// console.log("chapter Parsed numbers: ", vol, chp, frg)
+				chp += 1;
+			}
+			else if (mode == 'frg')
+			{
+				var tgt = row.find(".fragment").first();
+				// console.log(tgt)
+				// console.log(tgt.data())
+				vol = Number(tgt.data()['vol']);
+				chp = Number(tgt.data()['chp']);
+				frg = Number(tgt.data()['frg']);
+				// console.log("fragment Parsed numbers: ", vol, chp, frg)
+				frg += 1;
+			}
+			else
+			{
+				// console.log("Wat")
+				return;
+			}
+
+			// console.log("Progress trigger: ", mode, srcid, vol, chp, frg)
+			var params = {
+				'mode'      : 'read-update',
+				'item-id'   : srcid,
+				'vol'       : Math.max(vol, 0),
+				'chp'       : Math.max(chp, 0),
+				'frag'      : Math.max(frg, 0)
+			}
+
+
+
+			$.ajax({
+				url : "/api",
+				success : updateReadProgress(htmlid, vol, chp, frg),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
+	</script>
+
+{% endblock %}
+

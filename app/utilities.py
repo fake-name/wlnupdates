@@ -1,4 +1,5 @@
 
+import datetime
 from app.models import Releases
 from sqlalchemy.sql.expression import nullslast
 from sqlalchemy import desc
@@ -21,7 +22,7 @@ def get_latest_releases(series_ids):
 
 	query = Releases                                                               \
 				.query                                                             \
-				.with_entities(Releases.series, Releases.volume, Releases.chapter, Releases.fragment) \
+				.with_entities(Releases.series, Releases.volume, Releases.chapter, Releases.fragment, Releases.published) \
 				.order_by(Releases.series)                                         \
 				.order_by(nullslast(desc(Releases.volume)))                        \
 				.order_by(nullslast(desc(Releases.chapter)))                       \
@@ -35,7 +36,7 @@ def get_latest_releases(series_ids):
 
 
 	ret = {}
-	for series, vol, chp, frag in latest:
+	for series, vol, chp, frag, pubdate in latest:
 		if vol == None:
 			vol = -1
 		if chp == None:
@@ -44,17 +45,20 @@ def get_latest_releases(series_ids):
 			frag = -1
 		if series in ret:
 			if vol > ret[series][0]:
-				ret[series] = [vol, chp, frag]
+				ret[series][0] = (vol, chp, frag)
 			elif vol == ret[series][0] and chp > ret[series][1]:
-				ret[series] = [vol, chp, frag]
+				ret[series][0] = (vol, chp, frag)
+
+			if ret[series][1] < pubdate:
+				ret[series][1] = pubdate
 
 		else:
-			ret[series] = [vol, chp, frag]
+			ret[series] = [(vol, chp, frag), pubdate]
 
 	# Fill out any items which returned nothing.
 	for sid in series_ids:
 		if not sid in ret:
-			ret[sid] = [-1, -1, -1]
+			ret[sid] = [(-1, -1, -1), None]
 
 	return ret
 

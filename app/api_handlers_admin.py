@@ -42,6 +42,33 @@ import FeedFeeder.FeedFeeder
 import app.api_handlers
 
 
+def setSortOrder(data):
+	if not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+	# Json request: {'item-id': '32606', 'mode': 'set-sort-mode', 'sort-mode': 'chronological_order'}
+	assert data['mode'] == 'set-sort-mode'
+	assert 'item-id' in data
+	assert 'sort-mode' in data
+	mid = int(data['item-id'])
+	mode = data['sort-mode']
+
+
+	assert mode in ['chronological_order', 'parsed_title_order']
+	itm = Series.query.filter(Series.id==mid).one()
+
+	print(itm.sort_mode)
+	print(itm)
+
+	itm.sort_mode = mode
+
+	db.session.commit()
+
+	return getResponse("Success", False)
+
+	# return getResponse(error=True, message="lolwut!")
+
+
 def mergeSeriesItems(data):
 	if not current_user.is_mod():
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
