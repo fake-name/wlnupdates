@@ -208,10 +208,41 @@
 						<span class='multilist' id='{{valId}}'></span>
 					{% endif %}
 				</ul>
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+{% macro altNameList(name, baseSeriesName, inList, itemKey, valId, link_base, watch, link=True, width=3) -%}
+	<div class="well well-tny info-item">
+		<div class="row multilist" id="{{valId}}-container">
+			<div class="col-md-{{width}} rowTitle">
+				{{ name }}:
+				<span class='text-nowrap light-text'>
+					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				</span>
+			</div>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
+				<ul>
+					{% for item in inList %}
+						{% if watch.watch_as_name %}
+							<li><input onclick="javascript:new_watch_as('watch-alt-name')" type="radio" name="watch-alt-name" {{ "checked" if item[itemKey] == watch.watch_as_name else "" }} data-name='{{ item[itemKey] | escape }}'><span class='multilist' id='{{valId}}'>{{ item[itemKey] }}</span></li>
+						{% else %}
+							<li><input onclick="javascript:new_watch_as('watch-alt-name')" type="radio" name="watch-alt-name" {{ "checked" if item[itemKey] == baseSeriesName else "" }} data-name='{{ item[itemKey] | escape }}'><span class='multilist' id='{{valId}}'>{{ item[itemKey] }}</span></li>
+						{% endif %}
+					{% endfor %}
+					{% if not inList %}
+						<span class='multilist' id='{{valId}}'></span>
+					{% endif %}
+				</ul>
 
 			</div>
 		</div>
 	</div>
+	<script>
+
+	</script>
 {%- endmacro %}
 
 {% macro dateBlock(name, value, valId, width=3, extra_cls='') -%}
@@ -962,7 +993,7 @@
 
 
 	<div>
-		<h2>{{ series.title }}</h2>
+		<h2>{{ series.title if not watch.watch_as_name else watch.watch_as_name }}</h2>
 			{{watchBlock(watch, watchlists, progress, latest_dict)}}
 			<div class='right-div'>
 				{{coversBlock(series, series.covers)}}
@@ -1135,14 +1166,29 @@
 
 			{{lastUpdateBlock(most_recent)}}
 
-			{{multiItemList("Alternate Names",
-								series.alternatenames,
-								'name',
-								'altnames',
-								'altnames-id',
-								width=5
-							)
-			}}
+
+			{% if g.user.is_authenticated() and watch.listname %}
+
+				{{altNameList("Alternate Names",
+									series.title,
+									series.alternatenames,
+									'name',
+									'altnames',
+									'altnames-id',
+									watch=watch,
+									width=5
+								)
+				}}
+			{% else %}
+				{{multiItemList("Alternate Names",
+									series.alternatenames,
+									'name',
+									'altnames',
+									'altnames-id',
+									width=5
+								)
+				}}
+			{% endif %}
 
 			{{multiItemLink("Homepage",
 								series.website,

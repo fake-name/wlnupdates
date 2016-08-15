@@ -249,12 +249,49 @@ function edit_watch(containerId, mangaId, callback)
 	{
 		setList(mangaId, container, watch_val, callback);
 	}
+}
 
+function new_watch_as(srcname)
+{
+
+
+	var watch_val = $("#watch-list-select option:selected").val();
+	var mangaId = $('meta[name=manga-id]').attr('content')
+	var selected = $('input[name=' + srcname + ']:checked')
+
+	console.log("wat?")
+	console.log("srcname", srcname)
+	console.log("Buh: ", watch_val)
+	console.log("Buh: ", mangaId)
+	console.log("Buh: ", selected)
+	console.log("Buh: ", selected.data())
+	console.log("Buh: ", selected.data()['name'])
+
+	var watch_as = selected.data()['name'];
+
+
+	var params = {
+		"mode"      : "set-watch",
+		"item-id"   : mangaId,
+		"watch"     : true,
+		"list"      : watch_val,
+		"watch-as"  : watch_as
+	}
+
+	console.log(params);
+
+	$.ajax({
+		url : "/api",
+		success : watchCalback,
+		data: JSON.stringify(params),
+		method: "POST",
+		dataType: 'json',
+		contentType: "application/json;",
+	});
 
 }
 
-
-function setList(mangaId, container, watch_val, callback)
+function setList(mangaId, container, watch_val, callback, watch_as = none)
 {
 
 	var watch;
