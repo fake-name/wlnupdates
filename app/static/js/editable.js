@@ -291,7 +291,7 @@ function new_watch_as(srcname)
 
 }
 
-function setList(mangaId, container, watch_val, callback, watch_as = none)
+function setList(mangaId, container, watch_val, callback)
 {
 
 	var watch;
