@@ -28,6 +28,9 @@
 	}
 }
 
+.modal-wide .modal-dialog {
+	width:75% !important;
+}
 .well-tny {
   padding: 4px;
   margin-bottom: 5px;

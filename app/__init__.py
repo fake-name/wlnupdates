@@ -128,8 +128,11 @@ def utility_processor():
 
 		return format_datetime(value, "EE yyyy.MM.dd")
 
+	def format_js_date(din):
+		return format_datetime(din, "yyyy/MM/dd hh:mm")
+
 	def date_now():
-		return format_datetime(datetime.datetime.today(), "yyyy/MM/dd, hh:mm:ss")
+		return format_datetime(datetime.datetime.today(), "yyyy/MM/dd, hh:mm")
 
 	def ago(then):
 		now = datetime.datetime.now()
@@ -205,6 +208,7 @@ def utility_processor():
 			getUserId          = getUserId,
 			getTlGroupId       = getTlGroupId,
 			format_date        = format_date,
+			format_js_date     = format_js_date,
 			date_now           = date_now,
 			terse_ago          = terse_ago,
 			ago                = ago,

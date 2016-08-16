@@ -76,8 +76,14 @@
 				data-id="{{entry.id}}"
 				data-counted="{{entry.include}}"
 				data-added-by="{{getUserId(entry.changeuser)}}"
-				data-added-on='{{entry.published}}'
+				data-added-by-id="{{ entry.changeuser }}"
+				data-added-on='{{format_js_date(entry.published)}}'
 				data-added-ago='{{ago(entry.published)}}'
+				data-volume='{{entry.volume}}'
+				data-chapter='{{entry.chapter}}'
+				data-fragment='{{entry.fragment}}'
+				data-postfix='{{entry.postfix}}'
+				data-url='{{entry.srcurl}}'
 				>
 		{% else %}
 			<tr id='release-entry'>

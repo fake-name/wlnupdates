@@ -72,7 +72,6 @@ function listEditable(spans, contentDiv, containerId)
 	contentDiv.html(contentArr.join("\n"))
 }
 
-
 function dateEditable(spans, contentDiv, containerId)
 {
 	var content = ""
@@ -204,7 +203,6 @@ function edit_watch(containerId, mangaId, callback)
 	// console.log("Container: ", $(containerId+" option:selected").val())
 	// console.log("Contents: ", container.text())
 
-
 	container.each(function(idx){$("#watch-state").html("[Working]");});
 
 
@@ -253,8 +251,6 @@ function edit_watch(containerId, mangaId, callback)
 
 function new_watch_as(srcname)
 {
-
-
 	var watch_val = $("#watch-list-select option:selected").val();
 	var mangaId = $('meta[name=manga-id]').attr('content')
 	var selected = $('input[name=' + srcname + ']:checked')
@@ -576,6 +572,228 @@ $.ajaxSetup({
 // ####################################################################################################################
 //
 // ####################################################################################################################
+//
+
+
+
+
+function updateCallback(result)
+{
+	console.log("Callback!")
+	if (!result.hasOwnProperty("error"))
+	{
+		console.log("No error result?")
+	}
+	if (result['error'])
+	{
+		alert("Error on update!\n\n"+result["message"])
+	}
+	else
+	{
+		location.reload();
+	}
+	console.log(result)
+
+}
+
+function delete_release(key, opt)
+{
+	var itemdat = opt.$trigger.parent().data()
+
+	var params = {
+		"mode"      : "release-ctrl",
+		"op"        : "delete",
+		"id"        : itemdat['id'],
+		"count"     : itemdat['counted'],
+	}
+
+
+	console.log("opt:");
+	console.log(opt)
+
+	console.log("Params:");
+	console.log(params)
+
+	console.log("itemdat:");
+	console.log(itemdat)
+
+
+	if (confirm('Are you sure you want to delete that release?'))
+	{
+		$.ajax({
+			url : "/api",
+			success : updateCallback,
+			data: JSON.stringify(params),
+			method: "POST",
+			dataType: 'json',
+			contentType: "application/json;",
+		});
+	}
+
+
+}
+function toggle_count_release(key, opt)
+{
+	var itemdat = opt.$trigger.parent().data()
+
+	var params = {
+		"mode"      : "release-ctrl",
+		"op"        : "toggle-counted",
+		"id"        : itemdat['id'],
+		"count"     : itemdat['counted'],
+	}
+
+	$.ajax({
+		url : "/api",
+		success : updateCallback,
+		data: JSON.stringify(params),
+		method: "POST",
+		dataType: 'json',
+		contentType: "application/json;",
+	});
+}
+function edit_release_info(key, opt)
+{
+	var itemdat = opt.$trigger.parent().data()
+
+	var params = {
+		"mode"      : "release-ctrl",
+		"op"        : "toggle-counted",
+		"id"        : itemdat['id'],
+		"count"     : itemdat['counted'],
+	}
+
+	var vol = itemdat['volume']   != "None" ? parseInt(itemdat['volume'])   : ""
+	var chp = itemdat['chapter']  != "None" ? parseInt(itemdat['chapter'])  : ""
+	var frg = itemdat['fragment'] != "None" ? parseInt(itemdat['fragment']) : ""
+	var pfx = itemdat['postfix']  ? itemdat['postfix'] : ""
+	var itmurl = itemdat['url']
+	var added = itemdat['addedOn']
+
+	console.log("vol: "+vol);
+	console.log("chp: "+chp);
+	console.log("frg: "+frg);
+
+	bootbox.dialog({
+			title: "Edit release:",
+			message: '' +
+					'<div class="row">'                                                                                                                      +
+					'	<div class="col-md-12">'                                                                                                             +
+					'		<form class="form-horizontal">'                                                                                                  +
+					'			<div class="form-group">'                                                                                                    +
+					'				<label class="col-md-3 control-label" for="volume">Volume</label>'                                                       +
+					'				<div class="col-md-7">'                                                                                                  +
+					'					<input id="volume" name="name" type="text" size="6" placeholder="Volume Number" class="form-control input-md" value="'+vol+'">'      +
+					'					<span class="help-block">Leave empty if there is no volume number</span>'                                            +
+					'				</div>'                                                                                                                  +
+					'			</div>'                                                                                                                      +
+					'			<div class="form-group">'                                                                                                    +
+					'				<label class="col-md-3 control-label" for="chapter">Chapter</label>'                                                     +
+					'				<div class="col-md-7">'                                                                                                  +
+					'					<input id="chapter" name="name" type="text" size="6" placeholder="Chapter Number" class="form-control input-md" value="'+chp+'">'    +
+					'				</div>'                                                                                                                  +
+					'			</div>'                                                                                                                      +
+					'			<div class="form-group">'                                                                                                    +
+					'				<label class="col-md-3 control-label" for="part">Part</label>'                                                           +
+					'				<div class="col-md-7">'                                                                                                  +
+					'					<input id="part" name="name" type="text" size="6" placeholder="Chapter Part" class="form-control input-md" value="'+frg+'">'         +
+					'					<span class="help-block">Use for partial chapters, leave empty otherwise.</span>'                                    +
+					'				</div>'                                                                                                                  +
+					'			</div>'                                                                                                                      +
+					'			<div class="form-group">'                                                                                                    +
+					'				<label class="col-md-3 control-label" for="postfix">Postfix</label>'                                                     +
+					'				<div class="col-md-7">'                                                                                                  +
+					'					<input id="postfix" name="name" type="text" placeholder="Chapter Name" class="form-control input-md" value="'+pfx+'">'               +
+					'					<span class="help-block"> If the chapter has a name, it goes here</span>'                                            +
+					'				</div>'                                                                                                                  +
+					'			</div>'                                                                                                                      +
+					'			<div class="form-group">'                                                                                                    +
+					'				<label class="col-md-3 control-label" for="release-url">Release URL</label>'                                             +
+					'				<div class="col-md-7">'                                                                                                  +
+					'					<input id="release-url" name="name" type="text" size="60" placeholder="Release URL" class="form-control input-md" value="'+itmurl+'">'  +
+					''                                                                                                                                       +
+					''                                                                                                                                       +
+					'				</div>'                                                                                                                  +
+					'			</div>'                                                                                                                      +
+					'			<div class="form-group">'                                                                                                    +
+					'				<label class="col-md-3 control-label" for="release-date">Release date</label>'                                           +
+					'				<div class="col-md-7">'                                                                                                  +
+					'					<input class="form-control" id="datetimepicker" name="releasetime" type="text" value="'+added+'">'                            +
+					'				</div>'                                                                                                                  +
+					'			</div>'                                                                                                                      +
+					'		</form>'                                                                                                                         +
+					'	</div>'                                                                                                                              +
+					'</div>'                                                                                                                                 +
+					'',
+			className: "modal-wide",
+			buttons: {
+				success: {
+					label: "Save",
+					className: "btn-success",
+					callback: function () {
+						var name = $('#name').val();
+						var answer = $("input[name='awesomeness']:checked").val()
+						Example.show("Hello " + name + ". You've chosen <b>" + answer + "</b>");
+					}
+				}
+			}
+		}
+	);
+
+	$('#datetimepicker').datetimepicker({step:10});
+
+
+
+	// $.ajax({
+	// 	url : "/api",
+	// 	success : updateCallback,
+	// 	data: JSON.stringify(params),
+	// 	method: "POST",
+	// 	dataType: 'json',
+	// 	contentType: "application/json;",
+	// });
+}
+
+function attach_context_menu(admin, current_user_id)
+{
+	$.contextMenu({
+		selector: "#release-entry-cell",
+		build: function(trigger, e) {
+
+			var items = new Object();
+			if (admin)
+			{
+				items['del']    = {name:'Delete Release',      icon:'delete', callback:delete_release };
+				items['toggle'] = {name:'Toggle Countability', icon:'quit',     callback:toggle_count_release };
+				items['sep1']   =  "---------";
+			}
+
+			var dat = trigger.parent().data()
+			var addedBy  = dat.addedBy
+			var addedOn  = dat.addedOn
+			var addedAgo = dat.addedAgo
+			var addId    = dat.addedById
+
+			if (addId == current_user_id || admin)
+			{
+				items['edit'] = {name:'Edit Release', icon: "edit",     callback:edit_release_info };
+				items['sep2']   =  "---------";
+			}
+
+			console.log("Items: ", dat);
+
+			items["addedby"]  = {name: "Added by: "+addedBy, disabled:true};
+			items["addedon"]  = {name: "Added on: "+addedOn, disabled:true};
+			items["addedago"] = {name: "(Ago: "+addedAgo+")", disabled:true};
+
+			return {
+				'items' : items
+			};
+		}
+	});
+}
+
+
 //
 // ####################################################################################################################
 //

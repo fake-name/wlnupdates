@@ -23,11 +23,3 @@
 	</div>
 
 {% endblock %}
-
-
-{% block footer %}
-	{% if g.user.is_mod() %}
-		{% include '_block_admin_scripts.html' %}
-	{% endif %}
-{% endblock %}
-

@@ -43,7 +43,6 @@
 
 {% block footer %}
 	{% if g.user.is_mod() %}
-		{% include '_block_admin_scripts.html' %}
 
 		<script>
 			function handle_success(data, textStatus, jqXHR)
