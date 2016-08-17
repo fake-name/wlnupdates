@@ -652,106 +652,164 @@ function toggle_count_release(key, opt)
 		contentType: "application/json;",
 	});
 }
+
+function get_callback_for_handle_release_edited(itemdat)
+{
+	return function()
+	{
+		var container = $('.release-edit');
+
+		var container_volin  = $('input#volume')
+		var container_chpin  = $('input#chapter')
+		var container_frgin  = $('input#part')
+		var container_pfxin  = $('input#postfix')
+		var container_urlin  = $('input#release-url')
+		var container_datein = $('input#datetimepicker')
+		var container_counts = $('input#should-count')
+
+		var old_volin = itemdat['volume']   != "" ? parseInt(itemdat['volume'])   : ""
+		var old_chpin = itemdat['chapter']  != "" ? parseInt(itemdat['chapter'])  : ""
+		var old_frgin = itemdat['fragment'] != "" ? parseInt(itemdat['fragment']) : ""
+		var old_pfxin = itemdat['postfix']  ? itemdat['postfix'] : ""
+		var old_urlin  = itemdat['url']
+		var old_datein = itemdat['addedOn']
+		var old_counts = itemdat['counted'] == "True" ? true : false
+
+		var new_volin  = container_volin.val()
+		var new_chpin  = container_chpin.val()
+		var new_frgin  = container_frgin.val()
+		var new_pfxin  = container_pfxin.val()
+		var new_urlin  = container_urlin.val()
+		var new_datein = container_datein.val()
+		var new_counts = container_counts.prop('checked')
+
+		if (old_volin  != new_volin  ||
+			old_chpin  != new_chpin  ||
+			old_frgin  != new_frgin  ||
+			old_pfxin  != new_pfxin  ||
+			old_urlin  != new_urlin  ||
+			old_datein != new_datein ||
+			old_counts != new_counts
+			)
+		{
+
+			var release_update_info = {
+				volume      : new_volin,
+				chapter     : new_chpin,
+				subChap     : new_frgin,
+				postfix     : new_pfxin,
+				release_pg  : new_urlin,
+				releasetime : new_datein,
+			};
+
+			var params = {
+				"mode"      : "edit-release",
+				"id"        : itemdat['id'],
+				"count"     : itemdat['counted'],
+			}
+			console.log(itemdat)
+
+			console.log([old_volin  == new_volin,  old_volin,  new_volin ]);
+			console.log([old_chpin  == new_chpin,  old_chpin,  new_chpin ]);
+			console.log([old_frgin  == new_frgin,  old_frgin,  new_frgin ]);
+			console.log([old_pfxin  == new_pfxin,  old_pfxin,  new_pfxin ]);
+			console.log([old_urlin  == new_urlin,  old_urlin,  new_urlin ]);
+			console.log([old_datein == new_datein, old_datein, new_datein]);
+			console.log([old_counts == new_counts, old_counts, new_counts]);
+
+			console.log("Need to do update")
+		}
+
+		console.log(itemdat);
+		console.log(wat);
+	}
+
+
+}
+
 function edit_release_info(key, opt)
 {
 	var itemdat = opt.$trigger.parent().data()
 
-	var params = {
-		"mode"      : "release-ctrl",
-		"op"        : "toggle-counted",
-		"id"        : itemdat['id'],
-		"count"     : itemdat['counted'],
-	}
-
-	var vol = itemdat['volume']   != "None" ? parseInt(itemdat['volume'])   : ""
-	var chp = itemdat['chapter']  != "None" ? parseInt(itemdat['chapter'])  : ""
-	var frg = itemdat['fragment'] != "None" ? parseInt(itemdat['fragment']) : ""
+	var vol = itemdat['volume']   != "" ? parseInt(itemdat['volume'])   : ""
+	var chp = itemdat['chapter']  != "" ? parseInt(itemdat['chapter'])  : ""
+	var frg = itemdat['fragment'] != "" ? parseInt(itemdat['fragment']) : ""
 	var pfx = itemdat['postfix']  ? itemdat['postfix'] : ""
 	var itmurl = itemdat['url']
 	var added = itemdat['addedOn']
 
-	console.log("vol: "+vol);
-	console.log("chp: "+chp);
-	console.log("frg: "+frg);
+	var chkstr = itemdat['counted'] == "True" ? "checked" : ""
+
+	// I should probably feed bad about this inline HTML?
 
 	bootbox.dialog({
 			title: "Edit release:",
 			message: '' +
-					'<div class="row">'                                                                                                                      +
-					'	<div class="col-md-12">'                                                                                                             +
-					'		<form class="form-horizontal">'                                                                                                  +
-					'			<div class="form-group">'                                                                                                    +
-					'				<label class="col-md-3 control-label" for="volume">Volume</label>'                                                       +
-					'				<div class="col-md-7">'                                                                                                  +
-					'					<input id="volume" name="name" type="text" size="6" placeholder="Volume Number" class="form-control input-md" value="'+vol+'">'      +
-					'					<span class="help-block">Leave empty if there is no volume number</span>'                                            +
-					'				</div>'                                                                                                                  +
-					'			</div>'                                                                                                                      +
-					'			<div class="form-group">'                                                                                                    +
-					'				<label class="col-md-3 control-label" for="chapter">Chapter</label>'                                                     +
-					'				<div class="col-md-7">'                                                                                                  +
-					'					<input id="chapter" name="name" type="text" size="6" placeholder="Chapter Number" class="form-control input-md" value="'+chp+'">'    +
-					'				</div>'                                                                                                                  +
-					'			</div>'                                                                                                                      +
-					'			<div class="form-group">'                                                                                                    +
-					'				<label class="col-md-3 control-label" for="part">Part</label>'                                                           +
-					'				<div class="col-md-7">'                                                                                                  +
-					'					<input id="part" name="name" type="text" size="6" placeholder="Chapter Part" class="form-control input-md" value="'+frg+'">'         +
-					'					<span class="help-block">Use for partial chapters, leave empty otherwise.</span>'                                    +
-					'				</div>'                                                                                                                  +
-					'			</div>'                                                                                                                      +
-					'			<div class="form-group">'                                                                                                    +
-					'				<label class="col-md-3 control-label" for="postfix">Postfix</label>'                                                     +
-					'				<div class="col-md-7">'                                                                                                  +
-					'					<input id="postfix" name="name" type="text" placeholder="Chapter Name" class="form-control input-md" value="'+pfx+'">'               +
-					'					<span class="help-block"> If the chapter has a name, it goes here</span>'                                            +
-					'				</div>'                                                                                                                  +
-					'			</div>'                                                                                                                      +
-					'			<div class="form-group">'                                                                                                    +
-					'				<label class="col-md-3 control-label" for="release-url">Release URL</label>'                                             +
-					'				<div class="col-md-7">'                                                                                                  +
-					'					<input id="release-url" name="name" type="text" size="60" placeholder="Release URL" class="form-control input-md" value="'+itmurl+'">'  +
-					''                                                                                                                                       +
-					''                                                                                                                                       +
-					'				</div>'                                                                                                                  +
-					'			</div>'                                                                                                                      +
-					'			<div class="form-group">'                                                                                                    +
-					'				<label class="col-md-3 control-label" for="release-date">Release date</label>'                                           +
-					'				<div class="col-md-7">'                                                                                                  +
-					'					<input class="form-control" id="datetimepicker" name="releasetime" type="text" value="'+added+'">'                            +
-					'				</div>'                                                                                                                  +
-					'			</div>'                                                                                                                      +
-					'		</form>'                                                                                                                         +
-					'	</div>'                                                                                                                              +
-					'</div>'                                                                                                                                 +
+					'<div class="row release-edit">'                                                                                                                                  +
+					'	<div class="col-md-12">'                                                                                                                                      +
+					'		<form class="form-horizontal">'                                                                                                                           +
+					'			<div class="form-group">'                                                                                                                             +
+					'				<label class="col-md-3 control-label" for="volume">Volume</label>'                                                                                +
+					'				<div class="col-md-7">'                                                                                                                           +
+					'					<input id="volume" name="volume" type="text" size="6" placeholder="Volume Number" class="form-control input-md" value="'+vol+'">'             +
+					'					<span class="help-block">Leave empty if there is no volume number</span>'                                                                     +
+					'				</div>'                                                                                                                                           +
+					'			</div>'                                                                                                                                               +
+					'			<div class="form-group">'                                                                                                                             +
+					'				<label class="col-md-3 control-label" for="chapter">Chapter</label>'                                                                              +
+					'				<div class="col-md-7">'                                                                                                                           +
+					'					<input id="chapter" name="chapter" type="text" size="6" placeholder="Chapter Number" class="form-control input-md" value="'+chp+'">'          +
+					'				</div>'                                                                                                                                           +
+					'			</div>'                                                                                                                                               +
+					'			<div class="form-group">'                                                                                                                             +
+					'				<label class="col-md-3 control-label" for="part">Part</label>'                                                                                    +
+					'				<div class="col-md-7">'                                                                                                                           +
+					'					<input id="part" name="part" type="text" size="6" placeholder="Chapter Part" class="form-control input-md" value="'+frg+'">'                  +
+					'					<span class="help-block">Use for partial chapters, leave empty otherwise.</span>'                                                             +
+					'				</div>'                                                                                                                                           +
+					'			</div>'                                                                                                                                               +
+					'			<div class="form-group">'                                                                                                                             +
+					'				<label class="col-md-3 control-label" for="postfix">Postfix</label>'                                                                              +
+					'				<div class="col-md-7">'                                                                                                                           +
+					'					<input id="postfix" name="postfix" type="text" placeholder="Chapter Name" class="form-control input-md" value="'+pfx+'">'                     +
+					'					<span class="help-block"> If the chapter has a name, it goes here</span>'                                                                     +
+					'				</div>'                                                                                                                                           +
+					'			</div>'                                                                                                                                               +
+					'			<div class="form-group">'                                                                                                                             +
+					'				<label class="col-md-3 control-label" for="release-url">Release URL</label>'                                                                      +
+					'				<div class="col-md-7">'                                                                                                                           +
+					'					<input id="release-url" name="release-url" type="text" size="60" placeholder="Release URL" class="form-control input-md" value="'+itmurl+'">' +
+					'				</div>'                                                                                                                                           +
+					'			</div>'                                                                                                                                               +
+					'			<div class="form-group">'                                                                                                                             +
+					'				<label class="col-md-3 control-label" for="release-date">Release date</label>'                                                                    +
+					'				<div class="col-md-7">'                                                                                                                           +
+					'					<input class="form-control" id="datetimepicker" name="releasetime" type="text" value="'+added+'">'                                            +
+					'				</div>'                                                                                                                                           +
+					'			</div>'                                                                                                                                               +
+					'			<div class="form-group">'                                                                                                                             +
+					'				<label class="col-md-3 control-label" for="release-date">Counted?</label>'                                                                        +
+					'				<div class="col-md-7">'                                                                                                                           +
+					'					<input class="form-control" id="should-count" name="is-counted" type="checkbox" '+chkstr+'>'                                                  +
+					'					<span class="help-block">Determines if this chapter is included when evaluating the latest chapter.</span>'                                   +
+					'				</div>'                                                                                                                                           +
+					'			</div>'                                                                                                                                               +
+					'		</form>'                                                                                                                                                  +
+					'	</div>'                                                                                                                                                       +
+					'</div>'                                                                                                                                                          +
 					'',
 			className: "modal-wide",
 			buttons: {
 				success: {
 					label: "Save",
 					className: "btn-success",
-					callback: function () {
-						var name = $('#name').val();
-						var answer = $("input[name='awesomeness']:checked").val()
-						Example.show("Hello " + name + ". You've chosen <b>" + answer + "</b>");
-					}
+					callback: get_callback_for_handle_release_edited(itemdat)
 				}
 			}
 		}
 	);
 
 	$('#datetimepicker').datetimepicker({step:10});
-
-
-
-	// $.ajax({
-	// 	url : "/api",
-	// 	success : updateCallback,
-	// 	data: JSON.stringify(params),
-	// 	method: "POST",
-	// 	dataType: 'json',
-	// 	contentType: "application/json;",
-	// });
 }
 
 function attach_context_menu(admin, current_user_id)

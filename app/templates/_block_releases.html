@@ -79,10 +79,10 @@
 				data-added-by-id="{{ entry.changeuser }}"
 				data-added-on='{{format_js_date(entry.published)}}'
 				data-added-ago='{{ago(entry.published)}}'
-				data-volume='{{entry.volume}}'
-				data-chapter='{{entry.chapter}}'
-				data-fragment='{{entry.fragment}}'
-				data-postfix='{{entry.postfix}}'
+				data-volume='{{entry.volume if entry.volume else ''}}'
+				data-chapter='{{entry.chapter if entry.chapter else ''}}'
+				data-fragment='{{entry.fragment if entry.fragment else ''}}'
+				data-postfix='{{entry.postfix if entry.postfix else ''}}'
 				data-url='{{entry.srcurl}}'
 				>
 		{% else %}
