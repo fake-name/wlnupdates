@@ -1,4 +1,7 @@
 
+import pprint
+import urllib.parse
+
 from app import db
 from app import app
 from app.models import AlternateNames
@@ -38,6 +41,7 @@ import app.series_tools
 from app.api_common import getResponse
 
 import FeedFeeder.FeedFeeder
+
 
 import app.api_handlers
 
@@ -307,6 +311,93 @@ def alterReleaseItem(data):
 
 	return RELEASE_OPS[data['op']](data)
 
+
+
+def clean_bad_releases(data, admin_override=False):
+	badurls = [
+		"https://www.novelupdates.com/",
+	]
+
+	bad = 0
+	for badurl in badurls:
+		matches = Releases.query.filter(Releases.srcurl==badurl).all()
+		if matches:
+			for match in matches:
+				bad += 1
+				db.session.delete(match)
+			db.session.commit()
+	print("Deleted %s items." % bad)
+
+def consolidate_rrl_items(data, admin_override=False):
+	if admin_override is False and (not current_user.is_mod()):
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+	dups = db.engine.execute('''
+		SELECT
+			id, website
+		FROM
+			series
+		WHERE
+			website IS NOT NULL AND website != ''
+		;''')
+
+	match_num = 0
+	paths = {}
+	for idno, website in dups:
+		if not "royalroadl.com" in website.lower():
+			continue
+
+
+		parsed = urllib.parse.urlsplit(website)
+		if not parsed.path in paths:
+			paths[parsed.path] = []
+		paths[parsed.path].append((idno, website, parsed))
+
+		# matches = Series.query.filter(Series.website==website).all()
+		# ids = [match.id for match in matches]
+		# zipped = list(zip(ids, ids[1:]))
+		# for m1, m2 in zipped:
+		# 	match_num += 1
+		# 	merge_series_ids(m1, m2)
+
+	long = []
+	for key in paths.keys():
+		if len(paths[key]) > 1:
+			long.append(paths[key])
+
+
+	for item in long:
+		# if not all([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item]):
+		assert all((
+				all([item[0][2].scheme == tmp[2].scheme for tmp in item]),
+				all([item[0][2].path   == tmp[2].path for tmp in item]),
+				all([item[0][2].query  == tmp[2].query for tmp in item]),
+				all([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item]),
+			))
+		# if not all((
+		# 		all([item[0][2].scheme == tmp[2].scheme for tmp in item]),
+		# 		all([item[0][2].path   == tmp[2].path for tmp in item]),
+		# 		all([item[0][2].query  == tmp[2].query for tmp in item]),
+		# 		all([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item]),
+		# 	)):
+		# 	print("Wut: ", item)
+		# 	print("	", all([tmp[2].scheme for tmp in item]))
+		# 	print("	", all([tmp[2].path for tmp in item]))
+		# 	print("	", all([tmp[2].query for tmp in item]))
+		# 	print("	", all([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item]))
+		# for sub in item:
+		# 	print("	", sub[2])
+		print("Need to merge: ", [tmp[0] for tmp in item])
+
+
+		match_num += 1
+		print("merging:", item[0][0], item[1][0])
+		merge_series_ids(item[0][0], item[1][0])
+		db.session.commit()
+
+	print("Merged: ", match_num)
+
+	return getResponse("%s Items merged." % match_num, error=False)
 
 
 def flatten_series_by_url(data, admin_override=False):

@@ -33,6 +33,9 @@ def days(count):
 def flatten_series_by_url():
 	with app.app_context():
 		api_handlers_admin.flatten_series_by_url(None, admin_override=True)
+def consolidate_rrl_items():
+	with app.app_context():
+		api_handlers_admin.consolidate_rrl_items(None, admin_override=True)
 def delete_duplicate_releases():
 	with app.app_context():
 		api_handlers_admin.delete_duplicate_releases(None, admin_override=True)
@@ -42,6 +45,9 @@ def fix_escaped_quotes():
 def clean_tags():
 	with app.app_context():
 		api_handlers_admin.clean_tags(None, admin_override=True)
+def garbage_releases():
+	with app.app_context():
+		api_handlers_admin.clean_bad_releases(None, admin_override=True)
 
 
 def printer():
@@ -49,10 +55,12 @@ def printer():
 
 tasks = [
 	# (printer,                   "printer",                   15),
+	(flatten_series_by_url,     "flatten_series_by_url",     hours(1)),
+	(consolidate_rrl_items,     "consolidate_rrl_items",     hours(1)),
 	(fix_escaped_quotes,        "fix_escaped_quotes",        hours(1)),
 	(clean_tags,                "clean_tags",                hours(1)),
 	(delete_duplicate_releases, "delete_duplicate_releases", hours(6)),
-	(flatten_series_by_url,     "flatten_series_by_url",     hours(1)),
+	(garbage_releases,          "garbage_releases",          hours(1)),
 ]
 
 
@@ -67,6 +75,8 @@ def run_scheduler():
 if __name__ == "__main__":
 	import logSetup
 	logSetup.initLogging()
+	garbage_releases()
+	consolidate_rrl_items()
 	flatten_series_by_url()
 	delete_duplicate_releases()
 	fix_escaped_quotes()
