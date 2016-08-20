@@ -31,11 +31,14 @@ from app.series_tools import get_rating
 
 from app.sub_views import wiki_views
 
-def getSort(row):
+def getChapterSort(row):
 	chp = row.chapter   if row.chapter else 0
 	vol = row.volume    if row.volume  else 0
 	frg = row.fragment  if row.fragment  else 0
 	return (vol * 1e6) + chp + (frg * 1e-6)
+
+def getDateSort(row):
+	return row.published
 
 def build_progress(watch):
 
@@ -219,7 +222,10 @@ def load_series_data(sid):
 		return None
 
 	releases = series.releases
-	releases.sort(reverse=True, key=getSort)
+	if series.sort_mode == 'chronological_order':
+		releases.sort(reverse=True, key=getDateSort)
+	else:
+		releases.sort(reverse=True, key=getChapterSort)
 
 
 	latest      = get_latest_release(releases)

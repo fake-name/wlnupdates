@@ -20,7 +20,9 @@
 				{% endif %}
 			</a>
 			{% if latest['date'] %}
-				<span class='pull-right light-text'>{{terse_ago(latest['date'])}} ago</span>
+
+
+				<span class='pull-right light-text {{staleness_factor(latest['date'])}}'>{{terse_ago(latest['date'])}} ago</span>
 			{% else %}
 				<span class='pull-right light-text'>Never Updated</span>
 			{% endif %}

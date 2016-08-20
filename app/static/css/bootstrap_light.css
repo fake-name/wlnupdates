@@ -7543,24 +7543,36 @@ tr.green-highlight:nth-of-type(even) {
 }
 
 
-.updating-stalled
+div.updating-stalled
 {
   background-color: #FFCCCC;
 }
-.updating-stale
+div.updating-stale
 {
   background-color: #FFFF99;
 }
 
-.reading-behind
+div.reading-behind
 {
   background-color: #FFCCCC;
 }
-.reading-ahead
+div.reading-ahead
 {
   background-color: #FFFF99;
 }
-.reading-current
+div.reading-current
 {
   background-color: #CCFFCC;
+}
+
+
+
+
+span.updating-stalled
+{
+  color: #d88 !important;
+}
+span.updating-stale
+{
+  color: #bb0 !important;
 }
