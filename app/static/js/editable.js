@@ -657,6 +657,8 @@ function get_callback_for_handle_release_edited(itemdat)
 {
 	return function()
 	{
+		var release_id = itemdat['id'];
+
 		var container = $('.release-edit');
 
 		var container_volin  = $('input#volume')
@@ -667,10 +669,10 @@ function get_callback_for_handle_release_edited(itemdat)
 		var container_datein = $('input#datetimepicker')
 		var container_counts = $('input#should-count')
 
-		var old_volin = itemdat['volume']   != "" ? parseInt(itemdat['volume'])   : ""
-		var old_chpin = itemdat['chapter']  != "" ? parseInt(itemdat['chapter'])  : ""
-		var old_frgin = itemdat['fragment'] != "" ? parseInt(itemdat['fragment']) : ""
-		var old_pfxin = itemdat['postfix']  ? itemdat['postfix'] : ""
+		var old_volin  = itemdat['volume']   != "" ? parseInt(itemdat['volume'])   : ""
+		var old_chpin  = itemdat['chapter']  != "" ? parseInt(itemdat['chapter'])  : ""
+		var old_frgin  = itemdat['fragment'] != "" ? parseInt(itemdat['fragment']) : ""
+		var old_pfxin  = itemdat['postfix']  ? itemdat['postfix'] : ""
 		var old_urlin  = itemdat['url']
 		var old_datein = itemdat['addedOn']
 		var old_counts = itemdat['counted'] == "True" ? true : false
@@ -693,35 +695,54 @@ function get_callback_for_handle_release_edited(itemdat)
 			)
 		{
 
-			var release_update_info = {
+			var new_release_update_info = {
 				volume      : new_volin,
 				chapter     : new_chpin,
 				subChap     : new_frgin,
 				postfix     : new_pfxin,
 				release_pg  : new_urlin,
 				releasetime : new_datein,
+				counted     : new_counts,
+			};
+			var old_release_update_info = {
+				volume      : old_volin,
+				chapter     : old_chpin,
+				subChap     : old_frgin,
+				postfix     : old_pfxin,
+				release_pg  : old_urlin,
+				releasetime : old_datein,
+				counted     : old_counts,
 			};
 
 			var params = {
-				"mode"      : "edit-release",
-				"id"        : itemdat['id'],
-				"count"     : itemdat['counted'],
+				"mode"       : "release-update",
+				"release-id" : release_id,
+				"new-info"   : new_release_update_info,
+				"old-info"   : old_release_update_info,
 			}
-			console.log(itemdat)
+			console.log(params)
 
-			console.log([old_volin  == new_volin,  old_volin,  new_volin ]);
-			console.log([old_chpin  == new_chpin,  old_chpin,  new_chpin ]);
-			console.log([old_frgin  == new_frgin,  old_frgin,  new_frgin ]);
-			console.log([old_pfxin  == new_pfxin,  old_pfxin,  new_pfxin ]);
-			console.log([old_urlin  == new_urlin,  old_urlin,  new_urlin ]);
-			console.log([old_datein == new_datein, old_datein, new_datein]);
-			console.log([old_counts == new_counts, old_counts, new_counts]);
+			// console.log([old_volin  == new_volin,  old_volin,  new_volin ]);
+			// console.log([old_chpin  == new_chpin,  old_chpin,  new_chpin ]);
+			// console.log([old_frgin  == new_frgin,  old_frgin,  new_frgin ]);
+			// console.log([old_pfxin  == new_pfxin,  old_pfxin,  new_pfxin ]);
+			// console.log([old_urlin  == new_urlin,  old_urlin,  new_urlin ]);
+			// console.log([old_datein == new_datein, old_datein, new_datein]);
+			// console.log([old_counts == new_counts, old_counts, new_counts]);
 
 			console.log("Need to do update")
+
+			$.ajax({
+				url : "/api",
+				success : updateCallback,
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+
 		}
 
-		console.log(itemdat);
-		console.log(wat);
 	}
 
 
@@ -831,18 +852,20 @@ function attach_context_menu(admin, current_user_id)
 			var addedOn  = dat.addedOn
 			var addedAgo = dat.addedAgo
 			var addId    = dat.addedById
+			var counted  = dat.counted
 
-			if (addId == current_user_id || admin)
-			{
+			// if (addId == current_user_id || admin)
+			// {
 				items['edit'] = {name:'Edit Release', icon: "edit",     callback:edit_release_info };
 				items['sep2']   =  "---------";
-			}
+			// }
 
 			console.log("Items: ", dat);
 
 			items["addedby"]  = {name: "Added by: "+addedBy, disabled:true};
 			items["addedon"]  = {name: "Added on: "+addedOn, disabled:true};
-			items["addedago"] = {name: "(Ago: "+addedAgo+")", disabled:true};
+			items["addedago"] = {name: "(Ago: "    +addedAgo+")", disabled:true};
+			items["counted"]  = {name: "Counted: " +counted, disabled:true};
 
 			return {
 				'items' : items

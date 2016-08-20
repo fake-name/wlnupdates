@@ -287,9 +287,9 @@
 {%- endmacro %}
 {% macro listSortMode(series_val) -%}
 
-	<div class="well well-tny info-item">
-		<div class="row multilist" id="{{valId}}-container">
-			<div class="col-md-12 rowContents" id='{{valId}}'>
+	<div class="well well-tny">
+		<div class="row multilist" id="admin-sort-more-container">
+			<div class="col-md-12 rowContents" id='admin-sort-more'>
 				<form class="form-inline" action="javascript:merge_ajax();">
 
 					<div class="col-md-3 rowTitle">
@@ -318,7 +318,7 @@
 
 {% macro dbAdminItem() -%}
 
-	<div class="well well-tny info-item">
+	<div class="well well-tny">
 		<div class="row multilist" id="{{valId}}-container">
 			<div class="col-md-12 rowContents" id='{{valId}}'>
 				<form class="form-inline" action="javascript:merge_ajax();">
@@ -337,7 +337,7 @@
 
 {% macro deleteItem() -%}
 
-	<div class="well well-tny info-item">
+	<div class="well well-tny">
 		<div class="row multilist" id="{{valId}}-container">
 			<div class="col-md-12 rowContents" id='{{valId}}'>
 				<form class="form-inline" action="javascript:delete_ajax();">
@@ -351,7 +351,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="well well-tny info-item">
+	<div class="well well-tny">
 		<div class="row multilist" id="{{valId}}-container">
 			<div class="col-md-12 rowContents" id='{{valId}}'>
 				<form class="form-inline" action="javascript:delete_releases_ajax();">

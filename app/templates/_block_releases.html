@@ -71,7 +71,7 @@
 			{% set lastitemday = entry.published.day %}
 		{% endif %}
 
-		{% if g.user.is_mod() %}
+		{% if g.user.is_authenticated() %}
 			<tr id='release-entry'
 				data-id="{{entry.id}}"
 				data-counted="{{entry.include}}"

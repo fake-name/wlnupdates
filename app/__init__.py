@@ -10,6 +10,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from config import basedir
 import datetime
 from babel.dates import format_datetime
+from babel.dates import get_timezone
 from flask_assets import Bundle, Environment
 
 import urllib.parse
@@ -125,14 +126,13 @@ def utility_processor():
 
 
 	def format_date(value, format='medium'):
-
-		return format_datetime(value, "EE yyyy.MM.dd")
+		return format_datetime(value, "EE yyyy.MM.dd", tzinfo=get_timezone('gmt'))
 
 	def format_js_date(din):
-		return format_datetime(din, "yyyy/MM/dd hh:mm")
+		return din.strftime("%Y/%m/%d %H:%M")
 
 	def date_now():
-		return format_datetime(datetime.datetime.today(), "yyyy/MM/dd, hh:mm")
+		return datetime.datetime.today().strftime("%Y/%M/%d %H:%M")
 
 	def ago(then):
 		now = datetime.datetime.now()

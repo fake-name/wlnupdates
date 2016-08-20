@@ -7,6 +7,7 @@ from app.models import Genres
 from app.models import Covers
 from app.models import Author
 from app.models import Illustrators
+from app.models import Releases
 from app.models import Translators
 from app.models import Watches
 from flask import g
@@ -139,7 +140,7 @@ def validateMangaData(data):
 
 def updateTitle(series, newTitle):
 
-	newTitle = bleach.clean(newTitle.strip())
+	newTitle = bleach.clean(newTitle.strip(), tags=[], strip=True)
 
 	conflict_series = Series.query.filter(Series.title==newTitle).scalar()
 
@@ -767,6 +768,123 @@ def setRatingJson(data):
 
 	return getResponse("SetRating call!.", error=False)
 
+
+def updateChapterRelease(in_id, old, new):
+
+	row = Releases.query.filter(Releases.id==int(in_id)).one()
+
+	if not current_user.is_authenticated():
+		return getResponse("Editing releases requires being logged in!.", error=True)
+
+	# if (not current_user.is_mod()) and (current_user.id != row.changeuser):
+	# 	return getResponse("You can only edit releases you added yourself!.", error=True)
+
+
+	pubdate = row.published.replace(second=0, microsecond=0)
+	compvol = row.volume   if row.volume   else 0.0
+	compchp = row.chapter  if row.chapter  else 0.0
+	compfrg = row.fragment if row.fragment else 0.0
+
+
+	assert pubdate     == old['releasetime'], "Mismatch in old item data - %s <-> %s (%s)" % (pubdate, old['releasetime'], pubdate == old['releasetime'])
+	assert compvol     == old['volume'],      "Mismatch in old item data (volume) - %s <-> %s (%s)" %     (compvol, old['volume'],     compvol == old['volume'])
+	assert compchp     == old['chapter'],     "Mismatch in old item data (chapter) - %s <-> %s (%s)" %    (compchp, old['chapter'],    compchp == old['chapter'])
+	assert compfrg     == old['subChap'],     "Mismatch in old item data (subChap) - %s <-> %s (%s)" %    (compfrg, old['subChap'],    compfrg == old['subChap'])
+	assert row.postfix == old['postfix'],     "Mismatch in old item data (postfix) - %s <-> %s (%s)" %    (row.postfix,  old['postfix'],    row.postfix  == old['postfix'])
+	assert row.include == old['counted'],     "Mismatch in old item data (counted) - %s <-> %s (%s)" %    (row.include,  old['counted'],    row.include  == old['counted'])
+	assert row.srcurl  == old['release_pg'],  "Mismatch in old item data (release_pg) - %s <-> %s (%s)" % (row.srcurl,   old['release_pg'], row.srcurl   == old['release_pg'])
+
+
+	newv = new['volume']  if new['volume'] else None
+	newc = new['chapter'] if new['chapter'] else None
+	newf = new['subChap'] if new['subChap'] else None
+
+	newpfx = bleach.clean(new['postfix'], tags=[], strip=True)
+	oldpfx = bleach.clean(old['postfix'], tags=[], strip=True)
+	newurl = new['release_pg']
+
+	assert len(newpfx) < 200, "Postfix must be shorter then 200 characters. Passed length: %s" % (len(newpfx), )
+	assert len(newurl) < 200, "URL must be shorter then 100 characters. Passed length: %s" % (len(newurl), )
+
+	dirty = False
+	if pubdate != new['releasetime']:
+		dirty = True
+		row.published = new['releasetime']
+	if row.volume   != newv:
+		dirty = True
+		row.volume  = newv
+	if row.chapter  != newc:
+		dirty = True
+		row.chapter = newc
+	if row.fragment != newf:
+		dirty = True
+		row.fragment = newf
+	if oldpfx     != newpfx:
+		row.postfix = newpfx
+	if row.include != new['counted']:
+		dirty = True
+		row.include = bool(new['counted'])
+	if old['release_pg']  != new['release_pg']:
+		dirty = True
+		row.srcurl = newurl
+
+	db.session.commit()
+
+	return getResponse("Update release call completed!.", error=False)
+
+
+
+def processReleaseUpdateJson(data):
+
+	# Json request:
+	# {
+	#     'old-info': {
+	#         'releasetime' : '2016/08/19 05:23',
+	#         'release_pg'  : 'http://www.translationnations.com/2016/08/19/the-ultimate-evolution-volume-2-chapter-6/',
+	#         'volume'      : 2,
+	#         'postfix'     : '',
+	#         'chapter'     : 6,
+	#         'subChap'     : '',
+	#         'counted'     : True
+	#     },
+	#     'mode': 'release-update',
+	#     'id': 1183431,
+	#     'new-info': {
+	#         'releasetime' : '2016/08/19 05:23',
+	#         'release_pg'  : 'http://www.translationnations.com/2016/08/19/the-ultimate-evolution-volume-2-chapter-6/',
+	#         'volume'      : '2',
+	#         'postfix'     : '',
+	#         'chapter'     : '6',
+	#         'subChap'     : '',
+	#         'counted'     : False
+	#     }
+	# }
+
+	assert 'mode'       in data
+	assert 'release-id' in data
+	assert 'old-info'   in data
+	assert 'new-info'   in data
+	for subsect in [data['old-info'], data['new-info']]:
+		assert 'releasetime' in subsect
+		assert 'release_pg'  in subsect
+		assert 'volume'      in subsect
+		assert 'postfix'     in subsect
+		assert 'chapter'     in subsect
+		assert 'subChap'     in subsect
+		assert 'counted'     in subsect
+
+	data['old-info']['releasetime'] = dateutil.parser.parse(data['old-info']['releasetime'])
+	data['new-info']['releasetime'] = dateutil.parser.parse(data['new-info']['releasetime'])
+	if data['new-info']['releasetime'] > datetime.datetime.now():
+		data['new-info']['releasetime'] = datetime.datetime.now()
+
+	data['old-info']['volume']  = data['old-info']['volume']  if data['old-info']['volume']  else 0.0
+	data['old-info']['chapter'] = data['old-info']['chapter'] if data['old-info']['chapter'] else 0.0
+	data['old-info']['subChap'] = data['old-info']['subChap'] if data['old-info']['subChap'] else 0.0
+
+	return updateChapterRelease(data['release-id'], data['old-info'], data['new-info'])
+
+	return getResponse("processReleaseUpdateJson call!.", error=True)
 
 
 
