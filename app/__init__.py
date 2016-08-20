@@ -126,7 +126,7 @@ def utility_processor():
 
 
 	def format_date(value, format='medium'):
-		return format_datetime(value, "EE yyyy.MM.dd", tzinfo=get_timezone('gmt'))
+		return format_datetime(value, "EE yyyy.MM.dd")
 
 	def format_js_date(din):
 		return din.strftime("%Y/%m/%d %H:%M")
