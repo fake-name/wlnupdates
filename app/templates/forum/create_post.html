@@ -29,7 +29,9 @@
 		{% endfor %}
 	</table>
 	<div class='fullwidth'>
-		{{ e.post_editor(form) }}
+		<form method="POST" action="">
+			{{ e.post_editor(form) }}
+		</form>
 	</div>
 
 {% endblock %}

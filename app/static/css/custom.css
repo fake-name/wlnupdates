@@ -49,6 +49,12 @@
 	word-wrap: break-word
 }
 
+ul.errors {
+	background-color: #fdd;
+	padding: 5px;
+	padding-left: 25px;
+}
+
 li:target {
 	background-color: #ffd;
 	padding: 5px;

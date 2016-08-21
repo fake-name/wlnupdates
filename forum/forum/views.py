@@ -78,8 +78,9 @@ def create_thread(slug):
 
 		return redirect(url_for('.board', slug=slug))
 
-	return render_template('forum/create_thread.html', board=board,
-						   form=form)
+	return render_template('forum/create_thread.html',
+							board=board,
+							form=form)
 
 
 @bp.route('/<slug>/<int:id>/create', methods=GET_POST)

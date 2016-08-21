@@ -32,7 +32,7 @@ def upgrade():
                 'description': 'General discussion - Talk about whatever catches your interest!'},
             {'id':2, 'name':'Source Requests',               'slug':'source-requests',
                 'description': 'Request new feeds, sources or even new site-features.'},
-            {'id':3, 'name':'Missing or Incorrect Releases', 'slug':'release-errors',
+            {'id':3, 'name':'Site and Release issues', 'slug':'release-errors',
                 'description': 'Something broken? Report it here.'},
         ]
     )

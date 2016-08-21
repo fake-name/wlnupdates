@@ -1,5 +1,6 @@
 {% extends '__base.html' %}
 {% import 'forum/macros.html' as m %}
+{% import 'forum/post_editor.html' as e %}
 
 {% block title %}{% endblock %}
 
@@ -11,14 +12,24 @@
 	<div class="form-group">
 		<label>Thread title:</label>
 		{{ form.name(class_="form-control") }}
+		{% if form.name.errors %}
+			<ul class="errors">
+				{% for error in form.name.errors %}
+					<li>{{ error }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+
 	</div>
-	<div class="form-group">
-		<label>Content:</label>
-		{{ form.content(class_="form-control", rows='12') }}
-		Posts will be formatted with <a href="https://help.github.com/articles/markdown-basics/">markdown</a>.
+	<div class='fullwidth'>
+		{{ e.post_editor(form) }}
 	</div>
 	<div class="form-group">
 		{{ form.submit(class_="btn btn-success") }}
 	</div>
 </form>
+{% endblock %}
+
+{% block footer %}
+	{{ e.post_edit_footer() }}
 {% endblock %}

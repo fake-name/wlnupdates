@@ -2,7 +2,6 @@
 
 {% macro post_editor(form, label="Post Content:") %}
 	<div id='post-entry'></div>
-	<form method="POST" action="">
 		{{ form.csrf_token }}
 		<div class="form-group">
 
@@ -11,6 +10,13 @@
 			<div class="wmd-panel" style='width: 100%;'>
 				{{ form.content(class_="form-control wmd-input", rows='12', id="wmd-input") }}
 			</div>
+			{% if form.content.errors %}
+				<ul class="errors">
+					{% for error in form.content.errors %}
+						<li>{{ error }}</li>
+					{% endfor %}
+				</ul>
+			{% endif %}
 
 			Preview:
 			<div id="wmd-preview" class="wmd-panel wmd-preview well"></div>
@@ -18,8 +24,8 @@
 			<div class="pull-right">{{ form.submit(class_="btn btn-success") }}</div>
 			Posts are be formatted with <a href="https://help.github.com/articles/markdown-basics/">markdown</a>.
 		</div>
-	</form>
 	<div class='clearfix'></div>
+
 {% endmacro %}
 
 
