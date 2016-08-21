@@ -20,7 +20,10 @@
 			{% if edit_post.id == p.id %}
 				</table>
 				<div class='fullwidth'>
-					{{ e.post_editor(form, label="Edit Post:") }}
+
+					<form method="POST" action="">
+						{{ e.post_editor(form, label="Edit Post:") }}
+					</form>
 				</div>
 				<table class="table-striped table table-bordered table-condensed fullwidth">
 					<colgroup>
