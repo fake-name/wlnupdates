@@ -367,6 +367,11 @@ def get_series_from_any(title_list, tl_type, author_name=False):
 	# return have.series_row
 
 def check_insert_release(item, group, series, update_id):
+	cleankeys = ['itemurl', 'postfix']
+	for cleans in cleankeys:
+		if item[cleans] and isinstance(item[cleans], str):
+			item[cleans] = item[cleans].strip()
+
 	for key in ['vol', 'chp', 'frag']:
 		if item[key] is not None:
 			item[key]  = float(item[key])
@@ -382,6 +387,7 @@ def check_insert_release(item, group, series, update_id):
 		have = have.pop(0)
 		# print("have?", series.title, have.volume, have.chapter, have.postfix)
 		return
+
 	print("Adding new release for series: ", series.title, " at date:", datetime.datetime.fromtimestamp(item['published']))
 	release = Releases(
 			series     = series.id,
@@ -396,7 +402,6 @@ def check_insert_release(item, group, series, update_id):
 			changeuser = update_id,
 			srcurl     = item['itemurl'],
 		)
-
 
 	db.session.add(release)
 	db.session.flush()

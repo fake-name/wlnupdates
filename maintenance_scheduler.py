@@ -59,7 +59,7 @@ tasks = [
 	(consolidate_rrl_items,     "consolidate_rrl_items",     hours(1)),
 	(fix_escaped_quotes,        "fix_escaped_quotes",        hours(1)),
 	(clean_tags,                "clean_tags",                hours(1)),
-	(delete_duplicate_releases, "delete_duplicate_releases", hours(6)),
+	(delete_duplicate_releases, "delete_duplicate_releases", hours(2)),
 	(garbage_releases,          "garbage_releases",          hours(1)),
 ]
 

@@ -464,8 +464,10 @@ def delete_duplicate_releases(data, admin_override=False):
 				match_num += 1
 				print(m1.series, m2.series)
 
-				# Sort by change-time, since we care more about
-				# the latest change (since it'll probably be more accurate)
+				# ~~~Sort by change-time, since we care more about~~~
+				# ~~~the latest change (since it'll probably be more accurate)~~~
+				# Edit: Now picks the older version, since untimed duplicates keep
+				# cropping up from japtem.
 				if m1.changetime < m2.changetime:
 					older = m1
 					newer = m2
@@ -473,7 +475,7 @@ def delete_duplicate_releases(data, admin_override=False):
 					older = m2
 					newer = m1
 
-				db.session.delete(older)
+				db.session.delete(newer)
 				db.session.commit()
 
 	# print(dups)
