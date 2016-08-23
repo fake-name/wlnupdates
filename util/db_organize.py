@@ -107,6 +107,9 @@ def levenshein_merger():
 			for name in item.alternatenames:
 				altn.append((name.id, name.name))
 
+	print("Sorting names")
+	altn.sort(key=lambda x: (x[1], x[0]))
+
 	print("Searching for duplicates from %s names" % len(altn))
 	for nid, name in altn:
 		with app.app_context():
