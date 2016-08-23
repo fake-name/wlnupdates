@@ -3,6 +3,7 @@ import re
 
 from app import models
 from app import db
+from app import app
 
 from . import askUser
 
@@ -99,13 +100,21 @@ def match_to(target, matches):
 
 def levenshein_merger():
 	print("fetching series")
-	items = models.Series.query.all()
-	for item in items:
-		for name in item.alternatenames:
-			matches = search_for_name(name.name)
+	with app.app_context():
+		items = models.Series.query.all()
+		altn = []
+		for item in items:
+			for name in item.alternatenames:
+				altn.append((name.id, name.name))
+
+	print("Searching for duplicates from %s names" % len(altn))
+	for nid, name in altn:
+		with app.app_context():
+			matches = search_for_name(name)
 			if matches:
 				try:
-					match_to(name, matches)
+					namerow = models.AlternateNames.query.filter(models.AlternateNames.id==nid).one()
+					match_to(namerow, matches)
 				except sqlalchemy.orm.exc.NoResultFound:
 					print("Row merged already?")
 

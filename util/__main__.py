@@ -53,24 +53,28 @@ def parseOneArgCall(cmd):
 	print ("Passed arg", mainArg)
 
 
-	with app.app_context():
-		arg = mainArg.lower()
+	arg = mainArg.lower()
 
 
-		if arg == "flatten-series-by-url":
+	if arg == "flatten-series-by-url":
+		with app.app_context():
 			print(api_handlers_admin.flatten_series_by_url(None, admin_override=True))
-		elif arg == "delete-duplicate-releases":
+	elif arg == "delete-duplicate-releases":
+		with app.app_context():
 			print(api_handlers_admin.delete_duplicate_releases(None, admin_override=True))
-		elif arg == "fix-escaped-quotes":
+	elif arg == "fix-escaped-quotes":
+		with app.app_context():
 			print(api_handlers_admin.fix_escaped_quotes(None, admin_override=True))
-		elif arg == "clean-tags":
+	elif arg == "clean-tags":
+		with app.app_context():
 			print(api_handlers_admin.clean_tags(None, admin_override=True))
-		elif arg == "delete-postfix":
+	elif arg == "delete-postfix":
+		with app.app_context():
 			util.db_organize.delete_postfix()
-		elif arg == "lv-merge":
-			util.db_organize.levenshein_merger()
-		else:
-			print("Unknown arg!")
+	elif arg == "lv-merge":
+		util.db_organize.levenshein_merger()
+	else:
+		print("Unknown arg!")
 
 
 def parseTwoArgCall(cmd, val):
