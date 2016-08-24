@@ -45,9 +45,12 @@ def fix_escaped_quotes():
 def clean_tags():
 	with app.app_context():
 		api_handlers_admin.clean_tags(None, admin_override=True)
-def garbage_releases():
+def clean_garbage_releases():
 	with app.app_context():
 		api_handlers_admin.clean_bad_releases(None, admin_override=True)
+def trim_spaces():
+	with app.app_context():
+		api_handlers_admin.clean_spaces(None, admin_override=True)
 
 
 def printer():
@@ -60,7 +63,8 @@ tasks = [
 	(fix_escaped_quotes,        "fix_escaped_quotes",        hours(1)),
 	(clean_tags,                "clean_tags",                hours(1)),
 	(delete_duplicate_releases, "delete_duplicate_releases", hours(2)),
-	(garbage_releases,          "garbage_releases",          hours(1)),
+	(clean_garbage_releases,    "clean_garbage_releases",    hours(1)),
+	(trim_spaces,               "trim_spaces",               hours(1)),
 ]
 
 
@@ -75,10 +79,11 @@ def run_scheduler():
 if __name__ == "__main__":
 	import logSetup
 	logSetup.initLogging()
-	garbage_releases()
+	clean_garbage_releases()
 	consolidate_rrl_items()
 	flatten_series_by_url()
 	delete_duplicate_releases()
 	fix_escaped_quotes()
 	clean_tags()
+	trim_spaces()
 

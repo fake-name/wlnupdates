@@ -41,6 +41,7 @@ import app.series_tools
 from app.api_common import getResponse
 
 import FeedFeeder.FeedFeeder
+import sqlalchemy.exc
 
 
 import app.api_handlers
@@ -628,6 +629,49 @@ def clean_tags(dummy_data, admin_override=False):
 	db.session.commit()
 
 	return getResponse("Found %s tags that required patching." % (bad_tags), error=False)
+
+def check_merge(fromrow):
+	other = Series.query.filter(Series.title == fromrow.title.strip()).one()
+	if fromrow.title.strip() == other.title.strip():
+		fromauths = [auth.name for auth in fromrow.author]
+		toauths   = [auth.name for auth in other.author]
+		if (fromrow.tl_type == other.tl_type and
+			fromauths == toauths and
+			fromauths ):
+
+			print("Wut")
+
+			print("	", (fromrow.title, other.title))
+			print("	", (fromrow.tl_type, other.tl_type))
+			print("	", (fromauths, toauths))
+
+			print("Doing merge")
+			merge_series_ids(fromrow.id, other.id)
+			return
+	print("Mismatch:")
+	print("	URLs:")
+	print("		1: https://www.wlnupdates.com/series-id/{}/".format(fromrow.id))
+	print("		2: https://www.wlnupdates.com/series-id/{}/".format(other.id))
+
+def clean_spaces(dummy_data, admin_override=False):
+	if admin_override is False and (not current_user.is_mod()):
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+
+	items = Series.query.all()
+
+	for item in items:
+		if item.title != item.title.strip():
+
+			item.title = item.title.strip()
+
+			try:
+				db.session.commit()
+			except sqlalchemy.exc.IntegrityError:
+				db.session.rollback()
+				check_merge(item)
+
+	# return getResponse("Found %s tags that required patching." % (bad_tags), error=False)
 
 def deleteSeries(data):
 
