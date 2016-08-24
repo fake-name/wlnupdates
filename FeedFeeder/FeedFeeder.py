@@ -16,6 +16,7 @@ import sqlalchemy.exc
 import Levenshtein
 import pprint
 
+import util.text_tools as text_tools
 
 # Hard coded RSS user ID. Probably a bad idea.
 RSS_USER_ID    = 3
@@ -68,6 +69,8 @@ def insert_raw_item(item):
 	entry['published'] = datetime.datetime.fromtimestamp(item.pop('published'))
 	if 'updated' in item:
 		entry['updated']   = datetime.datetime.fromtimestamp(item.pop('updated'))
+
+	item = text_tools.fix_dict(item, recase=False)
 
 	itemrow = Feeds.query.filter(Feeds.guid == entry['guid']).scalar()
 	if not itemrow:
@@ -172,6 +175,7 @@ def get_create_group(groupname, changeuser):
 
 def get_create_series(seriesname, tl_type, changeuser, author_name=False):
 	# print("get_create_series(): '%s', '%s', '%s'" % (seriesname, tl_type, author_name))
+
 
 	tries = 0
 	while 1:
@@ -418,6 +422,8 @@ def insert_parsed_release(item):
 		update_id = RSS_USER_ID
 
 
+	item = text_tools.fix_dict(item, recase=False)
+
 	if item["tl_type"] not in ['oel', 'translated']:
 		raise ValueError("Invalid TL Type '%s'! Wat?" % item["tl_type"])
 
@@ -439,6 +445,7 @@ def update_series_info(item):
 	assert 'desc'     in item
 	assert 'tl_type'  in item
 
+	item = text_tools.fix_dict(item, recase=False)
 
 	print("Series info update message for '%s'!" % item['title'])
 

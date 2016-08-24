@@ -1,3 +1,6 @@
+
+import util.text_tools as text_tools
+
 from flask import render_template
 from flask import flash
 from flask import redirect
@@ -26,8 +29,6 @@ import app.series_tools as series_tools
 from app import app
 import datetime
 
-
-
 def add_group(form):
 	name = form.name.data.strip()
 	have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname==nt.prepFilenameForMatching(name)).scalar()
@@ -55,8 +56,9 @@ def add_group(form):
 		return redirect(url_for('renderGroupId', sid=new.id))
 
 def add_series(form):
-
 	name = form.name.data.strip()
+
+	name = text_tools.fix_string(name, recase=False)
 
 	stripped = nt.prepFilenameForMatching(name)
 	have = AlternateNames.query.filter(AlternateNames.cleanname==stripped).all()
@@ -258,8 +260,8 @@ def addNewItem(add_type, sid=None):
 				'add-release.html',
 				form=form,
 				add_name = add_type,
-				message = message,
-				series  = series
+				message  = message,
+				series   = series
 				)
 
 	if add_type == 'post':
@@ -273,7 +275,7 @@ def addNewItem(add_type, sid=None):
 				'add-series.html',
 				form=form,
 				add_name = add_type,
-				message = message
+				message  = message
 				)
 
 
@@ -282,5 +284,5 @@ def addNewItem(add_type, sid=None):
 				'add.html',
 				form=form,
 				add_name = add_type,
-				message = message
+				message  = message
 				)
