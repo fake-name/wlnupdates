@@ -370,7 +370,7 @@ def get_series_from_any(title_list, tl_type, author_name=False):
 
 	# return have.series_row
 
-def check_insert_release(item, group, series, update_id):
+def check_insert_release(item, group, series, update_id, loose_match=False):
 	cleankeys = ['itemurl', 'postfix']
 	for cleans in cleankeys:
 		if item[cleans] and isinstance(item[cleans], str):
@@ -380,16 +380,25 @@ def check_insert_release(item, group, series, update_id):
 		if item[key] is not None:
 			item[key]  = float(item[key])
 
-	have = Releases.query                            \
-		.filter(Releases.series   == series.id)       \
-		.filter(Releases.tlgroup  == group.id)        \
-		.filter(Releases.volume   == item['vol'])     \
-		.filter(Releases.chapter  == item['chp'])     \
-		.filter(Releases.fragment == item['frag'])     \
-		.filter(Releases.postfix == item['postfix']).all()
+	relQ = have = Releases.query
+	relQ = relQ.filter(Releases.series   == series.id)
+	relQ = relQ.filter(Releases.tlgroup  == group.id)
+
+	# "Loose matching" means just check against the URL.
+	if loose_match:
+		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
+	else:
+		relQ = relQ.filter(Releases.volume   == item['vol'])
+		relQ = relQ.filter(Releases.chapter  == item['chp'])
+		relQ = relQ.filter(Releases.fragment == item['frag'])
+		relQ = relQ.filter(Releases.postfix == item['postfix'])
+
+	have = relQ.all()
+
 	if have:
 		have = have.pop(0)
-		# print("have?", series.title, have.volume, have.chapter, have.postfix)
+		if loose_match:
+			print("have?", series.title, have.volume, have.chapter, have.postfix)
 		return
 
 	print("Adding new release for series: ", series.title, " at date:", datetime.datetime.fromtimestamp(item['published']))
@@ -428,14 +437,18 @@ def insert_parsed_release(item):
 		raise ValueError("Invalid TL Type '%s'! Wat?" % item["tl_type"])
 
 	group = get_create_group(item['srcname'], update_id)
-
-	if 'match_author' in item and item['match_author']:
-		series = get_create_series(item['series'], item["tl_type"], update_id, item['author'])
-	else:
-		series = get_create_series(item['series'], item["tl_type"], update_id)
-
 	assert group is not None
-	check_insert_release(item, group, series, update_id)
+
+	if 'loose_match' in item and item['loose_match']:
+		series = get_create_series(item['series'], item["tl_type"], update_id)
+		check_insert_release(item, group, series, update_id, loose_match=True)
+	else:
+		if 'match_author' in item and item['match_author']:
+			series = get_create_series(item['series'], item["tl_type"], update_id, item['author'])
+		else:
+			series = get_create_series(item['series'], item["tl_type"], update_id)
+
+		check_insert_release(item, group, series, update_id)
 
 def update_series_info(item):
 	# print("update_series_info", item)
