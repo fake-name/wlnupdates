@@ -398,7 +398,7 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 	if have:
 		have = have.pop(0)
 		if loose_match:
-			print("have?", series.title, have.volume, have.chapter, have.postfix)
+			print("Loosely matched have:", series.title, have.volume, have.chapter, have.postfix)
 		return
 
 	print("Adding new release for series: ", series.title, " at date:", datetime.datetime.fromtimestamp(item['published']))
