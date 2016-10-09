@@ -1,0 +1,253 @@
+<!-- extend base layout -->
+
+{% macro quick_watch(sid, watchstate) %}
+	<div class='pull-right'>
+		{% if g.user.is_authenticated() %}
+			{% set itemid = 'watch-link-%s' % sid %}
+			{% if not watchstate %}
+				<a href='#' onclick="toggle_watch('.{{itemid}}', mangaId={{sid}}, callback=callbackIIFE('{{itemid}}'));return false;" class='{{itemid}}'>Add Watch</a>
+			{% else %}
+				<a href='#' onclick="toggle_watch('.{{itemid}}', mangaId={{sid}}, callback=callbackIIFE('{{itemid}}'));return false;" class='{{itemid}}'>Remove Watch</a>
+			{% endif %}
+		{% endif %}
+	</div>
+
+{% endmacro %}
+
+
+{% macro render_page_contents(results) %}
+	{% if results %}
+		{% for key, value in results.items() %}
+			<table class='table table-bordered table-condensed fullwidth' style='margin-bottom: 5px;'>
+				{% for series, cleanname, name, similarity in value['results'] %}
+					<tr>
+						<td>
+							<a href="/series-id/{{key}}/">{{ name }}</a>
+							{{ quick_watch(key, value['watch']) }}
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		{% endfor %}
+	{% else %}
+		<div class="well well-med" >
+			No results found!
+		</div>
+	{% endif %}
+
+{% endmacro %}
+
+
+
+{% macro render_chapter_count() %}
+	<div class="flex">
+		<div class='chapter-filter-entry col-md-12'>
+			<span><label>Minimum chapter count</label><span class='pull-right' id='min-chapter-readout'>0</span> <input  data-type='chapter-number' id='min-chapter' type="range"  min="0" max="100" value="0" /></span>
+		</div>
+		<br>
+		<br>
+		<div class='chapter-filter-entry col-md-12'>
+			<span><label>Maximum chapter count</label><span class='pull-right' id='max-chapter-readout'>N/A</span> <input  data-type='chapter-number' id='max-chapter' type="range"  min="0" max="101" value="101" /></span>
+		</div>
+	</div>
+
+{% endmacro %}
+
+{% macro render_series_type() %}
+	<div class="flex">
+		<div class='filter-entry category-filter-entry col-md-6' data-type='series-type'>
+			<div class="filter-mode">❍</div>
+			<div class="filter-mode-label">Original English Language</div>
+		</div>
+		<div class='filter-entry category-filter-entry col-md-6' data-type='series-type'>
+			<div class="filter-mode">❍</div>
+			<div class="filter-mode-label">Translated</div>
+		</div>
+	</div>
+
+{% endmacro %}
+
+
+
+{% macro render_tag_categories(cats) %}
+	<div class="flex">
+		{% for category in cats %}
+			<div class='filter-entry mode-filter-entry col-md-3' data-type='tag-category'>
+				<div class="filter-mode">❍</div>
+				<div class="filter-mode-label">{{category.tag}}</div>
+			</div>
+		{% endfor %}
+	</div>
+
+{% endmacro %}
+
+
+{% extends "__base.html" %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div style="min-height: 140px;">
+		<h2>Advanced Search</h2>
+		<div class='well'>
+			{{render_chapter_count()}}
+		</div>
+		<div class='well'>
+			{{render_series_type()}}
+		</div class='well'>
+		<div class='well'>
+			{{render_tag_categories(available_tags)}}
+		</div>
+		<div class='well' id='search-results'>
+			Select something to view results!
+		</div>
+	</div>
+{% endblock %}
+
+
+{% block footer %}
+
+
+	<style>
+		.flex {
+
+			display: -webkit-box;
+			display: -moz-box;
+			display: -ms-flexbox;
+			display: -moz-flex;
+			display: -webkit-flex;
+			display: flex;
+			flex-wrap: wrap;
+		}
+
+		.flex > div.category-filter-entry,
+		.flex > div.mode-filter-entry {
+			/* basic styling */
+			border: 1px solid #ccc;
+			font: 14px Arial;
+
+		}
+
+		div.filter-entry{
+			display: table-row;
+			padding: 3px;
+		}
+		div.filter-mode{
+			display: table-cell;
+		}
+		div.filter-mode-label{
+			display: table-cell;
+		}
+
+
+		/* colors */
+		.filter-included
+		{
+			background: #5f9;
+		}
+		.filter-ignored
+		{
+			background: #fff;
+		}
+		.filter-excluded
+		{
+			background: #faa;
+		}
+
+	</style>
+	<script>
+		var active_filters = {
+			'series-type'  : {},
+			'tag-category' : {},
+			'chapter-limits' : [0, false],
+		};
+
+		function search_load_complete( response, status, xhr )
+		{
+			if ( status == "error" ) {
+				var msg = "Search encountered an error: ";
+				$( "#search-results" ).html( msg + xhr.status + " " + xhr.statusText );
+			}
+		}
+
+		function do_ajax_search()
+		{
+			console.log("Search commands: ", active_filters)
+			$("#search-results").load("/ajax-search", active_filters, search_load_complete)
+		}
+
+
+		function chapter_change_readout()
+		{
+			// Update the display only, don't make a request
+			var minc = $("#min-chapter").val();
+			var maxc = $("#max-chapter").val();
+			if (maxc == 101)
+				maxc = "N/A";
+			$("#min-chapter-readout").text(minc);
+			$("#max-chapter-readout").text(maxc);
+		}
+
+		function chapter_change()
+		{
+			var minc = $("#min-chapter").val();
+			var maxc = $("#max-chapter").val();
+			if (maxc == 101)
+				maxc = false;
+			active_filters['chapter-limits'] = [minc, maxc]
+
+		}
+
+		function handle_input_update()
+		{
+
+			var current_mode = $( this ).find(".filter-mode").text();
+			var mode_text = $( this ).find(".filter-mode-label").text();
+			var dtype = $( this ).data()['type'];
+
+
+			if (dtype == "chapter-number")
+			{
+				chapter_change();
+			}
+			else if (dtype == "series-type" || dtype == "tag-category")
+			{
+				if (current_mode == "❍")
+				{
+					$( this ).removeClass("filter-ignored");
+					$( this ).addClass("filter-included");
+					$( this ).find(".filter-mode").text("✔");
+					active_filters[dtype][mode_text] = "included";
+				}
+				else if (current_mode == "✔")
+				{
+					$( this ).removeClass("filter-included");
+					$( this ).addClass("filter-excluded");
+					$( this ).find(".filter-mode").text("✘");
+					active_filters[dtype][mode_text] = "excluded";
+				}
+				else if (current_mode == "✘")
+				{
+					$( this ).removeClass("filter-excluded");
+					$( this ).addClass("filter-ignored");
+					$( this ).find(".filter-mode").text("❍");
+					delete active_filters[dtype][mode_text];
+				}
+				else
+				{
+					alert("Unknown contents of mode?");
+				}
+			}
+
+			do_ajax_search();
+		}
+
+		$("#min-chapter").on('input', chapter_change_readout);
+		$("#max-chapter").on('input', chapter_change_readout);
+
+		$("#min-chapter").change(handle_input_update);
+		$("#max-chapter").change(handle_input_update);
+
+		$( ".filter-entry" ).click(handle_input_update);
+	</script>
+
+{% endblock %}

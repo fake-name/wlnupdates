@@ -19,6 +19,8 @@ from sqlalchemy import CheckConstraint
 from sqlalchemy.dialects.postgresql import ENUM
 from citext import CIText
 
+import util.materialized_view_factory
+
 # Some of the metaclass hijinks make pylint confused,
 # so disable the warnings for those aspects of things
 # pylint: disable=E0213, R0903
@@ -511,6 +513,28 @@ def install_trigram_indices():
 				install_trigram_indice_on_column(classtype, column)
 
 
+mv_name = "common_tags_mv"
+mv_selectable = db.select(
+						[
+							Tags.tag.label('tag'),
+							db.func.count(Tags.tag).label('tag_instances'),
+						]
+					).group_by(Tags.tag)
+
+class CommonTags(util.materialized_view_factory.MaterializedView):
+	__table__ = util.materialized_view_factory.create_mat_view(
+					mv_name,
+					mv_selectable)
+
+try:
+	print("Checking if materialized view exists.")
+	util.materialized_view_factory.refresh_mat_view('common_tags_mv', False)
+	print("MaterializedView refreshed")
+except sqlalchemy.exc.ProgrammingError:
+	# View not created yet
+	print("Materialized view missing!")
+	t2 = util.materialized_view_factory.CreateMaterializedView(mv_name, mv_selectable)
+	db.engine.execute(t2)
 
 ################################################################################################################################################################
 ################################################################################################################################################################
@@ -680,160 +704,3 @@ class HttpRequestLog(db.Model):
 	referer        = db.Column(db.String)
 	forwarded_for  = db.Column(db.String)
 	originating_ip = db.Column(db.String)
-
-'''
-DELETE FROM
-    feed_authors
-WHERE
-    article_id IN (
-        SELECT
-            feeds.id
-        FROM
-            feeds
-        WHERE
-            srcname IN (
-                'www.asstr.tv',
-                'inmydaydreams.com',
-                'www.tgstorytime.org',
-                'pokegirls.com',
-                'storiesonline.net',
-                'www.adult-fanfiction.tv',
-                'www.asstr.org',
-                'www.fictionmania.com',
-                'storiesonline.org',
-                'storiesonline.tv',
-                'pokegirls.org',
-                'www.booksiesilk.com',
-                'www.tgstorytime.com',
-                'www.tgstorytime.tv',
-                'pokegirls.tv',
-                'www.booksiesilk.tv',
-                'www.asstr.net',
-                'www.adult-fanfiction.com',
-                'storiesonline.com',
-                'www.booksiesilk.org',
-                'www.adult-fanfiction.net',
-                'www.booksiesilk.net',
-                'www.adult-fanfiction.org',
-                'www.asstr.com',
-                'www.fictionmania.net',
-                'www.fictionmania.tv',
-                'www.tgstorytime.net',
-                'pokegirls.net',
-                'www.fictionmania.org',
-                'archiveofourown.org',
-                'www.baka-tsuki.org',
-                'www.booksie.com',
-                'www.fanfiction.net',
-                'www.fictionpress.com',
-                'lndb.info',
-                're-monster.wikia.com',
-                'royalroadl.com',
-                'www.royalroadl.com',
-                'a.wattpad.com',
-                'www.wattpad.com'
-            )
-    )
-;
-DELETE FROM
-    feed_tags
-WHERE
-    article_id IN (
-        SELECT
-            feeds.id
-        FROM
-            feeds
-        WHERE
-            srcname IN (
-                'www.asstr.tv',
-                'inmydaydreams.com',
-                'www.tgstorytime.org',
-                'pokegirls.com',
-                'storiesonline.net',
-                'www.adult-fanfiction.tv',
-                'www.asstr.org',
-                'www.fictionmania.com',
-                'storiesonline.org',
-                'storiesonline.tv',
-                'pokegirls.org',
-                'www.booksiesilk.com',
-                'www.tgstorytime.com',
-                'www.tgstorytime.tv',
-                'pokegirls.tv',
-                'www.booksiesilk.tv',
-                'www.asstr.net',
-                'www.adult-fanfiction.com',
-                'storiesonline.com',
-                'www.booksiesilk.org',
-                'www.adult-fanfiction.net',
-                'www.booksiesilk.net',
-                'www.adult-fanfiction.org',
-                'www.asstr.com',
-                'www.fictionmania.net',
-                'www.fictionmania.tv',
-                'www.tgstorytime.net',
-                'pokegirls.net',
-                'www.fictionmania.org',
-                'archiveofourown.org',
-                'www.baka-tsuki.org',
-                'www.booksie.com',
-                'www.fanfiction.net',
-                'www.fictionpress.com',
-                'lndb.info',
-                're-monster.wikia.com',
-                'royalroadl.com',
-                'www.royalroadl.com',
-                'a.wattpad.com',
-                'www.wattpad.com'
-            )
-    )
-;
-DELETE FROM
-    feeds
-WHERE
-    srcname IN (
-        'www.asstr.tv',
-        'inmydaydreams.com',
-        'www.tgstorytime.org',
-        'pokegirls.com',
-        'storiesonline.net',
-        'www.adult-fanfiction.tv',
-        'www.asstr.org',
-        'www.fictionmania.com',
-        'storiesonline.org',
-        'storiesonline.tv',
-        'pokegirls.org',
-        'www.booksiesilk.com',
-        'www.tgstorytime.com',
-        'www.tgstorytime.tv',
-        'pokegirls.tv',
-        'www.booksiesilk.tv',
-        'www.asstr.net',
-        'www.adult-fanfiction.com',
-        'storiesonline.com',
-        'www.booksiesilk.org',
-        'www.adult-fanfiction.net',
-        'www.booksiesilk.net',
-        'www.adult-fanfiction.org',
-        'www.asstr.com',
-        'www.fictionmania.net',
-        'www.fictionmania.tv',
-        'www.tgstorytime.net',
-        'pokegirls.net',
-        'www.fictionmania.org',
-        'archiveofourown.org',
-        'www.baka-tsuki.org',
-        'www.booksie.com',
-        'www.fanfiction.net',
-        'www.fictionpress.com',
-        'lndb.info',
-        're-monster.wikia.com',
-        'royalroadl.com',
-        'www.royalroadl.com',
-        'a.wattpad.com',
-        'www.wattpad.com'
-    );
-
-
-'''
-

@@ -3,6 +3,7 @@ from flask import render_template, flash, redirect, url_for, g, request
 from app.forms import SearchForm
 import bleach
 from app.models import AlternateNames
+from app.models import CommonTags
 from app.models import Series
 from app.models import Watches
 import app.nameTools as nt
@@ -75,6 +76,21 @@ def title_search(searchterm, page=1):
 					   searchValue     = searchtermclean,
 					   title           = 'Search for \'{name}\''.format(name=searchtermclean))
 
+
+
+
+
+def render_search_page():
+	print("Render search page call!")
+	results = CommonTags.query                 \
+		.filter(CommonTags.tag_instances > 25) \
+		.order_by(CommonTags.tag)              \
+		.all()
+
+	return render_template('advanced-search.html',
+		available_tags = results
+		)
+
 def execute_search():
 	# Flatten the passed dicts.
 	# This means that multiple identical parameters
@@ -88,8 +104,7 @@ def execute_search():
 	if 'title' in search:
 		return title_search(search['title'])
 	else:
-		flash(gettext('Bad search route!'))
-		return redirect(url_for('index'))
+		return render_search_page()
 
 
 # @login_required
