@@ -1,0 +1,25 @@
+{% import "_block_paginate.html" as paginator %}
+
+{% macro render_page_contents(prefix, pagination, access_key) %}
+
+	<table class='table-striped table table-bordered table-condensed fullwidth'>
+		{%- for page in pagination.items %}
+			<tr>
+				<td>
+					<a href="/{{prefix}}/{{page.id}}/">{{ page[access_key] }}</a>
+				</td>
+
+			</tr>
+		{%- endfor %}
+	</table>
+
+{% endmacro %}
+
+{% block content %}
+	<div style="min-height: 140px;">
+
+
+
+
+	</div>
+{% endblock %}
