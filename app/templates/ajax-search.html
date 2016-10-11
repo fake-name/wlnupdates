@@ -1,25 +1,43 @@
-{% import "_block_paginate.html" as paginator %}
-
-{% macro render_page_contents(prefix, pagination, access_key) %}
-
-	<table class='table-striped table table-bordered table-condensed fullwidth'>
-		{%- for page in pagination.items %}
-			<tr>
-				<td>
-					<a href="/{{prefix}}/{{page.id}}/">{{ page[access_key] }}</a>
-				</td>
-
-			</tr>
-		{%- endfor %}
-	</table>
-
-{% endmacro %}
 
 {% block content %}
-	<div style="min-height: 140px;">
+	<div style="min-height: 40px;">
+		{% if series %}
+			<h6>{{ series | length }} results found</h6>
 
+			<table class='table-striped table table-bordered table-condensed fullwidth'>
 
-
-
+				<col style="width: 60%">
+				<col style="width: 20%">
+				<col style="width: 20%">
+				<tr>
+					<th>
+						Series
+					</th>
+					<th>
+						# Releases
+					</th>
+					<th>
+						Last Release
+					</th>
+				</tr>
+				{%- for series_item, latest_rel, relcnt in series %}
+					<tr>
+						<td>
+							<a href='/series-id/{{ series_item.id }}/'>
+								{{ series_item.title }}
+							</a>
+						</td>
+						<td>
+							{{relcnt}}
+						</td>
+						<td>
+							<span class='{{staleness_factor(latest_rel)}}'>{{terse_ago(latest_rel)}} ago</span>
+						</td>
+					</tr>
+				{%- endfor %}
+			</table>
+		{% else %}
+			<h6>No results! Try a less limited search?</h6>
+		{% endif %}
 	</div>
 {% endblock %}

@@ -1,0 +1,17 @@
+<!-- extend base layout -->
+
+
+
+
+{% extends "__base.html" %}
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	<div style="min-height: 140px;">
+		<h2>Advanced Search Results</h2>
+		<div class='well'>
+			{% include "ajax-search.html" %}
+		</div>
+	</div>
+{% endblock %}
+
