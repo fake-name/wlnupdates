@@ -5,6 +5,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.jobstores.memory import MemoryJobStore
 from app import api_handlers_admin
 from app import app
+from app import models
 
 jobstores = {
 	'default': MemoryJobStore()
@@ -51,6 +52,9 @@ def clean_garbage_releases():
 def trim_spaces():
 	with app.app_context():
 		api_handlers_admin.clean_spaces(None, admin_override=True)
+def update_materialized_view():
+	with app.app_context():
+		models.refresh_materialized_view()
 
 
 def printer():
@@ -65,6 +69,7 @@ tasks = [
 	(delete_duplicate_releases, "delete_duplicate_releases", hours(2)),
 	(clean_garbage_releases,    "clean_garbage_releases",    hours(1)),
 	(trim_spaces,               "trim_spaces",               hours(1)),
+	(update_materialized_view,  "update_materialized_view",  hours(1)),
 ]
 
 
@@ -78,6 +83,7 @@ def run_scheduler():
 
 if __name__ == "__main__":
 	import logSetup
+
 	logSetup.initLogging()
 	clean_garbage_releases()
 	consolidate_rrl_items()
@@ -86,4 +92,4 @@ if __name__ == "__main__":
 	fix_escaped_quotes()
 	clean_tags()
 	trim_spaces()
-
+	update_materialized_view()

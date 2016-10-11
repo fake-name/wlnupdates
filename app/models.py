@@ -526,10 +526,14 @@ class CommonTags(util.materialized_view_factory.MaterializedView):
 					mv_name,
 					mv_selectable)
 
-try:
-	print("Checking if materialized view exists.")
+def refresh_materialized_view():
+	print("Trying to refresh materialized views")
 	util.materialized_view_factory.refresh_mat_view('common_tags_mv', False)
-	print("MaterializedView refreshed")
+	print("View refreshed.")
+
+
+try:
+	refresh_materialized_view()
 except sqlalchemy.exc.ProgrammingError:
 	# View not created yet
 	print("Materialized view missing!")
