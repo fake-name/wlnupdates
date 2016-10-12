@@ -169,14 +169,14 @@
 			}
 			else
 			{
-				console.log("search_load_complete - Response: ", response)
+				// console.log("search_load_complete - Response: ", response)
 				$( "#search-results" ).html( response );
 			}
 		}
 
 		function do_ajax_search()
 		{
-			console.log("Search commands: ", active_filters)
+			// console.log("Search commands: ", active_filters)
 
 			$.ajax({
 				url : "/ajax-search",
@@ -211,8 +211,9 @@
 
 		}
 
-		function handle_input_update(do_fetch=true)
+		function handle_input_update(do_fetch)
 		{
+			if (typeof(do_fetch) === 'undefined') do_fetch = true;
 
 			var current_mode = $( this ).find(".filter-mode").text();
 			var mode_text = $( this ).find(".filter-mode-label").text();

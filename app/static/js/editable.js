@@ -833,7 +833,7 @@ function edit_release_info(key, opt)
 	$('#datetimepicker').datetimepicker({step:10});
 }
 
-function attach_context_menu(admin, current_user_id)
+function attach_context_menu(admin)
 {
 	$.contextMenu({
 		selector: "#release-entry-cell",
