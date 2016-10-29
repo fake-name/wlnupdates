@@ -604,8 +604,9 @@ def update_series_info(item):
 			tmp = [tmp, ]
 		series_tools.setAuthorIllust(series, illust=tmp, deleteother=False)
 
+
 	if 'tags' in item and item['tags']:
-		series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=False)
+		series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=item.get('create_tags', False))
 
 	if 'alt_titles' in item and item['alt_titles']:
 		series_tools.updateAltNames(series, item['alt_titles']+[item['title'], ], deleteother=False)

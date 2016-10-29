@@ -29,6 +29,8 @@ from sqlalchemy.sql import func
 from flask import g
 from flask import request
 
+from app.api_common import getResponse
+
 def getCurrentUserId():
 	'''
 	if current_user == None, we're not executing within the normal flask runtime,
