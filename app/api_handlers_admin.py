@@ -475,9 +475,13 @@ def delete_duplicate_releases(data, admin_override=False):
 				else:
 					older = m2
 					newer = m1
-
-				db.session.delete(newer)
-				db.session.commit()
+				if not older.include:
+					# If the to-be-removed chapter has been expliclty excluded from
+					# the chapter count, don't do the merge.
+					pass
+				else:
+					db.session.delete(newer)
+					db.session.commit()
 
 	# print(dups)
 	# print(list(dups))
