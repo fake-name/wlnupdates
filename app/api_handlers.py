@@ -138,25 +138,6 @@ def validateMangaData(data):
 	# Return the processed output.
 	return update
 
-def updateTitle(series, newTitle):
-
-	newTitle = bleach.clean(newTitle.strip(), tags=[], strip=True)
-
-	conflict_series = Series.query.filter(Series.title==newTitle).scalar()
-
-	if conflict_series and conflict_series.id != series.id:
-		return getResponse("A series with that name already exists! Please choose another name", error=True)
-
-
-	oldTitle = series.title
-	series.title = newTitle
-
-	ret = app.series_tools.updateAltNames(series, [newTitle, oldTitle], deleteother=False)
-	if ret:
-		return ret
-
-	return None
-
 
 def processMangaUpdateJson(data):
 	validated = validateMangaData(data)
@@ -172,7 +153,7 @@ def processMangaUpdateJson(data):
 			if not current_user.is_mod():
 				return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
-			ret = updateTitle(series, bleach.clean(entry['data'], strip=True))
+			ret = app.series_tools.updateTitle(series, entry['data'])
 			if ret:
 				return ret
 

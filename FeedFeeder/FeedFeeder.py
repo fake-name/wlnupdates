@@ -4,14 +4,22 @@ import settings
 import json
 import datetime
 from app import db
-from app.models import Feeds, FeedAuthors, FeedTags
-from app.models import Translators, Releases, Series, AlternateNames, AlternateTranslatorNames
+from app.models import Feeds
+from app.models import FeedAuthors
+from app.models import FeedTags
+from app.models import Translators
+from app.models import Releases
+from app.models import Series
+from app.models import SeriesChanges
+from app.models import AlternateNames
+from app.models import AlternateTranslatorNames
 import traceback
 import app.nameTools as nt
 import time
 import sqlalchemy.exc
+from sqlalchemy import desc
 import bleach
-import app.series_tools
+import app.series_tools as series_tools
 import sqlalchemy.exc
 import Levenshtein
 import pprint
@@ -284,7 +292,7 @@ def get_create_series(seriesname, tl_type, changeuser, author_name=False):
 			if author_name:
 				if isinstance(author_name, str):
 					author_name = [author_name, ]
-				app.series_tools.setAuthorIllust(new, author=author_name)
+				series_tools.setAuthorIllust(new, author=author_name)
 
 			altn1 = AlternateNames(
 					name       = seriesname,
@@ -450,6 +458,46 @@ def insert_parsed_release(item):
 
 		check_insert_release(item, group, series, update_id)
 
+
+
+def rowToDict(row):
+	return {x.name: getattr(row, x.name) for x in row.__table__.columns}
+
+maskedRows = ['id', 'operation', 'srccol', 'changeuser', 'changetime']
+
+def generate_automated_only_change_flags(series):
+	inRows  = SeriesChanges                              \
+			.query                                     \
+			.filter(SeriesChanges.srccol == series.id) \
+			.order_by(desc(SeriesChanges.changetime))  \
+			.all()
+
+	inRows = [rowToDict(row) for row in inRows]
+	inRows.sort(key = lambda x: x['id'])
+
+	# Generate the list of rows we actually want to process by extracting out
+	# the keys in the passed row, and masking out the ones we specifically don't want.
+	if inRows:
+		processKeys = [key for key in inRows[0].keys() if key not in maskedRows]
+		processKeys.sort()
+	else:
+		processKeys = []
+
+	# Prime the loop by building an empty dict to compare against
+	previous = {key: None for key in processKeys}
+
+	can_change = {key : True for key in processKeys}
+
+	for row in inRows:
+		for key in processKeys:
+			if (row[key] != previous[key]) and (row[key] or previous[key]):
+				if row['changeuser'] != RSS_USER_ID:
+					can_change[key] = False
+				previous[key] = row[key]
+
+	return can_change
+
+
 def update_series_info(item):
 	# print("update_series_info", item)
 	assert 'title'    in item
@@ -459,6 +507,8 @@ def update_series_info(item):
 	assert 'tl_type'  in item
 
 	item = text_tools.fix_dict(item, recase=False)
+
+
 
 	print("Series info update message for '%s'!" % item['title'])
 
@@ -501,32 +551,67 @@ def update_series_info(item):
 
 		return
 
-	if 'desc' in item and item['desc'] and not series.description:
+	changeable = generate_automated_only_change_flags(series)
+	print(changeable)
+
+
+	# {
+	# 	'license_en': True,
+	# 	'orig_lang': True,
+	# 	'pub_date': True,
+	# 	'title': True,
+	# 	'description': False,
+	# 	'chapter': True,
+	# 	'origin_loc': True,
+	# 	'website': True,
+	# 	'region': True,
+	# 	'tl_type': True,
+	# 	'tot_chapter': True,
+	# 	'orig_status': True,
+	# 	'sort_mode': True,
+	# 	'volume': True,
+	# 	'demographic': True,
+	# 	'tot_volume': True,
+	# 	'type': True
+	# }
+
+	# This only generates a change is it needs to, so we can call it unconditionally.
+	if changeable['title']:
+		series_tools.updateTitle(series, item['title'])
+
+	if changeable['description']:
+		newd = bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong', 'b', 'i', 'a'])
+		if newd != series.description:
+			series.description = newd
+	elif ('desc' in item and item['desc'] and not series.description):
 		series.description = bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong', 'b', 'i', 'a'])
 
-	if 'homepage' in item and item['homepage'] and not series.website:
+	if (
+			('homepage' in item and item['homepage'] and not series.website) or
+			(bleach.clean(item['homepage']) != series.website and changeable['website'])
+		):
 		series.website = bleach.clean(item['homepage'])
 
 	if 'author' in item and item['author']:
 		tmp = item['author']
 		if isinstance(tmp, str):
 			tmp = [tmp, ]
-		app.series_tools.setAuthorIllust(series, author=tmp, deleteother=False)
+		series_tools.setAuthorIllust(series, author=tmp, deleteother=False)
 
 	if 'illust' in item and item['illust']:
 		tmp = item['illust']
 		if isinstance(tmp, str):
 			tmp = [tmp, ]
-		app.series_tools.setAuthorIllust(series, illust=tmp, deleteother=False)
+		series_tools.setAuthorIllust(series, illust=tmp, deleteother=False)
 
 	if 'tags' in item and item['tags']:
-		app.series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=False)
+		series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=False)
 
 	if 'alt_titles' in item and item['alt_titles']:
-		app.series_tools.updateAltNames(series, item['alt_titles'], deleteother=False)
+		series_tools.updateAltNames(series, item['alt_titles']+[item['title'], ], deleteother=False)
 
 	if 'pubnames' in item and item['pubnames']:
-		app.series_tools.updatePublishers(series, item['pubnames'], deleteother=False)
+		series_tools.updatePublishers(series, item['pubnames'], deleteother=False)
 
 	if 'pubdate' in item and item['pubdate']:
 		if not series.pub_date:

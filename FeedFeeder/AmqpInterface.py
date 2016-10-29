@@ -86,28 +86,6 @@ class ConnectorManager:
 		self.active_lock = threading.Lock()
 
 
-		# config = {
-		# 	'host'                   : kwargs.get('host',                   None),
-		# 	'userid'                 : kwargs.get('userid',                 'guest'),
-		# 	'password'               : kwargs.get('password',               'guest'),
-		# 	'virtual_host'           : kwargs.get('virtual_host',           '/'),
-		# 	'task_queue_name'             : kwargs.get('task_queue_name',             'task.q'),
-		# 	'response_queue_name'         : kwargs.get('response_queue_name',         'response.q'),
-		# 	'task_exchange'          : kwargs.get('task_exchange',          'tasks.e'),
-		# 	'task_exchange_type'     : kwargs.get('task_exchange_type',     'direct'),
-		# 	'response_exchange'      : kwargs.get('response_exchange',      'resps.e'),
-		# 	'response_exchange_type' : kwargs.get('response_exchange_type', 'direct'),
-		# 	'master'                 : kwargs.get('master',                 False),
-		# 	'synchronous'            : kwargs.get('synchronous',            True),
-		# 	'flush_queues'           : kwargs.get('flush_queues',           False),
-		# 	'heartbeat'              : kwargs.get('heartbeat',              60*5),
-		# 	'ssl'                    : kwargs.get('ssl',                    None),
-		# 	'poll_rate'              : kwargs.get('poll_rate',              0.25),
-		# 	'prefetch'               : kwargs.get('prefetch',               1),
-		# 	'session_fetch_limit'    : kwargs.get('session_fetch_limit',    None),
-		# 	'durable'                : kwargs.get('durable',                False),
-		# 	'socket_timeout'         : kwargs.get('socket_timeout',         10),
-		# }
 
 	def __del__(self):
 		try:

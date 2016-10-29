@@ -40,6 +40,32 @@ def getCurrentUserId():
 	else:
 		return app.config['SYSTEM_USERID']
 
+
+def updateTitle(series, newTitle_raw):
+
+	newTitle = bleach.clean(newTitle_raw.strip(), tags=[], strip=True)
+
+	# Short circuit if nothing has changed.
+	if newTitle == series.title:
+		return
+
+	conflict_series = Series.query.filter(Series.title==newTitle).scalar()
+
+	if conflict_series and conflict_series.id != series.id:
+		return getResponse("A series with that name already exists! Please choose another name", error=True)
+
+
+	oldTitle          = series.title
+	series.title      = newTitle
+	series.changeuser = getCurrentUserId()
+	series.changetime = datetime.datetime.now()
+
+	ret = updateAltNames(series, [newTitle, oldTitle], deleteother=False)
+	if ret:
+		return ret
+
+	return None
+
 def updateTags(series, tags, deleteother=True, allow_new=True):
 	havetags = Tags.query.filter((Tags.series==series.id)).all()
 	havetags = {item.tag.lower() : item for item in havetags}
