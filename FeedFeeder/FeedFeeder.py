@@ -586,8 +586,8 @@ def update_series_info(item):
 	elif ('desc' in item and item['desc'] and not series.description):
 		series.description = bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong', 'b', 'i', 'a'])
 
-	if (
-			('homepage' in item and item['homepage'] and not series.website) or
+	if 'homepage' in item  and item['homepage'] and (
+			not series.website or
 			(bleach.clean(item['homepage']) != series.website and changeable['website'])
 		):
 		series.website = bleach.clean(item['homepage'])
