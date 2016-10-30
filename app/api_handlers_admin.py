@@ -540,9 +540,10 @@ def fix_escaped_quotes(dummy_data, admin_override=False):
 			new = new.replace(r"“", '"')
 			new = new.replace(r"”", '"')
 		if old != new:
-			have = AlternateNames.query.filter(AlternateNames.name == new).scalar()
+			haves = AlternateNames.query.filter(AlternateNames.name == new).all()
+			# assert(len(have) <= 1), "too many results - '%s'" % [(t.id, t.series, t.name) for t in have]
 
-			if have:
+			for have in haves:
 				if have.series == item.series:
 					print("Duplicate names")
 					assert have.series == item.series
