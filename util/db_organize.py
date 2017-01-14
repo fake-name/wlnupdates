@@ -91,8 +91,10 @@ def merge_query(id1, id2, n1, n2, distance, callback):
 
 	# If both series are RoyalRoadL series, and they don't have the
 	# same seriesURL, assume it's no-match
-	urls1 = set([w.strip() for w in s1.website.split("\n") if "royalroadl.com" in w])
-	urls2 = set([w.strip() for w in s2.website.split("\n") if "royalroadl.com" in w])
+	ws1 = s1.website if s1.website is not None else ""
+	ws2 = s2.website if s2.website is not None else ""
+	urls1 = set([w.strip() for w in ws1.split("\n") if "royalroadl.com" in w])
+	urls2 = set([w.strip() for w in ws2.split("\n") if "royalroadl.com" in w])
 
 	if urls1 and urls2 and urls1 != urls2:
 		return
