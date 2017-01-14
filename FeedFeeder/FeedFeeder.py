@@ -581,16 +581,20 @@ def update_series_info(item):
 
 	if changeable['description']:
 		newd = bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong', 'b', 'i', 'a'])
-		if newd != series.description:
+		if newd != series.description and len(newd.strip()):
 			series.description = newd
 	elif ('desc' in item and item['desc'] and not series.description):
-		series.description = bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong', 'b', 'i', 'a'])
+		newd = bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong', 'b', 'i', 'a'])
+		if len(newd.strip()):
+			series.description = newd
 
 	if 'homepage' in item  and item['homepage'] and (
 			not series.website or
 			(bleach.clean(item['homepage']) != series.website and changeable['website'])
 		):
-		series.website = bleach.clean(item['homepage'])
+		neww = bleach.clean(item['homepage'])
+		if  len(neww.strip()):
+			series.website = neww
 
 	if 'author' in item and item['author']:
 		tmp = item['author']
@@ -603,7 +607,6 @@ def update_series_info(item):
 		if isinstance(tmp, str):
 			tmp = [tmp, ]
 		series_tools.setAuthorIllust(series, illust=tmp, deleteother=False)
-
 
 	if 'tags' in item and item['tags']:
 		series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=item.get('create_tags', False))
