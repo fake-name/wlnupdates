@@ -1,5 +1,6 @@
 
 import re
+import json
 
 from app import models
 from app import db
@@ -45,10 +46,9 @@ def search_for_name(name):
 
 	return data
 
-def merge_query(id1, id2, n1, n2, distance):
-	s1 = Series.query.filter(Series.id==id1).one()
-	s2 = Series.query.filter(Series.id==id2).one()
-	print("Merge targets: {} - {}".format(id1, id2))
+
+def print_match(s1, s2, id1, id2, n1, n2, distance):
+	print("Merge targets: {} - {} (distance: {})".format(id1, id2, distance))
 	print("		Name 1: '{}'".format(n1))
 	print("		Name 2: '{}'".format(n2))
 	print("	Target Series:")
@@ -76,15 +76,52 @@ def merge_query(id1, id2, n1, n2, distance):
 	print("		1: https://www.wlnupdates.com/series-id/{}/".format(s1.id))
 	print("		2: https://www.wlnupdates.com/series-id/{}/".format(s2.id))
 
+def askuser_callback(s1, s2, id1, id2, n1, n2, distance):
+	print_match(s1, s2, id1, id2, n1, n2, distance)
+
 	do_merge = askUser.query_response_bool("Merge items?")
 	if do_merge:
 		print("Merging!")
 		api_admin.merge_series_ids(s1.id, s2.id)
 		print("Merged.")
-	# print(id1, id2, n1, n2, distance)
 
-def match_to(target, matches):
+def merge_query(id1, id2, n1, n2, distance, callback):
+	s1 = Series.query.filter(Series.id==id1).one()
+	s2 = Series.query.filter(Series.id==id2).one()
+
+	# If both series are RoyalRoadL series, and they don't have the
+	# same seriesURL, assume it's no-match
+	urls1 = set([w.strip() for w in s1.website.split("\n") if "royalroadl.com" in w])
+	urls2 = set([w.strip() for w in s2.website.split("\n") if "royalroadl.com" in w])
+
+	if urls1 and urls2 and urls1 != urls2:
+		return
+
+	callback(s1, s2, id1, id2, n1, n2, distance)
+
+class MatchLogBuilder(object):
+	def __init__(self):
+		self.matchsets = []
+
+	def add_match(self, s1, s2, id1, id2, n1, n2, distance):
+		print_match(s1, s2, id1, id2, n1, n2, distance)
+		self.matchsets.append({
+				"id1"      : id1,
+				"id2"      : id2,
+				"n1"       : n1,
+				"n2"       : n2,
+				"ns1"      : [n.name for n in s1.alternatenames],
+				"ns2"      : [n.name for n in s2.alternatenames],
+				"distance" : distance,
+			})
+	def save_log(self, filepath):
+		with open(filepath, "w") as fp:
+			fp.write(json.dumps(self.matchsets, indent=4, sort_keys=True))
+
+
+def match_to(target, matches, callback):
 	fromid = target.series
+
 
 	for key in [key for key in matches.keys() if key != fromid]:
 		for key, dummy_clean_name, name, dummy_similarity in matches[key]:
@@ -92,13 +129,17 @@ def match_to(target, matches):
 				dist = lv.distance(target.name, name)
 				if dist <= 1:
 
-					merge_query(key, target.series, target.name, name, dist)
+					merge_query(key, target.series, target.name, name, dist, callback=callback)
 
-	# print("Match from: ", target)
-	# print("To: ", matches)
+def levenshein_merger(interactive=True):
+
+	matchlogger = MatchLogBuilder()
+	if interactive:
+		callback=askuser_callback
+	else:
+		callback=matchlogger.add_match
 
 
-def levenshein_merger():
 	print("fetching series")
 	with app.app_context():
 		items = models.Series.query.all()
@@ -117,12 +158,16 @@ def levenshein_merger():
 			if matches:
 				try:
 					namerow = models.AlternateNames.query.filter(models.AlternateNames.id==nid).one()
-					match_to(namerow, matches)
+					match_to(namerow, matches, callback)
 				except sqlalchemy.orm.exc.NoResultFound:
 					print("Row merged already?")
 
+
 	print(len(items))
 	print("wat?")
+
+	if not interactive:
+		matchlogger.save_log("./matchset.json")
 
 
 def delete_postfix():

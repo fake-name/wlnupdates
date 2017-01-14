@@ -1,0 +1,171 @@
+<!-- extend base layout -->
+{% extends "__base.html" %}
+{% import "_block_paginate.html" as paginator %}
+
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	{% if g.user.is_admin() %}
+		<div>
+			<h3>Levenshtein Series Merge Interface</h3>
+		</div>
+		{% for matchitem in matches %}
+			{% if matchitem['r1'] and matchitem['r2'] %}
+				<div class="spair-{{min(matchitem['r1'].id, matchitem['r2'].id)}}-{{max(matchitem['r1'].id, matchitem['r2'].id)}}" class="well well-large" style="min-height: 140px;">
+					<div>
+						<span class='pull-right'><input id="merge_button" type="button" value="Merge"
+							onclick="merge_series({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
+						<h4>Merge targets: {{matchitem['r1'].id}} - {{matchitem['r2'].id}} (distance: {{matchitem['distance']}})</h4>
+						<h5>S1 Title: {{matchitem['r1'].title}}</h5>
+						<h5>S2 Title: {{matchitem['r2'].title}}</h5>
+						<h6>{{matchitem['r1']}} - {{matchitem['r2']}}</h6>
+
+						<div>S1 Names</div>
+						<ul>
+							{% for altn in matchitem['r1'].alternatenames %}
+								<li>{{altn.name}}</li>
+							{% endfor %}
+						</ul>
+						<div>S2 Names</div>
+						<ul>
+							{% for altn in matchitem['r2'].alternatenames %}
+								<li>{{altn.name}}</li>
+							{% endfor %}
+						</ul>
+
+						<div>S1 Authors</div>
+						<ul>
+							{% for altn in matchitem['r1'].author %}
+								<li>{{altn.name}}</li>
+							{% endfor %}
+						</ul>
+						<div>S2 Authors</div>
+						<ul>
+							{% for altn in matchitem['r2'].author %}
+								<li>{{altn.name}}</li>
+							{% endfor %}
+						</ul>
+
+						<div>S1 Illustrators</div>
+						<ul>
+							{% for altn in matchitem['r1'].illustrators %}
+								<li>{{altn.name}}</li>
+							{% endfor %}
+						</ul>
+						<div>S2 Illustrators</div>
+						<ul>
+							{% for altn in matchitem['r2'].illustrators %}
+								<li>{{altn.name}}</li>
+							{% endfor %}
+						</ul>
+
+						<div>URLs</div>
+						<ul>
+							<li><a href="/series-id/{{matchitem['id1']}}/">{{matchitem['id1']}}</a></li>
+							<li><a href="/series-id/{{matchitem['id2']}}/">{{matchitem['id2']}}</a></li>
+						</ul>
+
+					</div>
+				</div>
+			{% endif %}
+		{% endfor %}
+
+
+		<div class="well well-large" style="min-height: 140px;">
+			<h3>Visitors:</h3>
+			<table class='table-striped table table-bordered table-condensed'>
+
+				<col style="width: 110px">
+				<col>
+				{% for client in clients %}
+					<tr>
+						<td>{{client.originating_ip}}</td>
+						<td>{{client.user_agent}}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+		<div class="well well-large" style="min-height: 140px;">
+			<h3>Referrers:</h3>
+			<table class='table-striped table table-bordered table-condensed fullwidth' style="table-layout: fixed;">
+
+				<col style="width: 120px">
+				<col>
+				{% for ref in referred_by %}
+					<tr>
+						<td>{{ref.originating_ip}}</td>
+						<td style="word-wrap: break-word;">{{ref.referer}}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	{% endif %}
+
+{% endblock %}
+
+
+{% block footer %}
+
+	<script>
+
+
+
+		function merge_callback(target_div)
+		{
+			return function(result)
+			{
+				console.log("merge callback!")
+				if (!result.hasOwnProperty("error"))
+				{
+					console.log("No error result?")
+				}
+				if (result['error'])
+				{
+					bootbox.alert("Error on update!<br/><br/>"+result["message"], function()
+						{
+							$("."+target_div).slideUp(500, function(){$( this ).remove()});
+						}
+					)
+				}
+				else
+				{
+					$("."+target_div).slideUp(500, function(){$( this ).remove()});
+				}
+				console.log(result)
+
+			}
+		}
+
+		function merge_series(sid1, sid2)
+		{
+
+			var chunk_id = "spair-" + Math.min(sid1, sid2) + "-" + Math.max(sid1, sid2);
+			console.log("Series merge:", sid1, sid2, chunk_id);
+
+
+			console.log("Ready to send!");
+			var merge_id  = $("#dbid").val();
+			console.log("merge_id", merge_id)
+
+			var params = {
+				'mode'      : 'merge-id',
+				'item-id'   : sid1,
+				'merge_id'  : sid2
+			}
+
+
+			$.ajax({
+				url : "/api",
+				success : merge_callback(chunk_id),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
+
+
+
+	</script>
+
+{% endblock %}

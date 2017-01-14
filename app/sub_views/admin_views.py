@@ -2,13 +2,17 @@ from flask import render_template
 from flask import g
 # from guess_language import guess_language
 from app import app
+from app import db
 
 from app.models import HttpRequestLog
 from app.models import Users
+from app.models import Series
 
 import sqlalchemy
+from sqlalchemy.orm import joinedload
 
 import datetime
+import json
 
 @app.route('/admin/viewcounts/<int:days>')
 @app.route('/admin/viewcounts/')
@@ -59,6 +63,46 @@ def renderAdminChanges():
 		return render_template('not-implemented-yet.html')
 
 	return render_template('not-implemented-yet.html')
+
+
+
+@app.route('/admin/merge/')
+def renderAdminSeriesMerge():
+	if not g.user.is_authenticated():
+		return render_template('not-implemented-yet.html')
+
+	try:
+		with open("./matchset.json", "r") as fp:
+			matches = json.loads(fp.read())
+	except Exception:
+		return render_template('not-implemented-yet.html', message="Error loading merge JSON file?")
+
+	print("Loading series data")
+
+	rowids = [tmp['id1'] for tmp in matches] + [tmp['id2'] for tmp in matches]
+
+	print("Beginning series load.")
+
+
+	db.session.commit()
+
+	series = Series.query.filter(Series.id.in_(rowids))
+
+	series = series.options(joinedload('author'))
+	series = series.options(joinedload('alternatenames'))
+	series = series.options(joinedload('illustrators'))
+
+	rows = series.all()
+	rows = {row.id : row for row in rows}
+
+	print("Cross-correlating IDs.")
+
+	for matchitem in matches:
+		matchitem['r1'] = rows.get(matchitem['id1'], None)
+		matchitem['r2'] = rows.get(matchitem['id2'], None)
+
+	print("Series data loaded. Rendering")
+	return render_template('/admin/merge.html', matches=matches)
 
 
 

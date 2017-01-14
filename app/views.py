@@ -99,7 +99,14 @@ def after_request(response):
 				"SLOW QUERY: %s\nParameters: %s\nDuration: %fs\nContext: %s\n" %
 				(query.statement, query.parameters, query.duration,
 				 query.context))
+
+	db.session.rollback()
 	return response
+
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+	db.session.remove()
 
 
 @app.errorhandler(404)

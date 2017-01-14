@@ -215,6 +215,8 @@ def utility_processor():
 			staleness_factor   = staleness_factor,
 			build_query_string = build_qs,
 			build_name_qs      = build_name_qs,
+			min                = min,
+			max                = max,
 			)
 
 

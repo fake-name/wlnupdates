@@ -36,6 +36,11 @@ def printHelp():
 	print("	lv-merge")
 	print("		Use levenshtein string distance metrics to try to heuristically automatically")
 	print("		merge series with multiple instances.")
+	print("		")
+	print("	lv-auto-calc")
+	print("		Use levenshtein string distance metrics to try to heuristically automatically")
+	print("		merge series with multiple instances, write result to file for web-ui rather")
+	print("		then user-interactive merging.")
 	print()
 	return
 
@@ -73,6 +78,8 @@ def parseOneArgCall(cmd):
 			util.db_organize.delete_postfix()
 	elif arg == "lv-merge":
 		util.db_organize.levenshein_merger()
+	elif arg == "lv-auto-calc":
+		util.db_organize.levenshein_merger(interactive=False)
 	else:
 		print("Unknown arg!")
 

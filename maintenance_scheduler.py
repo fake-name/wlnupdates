@@ -6,6 +6,7 @@ from apscheduler.jobstores.memory import MemoryJobStore
 from app import api_handlers_admin
 from app import app
 from app import models
+from util import db_organize
 
 jobstores = {
 	'default': MemoryJobStore()
@@ -55,21 +56,23 @@ def trim_spaces():
 def update_materialized_view():
 	with app.app_context():
 		models.refresh_materialized_view()
-
+def update_to_merge_series_list():
+	db_organize.levenshein_merger(interactive=False)
 
 def printer():
 	print("Background task!")
 
 tasks = [
 	# (printer,                   "printer",                   15),
-	(flatten_series_by_url,     "flatten_series_by_url",     hours(1)),
-	(consolidate_rrl_items,     "consolidate_rrl_items",     hours(1)),
-	(fix_escaped_quotes,        "fix_escaped_quotes",        hours(1)),
-	(clean_tags,                "clean_tags",                hours(1)),
-	(delete_duplicate_releases, "delete_duplicate_releases", hours(2)),
-	(clean_garbage_releases,    "clean_garbage_releases",    hours(1)),
-	(trim_spaces,               "trim_spaces",               hours(1)),
-	(update_materialized_view,  "update_materialized_view",  hours(1)),
+	(flatten_series_by_url,        "flatten_series_by_url",        hours( 1)),
+	(consolidate_rrl_items,        "consolidate_rrl_items",        hours( 1)),
+	(fix_escaped_quotes,           "fix_escaped_quotes",           hours( 1)),
+	(clean_tags,                   "clean_tags",                   hours( 1)),
+	(delete_duplicate_releases,    "delete_duplicate_releases",    hours( 2)),
+	(clean_garbage_releases,       "clean_garbage_releases",       hours( 1)),
+	(trim_spaces,                  "trim_spaces",                  hours( 1)),
+	(update_materialized_view,     "update_materialized_view",     hours( 1)),
+	(update_to_merge_series_list,  "update_to_merge_series_list",  hours(48)),
 ]
 
 
@@ -93,3 +96,4 @@ if __name__ == "__main__":
 	clean_tags()
 	trim_spaces()
 	update_materialized_view()
+	update_to_merge_series_list()
