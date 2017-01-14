@@ -1,5 +1,6 @@
 from sqlalchemy.exc import SQLAlchemyError as sql_exc
-from flask import Blueprint, redirect, render_template, url_for
+from flask import Blueprint, redirect, render_template, url_for, g, flash
+from flask_babel import gettext
 from flask_security import current_user, login_required
 
 from app import db
@@ -61,6 +62,11 @@ def user(id):
 @bp.route('/<slug>/create/', methods=GET_POST)
 @login_required
 def create_thread(slug):
+
+	if not g.user.is_authenticated():
+		flash(gettext('You need to log in to post in the forums.'))
+		return redirect(url_for('index'))
+
 	try:
 		board = Board.query.filter(Board.slug == slug).one()
 	except sql_exc:
@@ -86,6 +92,11 @@ def create_thread(slug):
 @bp.route('/<slug>/<int:id>/create', methods=GET_POST)
 @login_required
 def create_post(slug, id):
+
+	if not g.user.is_authenticated():
+		flash(gettext('You need to log in to post in the forums.'))
+		return redirect(url_for('index'))
+
 	try:
 		board = Board.query.filter(Board.slug == slug).one()
 	except sql_exc:
@@ -114,6 +125,11 @@ def create_post(slug, id):
 @bp.route('/<slug>/<int:thread_id>/<int:post_id>/edit', methods=GET_POST)
 @login_required
 def edit_post(slug, thread_id, post_id):
+
+	if not g.user.is_authenticated():
+		flash(gettext('You need to log in to post in the forums.'))
+		return redirect(url_for('index'))
+
 	try:
 		board = Board.query.filter(Board.slug == slug).one()
 	except sql_exc:
