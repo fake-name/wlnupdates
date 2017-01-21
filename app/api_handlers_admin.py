@@ -75,16 +75,18 @@ def setSortOrder(data):
 	# return getResponse(error=True, message="lolwut!")
 
 def get_merge_json():
+	val = {}
 	try:
 		ret = json.load(open("do-not-merge.json"))
 		if isinstance(ret, dict):
-			ret.setdefault("no-merge", [])
-			return ret
-		return {}
+			val = ret
 	except FileNotFoundError:
-		return {}
+		val = {}
 	except json.JSONDecodeError:
-		return {}
+		val = {}
+
+	val.setdefault("no-merge", [])
+	return val
 
 def save_merge_json(newdat):
 	with open("do-not-merge.json", "w") as fp:
