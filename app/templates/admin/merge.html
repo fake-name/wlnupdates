@@ -15,6 +15,8 @@
 					<div>
 						<span class='pull-right'><input id="merge_button" type="button" value="Merge"
 							onclick="merge_series({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
+						<span class='pull-right'><input id="separate_button" type="button" value="Separate"
+							onclick="separate_series({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
 						<h4>Merge targets: {{matchitem['r1'].id}} - {{matchitem['r2'].id}} (distance: {{matchitem['distance']}})</h4>
 						<h5>S1 Title: {{matchitem['r1'].title}}</h5>
 						<h5>S2 Title: {{matchitem['r2'].title}}</h5>
@@ -151,6 +153,34 @@
 				'mode'      : 'merge-id',
 				'item-id'   : sid1,
 				'merge_id'  : sid2
+			}
+
+
+			$.ajax({
+				url : "/api",
+				success : merge_callback(chunk_id),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
+
+		function separate_series(sid1, sid2)
+		{
+
+			var chunk_id = "spair-" + Math.min(sid1, sid2) + "-" + Math.max(sid1, sid2);
+			console.log("Series separate:", sid1, sid2, chunk_id);
+
+
+			console.log("Ready to send!");
+			var separate_id  = $("#dbid").val();
+			console.log("separate_id", separate_id)
+
+			var params = {
+				'mode'         : 'block-merge-id',
+				'item-id'      : sid1,
+				'separate_id'  : sid2
 			}
 
 

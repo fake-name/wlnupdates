@@ -16,3 +16,5 @@ __pycache__
 /*.xz
 /test/cookies.lwp
 /test/cookietemp.lwp
+/do-not-merge.json
+/matchset.json

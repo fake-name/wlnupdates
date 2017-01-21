@@ -1,5 +1,6 @@
 
 import pprint
+import json
 import urllib.parse
 
 from app import db
@@ -73,6 +74,43 @@ def setSortOrder(data):
 
 	# return getResponse(error=True, message="lolwut!")
 
+def get_merge_json():
+	try:
+		ret = json.load(open("do-not-merge.json"))
+		if isinstance(ret, dict):
+			ret.setdefault("no-merge", [])
+			return ret
+		return {}
+	except FileNotFoundError:
+		return {}
+	except json.JSONDecodeError:
+		return {}
+
+def save_merge_json(newdat):
+	with open("do-not-merge.json", "w") as fp:
+		json.dump(newdat, fp)
+
+def preventMergeItems(data):
+	if not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+
+	assert 'mode' in data
+	assert data['mode'] == 'block-merge-id'
+	assert 'item-id' in data
+	assert 'separate_id' in data
+
+	m1, m2 = int(data['item-id']), int(data['separate_id'])
+
+	m1, m2 = min(m1, m2), max(m1, m2)
+	have = get_merge_json()
+
+
+	if not [m1, m2] in have['no-merge']:
+		have['no-merge'].append([m1, m2])
+	save_merge_json(have)
+
+	return getResponse("Success", False)
 
 def mergeSeriesItems(data):
 	if not current_user.is_mod():

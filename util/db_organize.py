@@ -99,15 +99,28 @@ def merge_query(id1, id2, n1, n2, distance, callback):
 	if urls1 and urls2 and urls1 != urls2:
 		return
 
+	# Don't cross-match OEL and translated series.
+	if s1.tl_type != s2.tl_type:
+		return
+
 	callback(s1, s2, id1, id2, n1, n2, distance)
 
 class MatchLogBuilder(object):
 	def __init__(self):
-		self.matchsets = []
+		self.matchsets = {}
+		self.memory = api_admin.get_merge_json()
+
+
 
 	def add_match(self, s1, s2, id1, id2, n1, n2, distance):
+		key = (id1, id2) if id1 <= id2 else (id2, id1)
+
+		if key in self.memory['no-merge']:
+			return
+		if key in self.matchsets:
+			return
 		print_match(s1, s2, id1, id2, n1, n2, distance)
-		self.matchsets.append({
+		self.matchsets[key] = {
 				"id1"      : id1,
 				"id2"      : id2,
 				"n1"       : n1,
@@ -115,10 +128,11 @@ class MatchLogBuilder(object):
 				"ns1"      : [n.name for n in s1.alternatenames],
 				"ns2"      : [n.name for n in s2.alternatenames],
 				"distance" : distance,
-			})
+			}
 	def save_log(self, filepath):
+		items = list(self.matchsets.values())
 		with open(filepath, "w") as fp:
-			fp.write(json.dumps(self.matchsets, indent=4, sort_keys=True))
+			fp.write(json.dumps(items, indent=4, sort_keys=True))
 
 
 def match_to(target, matches, callback):
