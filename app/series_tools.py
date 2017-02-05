@@ -148,11 +148,7 @@ def updateAltNames(series, altnames, deleteother=True):
 		if name in havenames:
 			havenames.pop(name)
 		else:
-			have = AlternateNames.query.filter(AlternateNames.series==series.id).filter(or_(
-				AlternateNames.name      == cleaned[name],
-				AlternateNames.cleanname == nt.prepFilenameForMatching(cleaned[name])
-
-			)).count()
+			have = AlternateNames.query.filter(AlternateNames.series==series.id).filter(AlternateNames.name == cleaned[name]).count()
 			if not have:
 				newname = AlternateNames(
 						name       = cleaned[name],
