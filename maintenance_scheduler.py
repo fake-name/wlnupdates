@@ -7,6 +7,7 @@ from app import api_handlers_admin
 from app import app
 from app import models
 from util import db_organize
+from util import flatten_history
 
 jobstores = {
 	'default': MemoryJobStore()
@@ -58,6 +59,9 @@ def update_materialized_view():
 		models.refresh_materialized_view()
 def update_to_merge_series_list():
 	db_organize.levenshein_merger(interactive=False)
+def flatten_history_table():
+	with app.app_context():
+		flatten_history.flatten_history()
 
 def printer():
 	print("Background task!")
@@ -73,6 +77,7 @@ tasks = [
 	(trim_spaces,                  "trim_spaces",                  hours( 1)),
 	(update_materialized_view,     "update_materialized_view",     hours( 1)),
 	(update_to_merge_series_list,  "update_to_merge_series_list",  hours(48)),
+	(flatten_history_table,        "flatten_history_table",        hours(48)),
 ]
 
 
