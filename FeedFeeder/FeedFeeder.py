@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
-from FeedFeeder.AmqpInterface import RabbitQueueHandler
-import settings
+#
 import json
 import datetime
+import traceback
+import pprint
+import time
+
+import sqlalchemy.exc
+from sqlalchemy import desc
+import bleach
+import Levenshtein
+
 from app import db
 from app.models import Feeds
 from app.models import FeedAuthors
@@ -13,18 +21,13 @@ from app.models import Series
 from app.models import SeriesChanges
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
-import traceback
 import app.nameTools as nt
-import time
-import sqlalchemy.exc
-from sqlalchemy import desc
-import bleach
 import app.series_tools as series_tools
-import sqlalchemy.exc
-import Levenshtein
-import pprint
 
 import util.text_tools as text_tools
+
+from FeedFeeder.AmqpInterface import RabbitQueueHandler
+import settings
 
 # Hard coded RSS user ID. Probably a bad idea.
 RSS_USER_ID    = 3
@@ -111,7 +114,6 @@ def insert_raw_item(item):
 			db.session.flush()
 
 	db.session.commit()
-
 
 def pick_best_match(group_rows, targetname):
 
@@ -458,8 +460,6 @@ def insert_parsed_release(item):
 
 		check_insert_release(item, group, series, update_id)
 
-
-
 def rowToDict(row):
 	return {x.name: getattr(row, x.name) for x in row.__table__.columns}
 
@@ -496,7 +496,6 @@ def generate_automated_only_change_flags(series):
 				previous[key] = row[key]
 
 	return can_change
-
 
 def update_series_info(item):
 	# print("update_series_info", item)
@@ -705,7 +704,6 @@ def dispatchItem(item):
 	print("CRITICAL:")
 	print("Failed to update item!")
 
-
 class FeedFeeder(object):
 	die = False
 
@@ -747,3 +745,23 @@ class FeedFeeder(object):
 
 	def __del__(self):
 		print("FeedFeeder being deleted")
+
+
+def amqp_thread_run():
+	import flags
+
+	try:
+		interface = FeedFeeder()
+		for x in range(90):
+			interface.process()
+			time.sleep(1)
+	finally:
+		print("Closing")
+		interface.close()
+
+
+
+if __name__ == '__main__':
+	import logSetup
+	logSetup.initLogging()
+	amqp_thread_run()

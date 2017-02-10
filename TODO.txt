@@ -1,0 +1,53 @@
+
+Background task!
+Internal Error!
+'NoneType' object has no attribute 'days'
+Traceback (most recent call last):
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/flask/app.py", line 1817, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/flask/app.py", line 1477, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/flask/app.py", line 1381, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/flask/app.py", line 1475, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/flask/app.py", line 1461, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/media/Storage/Scripts/wlnupdates/app/sub_views/release_views.py", line 54, in renderTranslatedReleasesTable
+    tl_type         = 'Translated '
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/flask/templating.py", line 128, in render_template
+    context, ctx.app)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/flask/templating.py", line 110, in _render
+    rv = template.render(context)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/jinja2/environment.py", line 969, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/jinja2/environment.py", line 742, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/jinja2/_compat.py", line 36, in reraise
+    raise value.with_traceback(tb)
+  File "/media/Storage/Scripts/wlnupdates/app/templates/releases.html", line 4, in <module>
+    {% import "_block_paginate.html" as paginator %}
+  File "/media/Storage/Scripts/wlnupdates/app/templates/__base.html", line 34, in <module>
+    {% block content %}{% endblock %}
+  File "/media/Storage/Scripts/wlnupdates/app/templates/releases.html", line 18, in <module>
+    {% include '_block_releases.html' %}
+  File "/media/Storage/Scripts/wlnupdates/app/templates/_block_releases.html", line 56, in <module>
+    {{ format_date(release_items[0].published) }}
+  File "/media/Storage/Scripts/wlnupdates/app/__init__.py", line 128, in format_date
+    return format_datetime(value, "EE yyyy.MM.dd")
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/babel/dates.py", line 617, in format_datetime
+    return parse_pattern(format).apply(datetime, locale)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/babel/dates.py", line 891, in apply
+    return self % DateTimeFormat(datetime, locale)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/babel/dates.py", line 888, in __mod__
+    return self.format % other
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/babel/dates.py", line 923, in __getitem__
+    return self.format_weekday(char, num)
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/babel/dates.py", line 1010, in format_weekday
+    return get_day_names(width, context, self.locale)[weekday]
+  File "/media/Storage/Scripts/wlnupdates/flask/lib/python3.4/site-packages/babel/dates.py", line 177, in get_day_names
+    return Locale.parse(locale).days[context][width]
+AttributeError: 'NoneType' object has no attribute 'days'
+
