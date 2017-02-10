@@ -355,7 +355,7 @@ class ConnectorManager:
 		if self.info_printerval + 10 < now:
 			self.log.info("Interface timeout thread. Ages: heartbeat -> %0.2f, last message -> %0.2f, TX, RX q: (%s, %s).",
 					now - self.last_hearbeat_received,
-					now-self.last_message_received,
+					now - self.last_message_received,
 					self.task_queue.qsize(),
 					self.response_queue.qsize(),
 					)
@@ -374,10 +374,10 @@ class ConnectorManager:
 				self.had_exception.value = 1
 
 
-		if (self.last_message_received + (self.config['hearbeat_packet_timeout'] * 8) < now or
-			self.last_hearbeat_received + (self.config['hearbeat_packet_timeout'] * 8) < now):
+		if (self.last_message_received + (self.config['hearbeat_packet_timeout'] * 100) < now or
+			self.last_hearbeat_received + (self.config['hearbeat_packet_timeout'] * 100) < now):
 			# Attempt recover if we've been idle for a while.
-			self.log.info("Reconnect retrigger seems to have not fixed the issue?")
+			self.log.info("Reconnect retrigger seems to have not fixed the issue (or just no messages)?")
 
 			self.had_exception.value = 1
 
