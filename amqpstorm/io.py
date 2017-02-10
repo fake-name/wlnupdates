@@ -45,7 +45,7 @@ class Poller(object):
             ready, _, _ = select.select([self.fileno], [], [],
                                         self.timeout)
             return bool(ready)
-        except select.error as why:
+        except (IOError, OSError) as why:
             if why.args[0] != EINTR:
                 self._exceptions.append(AMQPConnectionError(why))
         return False

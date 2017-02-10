@@ -232,7 +232,7 @@ class ConnectorManager:
 
 
 	def __do_rx(self):
-		self.storm_channel.process_data_events(to_tuple=False)
+		self.storm_channel.process_data_events(to_tuple=False, auto_decode=False)
 
 	def handle_rx(self, message):
 		# self.log.info("Received message!")
@@ -248,7 +248,7 @@ class ConnectorManager:
 
 		if self.prefetch_extended is False:
 			self.prefetch_extended = True
-			self.storm_channel.basic.qos(50, global_=True)
+			self.storm_channel.basic.qos(1000, global_=True)
 			self.log.info("Prefetch updated")
 
 

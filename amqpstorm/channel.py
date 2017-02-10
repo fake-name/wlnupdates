@@ -3,9 +3,8 @@
 import logging
 import multiprocessing
 from time import sleep
-from time import time
 
-from pamqp import specification as pamqp_spec
+from pamqp import specification
 from pamqp.header import ContentHeader
 
 from amqpstorm import compatibility
@@ -30,19 +29,17 @@ CONTENT_FRAME = ['Basic.Deliver', 'ContentHeader', 'ContentBody']
 class Channel(BaseChannel):
     """RabbitMQ Channel."""
     __slots__ = [
-        'confirming_deliveries', 'consumer_callback', 'rpc', '_basic',
-        '_connection', '_exchange', '_inbound', '_queue', '_tx', '_die',
-        'message_build_timeout'
+        'consumer_callback', 'rpc', '_basic', '_confirming_deliveries',
+        '_connection', '_exchange', '_inbound', '_queue', '_tx', '_die'
     ]
 
     def __init__(self, channel_id, connection, rpc_timeout):
         super(Channel, self).__init__(channel_id)
-        self.rpc = Rpc(self, timeout=rpc_timeout)
-        self.message_build_timeout = rpc_timeout
-        self.confirming_deliveries = False
         self.consumer_callback = None
-        self._inbound = []
+        self.rpc = Rpc(self, timeout=rpc_timeout)
+        self._confirming_deliveries = False
         self._connection = connection
+        self._inbound = []
         self._basic = Basic(self)
         self._exchange = Exchange(self)
         self._tx = Tx(self)
@@ -99,7 +96,7 @@ class Channel(BaseChannel):
         return self._queue
 
     def build_inbound_messages(self, break_on_empty=False, to_tuple=False,
-                               auto_decode=False):
+                               auto_decode=True):
         """Build messages in the inbound queue.
 
         :param bool break_on_empty: Should we break the loop when there are
@@ -114,9 +111,6 @@ class Channel(BaseChannel):
 
         :rtype: :py:class:`generator`
         """
-
-        last_message_built_at = time()
-
         self.check_for_errors()
         while not self.is_closed:
             if self._die.value != 0:
@@ -126,23 +120,17 @@ class Channel(BaseChannel):
 
             message = self._build_message(auto_decode=auto_decode)
             if not message:
-
-                if time() - last_message_built_at > self.message_build_timeout:
-                    raise AMQPConnectionError("Timeout while attempting to build message!")
-
                 if break_on_empty:
                     break
                 self.check_for_errors()
                 sleep(IDLE_WAIT)
                 continue
-
-            last_message_built_at = time()
             if to_tuple:
                 yield message.to_tuple()
                 continue
             yield message
 
-    
+
     def kill(self):
         self._die.value = 1
         self.set_state(self.CLOSED)
@@ -172,7 +160,7 @@ class Channel(BaseChannel):
             self.set_state(self.CLOSING)
             LOGGER.debug('Channel #%d Closing', self.channel_id)
             self.stop_consuming()
-            self.rpc_request(pamqp_spec.Channel.Close(
+            self.rpc_request(specification.Channel.Close(
                 reply_code=reply_code,
                 reply_text=reply_text)
             )
@@ -215,9 +203,17 @@ class Channel(BaseChannel):
 
         :return:
         """
-        self.confirming_deliveries = True
-        confirm_frame = pamqp_spec.Confirm.Select()
+        self._confirming_deliveries = True
+        confirm_frame = specification.Confirm.Select()
         return self.rpc_request(confirm_frame)
+
+    @property
+    def confirming_deliveries(self):
+        """Is the channel set to confirm deliveries.
+
+        :return:
+        """
+        return self._confirming_deliveries
 
     def on_frame(self, frame_in):
         """Handle frame sent to this specific channel.
@@ -241,7 +237,7 @@ class Channel(BaseChannel):
         elif frame_in.name == 'Channel.Close':
             self._close_channel(frame_in)
         elif frame_in.name == 'Channel.Flow':
-            self.write_frame(pamqp_spec.Channel.FlowOk(frame_in.active))
+            self.write_frame(specification.Channel.FlowOk(frame_in.active))
         else:
             LOGGER.error(
                 '[Channel%d] Unhandled Frame: %s -- %s',
@@ -256,10 +252,10 @@ class Channel(BaseChannel):
         self._inbound = []
         self._exceptions = []
         self.set_state(self.OPENING)
-        self.rpc_request(pamqp_spec.Channel.Open())
+        self.rpc_request(specification.Channel.Open())
         self.set_state(self.OPEN)
 
-    def process_data_events(self, to_tuple=False, auto_decode=False):
+    def process_data_events(self, to_tuple=False, auto_decode=True):
         """Consume inbound messages.
 
         :param bool to_tuple: Should incoming messages be converted to a
@@ -291,7 +287,7 @@ class Channel(BaseChannel):
     def rpc_request(self, frame_out):
         """Perform a RPC Request.
 
-        :param pamqp_spec.Frame frame_out: Amqp frame.
+        :param specification.Frame frame_out: Amqp frame.
         :rtype: dict
         """
         with self.rpc.lock:
@@ -299,7 +295,7 @@ class Channel(BaseChannel):
             self.write_frame(frame_out)
             return self.rpc.get_request(uuid)
 
-    def start_consuming(self, to_tuple=False, auto_decode=False):
+    def start_consuming(self, to_tuple=False, auto_decode=True):
         """Start consuming messages.
 
         :param bool to_tuple: Should incoming messages be converted to a
@@ -339,7 +335,7 @@ class Channel(BaseChannel):
     def write_frame(self, frame_out):
         """Write a pamqp frame from the current channel.
 
-        :param pamqp_spec.Frame frame_out: A single pamqp frame.
+        :param specification.Frame frame_out: A single pamqp frame.
         :return:
         """
         self.check_for_errors()
@@ -357,7 +353,7 @@ class Channel(BaseChannel):
     def _basic_cancel(self, frame_in):
         """Handle a Basic Cancel frame.
 
-        :param pamqp_spec.Basic.Cancel frame_in: Amqp frame.
+        :param specification.Basic.Cancel frame_in: Amqp frame.
         :return:
         """
         LOGGER.warning(
@@ -369,7 +365,7 @@ class Channel(BaseChannel):
     def _basic_return(self, frame_in):
         """Handle a Basic Return Frame and treat it as an error.
 
-        :param pamqp_spec.Basic.Return frame_in: Amqp frame.
+        :param specification.Basic.Return frame_in: Amqp frame.
         :return:
         """
         reply_text = try_utf8_decode(frame_in.reply_text)
@@ -415,7 +411,7 @@ class Channel(BaseChannel):
         :rtype: tuple|None
         """
         basic_deliver = self._inbound.pop(0)
-        if not isinstance(basic_deliver, pamqp_spec.Basic.Deliver):
+        if not isinstance(basic_deliver, specification.Basic.Deliver):
             LOGGER.warning(
                 'Received an out-of-order frame: %s was '
                 'expecting a Basic.Deliver frame',
@@ -453,7 +449,7 @@ class Channel(BaseChannel):
     def _close_channel(self, frame_in):
         """Close Channel.
 
-        :param pamqp_spec.Channel.Close frame_in: Amqp frame.
+        :param specification.Channel.Close frame_in: Amqp frame.
         :return:
         """
         self.set_state(self.CLOSED)
