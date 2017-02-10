@@ -83,13 +83,15 @@ def insert_raw_item(item):
 
 	item = text_tools.fix_dict(item, recase=False)
 
-	itemrow = Feeds.query.filter(Feeds.guid == entry['guid']).scalar()
-	if not itemrow:
+	itemrows = Feeds.query.filter(Feeds.guid == entry['guid']).all()
+	if not itemrows:
 		print("New feed item: ", entry['guid'])
 		itemrow = Feeds(**entry)
 
 		db.session.add(itemrow)
 		db.session.flush()
+	else:
+		itemrow = itemrows[0]
 
 
 	for tag in item.pop('tags'):
