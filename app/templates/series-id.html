@@ -189,6 +189,31 @@
 
 
 
+
+{% macro tagItemBlock(inList) -%}
+	<div class="well well-tny info-item">
+		<div class="row multiitem" id="tag-container">
+			<div class="col-md-5 rowTitle">
+				Tags:
+				<span class='text-nowrap light-text'>
+					<a id='editlink' href="#" onclick="edit('tag-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/tag/{{series.id}}">[history]</a>
+				</span>
+			</div>
+			<div class="col-md-{{12-5}} rowContents" id='tag'>
+				{% for item in inList %}
+					<span class='multiitem' id='tag'><a href="/search?json= {{ {'series-type' : {}, 'tag-category' : {item['tag']:'included'}, 'sort-mode' : "update", 'title-search-text' : "", 'chapter-limits' : [0, false]} | tojson | urlencode }}">{{ item['tag'] }}</a>{% if not loop.last %},{% endif %}</span>
+				{% else %}
+					<span class='multiitem' id='tag'>N/A</span>
+				{% endfor %}
+
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+
+
 {% macro multiItemList(name, inList, itemKey, valId, link_base, link=True, width=3) -%}
 	<div class="well well-tny info-item">
 		<div class="row multilist" id="{{valId}}-container">
@@ -1142,15 +1167,8 @@
 				}}
 			{% endif %}
 
+			{{tagItemBlock(series.tags)}}
 
-			{{multiItemBlock("Tags",
-								series.tags,
-								'tag',
-								'tag',
-								'tag-id',
-								width=5
-							)
-			}}
 			{{multiItemBlock("Genres",
 								series.genres,
 								'genre',
