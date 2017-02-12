@@ -109,7 +109,7 @@ def do_advanced_search(params):
 	rdte = func.max(Releases.published).label('reldate')
 	rcnt = func.count(Series.releases).label('ccount')
 
-	q = db.session.query(Series, rdte, rcnt).group_by(Series.id)
+	q = db.session.query(Series.id, Series.title, rdte, rcnt).group_by(Series)
 
 	q = q.join(Releases)
 	q = q.filter(Releases.series == Series.id)
@@ -167,10 +167,11 @@ def do_advanced_search(params):
 	q = q.limit(100)
 	res = q.all()
 
-	if res:
-		print("Results:")
-		print(res[0])
-		print(dir(res[0]))
+	# if res:
+	# 	print("Results:")
+	# 	print(res[0])
+	# 	print(dir(res[0]))
+
 	return res
 
 def search_check_ok(params):
@@ -207,16 +208,26 @@ def ajax_search():
 		return render_template('__block_blurb.html', message="You have to provide some search parameters!")
 
 def render_search_page(search):
+
+	common_searches = 25
 	if not search:
 
 		print("Render search page call!")
 		results = CommonTags.query                 \
-			.filter(CommonTags.tag_instances > 25) \
 			.order_by(CommonTags.tag)              \
 			.all()
 
+		common, rare = [], []
+		for item in results:
+			if item.tag_instances >= 25:
+				common.append(item)
+			else:
+				rare.append(item)
+
 		return render_template('advanced-search.html',
-			available_tags = results
+			common_tags = common,
+			rare_tags = rare,
+			common_thresh = common_searches
 			)
 	elif 'json' in request.args:
 		args = json.loads(request.args['json'])

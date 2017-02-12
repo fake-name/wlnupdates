@@ -20,11 +20,11 @@
 						Last Release
 					</th>
 				</tr>
-				{%- for series_item, latest_rel, relcnt in series %}
+				{%- for series_id, series_title, latest_rel, relcnt in series %}
 					<tr>
 						<td>
-							<a href='/series-id/{{ series_item.id }}/'>
-								{{ series_item.title }}
+							<a href='/series-id/{{ series_id }}/'>
+								{{ series_title }}
 							</a>
 						</td>
 						<td>

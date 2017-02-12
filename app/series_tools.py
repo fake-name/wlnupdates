@@ -30,6 +30,7 @@ from flask import g
 from flask import request
 
 from app.api_common import getResponse
+from app import tag_lut
 
 def getCurrentUserId():
 	'''
@@ -75,6 +76,16 @@ def updateTags(series, tags, deleteother=True, allow_new=True):
 	tags = [tag.lower().strip().replace(" ", "-") for tag in tags]
 	tags = [bleach.clean(item, strip=True) for item in tags]
 	tags = [tag for tag in tags if tag.strip()]
+
+	# Pipe through the fixer lut
+	tags = [tag_lut.tag_fix_lut.get(tag, tag) for tag in tags]
+
+	for tag in [n for n in tags]:
+		if tag in tag_lut.tag_extend_lut:
+			tags.append(tag_lut.tag_extend_lut[tag])
+
+	tags = set(tags)
+
 	for tag in tags:
 		if tag in havetags:
 			havetags.pop(tag)

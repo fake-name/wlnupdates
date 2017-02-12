@@ -6,6 +6,7 @@ from apscheduler.jobstores.memory import MemoryJobStore
 from app import api_handlers_admin
 from app import app
 from app import models
+from util import tag_manage
 from util import db_organize
 from util import flatten_history
 
@@ -59,9 +60,14 @@ def update_materialized_view():
 		models.refresh_materialized_view()
 def update_to_merge_series_list():
 	db_organize.levenshein_merger(interactive=False)
+
 def flatten_history_table():
 	with app.app_context():
 		flatten_history.flatten_history()
+
+def deduplicate_tags():
+	with app.app_context():
+		tag_manage.dedup_tags()
 
 def printer():
 	print("Background task!")
@@ -78,6 +84,8 @@ tasks = [
 	(update_materialized_view,     "update_materialized_view",     hours( 1)),
 	(update_to_merge_series_list,  "update_to_merge_series_list",  hours(48)),
 	(flatten_history_table,        "flatten_history_table",        hours(48)),
+
+	(deduplicate_tags,             "deduplicate_tags",             hours( 1)),
 ]
 
 
@@ -91,14 +99,17 @@ def run_scheduler():
 
 if __name__ == "__main__":
 	import logSetup
-
 	logSetup.initLogging()
-	clean_garbage_releases()
-	consolidate_rrl_items()
-	flatten_series_by_url()
-	delete_duplicate_releases()
-	fix_escaped_quotes()
-	clean_tags()
-	trim_spaces()
+
+	# clean_garbage_releases()
+	# consolidate_rrl_items()
+	# flatten_series_by_url()
+	# delete_duplicate_releases()
+	# fix_escaped_quotes()
+	# clean_tags()
+	# trim_spaces()
+	# update_materialized_view()
+	# update_to_merge_series_list()
+
+	deduplicate_tags()
 	update_materialized_view()
-	update_to_merge_series_list()

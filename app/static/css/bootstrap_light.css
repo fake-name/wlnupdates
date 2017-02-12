@@ -6953,8 +6953,8 @@ button.close {
 .btn {
   text-transform: uppercase;
   border: none;
-  color: #444444;
-  background-color: #f8f8f8;
+/*  color: #444444;
+  background-color: #f8f8f8;*/
   /*-webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);*/
   /*box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);*/
   -webkit-transition: all 0.4s;
