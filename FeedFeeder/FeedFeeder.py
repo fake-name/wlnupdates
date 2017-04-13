@@ -218,8 +218,11 @@ def get_create_series(seriesname, tl_type, changeuser, author_name=False):
 			# if we don't have a name, we look for
 
 			# Try to match any alt-names we have.
+			if not all([tmp.series_row for tmp in have]):
+				db.session.commit()
 
-			valid_haves = [tmp for tmp in have if tmp.series_row.tl_type == tl_type]
+
+			valid_haves = [tmp for tmp in have if tmp.series_row and tmp.series_row.tl_type == tl_type]
 
 			# Try for author match first:
 			if author_name:
