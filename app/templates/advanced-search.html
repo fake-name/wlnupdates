@@ -187,7 +187,7 @@
 		function do_ajax_search()
 		{
 			// console.log("Search commands: ", active_filters)
-
+			$( "#search-results" ).html( "Performing search. Please wait..." );
 			$.ajax({
 				url : "/ajax-search",
 				data: JSON.stringify(active_filters),

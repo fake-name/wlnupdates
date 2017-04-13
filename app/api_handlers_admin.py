@@ -74,10 +74,10 @@ def setSortOrder(data):
 
 	# return getResponse(error=True, message="lolwut!")
 
-def get_merge_json():
+def get_config_json():
 	val = {}
 	try:
-		ret = json.load(open("do-not-merge.json"))
+		ret = json.load(open("volatile_config.json"))
 		if isinstance(ret, dict):
 			val = ret
 	except FileNotFoundError:
@@ -86,11 +86,13 @@ def get_merge_json():
 		val = {}
 
 	val.setdefault("no-merge", [])
+	val.setdefault("delete-tags", [])
 	return val
 
-def save_merge_json(newdat):
-	with open("do-not-merge.json", "w") as fp:
-		json.dump(newdat, fp)
+
+def save_config_json(newdat):
+	with open("volatile_config.json", "w") as fp:
+		json.dump(newdat, fp, indent="	")
 
 def preventMergeItems(data):
 	if not current_user.is_mod():
@@ -105,12 +107,12 @@ def preventMergeItems(data):
 	m1, m2 = int(data['item-id']), int(data['separate_id'])
 
 	m1, m2 = min(m1, m2), max(m1, m2)
-	have = get_merge_json()
+	have = get_config_json()
 
 
 	if not [m1, m2] in have['no-merge']:
 		have['no-merge'].append([m1, m2])
-	save_merge_json(have)
+	save_config_json(have)
 
 	return getResponse("Success", False)
 
@@ -674,6 +676,24 @@ def clean_tags(dummy_data, admin_override=False):
 	db.session.commit()
 
 	return getResponse("Found %s tags that required patching." % (bad_tags), error=False)
+
+def delete_bad_tags(dummy_data, admin_override=False):
+	if admin_override is False and (not current_user.is_mod()):
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+	conf = get_config_json()
+	print("Bad tags:", conf['delete-tags'])
+	removed = 0
+	for bad_tag in conf['delete-tags']:
+		items = Tags.query.filter(Tags.tag == bad_tag).count()
+		print("Found %s instances of tag: %s" % (items, bad_tag))
+		removed += 1
+		Tags.query.filter(Tags.tag == bad_tag).delete()
+
+	save_config_json(conf)
+	removed = 0
+	return getResponse("Found %s tags that required patching." % (removed), error=False)
+
 
 def check_merge(fromrow):
 	other = Series.query.filter(Series.title == fromrow.title.strip()).one()

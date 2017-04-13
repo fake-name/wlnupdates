@@ -49,6 +49,9 @@ def fix_escaped_quotes():
 def clean_tags():
 	with app.app_context():
 		api_handlers_admin.clean_tags(None, admin_override=True)
+def delete_bad_tags():
+	with app.app_context():
+		api_handlers_admin.delete_bad_tags(None, admin_override=True)
 def clean_garbage_releases():
 	with app.app_context():
 		api_handlers_admin.clean_bad_releases(None, admin_override=True)
@@ -78,13 +81,13 @@ tasks = [
 	(consolidate_rrl_items,        "consolidate_rrl_items",        hours( 1)),
 	(fix_escaped_quotes,           "fix_escaped_quotes",           hours( 1)),
 	(clean_tags,                   "clean_tags",                   hours( 1)),
+	(delete_bad_tags,              "delete_bad_tags",              hours( 1)),
 	(delete_duplicate_releases,    "delete_duplicate_releases",    hours( 2)),
 	(clean_garbage_releases,       "clean_garbage_releases",       hours( 1)),
 	(trim_spaces,                  "trim_spaces",                  hours( 1)),
 	(update_materialized_view,     "update_materialized_view",     hours( 1)),
 	(update_to_merge_series_list,  "update_to_merge_series_list",  hours(48)),
 	(flatten_history_table,        "flatten_history_table",        hours(48)),
-
 	(deduplicate_tags,             "deduplicate_tags",             hours( 1)),
 ]
 
@@ -110,6 +113,7 @@ if __name__ == "__main__":
 	# trim_spaces()
 	# update_materialized_view()
 	# update_to_merge_series_list()
+	# deduplicate_tags()
 
-	deduplicate_tags()
+	delete_bad_tags()
 	update_materialized_view()
