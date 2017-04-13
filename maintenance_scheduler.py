@@ -103,20 +103,33 @@ def run_scheduler():
 	scheduler.start()
 	pass
 
-if __name__ == "__main__":
-	import logSetup
-	logSetup.initLogging()
+def go():
+	delete_bad_tags()
+	update_materialized_view()
 
-	# clean_garbage_releases()
-	# consolidate_rrl_items()
-	# flatten_series_by_url()
-	# delete_duplicate_releases()
-	# fix_escaped_quotes()
-	# clean_tags()
-	# trim_spaces()
-	# update_materialized_view()
-	# update_to_merge_series_list()
-	# deduplicate_tags()
+def go_all():
+
+	clean_garbage_releases()
+	consolidate_rrl_items()
+	flatten_series_by_url()
+	delete_duplicate_releases()
+	fix_escaped_quotes()
+	clean_tags()
+	trim_spaces()
+	update_materialized_view()
+	update_to_merge_series_list()
+	deduplicate_tags()
 
 	delete_bad_tags()
 	update_materialized_view()
+
+
+if __name__ == "__main__":
+	import logSetup
+	import sys
+	logSetup.initLogging()
+
+	if "all" in sys.argv:
+		go_all()
+	else:
+		go()
