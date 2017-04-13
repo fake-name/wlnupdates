@@ -244,7 +244,7 @@ def levenshein_merger_series(interactive=True):
 			matches = search_for_seriesname(name)
 			if matches:
 				try:
-					namerow = models.Alterna.query.filter(models.AlternateNames.id==nid).one()
+					namerow = models.AlternateNames.query.filter(models.AlternateNames.id==nid).one()
 					match_to_series(namerow, matches, callback)
 				except sqlalchemy.orm.exc.NoResultFound:
 					print("Row merged already?")
