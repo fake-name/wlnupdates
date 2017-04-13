@@ -57,6 +57,9 @@ tag_extend_lut = {
 
 	'young-female-lead'              : 'young-lead',
 	'young-male-lead'                : 'young-lead',
+
+	'male-to-female'                 : 'gender-bender',
+	'female-to-male'                 : 'gender-bender',
 }
 
 
