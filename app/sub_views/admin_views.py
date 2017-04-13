@@ -74,7 +74,7 @@ def renderAdminSeriesMerge():
 		return render_template('not-implemented-yet.html')
 
 	try:
-		with open("./matchset.json", "r") as fp:
+		with open("./seriesname-matchset.json", "r") as fp:
 			matches = json.loads(fp.read())
 	except Exception:
 		return render_template('not-implemented-yet.html', message="Error loading merge JSON file?")

@@ -34,7 +34,7 @@ def printHelp():
 	print("		")
 	print("	delete-postfix")
 	print("		")
-	print("	lv-merge")
+	print("	lv-merge-series")
 	print("		Use levenshtein string distance metrics to try to heuristically automatically")
 	print("		merge series with multiple instances.")
 	print("		")
@@ -80,10 +80,12 @@ def parseOneArgCall(cmd):
 	elif arg == "delete-postfix":
 		with app.app_context():
 			util.db_organize.delete_postfix()
-	elif arg == "lv-merge":
-		util.db_organize.levenshein_merger()
+	elif arg == "lv-merge-series":
+		util.db_organize.levenshein_merger_series()
 	elif arg == "lv-auto-calc":
-		util.db_organize.levenshein_merger(interactive=False)
+		util.db_organize.levenshein_merger_series(interactive=False)
+	elif arg == "lv-group-calc":
+		util.db_organize.levenshein_merger_groups(interactive=False)
 	elif arg == "flatten-history":
 		util.flatten_history.flatten_history()
 	else:

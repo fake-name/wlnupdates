@@ -13,13 +13,15 @@ import app.api_handlers_admin as api_admin
 import sqlalchemy.orm.exc
 from app.models import AlternateNames
 from app.models import Series
+from app.models import AlternateTranslatorNames
+from app.models import Translators
 from sqlalchemy.sql.functions import Function
 from sqlalchemy.sql.expression import select, desc
 from sqlalchemy.orm import joinedload_all
 
 import Levenshtein as lv
 
-def search_for_name(name):
+def search_for_seriesname(name):
 
 	similarity = Function('similarity', AlternateNames.cleanname, (name))
 	query = select(
@@ -28,6 +30,33 @@ def search_for_name(name):
 			order_by=desc(similarity)
 		).where(
 			AlternateNames.cleanname.op("%%")(name)
+		).limit(
+			50
+		)
+
+	results = db.session.execute(query).fetchall()
+
+	data = {}
+
+	for result in results:
+		dbid = result[0]
+		if not dbid in data:
+			data[dbid] = {}
+
+			data[dbid] = []
+		data[dbid].append(result)
+
+	return data
+
+def search_for_tlname(name):
+
+	similarity = Function('similarity', AlternateTranslatorNames.cleanname, (name))
+	query = select(
+			[AlternateTranslatorNames.group, AlternateTranslatorNames.cleanname, AlternateTranslatorNames.name, similarity],
+			from_obj=[AlternateTranslatorNames],
+			order_by=desc(similarity)
+		).where(
+			AlternateTranslatorNames.cleanname.op("%%")(name)
 		).limit(
 			50
 		)
@@ -76,7 +105,7 @@ def print_match(s1, s2, id1, id2, n1, n2, distance):
 	print("		1: https://www.wlnupdates.com/series-id/{}/".format(s1.id))
 	print("		2: https://www.wlnupdates.com/series-id/{}/".format(s2.id))
 
-def askuser_callback(s1, s2, id1, id2, n1, n2, distance):
+def askuser_callback_series(s1, s2, id1, id2, n1, n2, distance):
 	print_match(s1, s2, id1, id2, n1, n2, distance)
 
 	do_merge = askUser.query_response_bool("Merge items?")
@@ -85,7 +114,7 @@ def askuser_callback(s1, s2, id1, id2, n1, n2, distance):
 		api_admin.merge_series_ids(s1.id, s2.id)
 		print("Merged.")
 
-def merge_query(id1, id2, n1, n2, distance, callback):
+def merge_query_series(id1, id2, n1, n2, distance, callback):
 	s1 = Series.query.filter(Series.id==id1).one()
 	s2 = Series.query.filter(Series.id==id2).one()
 
@@ -105,14 +134,21 @@ def merge_query(id1, id2, n1, n2, distance, callback):
 
 	callback(s1, s2, id1, id2, n1, n2, distance)
 
+def merge_query_group(id1, id2, n1, n2, distance, callback):
+	s1 = Translators.query.filter(Translators.id==id1).one()
+	s2 = Translators.query.filter(Translators.id==id2).one()
+
+
+	callback(s1, s2, id1, id2, n1, n2, distance)
+
 class MatchLogBuilder(object):
 	def __init__(self):
 		self.matchsets = {}
-		self.memory = api_admin.get_merge_json()
+		self.memory = api_admin.get_config_json()
 
 
 
-	def add_match(self, s1, s2, id1, id2, n1, n2, distance):
+	def add_match_series(self, s1, s2, id1, id2, n1, n2, distance):
 		key = (id1, id2) if id1 <= id2 else (id2, id1)
 
 		if key in self.memory['no-merge']:
@@ -129,13 +165,34 @@ class MatchLogBuilder(object):
 				"ns2"      : [n.name for n in s2.alternatenames],
 				"distance" : distance,
 			}
+	def add_match_group(self, s1, s2, id1, id2, n1, n2, distance):
+		key = (id1, id2) if id1 <= id2 else (id2, id1)
+
+		if key in self.memory['no-merge']:
+			return
+		if key in self.matchsets:
+			return
+		# print_match(s1, s2, id1, id2, n1, n2, distance)
+		self.matchsets[key] = {
+				"id1"      : id1,
+				"id2"      : id2,
+				"n1"       : n1,
+				"n2"       : n2,
+				"ns1"      : [n.name for n in s1.alt_names],
+				"ns2"      : [n.name for n in s2.alt_names],
+				"ser1"      : list(set([tmp.series_row.title for tmp in s1.releases])),
+				"ser2"      : list(set([tmp.series_row.title for tmp in s2.releases])),
+				"url1"      : s1.releases[0].srcurl if s1.releases else None,
+				"url2"      : s2.releases[0].srcurl if s2.releases else None,
+				"distance" : distance,
+			}
 	def save_log(self, filepath):
 		items = list(self.matchsets.values())
 		with open(filepath, "w") as fp:
 			fp.write(json.dumps(items, indent=4, sort_keys=True))
 
 
-def match_to(target, matches, callback):
+def match_to_series(target, matches, callback):
 	fromid = target.series
 
 
@@ -145,16 +202,28 @@ def match_to(target, matches, callback):
 				dist = lv.distance(target.name, name)
 				if dist <= 1:
 
-					merge_query(key, target.series, target.name, name, dist, callback=callback)
+					merge_query_series(key, target.series, target.name, name, dist, callback=callback)
 
-def levenshein_merger(interactive=True):
+
+def match_to_group(target, matches, callback):
+	fromid = target.group
+
+
+	for key in [key for key in matches.keys() if key != fromid]:
+		for key, dummy_clean_name, name, dummy_similarity in matches[key]:
+			if key != fromid:
+				dist = lv.distance(target.name, name)
+				if dist <= 1:
+
+					merge_query_group(key, target.group, target.name, name, dist, callback=callback)
+
+def levenshein_merger_series(interactive=True):
 
 	matchlogger = MatchLogBuilder()
 	if interactive:
-		callback=askuser_callback
+		callback=askuser_callback_series
 	else:
-		callback=matchlogger.add_match
-
+		callback=matchlogger.add_match_series
 
 	print("fetching series")
 	with app.app_context():
@@ -169,12 +238,14 @@ def levenshein_merger(interactive=True):
 
 	print("Searching for duplicates from %s names" % len(altn))
 	for nid, name in altn:
+		if name == 'RoyalRoadL':
+			continue
 		with app.app_context():
-			matches = search_for_name(name)
+			matches = search_for_seriesname(name)
 			if matches:
 				try:
-					namerow = models.AlternateNames.query.filter(models.AlternateNames.id==nid).one()
-					match_to(namerow, matches, callback)
+					namerow = models.Alterna.query.filter(models.AlternateNames.id==nid).one()
+					match_to_series(namerow, matches, callback)
 				except sqlalchemy.orm.exc.NoResultFound:
 					print("Row merged already?")
 
@@ -183,7 +254,47 @@ def levenshein_merger(interactive=True):
 	print("wat?")
 
 	if not interactive:
-		matchlogger.save_log("./matchset.json")
+		matchlogger.save_log("./seriesname-matchset.json")
+
+
+
+def levenshein_merger_groups(interactive=True):
+
+
+	matchlogger = MatchLogBuilder()
+	if interactive:
+		callback=askuser_callback
+	else:
+		callback=matchlogger.add_match_group
+
+	print("fetching series")
+	with app.app_context():
+		items = models.Translators.query.all()
+		altn = []
+		for item in items:
+			for name in item.alt_names:
+				altn.append((name.id, name.name))
+
+	print("Sorting names")
+	altn.sort(key=lambda x: (x[1], x[0]))
+
+	print("Searching for duplicates from %s names" % len(altn))
+	for nid, name in altn:
+		with app.app_context():
+			matches = search_for_tlname(name)
+			if matches:
+				try:
+					namerow = models.AlternateTranslatorNames.query.filter(models.AlternateTranslatorNames.id==nid).one()
+					match_to_group(namerow, matches, callback)
+				except sqlalchemy.orm.exc.NoResultFound:
+					print("Row merged already?")
+
+
+	print(len(items))
+	print("wat?")
+
+	if not interactive:
+		matchlogger.save_log("./translatorname-matchset.json")
 
 
 def delete_postfix():

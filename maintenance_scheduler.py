@@ -62,7 +62,9 @@ def update_materialized_view():
 	with app.app_context():
 		models.refresh_materialized_view()
 def update_to_merge_series_list():
-	db_organize.levenshein_merger(interactive=False)
+	db_organize.levenshein_merger_series(interactive=False)
+def update_to_merge_groups_list():
+	db_organize.levenshein_merger_groups(interactive=False)
 
 def flatten_history_table():
 	with app.app_context():
@@ -87,6 +89,7 @@ tasks = [
 	(trim_spaces,                  "trim_spaces",                  hours( 1)),
 	(update_materialized_view,     "update_materialized_view",     hours( 1)),
 	(update_to_merge_series_list,  "update_to_merge_series_list",  hours(48)),
+	(update_to_merge_groups_list,  "update_to_merge_groups_list",  hours(48)),
 	(flatten_history_table,        "flatten_history_table",        hours(48)),
 	(deduplicate_tags,             "deduplicate_tags",             hours( 1)),
 ]
