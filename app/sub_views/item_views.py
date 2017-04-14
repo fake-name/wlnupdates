@@ -4,6 +4,7 @@ from flask import redirect
 from flask import url_for
 from flask import g
 from flask_babel import gettext
+import werkzeug.exceptions
 # from guess_language import guess_language
 from app import app
 from app import db
@@ -514,20 +515,27 @@ def renderGroupId(sid, page=1):
 		.order_by(desc(Feeds.published))
 
 
-	items = Releases.query.filter(Releases.tlgroup==group.id).order_by(desc(Releases.published)).all()
-	feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
+	items_raw = Releases.query.filter(Releases.tlgroup==group.id).order_by(desc(Releases.published))
+	try:
+		feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
+	except werkzeug.exceptions.NotFound:
+		feed_entries = None
+	try:
+		items = items_raw.paginate(page, app.config['SERIES_PER_PAGE'])
+	except werkzeug.exceptions.NotFound:
+		items = None
 
-	ids = []
-	for item in items:
-		ids.append(item.series)
-
-	series = Series.query.filter(Series.id.in_(ids)).order_by(Series.title).all()
+	subq = Releases.query.with_entities(Releases.series.distinct()).filter(Releases.tlgroup==group.id)
+	print("Subquery: ", subq)
+	seriesq = Series.query.filter(Series.id.in_(subq)).order_by(Series.title)
+	print("Main q: ", seriesq)
+	series = seriesq.all()
 
 	return render_template('group.html',
-						   series        = series,
-						   releases      = items,
-						   sequence_item = feed_entries,
-						   group         = group,
-						   wiki          = wiki_views.render_wiki("Group", group.name)
+						   series                 = series,
+						   releases_sequence_item = items,
+						   feed_sequence_item     = feed_entries,
+						   group                  = group,
+						   wiki                   = wiki_views.render_wiki("Group", group.name)
 						   )
 

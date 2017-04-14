@@ -106,6 +106,7 @@ def run_scheduler():
 def go():
 	delete_bad_tags()
 	update_materialized_view()
+	update_to_merge_groups_list()
 
 def go_all():
 
@@ -118,6 +119,7 @@ def go_all():
 	trim_spaces()
 	update_materialized_view()
 	update_to_merge_series_list()
+	update_to_merge_groups_list()
 	deduplicate_tags()
 
 	delete_bad_tags()

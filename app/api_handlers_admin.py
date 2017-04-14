@@ -85,7 +85,8 @@ def get_config_json():
 	except json.JSONDecodeError:
 		val = {}
 
-	val.setdefault("no-merge", [])
+	val.setdefault("no-merge-series", [])
+	val.setdefault("no-merge-groups", [])
 	val.setdefault("delete-tags", [])
 	return val
 
@@ -94,7 +95,7 @@ def save_config_json(newdat):
 	with open("volatile_config.json", "w") as fp:
 		json.dump(newdat, fp, indent="	")
 
-def preventMergeItems(data):
+def preventMergeSeriesItems(data):
 	if not current_user.is_mod():
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 
@@ -110,8 +111,8 @@ def preventMergeItems(data):
 	have = get_config_json()
 
 
-	if not [m1, m2] in have['no-merge']:
-		have['no-merge'].append([m1, m2])
+	if not [m1, m2] in have['no-merge-series']:
+		have['no-merge-series'].append([m1, m2])
 	save_config_json(have)
 
 	return getResponse("Success", False)
@@ -128,6 +129,44 @@ def mergeSeriesItems(data):
 
 	m1, m2 = int(data['item-id']), int(data['merge_id'])
 	return merge_series_ids(m1, m2)
+
+
+
+def preventMergeGroupEntries(data):
+	if not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+
+	assert 'mode' in data
+	assert data['mode'] == 'block-group-merge-id'
+	assert 'item-id' in data
+	assert 'separate_id' in data
+
+	m1, m2 = int(data['item-id']), int(data['separate_id'])
+
+	m1, m2 = min(m1, m2), max(m1, m2)
+	have = get_config_json()
+
+
+	if not [m1, m2] in have['no-merge-groups']:
+		have['no-merge-groups'].append([m1, m2])
+	save_config_json(have)
+
+	return getResponse("Success", False)
+
+def mergeGroupEntries(data):
+	if not current_user.is_mod():
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+
+	assert 'mode' in data
+	assert data['mode'] == 'do-group-merge-id'
+	assert 'item-id' in data
+	assert 'merge_id' in data
+
+	m1, m2 = int(data['item-id']), int(data['merge_id'])
+	return merge_tl_group_ids(m1, m2)
+
 
 def mergeGroupItems(data):
 	if not current_user.is_mod():

@@ -120,20 +120,31 @@
 	</div>
 
 	<hr class='padded-rule'>
-	{% set release_items = releases %}
+	{% set release_items = releases_sequence_item.items %}
 	<div>
-		<span><h3>Group Releases:</h3><sup style='float:right'>Releases found: {{ release_items | length }}</sup></span>
-		{% include '_block_releases.html' %}
+		<sub class='pull-right'>Releases found: {{ releases_sequence_item.total }}</sub><h3>Group Releases:</h3>
+		<div class='clearfix'></div>
+		{% if releases_sequence_item %}
+			{% include '_block_releases.html' %}
+			{{ paginator.render_pagination(releases_sequence_item) }}
+		{% else %}
+			<center><h5>No more group releases!</h5></center>
+		{% endif %}
 	</div>
 
 
 	<hr class='padded-rule'>
-	{% set raw_feeds = sequence_item.items %}
+	{% set raw_feeds = feed_sequence_item.items %}
 	<div>
-		<h3>Group RSS Entries:</h3>
-		{% include '_block_feeds.html' %}
+		<sub class='pull-right'>Rss entries found: {{ feed_sequence_item.total }}</sub><h3>Group RSS Entries:</h3>
+		<div class='clearfix'></div>
+		{% if feed_sequence_item %}
+			{% include '_block_feeds.html' %}
+			{{ paginator.render_pagination(feed_sequence_item) }}
+		{% else %}
+				<center><h5>No more group feeds!</h5></center>
+		{% endif %}
 	</div>
-	{{ paginator.render_pagination(sequence_item) }}
 
 {% endblock %}
 
@@ -160,10 +171,10 @@
 			var merge_id  = $("#dbid").val();
 			console.log("merge_id", merge_id)
 
-			var mangaId  = $('meta[name=group-id]').attr('content')
+			var group_id  = $('meta[name=group-id]').attr('content')
 			var params = {
 				'mode'      : 'merge-group',
-				'item-id'   : mangaId,
+				'item-id'   : group_id,
 				'merge_id'  : merge_id
 			}
 

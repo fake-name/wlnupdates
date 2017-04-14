@@ -151,7 +151,7 @@ class MatchLogBuilder(object):
 	def add_match_series(self, s1, s2, id1, id2, n1, n2, distance):
 		key = (id1, id2) if id1 <= id2 else (id2, id1)
 
-		if key in self.memory['no-merge']:
+		if key in self.memory['no-merge-series']:
 			return
 		if key in self.matchsets:
 			return
@@ -168,7 +168,7 @@ class MatchLogBuilder(object):
 	def add_match_group(self, s1, s2, id1, id2, n1, n2, distance):
 		key = (id1, id2) if id1 <= id2 else (id2, id1)
 
-		if key in self.memory['no-merge']:
+		if key in self.memory['no-merge-groups']:
 			return
 		if key in self.matchsets:
 			return

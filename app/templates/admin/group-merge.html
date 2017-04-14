@@ -1,0 +1,175 @@
+<!-- extend base layout -->
+{% extends "__base.html" %}
+{% import "_block_paginate.html" as paginator %}
+
+
+{% block content %}
+	{% include '_block_flash.html' %}
+	{% if g.user.is_admin() %}
+		<div>
+			<h3>Levenshtein Series Merge Interface</h3>
+		</div>
+		{% for matchitem in matches %}
+			{% if matchitem['r1'] and matchitem['r2'] %}
+				<div class="spair-{{min(matchitem['r1'].id, matchitem['r2'].id)}}-{{max(matchitem['r1'].id, matchitem['r2'].id)}}" class="well well-large" style="min-height: 140px;">
+					<div>
+						<span class='pull-right'><input id="merge_button" type="button" value="Merge"
+							onclick="merge_group({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
+						<span class='pull-right'><input id="separate_button" type="button" value="Separate"
+							onclick="separate_group({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
+						<h4>Merge targets: {{matchitem['r1'].id}} - {{matchitem['r2'].id}} (distance: {{matchitem['distance']}})</h4>
+						<h5>T1 Name: {{matchitem['r1'].name}} - {{matchitem['r1'].id}}</h5>
+						<h5>T2 Name: {{matchitem['r2'].name}} - {{matchitem['r2'].id}}</h5>
+						<h6>{{matchitem['r1']}} - {{matchitem['r2']}}</h6>
+
+
+						<div>S1 Names</div>
+						<ul>
+							{% for altn in matchitem['r1'].alt_names %}
+								<li>{{altn.name}}</li>
+							{% endfor %}
+							<li>{{matchitem['r1'].name}}</li>
+						</ul>
+						<div>S2 Names</div>
+						<ul>
+							{% for altn in matchitem['r2'].alt_names %}
+								<li>{{altn.name}}</li>
+							{% endfor %}
+							<li>{{matchitem['r2'].name}}</li>
+						</ul>
+
+						<div>URLs:</div>
+						<ul>
+							<li>S1: <a href='{{matchitem['url1']}}'>{{matchitem['url1']}}</a></li>
+							<li>S2: <a href='{{matchitem['url2']}}'>{{matchitem['url2']}}</a></li>
+						</ul>
+
+						<div>URLs</div>
+						<ul>
+							<li>S1: <a href="/group-id/{{matchitem['id1']}}/">{{matchitem['id1']}}</a></li>
+							<li>S2: <a href="/group-id/{{matchitem['id2']}}/">{{matchitem['id2']}}</a></li>
+						</ul>
+
+
+						<div>S1 Series</div>
+						<ul>
+							{% for seriesn in matchitem['ser1'] %}
+								<li>{{seriesn}}</li>
+							{% endfor %}
+						</ul>
+						<div>S2 Series</div>
+						<ul>
+							{% for seriesn in matchitem['ser2'] %}
+								<li>{{seriesn}}</li>
+							{% endfor %}
+						</ul>
+
+{#
+						<div>Raw</div>
+						<div>{{matchitem}}</div>
+#}
+
+					</div>
+				</div>
+			{% endif %}
+		{% endfor %}
+
+	{% endif %}
+
+{% endblock %}
+
+
+{% block footer %}
+
+	<script>
+
+
+
+		function merge_callback(target_div)
+		{
+			return function(result)
+			{
+				console.log("merge callback!")
+				if (!result.hasOwnProperty("error"))
+				{
+					console.log("No error result?")
+					return;
+				}
+				if (result['error'])
+				{
+					bootbox.alert("Error on update!<br/><br/>"+result["message"], function()
+						{
+						}
+					)
+					return;
+				}
+				else
+				{
+					$("."+target_div).slideUp(500, function(){$( this ).remove()});
+				}
+				console.log(result)
+
+			}
+		}
+
+		function merge_group(gid1, gid2)
+		{
+
+			var chunk_id = "spair-" + Math.min(gid1, gid2) + "-" + Math.max(gid1, gid2);
+			console.log("Series merge:", gid1, gid2, chunk_id);
+
+
+			console.log("Ready to send!");
+			var merge_id  = $("#dbid").val();
+			console.log("merge_id", merge_id)
+
+			var params = {
+				'mode'      : 'do-group-merge-id',
+				'item-id'   : gid1,
+				'merge_id'  : gid2
+			}
+
+
+			$.ajax({
+				url : "/api",
+				success : merge_callback(chunk_id),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
+
+		function separate_group(gid1, gid2)
+		{
+
+			var chunk_id = "spair-" + Math.min(gid1, gid2) + "-" + Math.max(gid1, gid2);
+			console.log("Series separate:", gid1, gid2, chunk_id);
+
+
+			console.log("Ready to send!");
+			var separate_id  = $("#dbid").val();
+			console.log("separate_id", separate_id)
+
+			var params = {
+				'mode'         : 'block-group-merge-id',
+				'item-id'      : gid1,
+				'separate_id'  : gid2
+			}
+
+
+			$.ajax({
+				url : "/api",
+				success : merge_callback(chunk_id),
+				data: JSON.stringify(params),
+				method: "POST",
+				dataType: 'json',
+				contentType: "application/json;",
+			});
+		}
+
+
+
+	</script>
+
+{% endblock %}

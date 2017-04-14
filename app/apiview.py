@@ -99,7 +99,11 @@ DISPATCH_TABLE = {
 
 	# Admin API bits
 	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,          True,  False),
-	'block-merge-id'            : (api_handlers_admin.preventMergeItems,         True,  False),
+	'block-merge-id'            : (api_handlers_admin.preventMergeSeriesItems,   True,  False),
+
+	'do-group-merge-id'         : (api_handlers_admin.mergeGroupEntries,         True,  False),
+	'block-group-merge-id'      : (api_handlers_admin.preventMergeGroupEntries,  True,  False),
+
 	'set-sort-mode'             : (api_handlers_admin.setSortOrder,              True,  False),
 	'merge-group'               : (api_handlers_admin.mergeGroupItems,           True,  False),
 	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,          True,  False),
