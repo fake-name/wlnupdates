@@ -79,7 +79,7 @@ def renderAdminSeriesMerge():
 	except Exception:
 		return render_template('not-implemented-yet.html', message="Error loading merge JSON file?")
 
-	no_merge = api_admin.get_merge_json()["no-merge"]
+	no_merge = api_admin.get_config_json()["no-merge"]
 	no_merge = [tuple(tmp) for tmp in no_merge]
 	print("Loading series data")
 
