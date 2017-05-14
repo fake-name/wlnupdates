@@ -236,7 +236,8 @@ def render_search_page(search):
 		if search_check_ok(args):
 			series = do_advanced_search(args)
 			return render_template('advanced-search-results.html',
-				series = series
+				series = series,
+				search_params = args
 				)
 		else:
 			return render_template('not-implemented-yet.html', message="You have to provide some search parameters!")

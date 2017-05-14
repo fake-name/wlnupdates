@@ -2,7 +2,7 @@
 {% block content %}
 	<div style="min-height: 40px;">
 		{% if series %}
-			<h6>{{ series | length }} results found</h6>
+			<h6>{% if series | length >= 100 %}At least{% endif %} {{ series | length }} results found</h6>
 
 			<table class='table-striped table table-bordered table-condensed fullwidth'>
 

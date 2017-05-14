@@ -10,6 +10,52 @@
 	<div style="min-height: 140px;">
 		<h2>Advanced Search Results</h2>
 		<div class='well'>
+			Search for series
+			<ul>
+
+				{% if search_params['title-search-text'] %}
+					<li>where title is similar to '{{search_params['title-search-text']}}'</li>
+				{% endif %}
+
+				{% if search_params['chapter-limits'][0] > 0 %}
+					<li>having more then {{search_params['chapter-limits'][0]}} chapters</li>
+				{% endif %}
+
+				{% if search_params['chapter-limits'][1] %}
+					<li>having not more then {{search_params['chapter-limits'][1]}} chapters</li>
+				{% endif %}
+
+				{% for stype, mode in search_params['series-type'].items() %}
+					{% if mode == "included" %}
+						<li>including series type '{{stype}}'</li>
+					{% elif mode == "excluded" %}
+						<li>not including series type '{{stype}}'</li>
+					{% else %}
+						<li>Unknown mode '{{mode}}' for series type '{{stype}}'</li>
+					{% endif %}
+				{% endfor %}
+
+				{% for tag, mode in search_params['tag-category'].items() %}
+					{% if mode == "included" %}
+						<li>including tag '{{tag}}'</li>
+					{% elif mode == "excluded" %}
+						<li>not including tag '{{tag}}'</li>
+					{% else %}
+						<li>Unknown mode '{{mode}}' for tag '{{tag}}'</li>
+					{% endif %}
+				{% endfor %}
+
+				{% if search_params['sort-mode'] == 'update' %}
+					<li>sorted by last update (most recent first).</li>
+				{% elif search_params['sort-mode'] == "name" %}
+					<li>sorted by name (alphabetically).</li>
+				{% elif search_params['sort-mode'] == "chapter-count" %}
+					<li>sorted by release count (items with the most releases first).</li>
+				{% else %}
+					<li>unknown sort mode: '{{search_params['sort-mode']}}'!</li>
+				{% endif %}
+
+			</ul>
 			{% include "ajax-search.html" %}
 		</div>
 	</div>
