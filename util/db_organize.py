@@ -314,7 +314,7 @@ def levenshein_merger_groups(interactive=True):
 
 	print("fetching series")
 	with app.app_context():
-		items = models.Translators.query(
+		items = models.Translators.query.options(
 			joinedload(Translators.alt_names)
 			).all()
 		altn = []

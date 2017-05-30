@@ -106,8 +106,8 @@ def run_scheduler():
 def go():
 	# delete_bad_tags()
 	# update_materialized_view()
-	update_to_merge_series_list()
 	update_to_merge_groups_list()
+	update_to_merge_series_list()
 
 def go_all():
 
