@@ -227,7 +227,7 @@ class MatchLogBuilder(object):
 		with open(filepath, "w") as fp:
 			fp.write(json.dumps(items, indent=4, sort_keys=True))
 
-SIMILARITY_THRESHOLD = 3
+SIMILARITY_THRESHOLD = 2
 
 def match_to_series(target, matches, callback):
 	fromid = target.series
