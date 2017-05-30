@@ -16,12 +16,13 @@ from app.models import Series
 from app.models import AlternateTranslatorNames
 from app.models import Translators
 from sqlalchemy.sql.functions import Function
-from sqlalchemy.sql.expression import select, desc
-from sqlalchemy.orm import joinedload_all
+from sqlalchemy.sql.expression import select, desc, delete
+from sqlalchemy.orm import joinedload
+from sqlalchemy import and_
 
 import Levenshtein as lv
 
-def search_for_seriesname(name):
+def search_for_seriesname(name, nid):
 
 	similarity = Function('similarity', AlternateNames.cleanname, (name))
 	query = select(
@@ -29,26 +30,42 @@ def search_for_seriesname(name):
 			from_obj=[AlternateNames],
 			order_by=desc(similarity)
 		).where(
-			AlternateNames.cleanname.op("%%")(name)
+			and_(AlternateNames.cleanname.op("%%")(name), AlternateNames.series != nid)
 		).limit(
-			50
+			10
 		)
-
+	# print("Query:", query)
 	results = db.session.execute(query).fetchall()
 
 	data = {}
 
-	for result in results:
-		dbid = result[0]
-		if not dbid in data:
-			data[dbid] = {}
 
-			data[dbid] = []
-		data[dbid].append(result)
+	for mgid, mcleanname, mname, similarity in results:
+		if not mgid in data:
+			data[mgid] = []
+
+		distance = lv.distance(name, mcleanname)
+		data[mgid].append((mgid, mcleanname, mname, distance))
 
 	return data
 
-def search_for_tlname(name):
+def get_rows(altn):
+	query = select(
+			[AlternateTranslatorNames.group, AlternateTranslatorNames.cleanname, AlternateTranslatorNames.name],
+			from_obj=[AlternateTranslatorNames]
+		).where(
+			AlternateTranslatorNames.name == altn
+		)
+
+	results = db.session.execute(query).fetchall()
+	ret = []
+	for result in results:
+		ret.append((result[0], result[1], result[2], 0.1))
+	return ret
+
+def search_for_tlname(name, nid, alts):
+
+	# print("Searching:", (nid, name))
 
 	similarity = Function('similarity', AlternateTranslatorNames.cleanname, (name))
 	query = select(
@@ -56,22 +73,41 @@ def search_for_tlname(name):
 			from_obj=[AlternateTranslatorNames],
 			order_by=desc(similarity)
 		).where(
-			AlternateTranslatorNames.cleanname.op("%%")(name)
+			and_(AlternateTranslatorNames.cleanname.op("%%")(name), AlternateTranslatorNames.group != nid)
 		).limit(
-			50
+			10
 		)
 
 	results = db.session.execute(query).fetchall()
 
 	data = {}
 
-	for result in results:
-		dbid = result[0]
-		if not dbid in data:
-			data[dbid] = {}
+	for mgid, mcleanname, mname, similarity in results:
+		if not mgid in data:
+			data[mgid] = []
 
-			data[dbid] = []
-		data[dbid].append(result)
+		distance = lv.distance(name, mcleanname)
+		data[mgid].append((mgid, mcleanname, mname, distance))
+
+
+	for mgid, mcleanname, mname, similarity in results:
+		if not mgid in data:
+			data[mgid] = []
+		distance = lv.distance(mcleanname, name)
+		data[mgid].append((mgid, mcleanname, mname, distance))
+
+	for oid, altn, caltn in alts:
+		if not altn:
+			continue
+
+		if name.lower().startswith(altn.lower()) or altn.lower().startswith(name.lower()) and altn and name:
+			if not oid in data:
+				data[oid] = []
+
+
+			# rows = get_rows(altn)
+			# for row in rows:
+			# 	data[oid].append(row)
 
 	return data
 
@@ -191,18 +227,17 @@ class MatchLogBuilder(object):
 		with open(filepath, "w") as fp:
 			fp.write(json.dumps(items, indent=4, sort_keys=True))
 
+SIMILARITY_THRESHOLD = 3
 
 def match_to_series(target, matches, callback):
 	fromid = target.series
 
 
 	for key in [key for key in matches.keys() if key != fromid]:
-		for key, dummy_clean_name, name, dummy_similarity in matches[key]:
+		for key, dummy_clean_name, name, similarity in matches[key]:
 			if key != fromid:
-				dist = lv.distance(target.name, name)
-				if dist <= 1:
-
-					merge_query_series(key, target.series, target.name, name, dist, callback=callback)
+				if similarity <= SIMILARITY_THRESHOLD:
+					merge_query_series(key, target.series, target.name, name, similarity, callback=callback)
 
 
 def match_to_group(target, matches, callback):
@@ -210,14 +245,14 @@ def match_to_group(target, matches, callback):
 
 
 	for key in [key for key in matches.keys() if key != fromid]:
-		for key, dummy_clean_name, name, dummy_similarity in matches[key]:
+		for key, dummy_clean_name, name, similarity in matches[key]:
+			# print((key, target.name, name, similarity))
 			if key != fromid:
-				dist = lv.distance(target.name, name)
-				if dist <= 1:
-
-					merge_query_group(key, target.group, target.name, name, dist, callback=callback)
+				if similarity <= SIMILARITY_THRESHOLD:
+					merge_query_group(key, target.group, target.name, name, similarity, callback=callback)
 
 def levenshein_merger_series(interactive=True):
+
 
 	matchlogger = MatchLogBuilder()
 	if interactive:
@@ -227,27 +262,34 @@ def levenshein_merger_series(interactive=True):
 
 	print("fetching series")
 	with app.app_context():
-		items = models.Series.query.all()
+		items = models.Series.query.options(
+			joinedload(Series.alternatenames)
+			).all()
 		altn = []
 		for item in items:
 			for name in item.alternatenames:
-				altn.append((name.id, name.name))
+				altn.append((name.id, name.cleanname))
 
 	print("Sorting names")
 	altn.sort(key=lambda x: (x[1], x[0]))
 
 	print("Searching for duplicates from %s names" % len(altn))
+	done = 0
 	for nid, name in altn:
 		if name == 'RoyalRoadL':
 			continue
 		with app.app_context():
-			matches = search_for_seriesname(name)
+			matches = search_for_seriesname(name, nid)
 			if matches:
 				try:
 					namerow = models.AlternateNames.query.filter(models.AlternateNames.id==nid).one()
 					match_to_series(namerow, matches, callback)
 				except sqlalchemy.orm.exc.NoResultFound:
 					print("Row merged already?")
+		done += 1
+
+		if done % 10 == 0:
+			print("Done %s items of %s" % (done, len(altn)))
 
 
 	print(len(items))
@@ -260,6 +302,9 @@ def levenshein_merger_series(interactive=True):
 
 def levenshein_merger_groups(interactive=True):
 
+	query = delete(AlternateTranslatorNames).where(AlternateTranslatorNames.group == None)
+	db.session.execute(query)
+
 
 	matchlogger = MatchLogBuilder()
 	if interactive:
@@ -269,26 +314,32 @@ def levenshein_merger_groups(interactive=True):
 
 	print("fetching series")
 	with app.app_context():
-		items = models.Translators.query.all()
+		items = models.Translators.query(
+			joinedload(Translators.alt_names)
+			).all()
 		altn = []
 		for item in items:
 			for name in item.alt_names:
-				altn.append((name.id, name.name))
+				altn.append((name.id, name.name, name.cleanname))
 
 	print("Sorting names")
 	altn.sort(key=lambda x: (x[1], x[0]))
 
 	print("Searching for duplicates from %s names" % len(altn))
-	for nid, name in altn:
+	done = 0
+	for nid, name, cleanname in altn:
 		with app.app_context():
-			matches = search_for_tlname(name)
+			matches = search_for_tlname(cleanname, nid, altn)
 			if matches:
 				try:
 					namerow = models.AlternateTranslatorNames.query.filter(models.AlternateTranslatorNames.id==nid).one()
 					match_to_group(namerow, matches, callback)
 				except sqlalchemy.orm.exc.NoResultFound:
 					print("Row merged already?")
+		done += 1
 
+		if done % 10 == 0:
+			print("Done %s items of %s" % (done, len(altn)))
 
 	print(len(items))
 	print("wat?")
