@@ -1,6 +1,8 @@
 <!-- extend base layout -->
 {% extends "__base.html" %}
 
+{% set title = "Uh Oh!" %}
+
 {% block content %}
 	<div >
 		<h1>{{ _('Not Implemented Yet!' if not message else message) }}</h1>

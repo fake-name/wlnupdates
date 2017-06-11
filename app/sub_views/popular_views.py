@@ -102,7 +102,7 @@ def renderMostRated(page=1):
 						   sequence_item   = get_most_rated(page),
 						   page_mode       = "ratings",
 						   page            = page,
-						   title           = 'Most Watched Series',
+						   title           = 'Most Rated Series',
 						   footnote        = None,
 						   )
 

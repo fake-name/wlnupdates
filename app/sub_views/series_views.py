@@ -31,6 +31,7 @@ def renderSeriesTable(letter=None, page=1):
 						   name_key        = "title",
 						   letter          = letter,
 						   path_name       = "series",
+						   title_prefix    = "",
 						   )
 
 
