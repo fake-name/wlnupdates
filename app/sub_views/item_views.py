@@ -28,6 +28,8 @@ from sqlalchemy import func
 import datetime
 from natsort import natsort_keygen
 
+from slugify import slugify
+
 from app.series_tools import get_rating
 
 from app.sub_views import wiki_views
@@ -330,9 +332,19 @@ def get_genre_id(sid, page=1):
 	return genre, series
 
 @app.route('/series-id/<sid>/')
-def renderSeriesId(sid):
+def renderSeriesIdWithoutSlug(sid):
 
+	series       =       Series.query
+	series = series.filter(Series.id==sid)
+	series = series.first()
+	if series is None:
+		flash(gettext('Series %(sid)s not found.', sid=sid))
+		return redirect(url_for('index'))
 
+	return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
+
+@app.route('/series-id/<sid>/<slug>')
+def renderSeriesId(sid, slug):
 
 	data = load_series_data(sid)
 	if data is None:
@@ -340,6 +352,10 @@ def renderSeriesId(sid):
 		return redirect(url_for('index'))
 
 	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches, similar_series = data
+
+	# Check we're at the right slug url
+	if slug != slugify(series.title, to_lower=True):
+		return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
 
 
 	return render_template('series-id.html',

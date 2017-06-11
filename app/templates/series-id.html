@@ -431,7 +431,7 @@
 			<p id='cover-offset' style=""></p>
 
 			<div class='cvr-edit-div'>
-				<a id='editlink' href="/series-id/{{ series.id }}/edit-covers/">[edit covers]</a>
+				<a id='editlink' href="/series-id/edit-covers/{{ series.id }}/">[edit covers]</a>
 
 			</div>
 			{% if covers|length > 1 %}
@@ -488,7 +488,7 @@
 		<div class='imgDiv right-div' id='x'>
 			<div id='x-desc-div'>
 				<p id='x-content'>
-					<a id='editlink' href="/series-id/{{ series.id }}/edit-covers/">No covers! Add one, maybe?</a>
+					<a id='editlink' href="/series-id/edit-covers/{{ series.id }}/">No covers! Add one, maybe?</a>
 				</p>
 			</div>
 		</div>
@@ -1008,6 +1008,7 @@
 
 {% endblock %}
 
+{% set title = series.title if not watch.watch_as_name else watch.watch_as_name %}
 
 {% block content %}
 	{% include '_block_flash.html' %}
