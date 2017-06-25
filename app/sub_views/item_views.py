@@ -372,38 +372,75 @@ def renderLatestUnreadForSeriesId(sid):
 					+ 'make unread shortcut links functional.'))
 		return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
 
-	# we insert a incrementing count to prevent the possiblity of trying to order by
-	# a Release item, since they're explicitly not orderable. Since `idx` will never be
-	# the same, we can gaurantee we'll never hit the last item in the list
-	releases = [
-	                (
-	                    tmp.volume   if tmp.volume   else 0,
-	                    tmp.chapter  if tmp.chapter  else 0,
-	                    tmp.fragment if tmp.fragment else 0,
-	                    idx,
-	                    tmp
-	                 )
-	             for
-	                 idx, tmp
-	             in
-	                 enumerate(series.releases, 1)
-	             if
-	                 tmp.include
-	            ]
 
-	releases.sort()
+	print(series, series.sort_mode)
+	if series.sort_mode == "chronological_order":
+		# In chronological order mode, we just sort by date only
+		# TODO: Push sorting down to the DB query
+		releases = [
+		                (
+		                    tmp.published,
+		                    idx,
+		                    tmp
+		                 )
+		             for
+		                 idx, tmp
+		             in
+		                 enumerate(series.releases, 1)
+		             if
+		                 tmp.include
+		            ]
+		releases.sort()
 
-	link_next = False
+		# Renumber with the correct sequential numbering.
+		releases = [(tmp[0], idx, tmp[2]) for idx, tmp in enumerate(releases, 1)]
+
+	else:   # only parsed_title_order at the moment.
+		# we insert a incrementing count to prevent the possiblity of trying to order by
+		# a Release item, since they're explicitly not orderable. Since `idx` will never be
+		# the same, we can gaurantee we'll never hit the last item in the list
+		releases = [
+		                (
+		                    tmp.volume   if tmp.volume   else 0,
+		                    tmp.chapter  if tmp.chapter  else 0,
+		                    tmp.fragment if tmp.fragment else 0,
+		                    tmp.published,
+		                    idx,
+		                    tmp
+		                 )
+		             for
+		                 idx, tmp
+		             in
+		                 enumerate(series.releases, 1)
+		             if
+		                 tmp.include
+		            ]
+
+		releases.sort()
+
 	for item in releases:
 		rel = item[-1]
+		idx = item[-2]
 
-		if link_next is True and rel.srcurl:
+		# Release value
+		rv, rc, rf = rel.volume   if rel.volume   else 0, rel.chapter   if rel.chapter   else 0, rel.fragment   if rel.fragment   else 0
+		# Watch read-to value
+		wv, wc, wf = watch.volume if watch.volume else 0, watch.chapter if watch.chapter else 0, watch.fragment if watch.fragment else 0
+
+		# Handle special-case negagtive read values used to mask off values
+		wv, wc, wf = max(0, wv), max(0, wc), max(0, wf)
+
+		# # Clobber the chapter value in chrono mode.
+		# if series.sort_mode == "chronological_order":
+		# 	rc = idx
+
+		if rv >= wv and rc >= wc and wf > rf:
+			return redirect(rel.srcurl)
+		elif rv >= wv and rc > wc:
+			return redirect(rel.srcurl)
+		elif rv > wv:
 			return redirect(rel.srcurl)
 
-		rv, rc, rf = rel.volume   if rel.volume   else 0, rel.chapter   if rel.chapter   else 0, rel.fragment   if rel.fragment   else 0
-		wv, wc, wf = watch.volume if watch.volume else 0, watch.chapter if watch.chapter else 0, watch.fragment if watch.fragment else 0
-		if rv >= wv and rc >= wc and wf >= rf:
-			link_next = True
 
 
 	flash(gettext('Could not determine what chapter to redirect you too. Sorry about that!'))
