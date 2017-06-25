@@ -1,3 +1,5 @@
+
+from jinja2.filters import do_urlencode
 from flask import render_template
 from flask import flash
 from flask import redirect
@@ -434,11 +436,11 @@ def renderLatestUnreadForSeriesId(sid):
 		# if series.sort_mode == "chronological_order":
 		# 	rc = idx
 
-		if rv >= wv and rc >= wc and wf > rf:
-			return redirect(rel.srcurl)
-		elif rv >= wv and rc > wc:
-			return redirect(rel.srcurl)
-		elif rv > wv:
+		if (rv >= wv and rc >= wc and wf > rf) or (rv >= wv and rc > wc) or (rv > wv):
+
+			if g.user.id == 2:
+				return redirect('http://10.1.1.60:5001/view?url=%s' % do_urlencode(rel.srcurl))
+
 			return redirect(rel.srcurl)
 
 
