@@ -420,24 +420,29 @@ def renderLatestUnreadForSeriesId(sid):
 
 		releases.sort()
 
+	# Watch read-to value
+	wv, wc, wf = watch.volume if watch.volume else 0, watch.chapter if watch.chapter else 0, watch.fragment if watch.fragment else 0
+	# Handle special-case negagtive read values used to mask off values
+	wv, wc, wf = max(0, wv), max(0, wc), max(0, wf)
+
+	# print("Read progress:", (wv, wc, wf))
+	# for release in releases:
+	# 	print(release)
+
 	for item in releases:
 		rel = item[-1]
 		idx = item[-2]
 
 		# Release value
 		rv, rc, rf = rel.volume   if rel.volume   else 0, rel.chapter   if rel.chapter   else 0, rel.fragment   if rel.fragment   else 0
-		# Watch read-to value
-		wv, wc, wf = watch.volume if watch.volume else 0, watch.chapter if watch.chapter else 0, watch.fragment if watch.fragment else 0
 
-		# Handle special-case negagtive read values used to mask off values
-		wv, wc, wf = max(0, wv), max(0, wc), max(0, wf)
 
 		# # Clobber the chapter value in chrono mode.
 		# if series.sort_mode == "chronological_order":
 		# 	rc = idx
 
-		if (rv >= wv and rc >= wc and wf > rf) or (rv >= wv and rc > wc) or (rv > wv):
-
+		# print("Item:", item)
+		if (rv >= wv and rc >= wc and rf > wf) or (rv >= wv and rc > wc) or (rv > wv):
 			if g.user.id == 2:
 				return redirect('http://10.1.1.60:5001/view?url=%s' % do_urlencode(rel.srcurl))
 
