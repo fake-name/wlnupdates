@@ -6931,23 +6931,23 @@ a.list-group-item-danger.active:focus {
 
 
 tr.red-highlight:nth-of-type(odd) {
-  background-color: #4c4646 !important;
+  background-color: #4c3636 !important;
 }
 tr.red-highlight:nth-of-type(even) {
-  background-color: #4c4343 !important;
+  background-color: #4c2828 !important;
 }
 tr.yellow-highlight:nth-of-type(odd) {
-  background-color: #4b4b38 !important;
+  background-color: #4b4b28 !important;
 }
 tr.yellow-highlight:nth-of-type(even) {
-  background-color: #4c4c42 !important;
+  background-color: #4c4c32 !important;
 }
 
 tr.green-highlight:nth-of-type(odd) {
-  background-color: #464c46 !important;
+  background-color: #364536 !important;
 }
 tr.green-highlight:nth-of-type(even) {
-  background-color: #434c43 !important;
+  background-color: #234523 !important;
 }
 
 

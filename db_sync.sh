@@ -19,10 +19,12 @@ ssh client@ks1 'sudo -u postgres pg_dump --clean -d wlndb | xz' | pv -cN Db-Fetc
 echo "Updating local database from dump file";
 xz -d ../dbBak/db_dump_$(date +%Y-%m-%d).sql.xz -c | pv -c | ssh wlnuser@10.1.1.61 -t "psql -d wlndb"
 echo "Synchronizing cover folder!"
-rsync -rvvP client@ks1:/media/Storage/wlnupdates/covers /media/Storage/Scripts/_web_resource_backend/;
+rsync -rvvP client@ks1:/media/Storage/wlnupdates/covers /media/Storage/Scripts/_web_resource_backend/; &
 echo "Done!"
 
-
+# Run the server
+source flask/bin/activate
+python run.py all
 
 
 #sudo -H -u herp -- bash -c "ssh client@ks1 'tar -c /media/Storage/wlnupdates/covers | xz' | pv -cN Cover-Fetch-Progress > ../dbBak/cover_dump_$(date +%Y-%m-%d).tar.xz";
