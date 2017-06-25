@@ -1089,7 +1089,7 @@ body {
   font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #888888;
+  color: #eee;
   background-color: #060606;
 }
 input,
@@ -6963,15 +6963,15 @@ div.updating-stale
 
 div.reading-behind
 {
-  background-color: #4c3d3d;
+  background-color: #4c2828;
 }
 div.reading-ahead
 {
-  background-color: #4c4c2d;
+  background-color: #4c4c32;
 }
 div.reading-current
 {
-  background-color: #3d4c3d;
+  background-color: #234523;
 }
 
 

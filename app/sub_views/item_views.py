@@ -189,7 +189,7 @@ def load_series_data(sid):
 	series = series.options(joinedload('alternatenames'))
 	series = series.options(joinedload('illustrators'))
 	series = series.options(joinedload('tags'))
-	series = series.options(joinedload('releases.translators'))
+	# series = series.options(joinedload('releases.translators'))
 
 	series = series.filter(Series.id==sid)
 
@@ -342,6 +342,75 @@ def renderSeriesIdWithoutSlug(sid):
 		return redirect(url_for('index'))
 
 	return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
+
+
+
+@app.route('/series-id-unread/<sid>/')
+def renderLatestUnreadForSeriesId(sid):
+
+	series       = Series.query
+	series       = series.options(joinedload('releases'))
+	series       = series.filter(Series.id==sid)
+	series       = series.first()
+
+	if series is None:
+		flash(gettext('Series %(sid)s not found.', sid=sid))
+		return redirect(url_for('index'))
+
+	if not g.user.is_authenticated():
+		flash(gettext('You need to be logged in so the system can track your latest read chapter in order for '
+					+ 'unread shortcut links to be functional.'))
+		return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
+
+
+	watch      =       Watches.query.filter(Watches.series_id==sid)     \
+	                                  .filter(Watches.user_id==g.user.id) \
+	                                  .scalar()
+
+	if not watch:
+		flash(gettext('You need to be watching a series in so the system can track your latest read chapter to '
+					+ 'make unread shortcut links functional.'))
+		return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
+
+	# we insert a incrementing count to prevent the possiblity of trying to order by
+	# a Release item, since they're explicitly not orderable. Since `idx` will never be
+	# the same, we can gaurantee we'll never hit the last item in the list
+	releases = [
+	                (
+	                    tmp.volume   if tmp.volume   else 0,
+	                    tmp.chapter  if tmp.chapter  else 0,
+	                    tmp.fragment if tmp.fragment else 0,
+	                    idx,
+	                    tmp
+	                 )
+	             for
+	                 idx, tmp
+	             in
+	                 enumerate(series.releases, 1)
+	             if
+	                 tmp.include
+	            ]
+
+	releases.sort()
+
+	link_next = False
+	for item in releases:
+		rel = item[-1]
+
+		if link_next is True and rel.srcurl:
+			return redirect(rel.srcurl)
+
+		rv, rc, rf = rel.volume   if rel.volume   else 0, rel.chapter   if rel.chapter   else 0, rel.fragment   if rel.fragment   else 0
+		wv, wc, wf = watch.volume if watch.volume else 0, watch.chapter if watch.chapter else 0, watch.fragment if watch.fragment else 0
+		if rv >= wv and rc >= wc and wf >= rf:
+			link_next = True
+
+
+	flash(gettext('Could not determine what chapter to redirect you too. Sorry about that!'))
+
+	return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
+
+
 
 @app.route('/series-id/<sid>/<slug>')
 def renderSeriesId(sid, slug):

@@ -32,6 +32,9 @@
 				{% if latest['vol'] >= 0 %}v{{ ( latest['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
 				{% if latest['chp'] >= 0 %}c{{ ( latest['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
 				{% if latest['frag'] > 0 %}p{{ ( latest['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
+				{% if latest['agg'] > read['agg'] %}
+					<span class='pull-right'><a href='/series-id-unread/{{ series.id }}/'><i class="glyphicon glyphicon-eye-open"></i></a></span>
+				{% endif %}
 			{% else %}
 				No Releases!
 			{% endif %}
