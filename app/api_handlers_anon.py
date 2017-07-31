@@ -1,4 +1,6 @@
 
+import werkzeug.exceptions
+from app import app
 from app.api_common import getResponse
 from app.api_common import getDataResponse
 import app.sub_views.sequence_views as sequence_view_items
@@ -175,12 +177,14 @@ def get_oel_series(data):
 	tmp = unpack_paginator(seq)
 	tmp['items'] = unpack_series(tmp['items'])
 	return getDataResponse(tmp)
+
 def get_series(data):
 	data = check_validate_range(data)
 	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'])
 	tmp = unpack_paginator(seq)
 	tmp['items'] = unpack_series(tmp['items'])
 	return getDataResponse(tmp)
+
 def get_translated_series(data):
 	data = check_validate_range(data)
 	seq = series_view_items.getSeries(letter=data['prefix'], page=data['offset'], type='translated')
@@ -288,6 +292,7 @@ def unpack_series_page(row):
 				'volume'      : cover.volume,
 				'chapter'     : cover.chapter,
 				'description' : cover.description,
+				'url'         : 'https://www.wlnupdates.com/cover-img/{}'.format(cover.id)
 			}
 			for cover in row.covers
 		],
@@ -309,7 +314,8 @@ def unpack_series_page(row):
 def get_series_id(data):
 	assert "id" in data, "You must specify a id to query for."
 
-	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches = item_view_items.load_series_data(data['id'])
+	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches, similar_series = item_view_items.load_series_data(data['id'])
+
 
 	ret                  = unpack_series_page(series)
 	ret['releases']      = unpack_releases(releases)
@@ -321,6 +327,13 @@ def get_series_id(data):
 	ret['latest_str']    = latest_str
 	ret['rating']        = rating
 	ret['total_watches'] = total_watches
+	ret['similar_series'] = [
+			{
+				'id'        : sid,
+				'title' : sname,
+			}
+			for sname, sid in similar_series
+		]
 
 	return getDataResponse(ret)
 
@@ -407,7 +420,7 @@ def get_genre_id(data):
 	assert "id" in data, "You must specify a id to query for."
 	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
 	a_id = int(data['id'])
-	tag, series = item_view_items.get_tag_id(a_id)
+	tag, series = item_view_items.get_genre_id(a_id)
 	if not tag:
 		return getResponse(error=True, message='No item found for that ID!')
 	data = unpack_tag_genre_publisher(tag, series)
@@ -417,7 +430,7 @@ def get_tag_id(data):
 	assert "id" in data, "You must specify a id to query for."
 	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
 	a_id = int(data['id'])
-	genre, series = item_view_items.get_genre_id(a_id)
+	genre, series = item_view_items.get_tag_id(a_id)
 	if not genre:
 		return getResponse(error=True, message='No item found for that ID!')
 	data = unpack_tag_genre_publisher(genre, series)
@@ -438,8 +451,66 @@ def get_publisher_id(data):
 def get_group_id(data):
 	assert "id" in data, "You must specify a id to query for."
 	assert is_integer(data['id']), "The 'id' member must be an integer, or a string that can cleanly cast to one."
-	a_id = int(data['id'])
-	return getResponse(error=True, message="Not yet implemented")
+	if 'page' in data:
+		assert is_integer(data['page']), "The 'page' member must be an integer, or a string that can cleanly cast to one if it is present."
+	s_id = int(data['id'])
+	page = int(data.get('page', '1'))
+
+	group, names, feeds, items_raw, series_items = item_view_items.get_group_id(s_id, page)
+
+	if not group:
+		return getResponse(error=True, message="Group with id %s not found!" % s_id)
+
+	try:
+		feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
+	except werkzeug.exceptions.NotFound:
+		feed_entries = None
+	try:
+		release_entries = items_raw.paginate(page, app.config['SERIES_PER_PAGE'])
+	except werkzeug.exceptions.NotFound:
+		release_entries = None
+
+
+	feed_tmp = unpack_paginator(feed_entries)
+	feed_items = [{
+		'title'     : row.title,
+		'contents'  : row.contents,
+		'guid'      : row.guid,
+		'linkurl'   : row.linkurl,
+		'published' : row.published,
+		'updated'   : row.updated,
+		'srcname'   : row.srcname,
+		'region'    : row.region,
+		'tags'      : [tag.tag for tag in row.tags],
+	} for row in feed_tmp['items']]
+
+	release_tmp = unpack_paginator(release_entries)
+	release_items = [{
+		'published' : row.published,
+		'volume'    : row.volume,
+		'chapter'   : row.chapter,
+		'fragment'  : row.fragment,
+		'postfix'   : row.postfix,
+		'include'   : row.include,
+		'srcurl'    : row.srcurl,
+
+	} for row in release_tmp['items']]
+
+
+	ret = {
+		'group' : group.name,
+		'id'    : group.id,
+		'site'  : group.site,
+		'alternate-names' : names,
+		'active-series'   : {
+			series.id : series.title
+			for series in series_items
+		},
+		'releases-paginated' : release_items,
+		'feed-paginated' : feed_items,
+	}
+
+	return getDataResponse(ret)
 
 
 def get_search(data):
@@ -447,13 +518,6 @@ def get_search(data):
 	return getResponse(error=True, message="Not yet implemented")
 
 def get_watches(data):
-	return getResponse(error=True, message="Not yet implemented")
-
-
-
-
-def get_cover_img(data):
-	data = check_validate_range(data)
 	return getResponse(error=True, message="Not yet implemented")
 
 def get_feeds(data):

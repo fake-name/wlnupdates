@@ -24,11 +24,11 @@ import random
 random.seed()
 
 
-import selenium.webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+# import selenium.webdriver
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support import expected_conditions as EC
+# from selenium.common.exceptions import TimeoutException
+# from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 def as_soup(str):

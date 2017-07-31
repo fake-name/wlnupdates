@@ -30,9 +30,9 @@ MODES = [
 	# 'get-tag-id',
 	# 'get-genre-id',
 	# 'get-publisher-id',
-	'get-group-id',
+	# 'get-group-id',
 
-	# 'get-series-id',
+	'get-series-id',
 	# 'get-feeds',
 
 	# 'get-watches',

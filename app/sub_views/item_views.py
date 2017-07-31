@@ -627,15 +627,12 @@ def renderGenreId(sid, page=1):
 # 						   )
 
 
-@app.route('/group-id/<sid>/<int:page>')
-@app.route('/group-id/<sid>/')
-def renderGroupId(sid, page=1):
+def get_group_id(sid, page):
 
 	group = Translators.query.filter(Translators.id==sid).scalar()
-
 	if group is None:
-		flash(gettext('Group/Translator not found? This is probably a error!'))
-		return redirect(url_for('renderGroupsTable'))
+		return None, None, None, None, None
+
 
 	names = [tmp.name for tmp in group.alt_names]
 
@@ -643,8 +640,28 @@ def renderGroupId(sid, page=1):
 		.filter(Feeds.srcname.in_(names))            \
 		.order_by(desc(Feeds.published))
 
-
 	items_raw = Releases.query.filter(Releases.tlgroup==group.id).order_by(desc(Releases.published))
+
+
+	subq = Releases.query.with_entities(Releases.series.distinct()).filter(Releases.tlgroup==group.id)
+
+	seriesq = Series.query.filter(Series.id.in_(subq)).order_by(Series.title)
+
+	series = seriesq.all()
+
+	return group, names, feeds, items_raw, series
+
+@app.route('/group-id/<sid>/<int:page>')
+@app.route('/group-id/<sid>/')
+def renderGroupId(sid, page=1):
+
+	group, names, feeds, items_raw, series = get_group_id(sid, page)
+
+
+	if group is None:
+		flash(gettext('Group/Translator not found? This is probably a error!'))
+		return redirect(url_for('renderGroupsTable'))
+
 	try:
 		feed_entries = feeds.paginate(page, app.config['SERIES_PER_PAGE'])
 	except werkzeug.exceptions.NotFound:
@@ -654,11 +671,6 @@ def renderGroupId(sid, page=1):
 	except werkzeug.exceptions.NotFound:
 		items = None
 
-	subq = Releases.query.with_entities(Releases.series.distinct()).filter(Releases.tlgroup==group.id)
-	print("Subquery: ", subq)
-	seriesq = Series.query.filter(Series.id.in_(subq)).order_by(Series.title)
-	print("Main q: ", seriesq)
-	series = seriesq.all()
 
 	return render_template('group.html',
 						   series                 = series,
