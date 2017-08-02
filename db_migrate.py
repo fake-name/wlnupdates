@@ -35,6 +35,17 @@ def install_tgm_idx():
 	'''
 	print("Installing trigram indices")
 	models.install_trigram_indices()
+
+
+@manager.command
+def update_latest_meta():
+	'''
+	Update the 'latest vol/chp/frag' columns, as well as the last published column
+	'''
+	print("Updating latest chapter metadata")
+	models.update_chp_info()
+
+
 # This is also true for my indexes, since they use postgres specific extensions.
 @manager.command
 def install_enum():

@@ -40,13 +40,7 @@ class SeriesBase(object):
 
 	website     = db.Column(db.Text())
 
-	volume      = db.Column(db.Float(), default=-1)
-	chapter     = db.Column(db.Float(), default=-1)
-
 	orig_status = db.Column(db.Text())
-
-	tot_volume  = db.Column(db.Float(), default=-1)
-	tot_chapter = db.Column(db.Float(), default=-1)
 
 	region      = db.Column(region_enum, default='unknown')
 	sort_mode   = db.Column(series_sort_enum, default='parsed_title_order')
@@ -54,6 +48,18 @@ class SeriesBase(object):
 	license_en  = db.Column(db.Boolean)
 
 	pub_date    = db.Column(db.DateTime)
+
+	latest_published   = db.Column(db.DateTime)
+
+	latest_volume      = db.Column(db.Float())
+	latest_chapter     = db.Column(db.Float())
+	latest_fragment    = db.Column(db.Float())
+
+	rating            = db.Column(db.Float())
+	__table_args__ = (
+		CheckConstraint('''(rating >= 0 and rating <= 10) or rating IS NULL'''),
+		)
+
 
 class TagsBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -486,6 +492,72 @@ def install_trigram_indice_on_column(table, column):
 					create_idx_sql
 				)
 			)
+
+def update_chp_info():
+
+	series = db.engine.execute('''
+		SELECT
+			 id,
+			 title
+		FROM series;
+		''')
+
+	series = list(series)
+
+	print("Have %s series" % len(series))
+
+	for sid, title in series:
+		releases = db.engine.execute('''
+			SELECT
+					series,
+					published,
+					volume,
+					chapter,
+					fragment,
+					include
+			FROM releases
+			WHERE series = %s
+			;
+			''', (sid, ))
+
+		releases = list(releases)
+		if not releases:
+			continue
+
+
+		most_recent = max([tmp[1] for tmp in releases])
+		relinfo = [(
+				tmp[2] if tmp[2] is not None else 0,
+				tmp[3] if tmp[3] is not None else 0,
+				tmp[4] if tmp[4] is not None else 0
+			) for tmp in releases if tmp[5]]
+		relinfo.sort()
+		reltop = max(relinfo)
+
+		res = db.engine.execute('''
+			UPDATE
+				series
+			SET
+				latest_published = %s,
+				latest_volume    = %s,
+				latest_chapter   = %s,
+				latest_fragment  = %s
+			WHERE
+				id = %s;
+			''', (
+				most_recent,
+				reltop[0] if reltop[0] else None,
+				reltop[1] if reltop[1] else None,
+				reltop[2] if reltop[2] else None,
+				sid
+				))
+
+		print(".", end='', flush=True)
+	print("")
+	print("Committing")
+	db.engine.execute("COMMIT")
+	print("Done!")
+
 
 def install_triggers():
 	print("Installing triggers!")
