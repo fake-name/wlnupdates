@@ -51,7 +51,7 @@ VALID_KEYS = {
 	}
 
 # {
-# 	'mode': 'manga-update',
+# 	'mode': 'series-update',
 # 	'item-id': '532',
 # 	'entries':
 # 		[
@@ -139,7 +139,7 @@ def validateMangaData(data):
 	return update
 
 
-def processMangaUpdateJson(data):
+def process_series_update_json(data):
 	validated = validateMangaData(data)
 
 	sid = validated['id']

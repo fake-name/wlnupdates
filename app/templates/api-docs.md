@@ -88,7 +88,8 @@ Currently, all paginated objects return the actual items in the `items` member o
 > Optional keys:
 > 
 > - `offset` - Page to retreive. If there are more then 50 items in the response, it will be paginated in sets of 50. Defaults to 1 if unspecified. Values < 1 are invalid.
-> - `prefix` - Starting character to limit the query results to. Allowable values are one of the chars in the set: `abcdefghijklmnopqrstuvwxyz0123456789`. If not specified, defaults to returning all items. The prefix string also must be of length 1.
+> - `prefix` - Starting character to limit the query results to. Allowable values are one of the chars in the set: `abcdefghijklmnopqrstuvwxyz0123456789`. If not specified, defaults to returning all items. The prefix string also must be of length 1.  
+TODO: Handle unicode here?
 > 
 > Return examples:
 > 
@@ -180,6 +181,8 @@ To Document:
 > - `chp`  - Integer, containing chapter progress.
 > - `frag` - Integer, containing fragment/sub-chapter progress.
 > 
+> Each update is complete, and completely overwrites the existing progress state.
+> Things like incrementing existing values must be handled by the client.
 
 
 > **Manage watch state for series: `set-watch`**
@@ -189,20 +192,19 @@ To Document:
 > 
 > - `mode` - Literal string "`set-watch`"
 > - `item-id` - Series-id for the series to modify the watch state for. Integer.
-> 
-
-
-> **Update series information: `manga-update`**
-
-> Required keys:
-
-> 
-> - `mode` - Literal string "`manga-update`"
-> - `item-id` - Series-id for the series to update information for. Integer.
 > - `list` - String name of list for item. If the list doesn't exist, it is created. To remove
 > 		an item from a list, set the list to the special value: `-0-0-0-0-0-0-0-no-list-0-0-0-0-0-0-0-0-`.
 > 
 > Lists only exist as long as there are items on them. If all items are removed from a list, it is automatically deleted.
+> 
+
+
+> **Update series information: `series-update`**
+
+> Required keys:
+> 
+> - `mode` - Literal string "`series-update`"
+> - `item-id` - Series-id for the series to update information for. Integer.
 
 
 ### Not documented yet

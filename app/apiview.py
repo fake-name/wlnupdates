@@ -88,7 +88,7 @@ DISPATCH_TABLE = {
 
 
 	# Logged in stuff
-	'manga-update'              : (api_handlers.processMangaUpdateJson,          True,  False),
+	'series-update'             : (api_handlers.process_series_update_json,      True,  False),
 	'release-update'            : (api_handlers.processReleaseUpdateJson,        True,  False),
 	'group-update'              : (api_handlers.processGroupUpdateJson,          True,  False),
 	'set-watch'                 : (api_handlers.setSeriesWatchJson,              True,  False),

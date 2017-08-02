@@ -433,7 +433,7 @@ function saveEdits(containerId)
 
 	if (mangaId && seriesId == undefined)
 	{
-		mode = "manga-update";
+		mode = "series-update";
 		itemId = mangaId;
 	}
 	else if (seriesId && mangaId == undefined)
