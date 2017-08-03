@@ -10,6 +10,7 @@ from flask_babel import gettext
 from werkzeug.urls import url_fix
 # from guess_language import guess_language
 from app import db
+import app.utilities
 import datetime
 import bleach
 import markdown
@@ -165,7 +166,9 @@ def add_release(form):
 		include    = True,
 		)
 	db.session.add(new)
+	app.utilities.update_latest_row(series)
 	db.session.commit()
+
 	flash(gettext('New release added. Thanks for contributing!'))
 	flash(gettext('If the release you\'re adding has a RSS feed, you can ask for it to be added to the automatic feed system on the forum!'))
 	return redirect(url_for('renderSeriesId', sid=sid))

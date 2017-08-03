@@ -319,7 +319,6 @@ def set_rating(sid, new_rating):
 		.filter(Ratings.source_ip == ip ) \
 		.scalar()
 
-
 	if user_rtng:
 		user_rtng.rating = new_rating
 	else:
@@ -333,6 +332,24 @@ def set_rating(sid, new_rating):
 
 	db.session.commit()
 
+	# Now update the series row.
+	s_ratings = Ratings.query \
+		.filter(Ratings.series_id == sid) \
+		.all()
+
+	if s_ratings:
+		ratings = [tmp.rating for tmp in s_ratings]
+		newval  = sum(ratings) / len(ratings)
+		rcnt    = len(ratings)
+	else:
+		newval = None
+		rcnt   = None
+
+	Series.query \
+		.filter(Series.id == sid) \
+		.update({'rating' : newval, 'rating_count' : rcnt})
+
+	db.session.commit()
 
 def get_rating(sid):
 	uid, ip = get_identifier()

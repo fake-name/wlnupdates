@@ -56,6 +56,7 @@ class SeriesBase(object):
 	latest_fragment    = db.Column(db.Float())
 
 	rating            = db.Column(db.Float())
+	rating_count      = db.Column(db.Integer())
 	__table_args__ = (
 		CheckConstraint('''(rating >= 0 and rating <= 10) or rating IS NULL'''),
 		)
@@ -146,7 +147,7 @@ class ReleasesBase(object):
 	# This is not currently exposed at all through the web-ui
 	include     = db.Column(db.Boolean, nullable=False, index=True, default=False)
 
-	srcurl      = db.Column(db.Text())
+	srcurl      = db.Column(db.Text(), index=True)
 
 	@declared_attr
 	def tlgroup(cls):
@@ -333,7 +334,7 @@ class Covers(db.Model, CoversBase, ModificationInfoMixin):
 
 class SeriesChanges(db.Model, SeriesBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "serieschanges"
-	srccol   = db.Column(db.Integer, db.ForeignKey('series.id', ondelete="SET NULL"), index=True)
+	srccol   = db.Column(db.Integer, db.ForeignKey('series.id', ondelete="SET NULL"))
 
 class WikiChanges(db.Model, WikiBase, ModificationInfoMixin, ChangeLogMixin):
 	__tablename__ = "wiki_pagechanges"
@@ -558,6 +559,53 @@ def update_chp_info():
 	db.engine.execute("COMMIT")
 	print("Done!")
 
+def resynchronize_ratings():
+
+	ratings = db.engine.execute('''
+		SELECT
+			user_id,
+			series_id,
+			source_ip,
+			rating
+		FROM ratings;
+		''')
+
+	ratings = list(ratings)
+
+	print("Have %s ratings" % len(ratings))
+
+	agg = {}
+	for user_id, series_id, source_ip, rating in ratings:
+		agg.setdefault(series_id, [])
+		agg[series_id].append((user_id, series_id, source_ip, rating))
+
+	print("On %s series" % len(agg))
+
+	for seriesid, data in agg.items():
+		ratings = [tmp[3] for tmp in data]
+
+		rating = sum(ratings) / len(ratings)
+
+		res = db.engine.execute('''
+			UPDATE
+				series
+			SET
+				rating       = %s,
+				rating_count = %s
+			WHERE
+				id = %s;
+			''', (
+				rating,
+				len(ratings),
+				seriesid
+				))
+
+		print(".", end='', flush=True)
+	print("")
+	print("Committing")
+	db.engine.execute("COMMIT")
+	print("Done!")
+
 
 def install_triggers():
 	print("Installing triggers!")
@@ -691,7 +739,7 @@ class Watches(db.Model):
 
 class Ratings(db.Model):
 	id          = db.Column(db.Integer, primary_key=True)
-	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+	user_id     = db.Column(db.Integer, db.ForeignKey('users.id'))
 	series_id   = db.Column(db.Integer, db.ForeignKey('series.id'), index=True)
 	source_ip   = db.Column(db.Text, index=True)
 

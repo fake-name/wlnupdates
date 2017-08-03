@@ -347,6 +347,9 @@ def getReleaseFromId(inId):
 def toggle_counted(data):
 	release = getReleaseFromId(data['id'])
 	release.include = not release.include
+
+	app.utilities.update_latest_row(release.series_row)
+
 	db.session.commit()
 
 	flash(gettext('Release %(id)s count-state toggled. New state: %(state)s', id=release.id, state="counted" if release.include else "uncounted"))

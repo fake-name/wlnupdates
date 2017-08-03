@@ -10,7 +10,7 @@ import sqlalchemy.exc
 from sqlalchemy import desc
 import bleach
 import Levenshtein
-
+import app.utilities
 from app import db
 from app.models import Feeds
 from app.models import FeedAuthors
@@ -433,6 +433,9 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 
 	db.session.add(release)
 	db.session.flush()
+
+	app.utilities.update_latest_row(series)
+
 	db.session.commit()
 
 def insert_parsed_release(item):

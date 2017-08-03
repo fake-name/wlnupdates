@@ -8,8 +8,10 @@
 
 set -e
 
-python db_migrate.py db migrate
+# python db_migrate.py db migrate
 python db_migrate.py db upgrade
 python db_migrate.py install_triggers
 python db_migrate.py install_tgm_idx
 python db_migrate.py install_enum
+python db_migrate.py update_latest_meta
+python db_migrate.py resynchronize_ratings

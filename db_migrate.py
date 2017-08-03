@@ -46,6 +46,15 @@ def update_latest_meta():
 	models.update_chp_info()
 
 
+@manager.command
+def resynchronize_ratings():
+	'''
+	Update the ratings aggregate from the discrete rating entry items.
+	'''
+	print("Updating latest chapter metadata")
+	models.resynchronize_ratings()
+
+
 # This is also true for my indexes, since they use postgres specific extensions.
 @manager.command
 def install_enum():

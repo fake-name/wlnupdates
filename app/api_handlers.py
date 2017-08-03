@@ -13,6 +13,7 @@ from app.models import Watches
 from flask import g
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
+import app.utilities
 import markdown
 import bleach
 import os.path
@@ -808,6 +809,9 @@ def updateChapterRelease(in_id, old, new):
 	if old['release_pg']  != new['release_pg']:
 		dirty = True
 		row.srcurl = newurl
+
+	if dirty:
+		app.utilities.update_latest_row(row.series_row)
 
 	db.session.commit()
 

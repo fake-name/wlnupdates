@@ -1,6 +1,7 @@
 
 import datetime
 from app.models import Releases
+from app import db
 from sqlalchemy.sql.expression import nullslast
 from sqlalchemy import desc
 
@@ -16,6 +17,7 @@ def get_latest_release(series):
 				.scalar()
 
 	return latest
+
 
 
 def get_latest_releases(series_ids):
@@ -61,4 +63,41 @@ def get_latest_releases(series_ids):
 			ret[sid] = [(-1, -1, -1), None]
 
 	return ret
+
+
+def update_latest_row(series_row):
+	db.session.flush()
+
+	print('update_latest_row')
+	print("Series row: ", series_row)
+
+	maxpub = datetime.datetime.min
+	releases = []
+
+	for release in series_row.releases:
+		if release.include:
+			releases.append((
+					release.volume if release.volume is not None else 0,
+					release.chapter if release.chapter is not None else 0,
+					release.fragment if release.fragment is not None else 0
+				))
+		if release.published > maxpub:
+			maxpub = release.published
+
+	releases.sort()
+
+	if maxpub == datetime.datetime.min:
+		maxpub = None
+
+	if releases:
+		vol, chp, frg = releases[-1]
+	else:
+		vol = None
+		chp = None
+		frg = None
+
+	series_row.latest_published = maxpub
+	series_row.latest_volume    = vol
+	series_row.latest_chapter   = chp
+	series_row.latest_fragment  = frg
 
