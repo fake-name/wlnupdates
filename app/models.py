@@ -55,8 +55,8 @@ class SeriesBase(object):
 	latest_chapter     = db.Column(db.Float())
 	latest_fragment    = db.Column(db.Float())
 
-	rating            = db.Column(db.Float())
-	rating_count      = db.Column(db.Integer())
+	rating             = db.Column(db.Float())
+	rating_count       = db.Column(db.Integer())
 	__table_args__ = (
 		CheckConstraint('''(rating >= 0 and rating <= 10) or rating IS NULL'''),
 		)

@@ -249,6 +249,13 @@ def unpack_series_page(row):
 		'license_en'  : row.license_en,
 		'pub_date'    : row.pub_date,
 
+		'latest_published' : row.latest_published,
+		'latest_volume'    : row.latest_volume,
+		'latest_chapter'   : row.latest_chapter,
+		'latest_fragment'  : row.latest_fragment,
+		'rating'           : row.rating,
+		'rating_count'     : row.rating_count,
+
 		'tags'           : [
 			{
 				'id'  : tag.id,
