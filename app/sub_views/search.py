@@ -19,22 +19,22 @@ from app import app
 import collections
 import json
 
-def title_search(searchterm, page=1):
+def title_search(searchterm):
 	searchtermclean = bleach.clean(searchterm, strip=True)
-	searchterm = nt.prepFilenameForMatching(searchtermclean)
+	searchtermprocessed = nt.prepFilenameForMatching(searchtermclean)
 
 	if not searchterm:
-		return render_template('not-implemented-yet.html', message='No search term entered (or search term collapsed down to nothing).')
+		return None, None
 
-	similarity = Function('similarity', AlternateNames.cleanname, (searchterm))
+	similarity = Function('similarity', AlternateNames.cleanname, (searchtermprocessed))
 	query = select(
 			[AlternateNames.series, AlternateNames.cleanname, AlternateNames.name, similarity],
 			from_obj=[AlternateNames],
 			order_by=desc(similarity)
 		).where(
 			or_(
-				AlternateNames.cleanname.op("%%")(searchterm),
-				AlternateNames.cleanname.like(searchterm + "%%")
+				AlternateNames.cleanname.op("%%")(searchtermprocessed),
+				AlternateNames.cleanname.like(searchtermprocessed + "%%")
 				)
 		).limit(
 			50
@@ -66,23 +66,7 @@ def title_search(searchterm, page=1):
 		# order.
 		data[dbid]['results'].append(result)
 
-
-
-	# print(results)
-	# print(data)
-
-
-	return render_template('text-search.html',
-					   results         = data,
-					   name_key        = "tag",
-					   page_url_prefix = 'tag-id',
-					   searchTarget    = "Titles",
-					   searchValue     = searchtermclean,
-					   title           = 'Search for \'{name}\''.format(name=searchtermclean))
-
-
-
-
+	return data, searchtermprocessed
 
 
 def execute_search():
@@ -91,12 +75,24 @@ def execute_search():
 	# /WILL/ clobber each other in a non-determinsic manner,
 	# but that's not needed for search anyways, so I want
 	# to disabiguate.
-	search = {}
-	search.update(dict(request.args.items()))
-	search.update(dict(request.form.items()))
+	searchd = {}
+	searchd.update(dict(request.args.items()))
+	searchd.update(dict(request.form.items()))
 
-	if 'title' in search:
-		return title_search(search['title'])
+	if 'title' in searchd:
+		data, searchtermclean = title_search(searchd['title'])
+		if not searchtermclean:
+			return render_template('not-implemented-yet.html', message='No search term entered (or search term collapsed down to nothing).')
+
+		return render_template('text-search.html',
+						   results         = data,
+						   name_key        = "tag",
+						   page_url_prefix = 'tag-id',
+						   searchTarget    = "Titles",
+						   searchValue     = searchtermclean,
+						   title           = 'Search for \'{name}\''.format(name=searchtermclean))
+
+
 	else:
 		return render_search_page(search)
 
@@ -120,6 +116,8 @@ def do_advanced_search(params):
 				q = q.filter(Series.tags.any(tag=str(text)))
 			elif mode == 'excluded':
 				q = q.filter(~Series.tags.any(tag=str(text)))
+
+
 	if 'title-search-text' in params and params['title-search-text']:
 		# TODO
 		pass
@@ -167,11 +165,6 @@ def do_advanced_search(params):
 	q = q.limit(100)
 	res = q.all()
 
-	# if res:
-	# 	print("Results:")
-	# 	print(res[0])
-	# 	print(dir(res[0]))
-
 	return res
 
 def search_check_ok(params):
@@ -198,6 +191,14 @@ def search_check_ok(params):
 		return True
 	return False
 
+
+def get_tags():
+	results = CommonTags.query                 \
+		.order_by(CommonTags.tag)              \
+		.all()
+	return results
+
+
 @app.route('/ajax-search', methods=['POST'])
 def ajax_search():
 	print("Ajax search!")
@@ -213,9 +214,7 @@ def render_search_page(search):
 	if not search:
 
 		print("Render search page call!")
-		results = CommonTags.query                 \
-			.order_by(CommonTags.tag)              \
-			.all()
+		results = get_tags()
 
 		common, rare = [], []
 		for item in results:

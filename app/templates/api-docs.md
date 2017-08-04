@@ -64,9 +64,6 @@ Many API calls return paginated responses. In the case of a paginated object, ad
 
 Currently, all paginated objects return the actual items in the `items` member of the `data` object
 
-
-
-
 > **Sequence view browsing**
 > 
 > These API calls are used for viewing bulk contents of different categories.
@@ -87,9 +84,12 @@ Currently, all paginated objects return the actual items in the `items` member o
 > 
 > Optional keys:
 > 
-> - `offset` - Page to retreive. If there are more then 50 items in the response, it will be paginated in sets of 50. Defaults to 1 if unspecified. Values < 1 are invalid.
-> - `prefix` - Starting character to limit the query results to. Allowable values are one of the chars in the set: `abcdefghijklmnopqrstuvwxyz0123456789`. If not specified, defaults to returning all items. The prefix string also must be of length 1.  
-TODO: Handle unicode here?
+> - `offset` - Page to retreive. If there are more then 50 items in the response, 
+>   it will be paginated in sets of 50. Defaults to 1 if unspecified. Values < 1 are invalid.
+> - `prefix` - Starting character to limit the query results to. Allowable values are 
+>   one of the > chars in the set: `abcdefghijklmnopqrstuvwxyz0123456789`. If not 
+>   specified, defaults to returning all items. The prefix string also must be of length 1.  
+>   TODO: Handle unicode here?
 > 
 > Return examples:
 > 
@@ -129,28 +129,203 @@ TODO: Handle unicode here?
 > >       "message": null
 > >     }
 > 
-> The API call has succeeded (`error == false`), as such there was no error message (`message == null`). Additionally, we have the pagination information (`"next_num": 2, "pages": 20, "per_page": 50, "prev_num": 0, "total": 992`). Lastly, we have a list of objects in the `items` member.
+> The API call has succeeded (`error == false`), as such there was no error message (`message == 
+> null`). Additionally, we have the pagination information (`"next_num": 2, "pages": 20, 
+> "per_page": 50, "prev_num": 0, "total": 992`). Lastly, we have a list of objects in the `items` 
+> member.
 > 
-> Each item is actually a pair of values, the human-readable name for the item, and the corresponding ID. In order to look up items by the item (for example, to get series that have a tag), the relevant API call must be passed the ID, rather then the string.
+> Each item is actually a pair of values, the human-readable name for the item, and the 
+> corresponding ID. In order to look up items by the item (for example, to get series that 
+> have a tag), the relevant API call must be passed the ID, rather then the string.
 
 
 
-To Document:  
- - `get-releases`            
- - `get-series`              
- - `get-translated-releases` 
- - `get-translated-series`   
- - `get-watches`             
- - `get-search`              
- - `get-feeds`               
- - `get-cover-img`           
- - `get-artist-id`           
- - `get-author-id`           
- - `get-genre-id`            
- - `get-group-id`            
- - `get-publisher-id`        
- - `get-series-id`           
- - `get-tag-id`              
+#### Searching:  
+
+WLNUpdates has two search modes:
+
+ - Title search: Fuzzy search by series title, across all series alternate-names
+ - Parametric search: filter series by a combination of chapter counts, tags,
+   genre, and source type, and sort by various options (alphabetically, total
+   released chapters, or last chapter release date)
+
+While it'd be really nice to have these search options be unified, that's not currently 
+possible due to limitations in my SQL skills. 
+
+##### Title search:
+
+> For the following example search request: 
+> `{'title': 'The Book Eating Magician', 'mode': 'search-title'}``
+> 
+> WLNUpdates would return results like the following as the `data` contents:
+> 
+>     {'cleaned_search': 'the book eating magician',
+>      'results': [
+>                  {'match': [(1.0, 'The Book Eating Magician'), (0.5, 'The Book Eating Wizard')], 'sid': 58781},
+>                  {'match': [(0.538462, 'The Man-Eating Man')], 'sid': 52127},
+>                  {'match': [(0.433333, 'The Lost Magician')], 'sid': 4331},
+>                  {'match': [(0.384615, 'The King of Kings and Magician of Magicians')], 'sid': 59236},
+>                  {'match': [(0.382353, 'The Aberrant Magician')], 'sid': 43107},
+>                  {'match': [(0.382353, 'Moonlight & the Magician')], 'sid': 4541},
+>                  {'match': [(0.371429, 'The Shattered Magician')], 'sid': 35482},
+>                  {'match': [(0.363636, "The Magician's Diary")], 'sid': 32471},
+>                  {'match': [(0.342857, 'Magic King of the End')], 'sid': 32189},
+>                  {'match': [(0.342105, 'The Reckless Trap Magician')], 'sid': 57061},
+>                  {'match': [(0.342105, 'The Magician of the Staircase'),
+>                             (0.311111, 'The Cursed Girl and the Evil Magician')], 'sid': 58786},
+>                  {'match': [(0.333333, 'Magic: The Gathering')], 'sid': 43120},
+>                  {'match': [(0.325, 'The Magician Wants Normalcy'),
+>                             (0.317073, 'The Magician Wants Normality')], 'sid': 35554},
+>                  {'match': [(0.318182, 'Welcome to the Man-Eating Dungeon')], 'sid': 42047},
+>                  {'match': [(0.3125, 'The Book of meme')], 'sid': 58871},
+>                  {'match': [(0.302326, 'The Journey of a Lazy Magician')], 'sid': 59033},
+>                  {'match': [(0.3, 'Omni-Magician')], 'sid': 35874}
+>                ]
+>     }
+>     
+> These results illustrate several critical components of how wlnupdates thinks of series.
+> Core to this is the concept of *alternate names*, e.g. the fact that a series can have
+> multiple different names that correspond to the same actual series. This is generally
+> the series title in both english and the original language, as well as variations
+> in how a series title is translated. For OEL content, this is primarily driven
+> by the fact that people on RoyalRoadL seem to like to rename their series 
+> on a regular basis, for no reason that can be determined.
+> 
+> In any event, WLNUpdates has a list of name synonyms that is maintained for 
+> every series, and the titlesearch is performed on *this* data, rather then
+> the normal series information. 
+> 
+> As such, it is possible to return *multiple* results for the *same series*.
+> 
+> The results format is relatively simple:
+> `{'match': [(1.0, 'The Book Eating Magician'), (0.5, 'The Book Eating Wizard')], 'sid': 58781},`
+> The `sid` key is self explanitory, it contains the series-id for the series the 
+> match corresponds to. The contents of the `match` key is a list of all alternate-names
+> from a series the search term matched to, in order of descending similarity. For the 
+> above example, we can see that `(1.0, 'The Book Eating Magician')` has a similarity
+> value of `1.0` (e.g. exact match). Additionally, that same series's name has also been
+> translated as `(0.5, 'The Book Eating Wizard')`, which matched the search term with 
+> a similarity of `0.5`
+> 
+> Additionally, searching is done on what is internally termed a "cleaned name", which
+> is functionally the passed search parameter after some normalization. Principally
+> things like smart quotes, unprintable characters, some HTML equivalent entities, 
+> and various punctuation are stripped from the string prior to search. The 
+> cleaned version of the passed search parameter is returned in the `cleaned_search`
+> return value.
+> 
+> Note that the results of a search are non-paginated, and internally
+> limited to a maximum of 50 results for all cases.
+> 
+
+##### Parametric Search:
+
+The parametric search lets you filter and sort series by a number of 
+different parameters.
+
+There are two endpoints relevant to parametric searching:
+
+ - `enumerate-tags` returns a list of the various tags relevant to a search. 
+   Internally, this is the same call used to generate the tags block on the 
+   advanced search HTML page.
+ - `search-advanced` Returns the actual search results.
+
+
+######  `enumerate-tags` 
+
+> This endpoint requires no parameters other then the endpoint name:
+> `{'mode': 'enumerate-tags'}`
+> 
+> Response data:
+> 
+>      [
+>           ['20th-century', 2], 
+>           ['21st-century', 7], 
+>           ['abandoned-child', 17], 
+>           ['abduction', 2], 
+>           ['ability-steal', 14], 
+>           ['abnormal', 2], 
+>           ['absent-parent/s', 29], 
+>           ['academy', 90], 
+>           ['acting', 17], 
+>           ['action', 6108], 
+>           ['actor/s', 14], 
+>           ['adapted-from-manga', 8], 
+>           ['adapted-to-anime', 227], 
+>           ['adapted-to-drama', 65], 
+>           ['adapted-to-drama-cd', 28], 
+>                            [ snip some results ]
+>      ]                      
+>  
+>  The response is a set of 2-tuples, where each tuple consists of a tag, 
+>  and the number of occurances that tag has in the WLNUpdates dataset. For 
+>  convenience, the advanced search page on WLNUpdates separates tags into "common"
+>  tags (tags with more then 25 occurances), and "rare" rags (tags with less then
+>  25 occurances). Tags that only occur once in the entire website dataset
+>  are not included.
+>  
+>  The tag list is generated from a materialized view that is updated once per hour,
+>  so if you add a tag to a series, it may not be reflected in this API call for a 
+>  short period of time.
+
+
+######  `search-advanced` 
+
+> The `search-advanced` endpoint has a number of optional parameters:
+> 
+>  - `tag-category`
+>     Dictionary or object consisting of (tag-text : include-flag) key-value sets
+>  - `chapter-limits` 
+>     2-tuple consisting of (minimum chapter, maximum chapter). Passing None or 0 for 
+>     the one of the limits disables that limit.
+>  - `series-type`
+>     Dictionary or object consisting of (series-text : include-flag) key-value sets   
+>     Valid series types are the literal strings: `Translated` or `Original English Language`
+>  - `sort-mode`
+>     Literal string: `update`, `chapter-count`, or anything else (or empty) for `name`
+>     
+>  In this context, an `include-flag` is the literal string `included` or `excluded`, 
+>  to include or exclude the relevant tag or series-type.
+>     
+> Example:
+> 
+> {
+>       'mode'   : 'search-advanced',
+>       'series-type'  : {'Translated' : 'included'},
+>       'tag-category' : {
+>           'ability-steal' : 'included',
+>           'virtual-reality' : 'excluded'
+>           },
+>       'sort-mode' : "update",
+>       'chapter-limits' : [40, 0],
+>   }
+>   
+> Example response:
+> 
+>     {
+>       "data": [
+>         [34471, "I Was a Sword When I Reincarnated (LN)",                        1501705475.0,  92],
+>         [52804, "Living in this World with Cut & Paste",                         1501328118.0,  50],
+>         [308,   "Ubau Mono Ubawareru Mono",                                      1499408780.0, 155],
+>         [543,   "Isekai Shihai no Skill Taker ~Zero kara Hajimeru Dorei Harem~", 1497778895.0,  97],
+>         [57093, "Acquiring Talent in a Dungeon",                                 1495512031.0,  60],
+>         [34591, "Riot Grasper",                                                  1490010700.0,  62],
+>         [44135, "Tensei Shitara Kyuuketsuki-san Datta Ken",                      1487715955.0, 110]
+>       ],
+>       "error": false,
+>       "message": null
+>     }
+>  
+>  Each item in the data member is a 4-tuple consisting of:
+>   - `sid`
+>   - Series Name
+>   - Last chapter posted (as a unix timestamp)
+>   - Total release count for series.
+>  
+> There is a slight confounding factor here, as the release count property is the 
+> number of *releases*, rather then the total number of actual chapters. For sources
+> that cross post on multiple sites, this number can be considerably inflated, as 
+> the cross posts are all counted as releases as well.
 
 
 ### Non-Authenticated API Methods
@@ -228,6 +403,27 @@ To Document:
 > 
 > - `mode` - Literal string "`cover-update`"
 > - `item-id` - Series-id for the series to add a cover too. Integer.
+> 
+> 
+> 
+
+More:
+> 
+> 
+  - `get-releases`            
+  - `get-series`              
+  - `get-translated-releases` 
+  - `get-translated-series`   
+  - `get-watches`             
+  - `get-search`              
+  - `get-feeds`               
+  - `get-artist-id`           
+  - `get-author-id`           
+  - `get-genre-id`            
+  - `get-group-id`            
+  - `get-publisher-id`        
+  - `get-series-id`           
+  - `get-tag-id`              
 > 
 
 

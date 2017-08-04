@@ -1,4 +1,4 @@
-
+import datetime
 import werkzeug.exceptions
 from app import app
 from app.api_common import getResponse
@@ -7,6 +7,7 @@ import app.sub_views.sequence_views as sequence_view_items
 import app.sub_views.release_views  as release_view_items
 import app.sub_views.series_views   as series_view_items
 import app.sub_views.item_views     as item_view_items
+import app.sub_views.search         as search_views
 
 def check_validate_range(data):
 	if "offset" in data:
@@ -239,11 +240,7 @@ def unpack_series_page(row):
 		'demographic' : row.demographic,
 		'orig_lang'   : row.orig_lang,
 		'website'     : row.website,
-		'volume'      : row.volume,
-		'chapter'     : row.chapter,
 		'orig_status' : row.orig_status,
-		'tot_volume'  : row.tot_volume,
-		'tot_chapter' : row.tot_chapter,
 		'region'      : row.region,
 		'tl_type'     : row.tl_type,
 		'license_en'  : row.license_en,
@@ -520,9 +517,48 @@ def get_group_id(data):
 	return getDataResponse(ret)
 
 
-def get_search(data):
-	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
+def get_search_title(data):
+	assert "title" in data, "You must specify a title to query for."
+	assert isinstance(data['title'], str), "The 'title' member must be a string."
+
+	data, searchtermclean = search_views.title_search(data['title'])
+
+	ret = {
+		'cleaned_search' : searchtermclean,
+		'results'        : [
+			{
+				'sid' : sid,
+				'match' : [
+						(match[3], match[2])
+					for
+						match in results['results']
+					]
+			}
+			for
+				sid, results in data.items()
+		],
+	}
+
+	return getDataResponse(ret)
+
+
+
+def enumerate_search_tags(data):
+	tags = search_views.get_tags()
+	resp = [(tag.tag, tag.tag_instances) for tag in tags]
+	return getDataResponse(resp)
+
+def get_search_advanced(data):
+	if not search_views.search_check_ok(data):
+		return getResponse(error=True, message="Insufficent filter parameters!")
+	series = search_views.do_advanced_search(data)
+
+	ret = [
+		(tmp[0], tmp[1], tmp[2].timestamp(), tmp[3]) for tmp in series
+	]
+	return getDataResponse(ret)
+
+
 
 def get_watches(data):
 	return getResponse(error=True, message="Not yet implemented")
