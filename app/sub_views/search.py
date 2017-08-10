@@ -79,6 +79,8 @@ def execute_search():
 	searchd.update(dict(request.args.items()))
 	searchd.update(dict(request.form.items()))
 
+	common_searches = 25
+
 	if 'title' in searchd:
 		data, searchtermclean = title_search(searchd['title'])
 		if not searchtermclean:
@@ -94,7 +96,22 @@ def execute_search():
 
 
 	else:
-		return render_search_page(search)
+		print("Render search page call!")
+		results = get_tags()
+
+		common, rare = [], []
+		for item in results:
+			if item.tag_instances >= 25:
+				common.append(item)
+			else:
+				rare.append(item)
+
+		return render_template('advanced-search.html',
+			common_tags = common,
+			rare_tags = rare,
+			common_thresh = common_searches
+			)
+
 
 def do_advanced_search(params):
 	print("Params:")
@@ -210,25 +227,9 @@ def ajax_search():
 
 def render_search_page(search):
 
-	common_searches = 25
-	if not search:
 
-		print("Render search page call!")
-		results = get_tags()
 
-		common, rare = [], []
-		for item in results:
-			if item.tag_instances >= 25:
-				common.append(item)
-			else:
-				rare.append(item)
-
-		return render_template('advanced-search.html',
-			common_tags = common,
-			rare_tags = rare,
-			common_thresh = common_searches
-			)
-	elif 'json' in request.args:
+	if 'json' in request.args:
 		args = json.loads(request.args['json'])
 
 
@@ -240,6 +241,8 @@ def render_search_page(search):
 				)
 		else:
 			return render_template('not-implemented-yet.html', message="You have to provide some search parameters!")
+	else:
+		return render_template('not-implemented-yet.html', message="This endpoint requires json post data!")
 
 # @login_required
 @app.route('/search', methods=['GET', 'POST'])

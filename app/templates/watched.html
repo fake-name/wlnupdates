@@ -74,6 +74,9 @@
 	{% include '_block_flash.html' %}
 
 	<div >
+		<div class="pull-right">
+			<a id='filter-button' class="btn btn-default btn-sm"><span class="glyphicon glyphicon-filter"></span></a>
+		</div>
 		<h2>Watched items:</h2>
 		<div class="pull-right">
 			<font color="#666">To delete a list, remove all items from it.</font>
@@ -266,6 +269,60 @@
 				contentType: "application/json;",
 			});
 		}
+		function URL_add_parameter(url, param, value){
+			var hash       = {};
+			var parser     = document.createElement('a');
+
+			parser.href    = url;
+
+			var parameters = parser.search.split(/\?|&/);
+
+			for(var i=0; i < parameters.length; i++) {
+				if(!parameters[i])
+					continue;
+
+				var ary      = parameters[i].split('=');
+				hash[ary[0]] = ary[1];
+			}
+
+			hash[param] = value;
+
+			var list = [];
+			Object.keys(hash).forEach(function (key) {
+				list.push(key + '=' + hash[key]);
+			});
+
+			parser.search = '?' + list.join('&');
+			return parser.href;
+		}
+
+		$.contextMenu({
+			selector: "#filter-button",
+			trigger: 'left',
+			build: function(trigger, e) {
+				var items = new Object();
+				items["addedby"]       = {name: "Filter shown series", disabled:true};
+				items['title']         =  "----";
+				items['active']        = {name:'Active Series',      icon:'{{'quit' if active_filter == 'active'        else ''}}', callback:function () {
+						location.href = URL_add_parameter(location.href, 'active-filter', 'active');
+					} };
+				items['maybe-stalled'] = {name:'Possibly Stalled',   icon:'{{'quit' if active_filter == 'maybe-stalled' else ''}}', callback:function () {
+						location.href = URL_add_parameter(location.href, 'active-filter', 'maybe-stalled');
+					} };
+				items['stalled']       = {name:'Has Releases',       icon:'{{'quit' if active_filter == 'stalled'       else ''}}', callback:function () {
+						location.href = URL_add_parameter(location.href, 'active-filter', 'stalled');
+					} };
+				items['all']           = {name:'All',                icon:'{{'quit' if active_filter == 'all'           else ''}}', callback:function () {
+						location.href = URL_add_parameter(location.href, 'active-filter', 'all');
+					} };
+
+
+				return {
+					'items' : items
+				};
+			}
+		});
+
 	</script>
 
 {% endblock %}

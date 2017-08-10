@@ -1,10 +1,11 @@
 
 from flask import render_template, flash, redirect, url_for, g, request
-from app import app
+from app.context_processors import staleness_factor
 from app.models import Watches
 from app.models import Series
 from app.models import Releases
 from sqlalchemy import desc
+from app import app
 from app import db
 from flask_babel import gettext
 from sqlalchemy.orm import joinedload
@@ -14,11 +15,14 @@ from app.utilities import get_latest_release
 from app.utilities import get_latest_releases
 
 
-@app.route('/watches')
+@app.route('/watches', methods=['GET'])
 def renderUserWatches():
 	if not g.user.is_authenticated():
 		flash(gettext('You need to log in to create or view series watches.'))
 		return redirect(url_for('index'))
+
+	print("Watches!")
+	print("Params:", request.args)
 
 	watches = Watches                                    \
 				.query                                   \
@@ -26,6 +30,14 @@ def renderUserWatches():
 				.filter(Watches.user_id == g.user.id)    \
 				.all()
 
+	print("queried")
+
+	active_filter = 'all'
+	if 'active-filter' in request.args:
+		print("Active filter in params")
+		active_filter = request.args['active-filter'] if request.args['active-filter'] in ['active', 'maybe-stalled', 'stalled', 'all'] else 'all'
+
+	print("Filter:", active_filter)
 
 	data = {}
 
@@ -80,9 +92,22 @@ def renderUserWatches():
 		if avail['frag'] > 0:
 			avail['agg'] += avail['frag'] * 1e-4
 
-		if not watch.listname in data:
-			data[watch.listname] = []
-		data[watch.listname].append((series, prog, avail, watch.watch_as_name))
+
+		data.setdefault(watch.listname, [])
+
+		sf = staleness_factor(avail['date'])
+		if active_filter == 'active' and sf in ["updating-current"]:
+			data[watch.listname].append((series, prog, avail, watch.watch_as_name))
+		elif active_filter == 'maybe-stalled' and sf in ["updating-current", "updating-stale"]:
+			data[watch.listname].append((series, prog, avail, watch.watch_as_name))
+		elif active_filter == 'stalled' and sf in ["updating-current", "updating-stale", "updating-stalled"]:
+			data[watch.listname].append((series, prog, avail, watch.watch_as_name))
+		elif active_filter == 'all':
+			data[watch.listname].append((series, prog, avail, watch.watch_as_name))
+
+		# else:  # This /shouldn't/ ever happen, but wth.
+		# 	data[watch.listname].append((series, prog, avail, watch.watch_as_name))
+
 
 	for key in data.keys():
 		data[key].sort(key=lambda x: (x[0].title.lower()))
@@ -95,7 +120,8 @@ def renderUserWatches():
 	return render_template(
 			'watched.html',
 			watches = data,
-			lists   = lists
+			lists   = lists,
+			active_filter = active_filter,
 		)
 
 
