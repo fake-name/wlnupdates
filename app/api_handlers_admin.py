@@ -303,10 +303,10 @@ def merge_series_ids(m1, m2):
 		itm_to.demographic = itm_from.demographic
 	if itm_from.orig_lang and not itm_to.orig_lang:
 		itm_to.orig_lang = itm_from.orig_lang
-	if not itm_to.volume or (itm_from.volume and itm_from.volume > itm_to.volume):
-		itm_to.volume = itm_from.volume
-	if not itm_to.chapter or (itm_from.chapter and itm_from.chapter > itm_to.chapter):
-		itm_to.chapter = itm_from.chapter
+	if not itm_to.latest_volume or (itm_from.latest_volume and itm_from.latest_volume > itm_to.latest_volume):
+		itm_to.latest_volume = itm_from.latest_volume
+	if not itm_to.latest_chapter or (itm_from.latest_chapter and itm_from.latest_chapter > itm_to.latest_chapter):
+		itm_to.latest_chapter = itm_from.latest_chapter
 	if itm_from.region and not itm_to.region:
 		itm_to.region = itm_from.region
 	if not itm_to.tot_chapter or (itm_from.tot_chapter and itm_from.tot_chapter > itm_to.tot_chapter):
