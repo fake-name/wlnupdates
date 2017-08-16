@@ -310,27 +310,29 @@ def get_identifier():
 
 
 
-def set_rating(sid, new_rating):
-	uid, ip = get_identifier()
-	print("Set-rating call for sid %s, uid %s, ip %s. Rating: %s" % (sid, uid, ip, new_rating))
-	user_rtng = Ratings.query \
-		.filter(Ratings.series_id == sid) \
-		.filter(Ratings.user_id   == uid) \
-		.filter(Ratings.source_ip == ip ) \
-		.scalar()
+def set_rating(sid, new_rating=None):
 
-	if user_rtng:
-		user_rtng.rating = new_rating
-	else:
-		new_row = Ratings(
-				rating    = new_rating,
-				series_id = sid,
-				user_id   = uid,
-				source_ip = ip,
-			)
-		db.session.add(new_row)
+	if new_rating:
+		uid, ip = get_identifier()
+		print("Set-rating call for sid %s, uid %s, ip %s. Rating: %s" % (sid, uid, ip, new_rating))
+		user_rtng = Ratings.query \
+			.filter(Ratings.series_id == sid) \
+			.filter(Ratings.user_id   == uid) \
+			.filter(Ratings.source_ip == ip ) \
+			.scalar()
 
-	db.session.commit()
+		if user_rtng:
+			user_rtng.rating = new_rating
+		else:
+			new_row = Ratings(
+					rating    = new_rating,
+					series_id = sid,
+					user_id   = uid,
+					source_ip = ip,
+				)
+			db.session.add(new_row)
+
+		db.session.commit()
 
 	# Now update the series row.
 	s_ratings = Ratings.query \
