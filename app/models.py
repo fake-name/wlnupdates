@@ -45,6 +45,7 @@ class SeriesBase(object):
 	region      = db.Column(region_enum, default='unknown')
 	sort_mode   = db.Column(series_sort_enum, default='parsed_title_order')
 	tl_type     = db.Column(tl_type_enum, nullable=False, index=True)
+	# tl_complete = db.Column(db.Boolean, nullable=False, default=False)
 	license_en  = db.Column(db.Boolean)
 
 	pub_date    = db.Column(db.DateTime)

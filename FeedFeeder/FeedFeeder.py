@@ -559,7 +559,8 @@ def update_series_info(item):
 		return
 
 	changeable = generate_automated_only_change_flags(series)
-	print(changeable)
+	# print(changeable)
+	# print(item)
 
 
 	# {
@@ -603,6 +604,30 @@ def update_series_info(item):
 		if  len(neww.strip()):
 			series.website = neww
 
+	if 'coostate' in item  and item['coostate']:
+		if not series.orig_status or (item['coostate'] != series.orig_status and changeable['orig_status']):
+			neww = bleach.clean(item['coostate'])
+			if  len(neww.strip()):
+				series.orig_status = neww
+
+	if 'tl_type' in item  and item['tl_type']:
+		if not series.tl_type or (item['tl_type'] != series.tl_type and changeable['tl_type']):
+			neww = bleach.clean(item['tl_type']).strip()
+			if neww and neww in ['western', 'eastern', 'unknown']:
+				series.tl_type = neww
+
+	# if 'transcomplete' in item  and item['transcomplete']:
+	# 	if not series.tl_complete or (item['transcomplete'] != series.tl_complete and changeable['transcomplete']):
+	# 		neww = item['transcomplete'].strip()
+	# 		if neww and neww in ['yes', 'no']:
+	# 			series.tl_complete = neww
+
+	if 'licensed' in item  and item['licensed']:
+		if not series.license_en or (item['licensed'] != series.license_en and changeable['licensed']):
+			neww = item['licensed'].strip().lower()
+			if neww and neww in ['yes', 'no']:
+				series.license_en = neww == 'yes'
+
 	if 'author' in item and item['author']:
 		tmp = item['author']
 		if isinstance(tmp, str):
@@ -617,6 +642,9 @@ def update_series_info(item):
 
 	if 'tags' in item and item['tags']:
 		series_tools.updateTags(series, item['tags'], deleteother=False, allow_new=item.get('create_tags', False))
+
+	if 'genres' in item and item['genres']:
+		series_tools.updateGenres(series, item['genres'], deleteother=False)
 
 	if 'alt_titles' in item and item['alt_titles']:
 		series_tools.updateAltNames(series, item['alt_titles']+[item['title'], ], deleteother=False)
