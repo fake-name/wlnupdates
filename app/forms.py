@@ -1,6 +1,6 @@
 
 import binascii
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms import BooleanField
 from wtforms import TextAreaField
@@ -23,7 +23,7 @@ from app import db
 def loginError():
 	raise ValidationError("Your username or password is incorrect.")
 
-class LoginForm(Form):
+class LoginForm(FlaskForm):
 	username =   StringField('Username', validators=[DataRequired(), Length(min=5)])
 	password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
 	remember_me = BooleanField('remember_me', default=False)
@@ -47,7 +47,7 @@ class LoginForm(Form):
 		if not check_password_hash(user.password, form.password.data):
 			loginError()
 
-class SignupForm(Form):
+class SignupForm(FlaskForm):
 	username  =   StringField('Username', validators=[DataRequired(), Length(min=5)])
 	password  = PasswordField('Password', validators=[DataRequired(), Length(min=8), EqualTo('pconfirm', "Your passwords must match!")])
 	pconfirm  = PasswordField('Repeat Password', validators=[DataRequired(), Length(min=8)])
@@ -58,13 +58,13 @@ class SignupForm(Form):
 		if user is not None:
 			raise ValidationError("That username is already used! Please choose another.")
 
-class NewSeriesForm(Form):
+class NewSeriesForm(FlaskForm):
 	name =   StringField('Series Title', validators=[DataRequired(), Length(min=1)])
 	type =   RadioField( 'Series Type',
 				validators=[DataRequired(message='You must supply select a type.')],
 				choices=[('oel', 'OEL - (original english language)'), ('translated', 'Translated')])
 
-class NewGroupForm(Form):
+class NewGroupForm(FlaskForm):
 	name  =   StringField('Group Name', validators=[DataRequired(), Length(min=1)])
 
 
@@ -107,7 +107,7 @@ def check_sub_chapter(form, field):
 
 
 
-class NewReleaseForm(Form):
+class NewReleaseForm(FlaskForm):
 	volume      = StringField('Volume', validators=[check_volume])
 	chapter     = StringField('Chapter', validators=[check_chapter])
 	subChap     = StringField('Sub-Chapter', validators=[check_sub_chapter])
@@ -119,7 +119,7 @@ class NewReleaseForm(Form):
 	releasetime = DateTimeField('Release Date', format='%Y/%m/%d %H:%M')
 
 
-# class EditForm(Form):
+# class EditForm(FlaskForm):
 # 	nickname = StringField('nickname', validators=[DataRequired()])
 # 	about_me = TextAreaField('about_me', validators=[Length(min=0, max=140)])
 
@@ -146,11 +146,11 @@ class NewReleaseForm(Form):
 # 		return True
 
 
-class PostForm(Form):
+class PostForm(FlaskForm):
 	title = StringField('Title', validators=[DataRequired(), Length(max=128)])
 	content = TextAreaField('Content', validators=[DataRequired()])
 
 
-class SearchForm(Form):
+class SearchForm(FlaskForm):
 	search = StringField('search', validators=[DataRequired()])
 
