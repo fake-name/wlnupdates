@@ -106,7 +106,7 @@ def execute_search():
 				)
 		else:
 			return render_template('not-implemented-yet.html', message="You have to provide some search parameters!")
-	
+
 
 
 	elif 'json' in request.args:
@@ -171,6 +171,7 @@ def do_advanced_search(params):
 			minc, maxc = params['chapter-limits']
 			minc = int(minc)
 			maxc = int(maxc)
+			params['chapter-limits'] = [minc, maxc]
 			if minc > 0:
 				q = q.having(rcnt >= minc)
 			if maxc > 0:

@@ -623,7 +623,7 @@ def update_series_info(item):
 	# 			series.tl_complete = neww
 
 	if 'licensed' in item  and item['licensed']:
-		if not series.license_en or (item['licensed'] != series.license_en and changeable['licensed']):
+		if not series.license_en or (item['licensed'] != series.license_en and changeable['license_en']):
 			neww = item['licensed'].strip().lower()
 			if neww and neww in ['yes', 'no']:
 				series.license_en = neww == 'yes'

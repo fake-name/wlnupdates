@@ -4,14 +4,15 @@
 
 # Tag replacement map. old-value -> fixed-value.
 tag_fix_lut = {
-	'female-protagonist'    : 'female-lead',
-	'male-protagonist'      : 'male-lead',
-	'non-human-protagonist' : 'non-human-lead',
+	'female-protagonist'                   : 'female-lead',
+	'male-protagonist'                     : 'male-lead',
+	'non-human-protagonist'                : 'non-human-lead',
 
-	'hiding-true-abilities' : 'hiding-true-ability/ies',
-	'hiding-true-ability'   : 'hiding-true-ability/ies',
+	'hiding-true-abilities'                : 'hiding-true-ability/ies',
+	'hiding-true-ability'                  : 'hiding-true-ability/ies',
 
-	'sword-and-magic'       : 'sword-and-sorcery',
+	'sword-and-magic'                      : 'sword-and-sorcery',
+	'transported-into-another-world'       : 'transported-to-another-world',
 }
 
 # If the key is present, the value should also be present.
