@@ -3,6 +3,7 @@
 from hashlib import md5
 import re
 from app import db
+
 from sqlalchemy.orm import relationship
 from flask_bcrypt import generate_password_hash
 from sqlalchemy.ext.declarative import declared_attr
@@ -561,47 +562,20 @@ def update_chp_info():
 	print("Done!")
 
 def resynchronize_ratings():
-
+	import app.series_tools as app_series_tools
 	ratings = db.engine.execute('''
 		SELECT
-			user_id,
-			series_id,
-			source_ip,
-			rating
+			distinct(series_id)
 		FROM ratings;
 		''')
 
 	ratings = list(ratings)
 
-	print("Have %s ratings" % len(ratings))
+	print("Have %s ratings with ratings" % len(ratings))
 
-	agg = {}
-	for user_id, series_id, source_ip, rating in ratings:
-		agg.setdefault(series_id, [])
-		agg[series_id].append((user_id, series_id, source_ip, rating))
+	for seriesid in ratings:
+		app_series_tools.set_rating(seriesid, new_rating=None)
 
-	print("On %s series" % len(agg))
-
-	for seriesid, data in agg.items():
-		ratings = [tmp[3] for tmp in data]
-
-		rating = sum(ratings) / len(ratings)
-
-		res = db.engine.execute('''
-			UPDATE
-				series
-			SET
-				rating       = %s,
-				rating_count = %s
-			WHERE
-				id = %s;
-			''', (
-				rating,
-				len(ratings),
-				seriesid
-				))
-
-		print(".", end='', flush=True)
 	print("")
 	print("Committing")
 	db.engine.execute("COMMIT")

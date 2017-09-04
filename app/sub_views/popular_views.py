@@ -31,29 +31,19 @@ def get_most_watched(page):
 		.add_column(watches.c.watch_count) \
 		.order_by(desc(watches.c.watch_count), Series.title)
 
-
 	watch_entries = have.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return watch_entries
-
 
 
 def get_highest_rated(page):
 
-	ratings = Ratings.query \
-		.with_entities(func.count().label("rating_count"), func.avg(Ratings.rating).label("rating"), func.min(Ratings.series_id).label("series_id")) \
-		.group_by(Ratings.series_id).subquery()
-
-
-	have = Series.query.join(ratings, Series.id == ratings.c.series_id) \
-		.add_column(ratings.c.rating) \
-		.add_column(ratings.c.rating_count) \
-		.filter(ratings.c.rating_count > 1) \
-		.order_by(desc(ratings.c.rating), Series.title)
-
+	have = Series.query \
+		.with_entities(Series, Series.rating, Series.rating_count) \
+		.filter(Series.rating_count > 1) \
+		.order_by(desc(Series.rating), Series.title)
 
 	watch_entries = have.paginate(page, app.config['SERIES_PER_PAGE'], False)
 	return watch_entries
-
 
 
 def get_most_rated(page):

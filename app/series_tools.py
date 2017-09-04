@@ -1,6 +1,4 @@
 
-from app import db
-from app import app
 from app.models import Series
 from app.models import Tags
 from app.models import Genres
@@ -13,6 +11,8 @@ from app.models import Publishers
 from app.models import Ratings
 from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
+from app import db
+from app import app
 import markdown
 import bleach
 import os.path
@@ -309,6 +309,14 @@ def get_identifier():
 			return None, request.remote_addr
 
 
+# def ci_lower_bound(pos, n)
+# 	confidence = 1.96
+# 	if n == 0
+# 		return 0
+# 	end
+# 	z = Statistics2.pnormaldist(1-(1-confidence)/2)
+# 	phat = 1.0*pos/n
+# 	(phat + z*z/(2*n) - z * Math.sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
 
 def set_rating(sid, new_rating=None):
 
@@ -355,15 +363,15 @@ def set_rating(sid, new_rating=None):
 
 def get_rating(sid):
 	uid, ip = get_identifier()
-	# print("Get-rating call for sid %s, uid %s, ip %s." % (sid, uid, ip))
 	user_rtng = Ratings.query \
 		.filter(Ratings.series_id == sid) \
 		.filter(Ratings.user_id   == uid) \
 		.filter(Ratings.source_ip == ip ) \
 		.scalar()
 
-
-	avg, count = db.session.query(func.avg(Ratings.rating).label('average'), func.count(Ratings.rating).label('count')).filter(Ratings.series_id == sid).one()
+	# Funky tuple unpacking
+	avg,   = db.session.query(Series.rating).filter(Series.id == sid).one()
+	count, = db.session.query(func.count(Ratings.rating)).filter(Ratings.series_id == sid).one()
 	user_rtng = -1 if user_rtng == None else user_rtng.rating
 
 	# print("Rating - Average: %s from %s ratings, user-rating: %s" % (avg, count, user_rtng))
