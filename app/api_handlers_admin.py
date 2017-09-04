@@ -812,7 +812,9 @@ def deleteSeries(data):
 	for clearTable in delete_from:
 		clearTable.query.filter(clearTable.series==clean_item.id).delete()
 
+	Ratings.query.filter(Ratings.series_id==clean_item.id).delete()
 	Watches.query.filter(Watches.series_id==clean_item.id).delete()
+
 	Series.query.filter(Series.id==clean_item.id).delete()
 	SeriesChanges.query.filter(SeriesChanges.srccol==clean_item.id).delete()
 	# db.session.delete(clean_item)
