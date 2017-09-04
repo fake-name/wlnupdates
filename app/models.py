@@ -3,6 +3,7 @@
 from hashlib import md5
 import re
 from app import db
+from app import app
 
 from sqlalchemy.orm import relationship
 from flask_bcrypt import generate_password_hash
@@ -573,8 +574,11 @@ def resynchronize_ratings():
 
 	print("Have %s ratings with ratings" % len(ratings))
 
-	for seriesid in ratings:
-		app_series_tools.set_rating(seriesid, new_rating=None)
+	for seriesid,  in ratings:
+		with app.app_context():
+			print(".", end="", flush=True)
+			app_series_tools.set_rating(seriesid, new_rating=None)
+
 
 	print("")
 	print("Committing")
