@@ -1,6 +1,6 @@
 alembic==0.9.5
 git+https://github.com/fake-name/AmqpConnector.git
-awesome-slugify
+awesome-slugify==1.6.5
 Flask-Babel
 Flask-Bcrypt
 Flask-DebugToolbar
