@@ -15,7 +15,7 @@ Flask-WTF==0.14.2
 Flask==0.12.2
 Jinja2==2.9.6
 Mako==1.0.7
-Markdown
+Markdown==2.6.9
 psycopg2
 python-levenshtein
 pytz
