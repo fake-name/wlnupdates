@@ -25,7 +25,7 @@ sqlalchemy-migrate==0.11.0
 SQLAlchemy-Searchable==0.10.4
 SQLAlchemy-Utils==0.32.18
 Werkzeug==0.12.2
-WTForms-JSON
+WTForms-JSON==0.3.3
 WTForms
 APScheduler
 Babel
