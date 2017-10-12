@@ -32,7 +32,7 @@ Babel==2.5.1
 bleach==2.1.1
 blinker==1.4
 coverage==4.4.1
-html5lib
+html5lib==0.999999999
 decorator==3.4.2
 defusedxml==0.4.1
 flipflop==1.0
