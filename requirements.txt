@@ -36,7 +36,7 @@ html5lib==0.999999999
 decorator==4.1.2
 defusedxml==0.5.0
 flipflop==1.0
-guess-language-spirit==0.5.1
+guess-language-spirit==0.5.3
 guess-language==0.2
 itsdangerous==0.24
 MarkupSafe
