@@ -39,7 +39,7 @@ flipflop==1.0
 guess-language-spirit==0.5.3
 guess-language==0.2
 itsdangerous==0.24
-MarkupSafe
+MarkupSafe==1.0
 pbr==0.10.8
 pstat==0.0.1
 psutil==2.2.1
