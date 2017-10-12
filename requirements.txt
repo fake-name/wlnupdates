@@ -14,7 +14,7 @@ Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
 Flask==0.12.2
 Jinja2==2.9.6
-Mako
+Mako==1.0.7
 Markdown
 psycopg2
 python-levenshtein
