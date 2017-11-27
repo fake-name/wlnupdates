@@ -847,6 +847,8 @@ def deleteAutoReleases(data):
 		else:
 			print("Not deleting: ", release.id, release.volume, release.chapter, release.postfix, release.changeuser)
 
+	app.utilities.update_latest_row(clean_item)
+
 	db.session.commit()
 
 	return getResponse("Autogen releases deleted. Reloading.", error=False)
@@ -922,6 +924,42 @@ def deleteGroupAutoReleases(data):
 			# print(release.id, release.volume, release.chapter, release.postfix, release.changeuser)
 		else:
 			print("Not deleting: ", release.id, release.volume, release.chapter, release.postfix, release.changeuser)
+
+	db.session.commit()
+
+	return getResponse("Autogen releases deleted. Reloading.", error=False)
+
+def bulkToggleVolumeCountedStatus(data):
+
+	if not current_user.is_mod():
+		return getResponse(error=True, message="I see what you (tried) to do there!")
+
+	assert 'item-id' in data
+	assert 'mode'    in data
+	assert 'enable'  in data
+	assert data['mode'] == "toggle-volume-releases"
+
+	try:
+		series_id = int(data["item-id"])
+	except ValueError:
+		raise AssertionError("Failure converting item ID to integer!")
+
+	enable = data['enable']
+	assert enable in ['Include', 'Exclude']
+
+	should_include = enable == 'Include'
+
+
+	item_row = Series.query.filter(Series.id==series_id).one()
+
+	print(item_row)
+	for release in item_row.releases:
+		if release.changeuser == FeedFeeder.FeedFeeder.RSS_USER_ID or release.changeuser == FeedFeeder.FeedFeeder.NU_SRC_USER_ID:
+			if release.volume:
+				release.include = should_include
+
+
+	app.utilities.update_latest_row(item_row)
 
 	db.session.commit()
 

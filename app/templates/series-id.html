@@ -288,29 +288,27 @@
 {%- endmacro %}
 
 
-{% macro mergeInto() -%}
 
-	<div class="well well-tny info-item">
+{% macro dbAdminItem() -%}
+
+	<div class="well well-tny">
 		<div class="row multilist" id="{{valId}}-container">
 			<div class="col-md-12 rowContents" id='{{valId}}'>
 				<form class="form-inline" action="javascript:merge_ajax();">
 
 					<div class="col-md-3 rowTitle">
-						<label style='margin-top:5px'>Merge into series ID</label>
+						<label style='margin-top:5px'>DB Admin View</label>
 					</div>
 					<div class="col-md-9 rowTitle">
-						<input type="text" class="form-control input-sm" id="dbid" placeholder="DbId">
-						<button class="btn btn-primary btn-xs">Do Merge</button>
-						<div class="pull-right" style='margin-top: 5px'>
-							ID: {{series_id}}
-						</div>
+						<a href="/db_admin/series/edit/?id={{series_id}}&url=%2Fdb_admin%2Fseries%2F">view</a>
 					</div>
 				</form>
 			</div>
 		</div>
 	</div>
 {%- endmacro %}
-{% macro listSortMode(series_val) -%}
+
+{% macro admin_view(series_val) -%}
 
 	<div class="well well-tny">
 		<div class="row multilist" id="admin-sort-more-container">
@@ -337,54 +335,55 @@
 				</form>
 			</div>
 		</div>
-	</div>
-{%- endmacro %}
-
-
-{% macro dbAdminItem() -%}
-
-	<div class="well well-tny">
+		<hr />
 		<div class="row multilist" id="{{valId}}-container">
 			<div class="col-md-12 rowContents" id='{{valId}}'>
 				<form class="form-inline" action="javascript:merge_ajax();">
 
 					<div class="col-md-3 rowTitle">
-						<label style='margin-top:5px'>DB Admin View</label>
+						<label style='margin-top:5px'>Merge into series ID</label>
 					</div>
-					<div class="col-md-9 rowTitle">
-						<a href="/db_admin/series/edit/?id={{series_id}}&url=%2Fdb_admin%2Fseries%2F">view</a>
+					<div class="col-md-4 rowTitle">
+						<input type="text" class="form-control input-sm" id="dbid" placeholder="DbId">
+
+					</div>
+					<div class="col-md-3 rowTitle">
+						<button style='margin-top: 5px' class="btn btn-primary btn-xs btn-block">Do Merge</button>
+					</div>
+					<div class="col-md-2 rowTitle">
+						<div style='margin-top: 5px'>
+							ID: {{series_id}}
+						</div>
 					</div>
 				</form>
 			</div>
 		</div>
-	</div>
-{%- endmacro %}
-
-{% macro deleteItem() -%}
-
-	<div class="well well-tny">
-		<div class="row multilist" id="{{valId}}-container">
-			<div class="col-md-12 rowContents" id='{{valId}}'>
+		<hr />
+		<div class="row multilist">
+			<div class="col-md-12 rowContents">
 				<form class="form-inline" action="javascript:delete_ajax();">
 					<div class="col-md-3 rowTitle">
-						<label style='margin-top:5px'>Delete Series:</label>
+						<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block">Delete Series</button>
 					</div>
-					<div class="col-md-9 rowTitle">
-						<button style='margin-top:4px' class="btn btn-primary btn-xs">DO IT</button>
+				</form>
+				<form class="form-inline" action="javascript:delete_releases_ajax();">
+					<div class="col-md-3 rowTitle">
+						<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block">Delete Auto-Releases</button>
 					</div>
 				</form>
 			</div>
 		</div>
-	</div>
-	<div class="well well-tny">
-		<div class="row multilist" id="{{valId}}-container">
-			<div class="col-md-12 rowContents" id='{{valId}}'>
-				<form class="form-inline" action="javascript:delete_releases_ajax();">
+		<hr />
+		<div class="row multilist">
+			<div class="col-md-12 rowContents">
+				<form class="form-inline" action="javascript:toggle_series_releases(true);">
 					<div class="col-md-3 rowTitle">
-						<label style='margin-top:5px'>Delete Auto-Releases:</label>
+						<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block">Enable releases with volume</button>
 					</div>
-					<div class="col-md-9 rowTitle">
-						<button style='margin-top:4px' class="btn btn-primary btn-xs">DO IT</button>
+				</form>
+				<form class="form-inline" action="javascript:toggle_series_releases(false);">
+					<div class="col-md-3 rowTitle">
+						<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block">Disable releases with volume</button>
 					</div>
 				</form>
 			</div>
@@ -795,6 +794,33 @@
 			}
 
 			bootbox.confirm("Really delete auto-sourced series release items for " + mangaId + "?", function(result) {
+				if (result != true)
+					return;
+
+				$.ajax({
+					url : "/api",
+					success : saveCallback(false),
+					data: JSON.stringify(params),
+					method: "POST",
+					dataType: 'json',
+					contentType: "application/json;",
+				});
+			});
+		}
+		function toggle_series_releases(should_enable)
+		{
+			console.log("Ready to send!");
+
+			var mangaId  = $('meta[name=manga-id]').attr('content')
+			should_enable = should_enable ? "Include" : "Exclude"
+			var params = {
+				'mode'      : 'toggle-volume-releases',
+				'enable'    : should_enable,
+				'item-id'   : mangaId,
+			}
+
+			console.log("Toggle series releases:", should_enable);
+			bootbox.confirm(should_enable  + " all releases with a non-zero volume value for " + mangaId + "?", function(result) {
 				if (result != true)
 					return;
 
@@ -1240,9 +1266,7 @@
 				{% endif %}
 
 
-				{{listSortMode(series)}}
-				{{mergeInto()}}
-				{{deleteItem()}}
+				{{admin_view(series)}}
 			{% endif %}
 			<div style="clear: both;"></div>
 			<hr class='padded-rule'>
