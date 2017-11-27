@@ -470,7 +470,7 @@ def renderSeriesId(sid, slug):
 	if slug != slugify(series.title, to_lower=True):
 		return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
 
-	if "&lt;br&gt;" in series.orig_status:
+	if series.orig_status and "&lt;br&gt;" in series.orig_status:
 		series.orig_status = series.orig_status.replace("&lt;br&gt;", ", ")
 		db.session.commit()
 
