@@ -29,7 +29,7 @@ WTForms-JSON==0.3.3
 WTForms==2.1
 APScheduler==3.4.0
 Babel==2.5.1
-bleach==2.1.1
+bleach==2.1.2
 blinker==1.4
 coverage==4.4.2
 html5lib==0.999999999
