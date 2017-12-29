@@ -520,6 +520,7 @@ def get_group_id(data):
 def get_search_title(data):
 	assert "title" in data, "You must specify a title to query for."
 	assert isinstance(data['title'], str), "The 'title' member must be a string."
+	assert len(data['title']) > 1, "You must specify a non-empty title to query for."
 
 	data, searchtermclean = search_views.title_search(data['title'])
 
