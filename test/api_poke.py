@@ -30,13 +30,21 @@ MODES = [
 	# 'get-genre-id',
 	# 'get-publisher-id',
 	# 'get-group-id',
+	#
+	# 'get-artist-data',
+	# 'get-author-data',
+	# 'get-tag-data',
+	# 'get-genre-data',
+	# 'get-publisher-data',
+	# 'get-group-data',
 
 	# 'get-series-id',
+	# 'get-series-data',
 
 	# 'get-feeds',
 	# 'get-watches',
 
-	'search-title',
+	# 'search-title',
 	# 'search-advanced',
 	# 'enumerate-tags',
 ]
@@ -71,27 +79,26 @@ def test():
 
 
 
-	post = {
-		'mode'   : 'search-title',
-		'title'     : "",
-	}
-	print("Request: ", post)
-	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
-	print(pg)
-
 	# post = {
-	# 	'mode'   : 'search-advanced',
-	# 	'series-type'  : {'Translated' : 'included'},
-	# 	'tag-category' : {
-	# 		'ability-steal' : 'included',
-	# 		'virtual-reality' : 'excluded'
-	# 		},
-	# 	'sort-mode' : "update",
-	# 	'chapter-limits' : [40, 0],
+	# 	'mode'   : 'search-title',
+	# 	'title'     : "",
 	# }
 	# print("Request: ", post)
 	# pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
 	# print(pg)
+
+	post = {
+		'mode'   : 'search-advanced',
+		'series-type'  : {'Translated' : 'included'},
+		'tag-category' : {
+			'litrpg' : 'included',
+			},
+		'sort-mode' : "update",
+		'chapter-limits' : [40, 0],
+	}
+	print("Request: ", post)
+	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+	print(pg)
 
 
 if __name__ == "__main__":
