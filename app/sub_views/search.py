@@ -19,16 +19,20 @@ from app import app
 import collections
 import json
 
-def title_search(searchterm):
+def generate_similarity_query(searchterm, cols=None):
+
 	searchtermclean = bleach.clean(searchterm, strip=True)
 	searchtermprocessed = nt.prepFilenameForMatching(searchtermclean)
+
+	similarity = Function('similarity', AlternateNames.cleanname, (searchtermprocessed))
+	if cols is None:
+		cols = [AlternateNames.series, AlternateNames.cleanname, AlternateNames.name, similarity]
 
 	if not searchterm:
 		return None, None
 
-	similarity = Function('similarity', AlternateNames.cleanname, (searchtermprocessed))
 	query = select(
-			[AlternateNames.series, AlternateNames.cleanname, AlternateNames.name, similarity],
+			cols,
 			from_obj=[AlternateNames],
 			order_by=desc(similarity)
 		).where(
@@ -39,7 +43,10 @@ def title_search(searchterm):
 		).limit(
 			50
 		)
+	return query, searchtermprocessed
 
+def title_search(searchterm):
+	query, searchtermprocessed = generate_similarity_query(searchterm)
 	results = db.session.execute(query).fetchall()
 
 	data = collections.OrderedDict()
@@ -149,8 +156,9 @@ def do_advanced_search(params):
 
 
 	if 'title-search-text' in params and params['title-search-text']:
-		# TODO
-		pass
+		searchterm = params['title-search-text']
+		cols = [AlternateNames.series]
+		q = q.filter(Series.id.in_(generate_similarity_query(searchterm=searchterm, cols=cols)))
 
 
 	if 'chapter-limits' in params:

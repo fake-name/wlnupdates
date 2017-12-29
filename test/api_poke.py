@@ -89,11 +89,12 @@ def test():
 
 	post = {
 		'mode'   : 'search-advanced',
-		'series-type'  : {'Translated' : 'included'},
-		'tag-category' : {
-			'litrpg' : 'included',
-			},
+		# 'series-type'  : {'Translated' : 'included'},
+		# 'tag-category' : {
+		# 	'litrpg' : 'included',
+		# 	},
 		'sort-mode' : "update",
+		'title-search-text' : "Fire Girl",
 		'chapter-limits' : [40, 0],
 	}
 	print("Request: ", post)
