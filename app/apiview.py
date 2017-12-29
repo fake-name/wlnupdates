@@ -89,6 +89,14 @@ DISPATCH_TABLE = {
 	'get-series-id'             : (api_handlers_anon.get_series_id,                     False, False),
 	'get-tag-id'                : (api_handlers_anon.get_tag_id,                        False, False),
 
+	'get-artist-data'           : (api_handlers_anon.get_artist_id,                     False, False),
+	'get-author-data'           : (api_handlers_anon.get_author_id,                     False, False),
+	'get-genre-data'            : (api_handlers_anon.get_genre_id,                      False, False),
+	'get-group-data'            : (api_handlers_anon.get_group_id,                      False, False),
+	'get-publisher-data'        : (api_handlers_anon.get_publisher_id,                  False, False),
+	'get-series-data'           : (api_handlers_anon.get_series_id,                     False, False),
+	'get-tag-data'              : (api_handlers_anon.get_tag_id,                        False, False),
+
 
 	# Logged in stuff
 	'series-update'             : (api_handlers.process_series_update_json,             True,  False),

@@ -417,13 +417,13 @@ More:
   - `get-watches`             
   - `get-search`              
   - `get-feeds`               
-  - `get-artist-id`           
-  - `get-author-id`           
-  - `get-genre-id`            
-  - `get-group-id`            
-  - `get-publisher-id`        
-  - `get-series-id`           
-  - `get-tag-id`              
+  - `get-artist-data`           
+  - `get-author-data`           
+  - `get-genre-data`            
+  - `get-group-data`            
+  - `get-publisher-data`        
+  - `get-series-data`           
+  - `get-tag-data`              
 > 
 
 
