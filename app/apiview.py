@@ -69,7 +69,6 @@ DISPATCH_TABLE = {
 	'get-publishers'            : (api_handlers_anon.get_publishers,                    False, False),
 	'get-releases'              : (api_handlers_anon.get_releases,                      False, False),
 	'get-series'                : (api_handlers_anon.get_series,                        False, False),
-	'get-tags'                  : (api_handlers_anon.get_tags,                          False, False),
 	'get-translated-releases'   : (api_handlers_anon.get_translated_releases,           False, False),
 	'get-translated-series'     : (api_handlers_anon.get_translated_series,             False, False),
 
@@ -79,7 +78,6 @@ DISPATCH_TABLE = {
 	'search-title'              : (api_handlers_anon.get_search_title,                  False, False),
 	'search-advanced'           : (api_handlers_anon.get_search_advanced,               False, False),
 	'enumerate-tags'            : (api_handlers_anon.enumerate_search_tags,             False, False),
-
 
 	'get-artist-id'             : (api_handlers_anon.get_artist_id,                     False, False),
 	'get-author-id'             : (api_handlers_anon.get_author_id,                     False, False),
@@ -96,7 +94,6 @@ DISPATCH_TABLE = {
 	'get-publisher-data'        : (api_handlers_anon.get_publisher_id,                  False, False),
 	'get-series-data'           : (api_handlers_anon.get_series_id,                     False, False),
 	'get-tag-data'              : (api_handlers_anon.get_tag_id,                        False, False),
-
 
 	# Logged in stuff
 	'series-update'             : (api_handlers.process_series_update_json,             True,  False),

@@ -546,7 +546,7 @@ def get_search_title(data):
 
 def enumerate_search_tags(data):
 	tags = search_views.get_tags()
-	resp = [(tag.tag, tag.tag_instances) for tag in tags]
+	resp = [(tag.id, tag.tag, tag.tag_instances) for tag in tags]
 	return getDataResponse(resp)
 
 def get_search_advanced(data):
