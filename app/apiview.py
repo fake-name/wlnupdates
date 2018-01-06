@@ -28,6 +28,7 @@ If you do not have an account, you must create one in order to edit things or wa
 @csrf.exempt
 @app.route('/api', methods=['POST'])
 def handleApiPost():
+	print("Api Post!")
 	if not request.json:
 		# print("Non-JSON request!")
 		js = {

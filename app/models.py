@@ -20,12 +20,108 @@ from settings import DATABASE_DB_NAME
 from sqlalchemy import CheckConstraint
 from sqlalchemy.dialects.postgresql import ENUM
 from citext import CIText
+from sqlalchemy.ext.associationproxy import association_proxy
+
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import BigInteger
+from sqlalchemy import Text
+from sqlalchemy import text
+from sqlalchemy import Float
+from sqlalchemy import Boolean
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import PrimaryKeyConstraint
+from sqlalchemy.orm import relationship
+from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.schema import PrimaryKeyConstraint
 
 import util.materialized_view_factory
 
 # Some of the metaclass hijinks make pylint confused,
 # so disable the warnings for those aspects of things
 # pylint: disable=E0213, R0903
+
+
+class ChangeLogMixin(object):
+	@declared_attr
+	def operation(cls):
+		return db.Column(db.Text())
+
+
+class ModificationInfoMixin(object):
+
+	@declared_attr
+	def changetime(cls):
+		return db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
+
+	@declared_attr
+	def changeuser(cls):
+		return db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+
+
+
+###################################################################################################
+# New tags stuff:
+###################################################################################################
+
+
+class TagEntries(db.Model):
+	__tablename__ = 'db_tag_entries'
+	id          = db.Column(db.Integer, primary_key=True)
+	tag_str     = db.Column(CIText(), nullable=False, index=True)
+
+	__table_args__ = (
+			UniqueConstraint('tag_str'),
+		)
+
+class TagsLinkBase(object):
+
+	@declared_attr
+	def series_id(cls):
+		return Column(Integer, ForeignKey('series.id'),             nullable=False)
+	@declared_attr
+	def tag_id(cls):
+		return Column(Integer, ForeignKey('db_tag_entries.id'),     nullable=False)
+	@declared_attr
+	def link_weight(cls):
+		return Column(Float, nullable=False, default=1)
+
+
+class TagsLink(db.Model, TagsLinkBase, ModificationInfoMixin):
+	__tablename__ = 'db_tags_link'
+
+	__table_args__ = (
+			PrimaryKeyConstraint('series_id', 'tag_id'),
+			UniqueConstraint('series_id', 'tag_id'),
+		)
+
+class TagsLinkChanges(db.Model, TagsLinkBase, ModificationInfoMixin, ChangeLogMixin):
+	__tablename__ = "db_tags_link_changes"
+
+	srccol   = db.Column(db.Integer, db.ForeignKey('series.id', ondelete="SET NULL"))
+
+	__table_args__ = (
+		PrimaryKeyConstraint('series_id', 'tag_id', 'srccol', 'operation', 'changetime', 'changeuser'),
+	)
+
+
+
+def tag_creator(tag_txt):
+
+	tmp = db.session.query(TagEntries)         \
+		.filter(TagEntries.tag_str == tag_txt) \
+		.scalar()
+	if tmp:
+		return tmp
+
+	return TagEntries(tag_str=tag_txt)
+
+
+###################################################################################################
+# Old
+###################################################################################################
+
 
 region_enum      = ENUM('western', 'eastern', 'unknown',             name='region_enum')
 tl_type_enum     = ENUM('oel', 'translated',                         name='tl_type_enum')
@@ -60,6 +156,7 @@ class SeriesBase(object):
 
 	rating             = db.Column(db.Float())
 	rating_count       = db.Column(db.Integer())
+
 	__table_args__ = (
 		CheckConstraint('''(rating >= 0 and rating <= 10) or rating IS NULL'''),
 		)
@@ -179,21 +276,6 @@ class CoversBase(object):
 	hash        = db.Column(db.Text, nullable=False)
 
 
-class ChangeLogMixin(object):
-	operation      = db.Column(db.Text())
-
-
-class ModificationInfoMixin(object):
-
-	@declared_attr
-	def changetime(cls):
-		return db.Column(db.DateTime, nullable=False, index=True, default=datetime.datetime.utcnow)
-
-	@declared_attr
-	def changeuser(cls):
-		return db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
-
-
 
 class WikiBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
@@ -201,8 +283,6 @@ class WikiBase(object):
 	slug        = db.Column(CIText())
 
 	content     = db.Column(db.Text())
-
-
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -213,7 +293,7 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	__tablename__ = 'series'
 
 	__table_args__ = (
-		db.UniqueConstraint('title'),
+			UniqueConstraint('title'),
 		)
 	tags           = relationship("Tags",           backref='Series', order_by="Tags.tag")
 	genres         = relationship("Genres",         backref='Series')
@@ -224,6 +304,12 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	releases       = relationship("Releases",       backref='Series')
 	publishers     = relationship("Publishers",     backref='Series')
 
+	@declared_attr
+	def tags_rel(cls):
+		return relationship('TagEntries', secondary="db_tags_link")
+
+	tags_prox     = association_proxy('tags_rel', 'tag_str', creator=tag_creator)
+
 
 class WikiPage(db.Model, WikiBase, ModificationInfoMixin):
 	__tablename__ = 'wiki_page'
@@ -231,8 +317,8 @@ class WikiPage(db.Model, WikiBase, ModificationInfoMixin):
 	__searchable__ = ['title']
 
 	__table_args__ = (
-		db.UniqueConstraint('title'),
-		db.UniqueConstraint('slug'),
+			UniqueConstraint('title'),
+			UniqueConstraint('slug'),
 		)
 
 
@@ -243,7 +329,7 @@ class Tags(db.Model, TagsBase, ModificationInfoMixin):
 	__searchable__ = ['tag']
 
 	__table_args__ = (
-		db.UniqueConstraint('series', 'tag'),
+			UniqueConstraint('series', 'tag'),
 		)
 	series_row     = relationship("Series",         backref='Tags')
 
@@ -252,7 +338,7 @@ class Genres(db.Model, GenresBase, ModificationInfoMixin):
 	__searchable__ = ['genre']
 
 	__table_args__ = (
-		db.UniqueConstraint('series', 'genre'),
+			UniqueConstraint('series', 'genre'),
 		)
 	series_row     = relationship("Series",         backref='Genres')
 
@@ -261,7 +347,7 @@ class Author(db.Model, AuthorBase, ModificationInfoMixin):
 	__searchable__ = ['name']
 
 	__table_args__ = (
-		db.UniqueConstraint('series', 'name'),
+			UniqueConstraint('series', 'name'),
 		)
 
 	series_row       = relationship("Series",         backref='Author')
@@ -271,7 +357,7 @@ class Illustrators(db.Model, IllustratorsBase, ModificationInfoMixin):
 	__searchable__ = ['name']
 
 	__table_args__ = (
-		db.UniqueConstraint('series', 'name'),
+			UniqueConstraint('series', 'name'),
 		)
 	series_row       = relationship("Series",         backref='Illustrators')
 
@@ -280,7 +366,7 @@ class AlternateNames(db.Model, AlternateNamesBase, ModificationInfoMixin):
 	__searchable__ = ['name', 'cleanname']
 
 	__table_args__ = (
-		db.UniqueConstraint('series', 'name'),
+			UniqueConstraint('series', 'name'),
 		)
 	series_row       = relationship("Series",         backref='AlternateNames', lazy='joined')
 
@@ -290,7 +376,7 @@ class AlternateTranslatorNames(db.Model, AlternateTranslatorNamesBase, Modificat
 	__searchable__ = ['name', 'cleanname']
 
 	__table_args__ = (
-		db.UniqueConstraint('group', 'name'),
+			UniqueConstraint('group', 'name'),
 		)
 	group_row       = relationship("Translators",         backref='AlternateTranslatorNames')
 
@@ -300,7 +386,7 @@ class Translators(db.Model, TranslatorsBase, ModificationInfoMixin):
 	__searchable__ = ['name']
 
 	__table_args__ = (
-		db.UniqueConstraint('name'),
+			UniqueConstraint('name'),
 		)
 
 	releases        = relationship("Releases",                 backref='Translators')
@@ -312,7 +398,7 @@ class Publishers(db.Model, PublishersBase, ModificationInfoMixin):
 	__searchable__ = ['name']
 
 	__table_args__ = (
-		db.UniqueConstraint('series', 'name'),
+			UniqueConstraint('series', 'name'),
 		)
 
 	series_row     = relationship("Series",         backref='Publisher')
@@ -328,7 +414,7 @@ class Releases(db.Model, ReleasesBase, ModificationInfoMixin):
 class Language(db.Model, LanguageBase, ModificationInfoMixin):
 	__tablename__ = 'language'
 	__table_args__ = (
-		db.UniqueConstraint('language'),
+			UniqueConstraint('language'),
 		)
 
 class Covers(db.Model, CoversBase, ModificationInfoMixin):
@@ -668,7 +754,7 @@ class FeedAuthors(db.Model):
 	name        = db.Column(CIText(), index=True, nullable=False)
 
 	__table_args__ = (
-		db.UniqueConstraint('article_id', 'name'),
+			UniqueConstraint('article_id', 'name'),
 		)
 
 class FeedTags(db.Model):
@@ -677,7 +763,7 @@ class FeedTags(db.Model):
 	tag         = db.Column(CIText(), index=True, nullable=False)
 
 	__table_args__ = (
-		db.UniqueConstraint('article_id', 'tag'),
+			UniqueConstraint('article_id', 'tag'),
 		)
 
 
@@ -709,7 +795,7 @@ class Watches(db.Model):
 	fragment      = db.Column(db.Float(), default=-1)
 
 	__table_args__ = (
-		db.UniqueConstraint('user_id', 'series_id'),
+			UniqueConstraint('user_id', 'series_id'),
 		)
 
 	series_row       = relationship("Series",         backref='Watches')
@@ -725,7 +811,7 @@ class Ratings(db.Model):
 	rating      = db.Column(db.Float(), default=-1)
 
 	__table_args__ = (
-		db.UniqueConstraint('user_id', 'source_ip', 'series_id'),
+			UniqueConstraint('user_id', 'source_ip', 'series_id'),
 		db.CheckConstraint('rating >=  0', name='rating_min'),
 		db.CheckConstraint('rating <= 10', name='rating_max'),
 		db.CheckConstraint('''(user_id IS NOT NULL AND source_ip IS NULL) OR (user_id IS NULL AND source_ip IS NOT NULL)''', name='rating_src'),

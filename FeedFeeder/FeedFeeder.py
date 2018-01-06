@@ -722,7 +722,7 @@ def dispatchItem(item):
 			if x > 20:
 				raise e
 
-		except Exception:
+		except Exception as e:
 			print("Unknown error inserting row")
 			traceback.print_exc()
 			try:
