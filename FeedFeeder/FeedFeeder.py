@@ -587,7 +587,7 @@ def update_series_info(item):
 	if changeable['title']:
 		series_tools.updateTitle(series, item['title'])
 
-	if changeable['description']:
+	if changeable['description'] and 'desc' in item and item['desc']:
 		newd = bleach.clean(item['desc'], strip=True, tags = ['p', 'em', 'strong', 'b', 'i', 'a'])
 		if newd != series.description and len(newd.strip()):
 			series.description = newd
