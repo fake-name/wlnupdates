@@ -4,6 +4,8 @@ from app.forms import SearchForm
 import bleach
 from app.models import AlternateNames
 from app.models import CommonTags
+from app.models import Tags
+from app.models import Genres
 from app.models import Series
 from app.models import Releases
 from app.models import Watches
@@ -134,9 +136,6 @@ def execute_search():
 
 
 def do_advanced_search(params):
-	print("Params:")
-	print(params)
-	print()
 
 	# Join on the aggregate functions for sub-chapters.
 	rdte = func.max(Releases.published).label('reldate')
@@ -148,11 +147,20 @@ def do_advanced_search(params):
 	q = q.filter(Releases.series == Series.id)
 
 	if 'tag-category' in params:
+		q = q.join(Tags)
 		for text, mode in params['tag-category'].items():
 			if mode == "included":
-				q = q.filter(Series.tags.any(tag=str(text)))
+				q = q.filter(Tags.tag == str(text))
 			elif mode == 'excluded':
-				q = q.filter(~Series.tags.any(tag=str(text)))
+				q = q.filter(Tags.tag != str(text))
+
+	if 'genre-category' in params:
+		q = q.join(Genres)
+		for text, mode in params['genre-category'].items():
+			if mode == "included":
+				q = q.filter(Genres.genre == str(text))
+			elif mode == 'excluded':
+				q = q.filter(Genres.genre != str(text))
 
 
 	if 'title-search-text' in params and params['title-search-text']:
