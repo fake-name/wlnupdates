@@ -2,6 +2,7 @@
 from flask import render_template, flash, redirect, url_for, g, request
 from app.forms import SearchForm
 import bleach
+from sqlalchemy.sql.expression import nullslast
 from app.models import AlternateNames
 from app.models import CommonTags
 from app.models import Tags
@@ -108,7 +109,10 @@ def execute_search():
 
 
 		if search_check_ok(args):
-			series = do_advanced_search(args)
+			series_query = do_advanced_search(args)
+			series_query = series_query.limit(100)
+			series = series_query.all()
+
 			return render_template('advanced-search-results.html',
 				series = series,
 				search_params = args
@@ -135,16 +139,17 @@ def execute_search():
 			)
 
 
-def do_advanced_search(params):
+def do_advanced_search(params, queried_columns=None):
 
-	# Join on the aggregate functions for sub-chapters.
-	rdte = func.max(Releases.published).label('reldate')
-	rcnt = func.count(Series.releases).label('ccount')
+	if queried_columns:
+		queried_columns = queried_columns + (Series.latest_published, Series.release_count)
+	else:
+		queried_columns = (Series.id, Series.title, Series.latest_published, Series.release_count)
 
-	q = db.session.query(Series.id, Series.title, rdte, rcnt).group_by(Series)
+	q = db.session.query(Series.id, Series.title, Series.latest_published, Series.release_count).group_by(Series.id)
 
-	q = q.join(Releases)
-	q = q.filter(Releases.series == Series.id)
+	# q = q.join(Releases)
+	# q = q.filter(Releases.series == Series.id)
 
 	if 'tag-category' in params:
 		q = q.join(Tags)
@@ -153,6 +158,15 @@ def do_advanced_search(params):
 				q = q.filter(Tags.tag == str(text))
 			elif mode == 'excluded':
 				q = q.filter(Tags.tag != str(text))
+
+
+	# if 'tag-category' in params:
+	# 	for text, mode in params['tag-category'].items():
+	# 		if mode == "included":
+	# 			q = q.filter(Series.tags.any(tag=str(text)))
+	# 		elif mode == 'excluded':
+	# 			q = q.filter(~Series.tags.any(tag=str(text)))
+
 
 	if 'genre-category' in params:
 		q = q.join(Genres)
@@ -176,9 +190,9 @@ def do_advanced_search(params):
 			maxc = int(maxc)
 			params['chapter-limits'] = [minc, maxc]
 			if minc > 0:
-				q = q.having(rcnt >= minc)
+				q = q.having(Series.release_count >= minc)
 			if maxc > 0:
-				q = q.having(rcnt <= maxc)
+				q = q.having(Series.release_count <= maxc)
 
 	type_map = {
 		'Translated'                : 'translated',
@@ -201,42 +215,37 @@ def do_advanced_search(params):
 	if "sort-mode" in params:
 
 		if params['sort-mode'] == "update":
-			q = q.order_by(desc(rdte))
+			q = q.order_by(nullslast(desc(Series.latest_published)))
 		elif params['sort-mode'] == "chapter-count":
-			q = q.order_by(desc(rcnt))
+			q = q.order_by(nullslast(desc(Series.release_count)))
 		else: # params['sort-mode'] == "name"
 			q = q.order_by(Series.title)
 	else:
 		q = q.order_by(Series.title)
 
-	q = q.limit(100)
-	res = q.all()
+	return q
 
-	return res
 
 def search_check_ok(params):
 	if (
 				'chapter-limits' in params
 			and
-				len(params['chapter-limits']) == 2
-			and
-				int(params['chapter-limits'][0]) >= 1
+			(
+					len(params['chapter-limits']) != 2
+				or
+					int(params['chapter-limits'][0]) < 0
+			)
 		):
-		return True
+		print("chapter limits invalid", len(params['chapter-limits']) != 2, int(params['chapter-limits'][0]) < 0)
+		return False
 
-	if (
-				'tag-category' in params
-			and
-				len(params['tag-category']) >= 1
-		):
-		return True
-	if (
-				'series-type' in params
-			and
-				len(params['series-type']) >= 1
-		):
-		return True
-	return False
+	have_filter = False
+	# Require at least one filter parameter
+	have_filter |= 'tag-category'   in params and len(params['tag-category']) > 0
+	have_filter |= 'genre-category' in params and len(params['genre-category']) > 0
+	have_filter |= 'series-type'    in params and len(params['series-type']) > 0
+
+	return have_filter
 
 
 def get_tags():
@@ -250,7 +259,10 @@ def get_tags():
 def ajax_search():
 	print("Ajax search!")
 	if search_check_ok(request.json):
-		series = do_advanced_search(request.json)
+		series_query = do_advanced_search(request.json)
+		series_query = series_query.limit(100)
+		series = series_query.all()
+
 		return render_template('ajax-search.html', series=series)
 	else:
 		return render_template('__block_blurb.html', message="You have to provide some search parameters!")

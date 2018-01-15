@@ -1,7 +1,8 @@
 
 
-from hashlib import md5
 import re
+import tqdm
+from hashlib import md5
 from app import db
 from app import app
 
@@ -11,6 +12,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import event
 from sqlalchemy.schema import DDL
 from sqlalchemy import Table
+from sqlalchemy.orm import joinedload
 
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
@@ -153,6 +155,8 @@ class SeriesBase(object):
 	latest_volume      = db.Column(db.Float())
 	latest_chapter     = db.Column(db.Float())
 	latest_fragment    = db.Column(db.Float())
+
+	release_count      = db.Column(db.Integer())
 
 	rating             = db.Column(db.Float())
 	rating_count       = db.Column(db.Integer())
@@ -671,6 +675,20 @@ def resynchronize_ratings():
 	db.engine.execute("COMMIT")
 	print("Done!")
 
+def resynchronize_latest_counts():
+	import app.utilities as app_utilities
+	import app.series_tools as app_series_tools
+	with app.app_context():
+		print("Loading all series")
+		all_series = Series.query.all()
+		print("Doing updates.")
+		done = 0
+		for series in tqdm.tqdm(all_series):
+			app_utilities.update_latest_row(series)
+			done += 1
+
+			if done % 100 == 0:
+				db.session.commit()
 
 def install_triggers():
 	print("Installing triggers!")

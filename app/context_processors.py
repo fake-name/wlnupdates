@@ -64,6 +64,9 @@ def ago(then):
 	return ', '.join(dhms[start:end+1])
 
 def terse_ago(then):
+	if not then:
+		return "Never"
+
 	now = datetime.datetime.now()
 	delta = now - then
 

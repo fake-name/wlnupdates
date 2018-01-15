@@ -55,6 +55,15 @@ def resynchronize_ratings():
 	models.resynchronize_ratings()
 
 
+@manager.command
+def sync_counts():
+	'''
+	Update the chapter counts/latest/etc for each item.
+	'''
+	print("Updating latest chapter counts")
+	models.resynchronize_latest_counts()
+
+
 # This is also true for my indexes, since they use postgres specific extensions.
 @manager.command
 def install_enum():

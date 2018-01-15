@@ -552,7 +552,9 @@ def enumerate_search_tags(data):
 def get_search_advanced(data):
 	if not search_views.search_check_ok(data):
 		return getResponse(error=True, message="Insufficent filter parameters!")
-	series = search_views.do_advanced_search(data)
+	series_query = search_views.do_advanced_search(data)
+	series_query = series_query.limit(100)
+	series = series_query.all()
 
 	ret = [
 		(tmp[0], tmp[1], tmp[2].timestamp(), tmp[3]) for tmp in series

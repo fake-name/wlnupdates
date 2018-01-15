@@ -68,13 +68,18 @@ def get_latest_releases(series_ids):
 def update_latest_row(series_row):
 	db.session.flush()
 
-	print('update_latest_row')
-	print("Series row: ", series_row)
+	# print('update_latest_row')
+	# print("Series row: ", series_row)
 
 	maxpub = datetime.datetime.min
 	releases = []
 
-	for release in series_row.releases:
+	# Proxy list because len(series_row.sqlalchemy_attr_thing) can fail.
+	in_releases = list(series_row.releases)
+	if not in_releases:
+		return
+
+	for release in in_releases:
 		if release.include:
 			releases.append((
 					release.volume if release.volume is not None else 0,
@@ -100,4 +105,6 @@ def update_latest_row(series_row):
 	series_row.latest_volume    = vol
 	series_row.latest_chapter   = chp
 	series_row.latest_fragment  = frg
+	series_row.release_count    = len([tmp for tmp in series_row.releases if tmp.include])
+
 
