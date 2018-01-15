@@ -28,7 +28,7 @@ Werkzeug==0.14.1
 WTForms-JSON==0.3.3
 WTForms==2.1
 APScheduler==3.5.0
-Babel==2.5.1
+Babel==2.5.2
 bleach==2.1.2
 blinker==1.4
 coverage==4.4.2
