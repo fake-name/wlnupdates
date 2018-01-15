@@ -600,7 +600,8 @@ def update_chp_info():
 
 	print("Have %s series" % len(series))
 
-	for sid, title in series:
+
+	for sid, title in tqdm.tqdm(series):
 		releases = db.engine.execute('''
 			SELECT
 					series,
@@ -646,7 +647,6 @@ def update_chp_info():
 				sid
 				))
 
-		print(".", end='', flush=True)
 	print("")
 	print("Committing")
 	db.engine.execute("COMMIT")
@@ -664,9 +664,8 @@ def resynchronize_ratings():
 
 	print("Have %s ratings with ratings" % len(ratings))
 
-	for seriesid,  in ratings:
+	for seriesid, in tqdm.tqdm(ratings):
 		with app.app_context():
-			print(".", end="", flush=True)
 			app_series_tools.set_rating(seriesid, new_rating=None)
 
 
