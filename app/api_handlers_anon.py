@@ -156,6 +156,28 @@ def get_translated_releases(data):
 	tmp['items'] = unpack_releases(tmp['items'])
 	return getDataResponse(tmp)
 
+
+def get_listing(data):
+
+	modes = {
+		'artists'             : get_artists,
+		'authors'             : get_authors,
+		'genres'              : get_genres,
+		'groups'              : get_groups,
+		'oel-releases'        : get_oel_releases,
+		'oel-series'          : get_oel_series,
+		'publishers'          : get_publishers,
+		'releases'            : get_releases,
+		'series'              : get_series,
+		'translated-releases' : get_translated_releases,
+		'translated-series'   : get_translated_series,
+	}
+
+	assert 'data-type' in data, "You need to pass a `data-type` parameter containing one of %s" % (list(modes.keys()), )
+	assert data['data-type'] in modes, "Invalid data-type %s. Valid data-types are %s" % (data['data-type'], list(modes.keys()))
+
+	return modes[data['data-type']](data)
+
 ############################################################################################################################################################
 ############################################################################################################################################################
 ############################################################################################################################################################

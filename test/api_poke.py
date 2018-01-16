@@ -7,6 +7,7 @@ import webFunctions
 
 
 MODES = [
+	'get-data',
 	# 'get-artists',
 	# 'get-authors',
 	# 'get-genres',
