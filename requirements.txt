@@ -1,4 +1,4 @@
-alembic==0.9.6
+alembic==0.9.7
 git+https://github.com/fake-name/AmqpConnector.git
 awesome-slugify==1.6.5
 Flask-Babel==0.11.2
