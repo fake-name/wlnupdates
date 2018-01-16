@@ -15,7 +15,7 @@ from sqlalchemy import or_
 from sqlalchemy import and_
 from sqlalchemy import func
 from sqlalchemy.sql.functions import Function
-from sqlalchemy.sql.expression import select, desc
+from sqlalchemy.sql.expression import select, desc, distinct
 
 from app import db
 from app import app
@@ -47,6 +47,31 @@ def generate_similarity_query(searchterm, cols=None):
 			50
 		)
 	return query, searchtermprocessed
+
+def add_similarity_query(searchterm, query):
+
+	searchtermclean = bleach.clean(searchterm, strip=True)
+	searchtermprocessed = nt.prepFilenameForMatching(searchtermclean)
+
+	similarity = Function('similarity', AlternateNames.cleanname, (searchtermprocessed))
+
+	if not searchterm:
+		return None, None
+
+	query = query.filter(
+		Series.id.in_(
+			db.session.query(AlternateNames.series).filter(
+				or_(
+					AlternateNames.cleanname.op("%%")(searchtermprocessed),
+					AlternateNames.cleanname.like(searchtermprocessed + "%%")
+					)
+				).order_by(
+					desc(similarity)
+				)
+			)
+		)
+
+	return query
 
 def title_search(searchterm):
 	query, searchtermprocessed = generate_similarity_query(searchterm)
@@ -159,15 +184,6 @@ def do_advanced_search(params, queried_columns=None):
 			elif mode == 'excluded':
 				q = q.filter(Tags.tag != str(text))
 
-
-	# if 'tag-category' in params:
-	# 	for text, mode in params['tag-category'].items():
-	# 		if mode == "included":
-	# 			q = q.filter(Series.tags.any(tag=str(text)))
-	# 		elif mode == 'excluded':
-	# 			q = q.filter(~Series.tags.any(tag=str(text)))
-
-
 	if 'genre-category' in params:
 		q = q.join(Genres)
 		for text, mode in params['genre-category'].items():
@@ -180,7 +196,7 @@ def do_advanced_search(params, queried_columns=None):
 	if 'title-search-text' in params and params['title-search-text']:
 		searchterm = params['title-search-text']
 		cols = [AlternateNames.series]
-		q = q.filter(Series.id.in_(generate_similarity_query(searchterm=searchterm, cols=cols)))
+		q = add_similarity_query(searchterm, q)
 
 
 	if 'chapter-limits' in params:
@@ -241,9 +257,10 @@ def search_check_ok(params):
 
 	have_filter = False
 	# Require at least one filter parameter
-	have_filter |= 'tag-category'   in params and len(params['tag-category']) > 0
-	have_filter |= 'genre-category' in params and len(params['genre-category']) > 0
-	have_filter |= 'series-type'    in params and len(params['series-type']) > 0
+	have_filter |= 'tag-category'      in params and len(params['tag-category'])      > 0
+	have_filter |= 'genre-category'    in params and len(params['genre-category'])    > 0
+	have_filter |= 'series-type'       in params and len(params['series-type'])       > 0
+	have_filter |= 'title-search-text' in params and len(params['title-search-text']) > 0
 
 	return have_filter
 

@@ -340,8 +340,8 @@ def unpack_series_page(row):
 def get_series_id(data):
 	assert "id" in data, "You must specify a id to query for."
 
-	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, latest_str, rating, total_watches, similar_series = item_view_items.load_series_data(data['id'])
-
+	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, \
+		latest_str, rating, total_watches, similar_series = item_view_items.load_series_data(data['id'])
 
 	ret                  = unpack_series_page(series)
 	ret['releases']      = unpack_releases(releases)

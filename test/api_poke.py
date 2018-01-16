@@ -102,6 +102,20 @@ def test():
 	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
 	print(pg)
 
+	post = {
+		'mode'   : 'search-advanced',
+		# 'series-type'  : {'Translated' : 'included'},
+		# 'tag-category' : {
+		# 	'litrpg' : 'included',
+		# 	},
+		'sort-mode' : "update",
+		'title-search-text' : "Fire",
+		'chapter-limits' : [1, 0],
+	}
+	print("Request: ", post)
+	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+	print(pg)
+
 
 if __name__ == "__main__":
 	test()
