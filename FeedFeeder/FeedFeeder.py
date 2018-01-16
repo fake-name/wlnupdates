@@ -713,6 +713,7 @@ def dispatchItem(item):
 				print("Rollback failed!")
 
 			if x > 3:
+				e.extra_message = "Assertion Error inserting row (attempt %s)!" % x
 				raise e
 
 		except sqlalchemy.exc.IntegrityError as e:
@@ -720,6 +721,7 @@ def dispatchItem(item):
 			traceback.print_exc()
 			db.session.rollback()
 			if x > 20:
+				e.extra_message = "Failure after %s retries!" % x
 				raise e
 
 		except Exception as e:
@@ -729,6 +731,7 @@ def dispatchItem(item):
 				db.session.rollback()
 			except Exception:
 				print("Rollback failed!")
+			e.extra_message = "Unknown error inserting row"
 			raise e
 
 
@@ -768,6 +771,9 @@ class FeedFeeder(object):
 				except Exception:
 					with open("error - %s.txt" % time.time(), 'w') as fp:
 						fp.write("Error inserting item!\n")
+						if hasattr(exception, "extra_message"):
+							fp.write(exception.extra_message)
+							fp.write("\n")
 						fp.write("\n")
 						fp.write(pprint.pformat(data))
 						fp.write("\n")

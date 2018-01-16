@@ -1,4 +1,5 @@
 
+import sqlalchemy.exc
 from app.models import Series
 from app.models import Tags
 from app.models import Genres
@@ -179,6 +180,9 @@ def updateAltNames(series, altnames, deleteother=True):
 
 def setAuthorIllust(series, author=None, illust=None, deleteother=True):
 	# print(("setAuthorIllust: ", series, author, illust, deleteother))
+
+	db.session.commit()
+
 	if author and illust:
 		return {'error' : True, 'message' : "How did both author and illustrator get passed here?"}
 	elif author:
@@ -191,23 +195,26 @@ def setAuthorIllust(series, author=None, illust=None, deleteother=True):
 		return {'error' : True, 'message' : "No parameters?"}
 
 	have = table.query.filter(table.series==series.id).all()
-	# print(have)
 
-	haveitems = {item.name.lower().strip() : item for item in have}
-	initems   = {    value.lower().strip() : value for value in values}
-
+	haveitems = {bleach.clean(item.name.lower().strip()) : item  for item  in have  }
+	initems   = {bleach.clean(    value.lower().strip()) : value for value in values}
 
 	for name in initems.keys():
 		if name in haveitems:
 			haveitems.pop(name)
 		else:
-			newentry = table(
-					series     = series.id,
-					name       = bleach.clean(initems[name], strip=True),
-					changetime = datetime.datetime.now(),
-					changeuser = getCurrentUserId()
-				)
-			db.session.add(newentry)
+			try:
+				newentry = table(
+						series     = series.id,
+						name       = bleach.clean(initems[name], strip=True),
+						changetime = datetime.datetime.now(),
+						changeuser = getCurrentUserId()
+					)
+				db.session.add(newentry)
+				db.session.commit()
+			except sqlalchemy.exc.IntegrityError:
+				db.session.rollback()
+				print("Error adding name: %s (%s)" % (name, initems[name]))
 
 	if deleteother:
 		for key, value in haveitems.items():
