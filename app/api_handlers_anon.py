@@ -9,6 +9,17 @@ import app.sub_views.series_views   as series_view_items
 import app.sub_views.item_views     as item_view_items
 import app.sub_views.search         as search_views
 
+from sqlalchemy.orm import joinedload
+
+from app.models import AlternateNames
+from app.models import CommonTags
+from app.models import CommonGenres
+from app.models import Tags
+from app.models import Genres
+from app.models import Series
+from app.models import Releases
+from app.models import Watches
+
 def check_validate_range(data):
 	if "offset" in data:
 		data['offset'] = int(data['offset'])
@@ -571,16 +582,83 @@ def enumerate_search_tags(data):
 	resp = [(tag.id, tag.tag, tag.tag_instances) for tag in tags]
 	return getDataResponse(resp)
 
+def enumerate_search_genres(data):
+	genres = search_views.get_genres()
+	resp = [(genre.id, genre.genre, genre.genre_instances) for genre in genres]
+	return getDataResponse(resp)
+
 def get_search_advanced(data):
 	if not search_views.search_check_ok(data):
 		return getResponse(error=True, message="Insufficent filter parameters!")
-	series_query = search_views.do_advanced_search(data)
+
+	queried_columns = [Series]
+	col_names = ['id', 'title']
+	join_on = []
+	if 'include-results' in data:
+		print("Include results:", data['include-results'])
+		if 'description' in data['include-results']:
+			col_names.append("description")
+		if 'covers' in data['include-results']:
+			col_names.append("covers")
+			join_on.append("covers")
+		if 'tags' in data['include-results']:
+			col_names.append("tags")
+			join_on.append("tags")
+		if 'genres' in data['include-results']:
+			col_names.append("genres")
+			join_on.append("genres")
+
+	# These two columns are automatically inserted into the return dataset
+	# we need to define them to unpack them properly
+	col_names.extend(['latest_published', 'release_count'])
+
+	series_query = search_views.do_advanced_search(data, queried_columns=queried_columns)
+	for join in join_on:
+		series_query = series_query.options(joinedload(join))
 	series_query = series_query.limit(100)
 	series = series_query.all()
 
 	ret = [
-		(tmp[0], tmp[1], tmp[2].timestamp(), tmp[3]) for tmp in series
+
+		{
+			col_name : getattr(tmp, col_name) for col_name in col_names
+		}
+		for tmp in series
 	]
+	if 'covers' in join_on:
+		for item in ret:
+			item['covers'] = [
+						{
+							'url'         : '://www.wlnupdates.com/cover-img/{}/'.format(tmp.id),
+							'description' : tmp.description,
+							'volume'      : tmp.volume,
+							'chapter'     : tmp.chapter,
+						}
+					for tmp in item['covers']
+				]
+	if 'tags' in join_on:
+		for item in ret:
+			item['tags'] = [
+						{
+							'id'  : tmp.id,
+							'tag' : tmp.tag,
+						}
+					for tmp in item['tags']
+				]
+	if 'genres' in join_on:
+		for item in ret:
+			item['genres'] = [
+						{
+							'id'    : tmp.id,
+							'genre' : tmp.genre,
+						}
+					for tmp in item['genres']
+				]
+
+	# Convert the datetime object to timestamps to
+	for row in ret:
+		row['latest_published'] = row['latest_published'].timestamp()
+
 	return getDataResponse(ret)
 
 

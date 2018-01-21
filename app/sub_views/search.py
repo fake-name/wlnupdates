@@ -107,11 +107,12 @@ def title_search(searchterm):
 def do_advanced_search(params, queried_columns=None):
 
 	if queried_columns:
-		queried_columns = queried_columns + (Series.latest_published, Series.release_count)
+		print("Queried columns overridden: ", queried_columns)
+		queried_columns = list(queried_columns)
 	else:
 		queried_columns = (Series.id, Series.title, Series.latest_published, Series.release_count)
 
-	q = db.session.query(Series.id, Series.title, Series.latest_published, Series.release_count).group_by(Series.id)
+	q = db.session.query(*queried_columns).group_by(Series.id)
 
 	# q = q.join(Releases)
 	# q = q.filter(Releases.series == Series.id)
@@ -135,7 +136,6 @@ def do_advanced_search(params, queried_columns=None):
 
 	if 'title-search-text' in params and params['title-search-text']:
 		searchterm = params['title-search-text']
-		cols = [AlternateNames.series]
 		q = add_similarity_query(searchterm, q)
 
 
