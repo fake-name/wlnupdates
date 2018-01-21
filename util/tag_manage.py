@@ -17,6 +17,7 @@ import sqlalchemy.orm.exc
 from sqlalchemy import inspect
 from app.models import CommonTags
 from app.models import Tags
+from app.models import Genres
 from app.models import Series
 
 from app.models import AlternateNames
@@ -102,4 +103,16 @@ def dedup_tags():
 	print("wat?")
 
 
+def dedup_genres():
+	print("fetching series")
 
+	for bad_tag, replacements in tag_lut.genre_replace_lut.items():
+		to_fix = Genres.query.filter(Genres.genre == bad_tag).all()
+		for bad in to_fix:
+			print(bad_tag, bad, bad.series_row)
+			have = [tmp.genre for tmp in bad.series_row.genres]
+			app.series_tools.updateGenres(bad.series_row, replacements, deleteother=False)
+
+			db.session.commit()
+			db.session.delete(bad)
+			db.session.commit()

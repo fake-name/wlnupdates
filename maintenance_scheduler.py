@@ -73,6 +73,9 @@ def flatten_history_table():
 def deduplicate_tags():
 	with app.app_context():
 		tag_manage.dedup_tags()
+def deduplicate_genres():
+	with app.app_context():
+		tag_manage.dedup_genres()
 
 def printer():
 	print("Background task!")
@@ -92,6 +95,7 @@ tasks = [
 	(update_to_merge_groups_list,  "update_to_merge_groups_list",  hours(48)),
 	(flatten_history_table,        "flatten_history_table",        hours(48)),
 	(deduplicate_tags,             "deduplicate_tags",             hours( 1)),
+	(deduplicate_genres,           "deduplicate_genres",           hours( 1)),
 ]
 
 
@@ -106,8 +110,9 @@ def run_scheduler():
 def go():
 	# delete_bad_tags()
 	# update_materialized_view()
-	update_to_merge_groups_list()
-	update_to_merge_series_list()
+	# update_to_merge_groups_list()
+	# update_to_merge_series_list()
+	deduplicate_genres()
 
 def go_all():
 

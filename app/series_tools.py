@@ -106,6 +106,7 @@ def updateTags(series, tags, deleteother=True, allow_new=True):
 	if deleteother:
 		for dummy_key, value in havetags.items():
 			db.session.delete(value)
+
 	db.session.commit()
 
 def updateGenres(series, genres, deleteother=True):

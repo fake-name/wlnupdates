@@ -63,4 +63,23 @@ tag_extend_lut = {
 	'female-to-male'                 : 'gender-bender',
 }
 
+# Half of this shit isn't even a genre. Sigh.
+genre_replace_lut = {
+	'characters-with-a-past' : [],
+	'comedy.'                : ['comedy'],
+	'sci-fic'                : ['sci-fi'],
+	'apocaylptic-fiction'    : [],
+	'mil-gyo'                : [],
+	'action-adventure'                                                                                     : ['action', 'adventure'],
+	'action-adventure-drama-fantasy-harem-romance'                                                         : ['action', 'adventure', 'drama', 'fantasy', 'harem', 'romance'],
+	'fantasy,-romance'                                                                                     : ['fantasy', 'romance'],
+	'fantasy,-transported-to-another-world'                                                                : ['fantasy'],
+	'fantasy/tragedy'                                                                                      : ['fantasy', 'tragedy'],
+	'far-future/post-apocalyptic'                                                                          : [],
+	'time-travel-reborn,'                                                                                  : [],
+	'xian-xia-fiction,-fantasy-cultivation,supernatural,adventure'                                         : ['xianxia', 'supernatural', 'adventure'],
+	'xuanhuan,-action,-martial-arts,-mature,-fantasy,-romance,-adventure,-strong-male-lead,-demons,-gods,' : ['xuanhuan', 'action', 'mature', 'fantasy', 'romance', 'adventure'],
+
+}
+
 
