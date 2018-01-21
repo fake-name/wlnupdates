@@ -5,6 +5,7 @@ import bleach
 from sqlalchemy.sql.expression import nullslast
 from app.models import AlternateNames
 from app.models import CommonTags
+from app.models import CommonGenres
 from app.models import Tags
 from app.models import Genres
 from app.models import Series
@@ -102,67 +103,6 @@ def title_search(searchterm):
 		data[dbid]['results'].append(result)
 
 	return data, searchtermprocessed
-
-
-def execute_search():
-	# Flatten the passed dicts.
-	# This means that multiple identical parameters
-	# /WILL/ clobber each other in a non-determinsic manner,
-	# but that's not needed for search anyways, so I want
-	# to disabiguate.
-	searchd = {}
-	searchd.update(dict(request.args.items()))
-	searchd.update(dict(request.form.items()))
-
-	common_searches = 25
-
-	if 'title' in searchd:
-		data, searchtermclean = title_search(searchd['title'])
-		if not searchtermclean:
-			return render_template('not-implemented-yet.html', message='No search term entered (or search term collapsed down to nothing).')
-
-		return render_template('text-search.html',
-						   results         = data,
-						   name_key        = "tag",
-						   page_url_prefix = 'tag-id',
-						   searchTarget    = "Titles",
-						   searchValue     = searchtermclean,
-						   title           = 'Search for \'{name}\''.format(name=searchtermclean))
-
-	elif 'json' in request.args:
-		args = json.loads(request.args['json'])
-
-
-		if search_check_ok(args):
-			series_query = do_advanced_search(args)
-			series_query = series_query.limit(100)
-			series = series_query.all()
-
-			return render_template('advanced-search-results.html',
-				series = series,
-				search_params = args
-				)
-		else:
-			return render_template('not-implemented-yet.html', message="You have to provide some search parameters!")
-
-
-	else:
-		print("Render search page call!")
-		results = get_tags()
-
-		common, rare = [], []
-		for item in results:
-			if item.tag_instances >= 25:
-				common.append(item)
-			else:
-				rare.append(item)
-
-		return render_template('advanced-search.html',
-			common_tags = common,
-			rare_tags = rare,
-			common_thresh = common_searches
-			)
-
 
 def do_advanced_search(params, queried_columns=None):
 
@@ -265,12 +205,6 @@ def search_check_ok(params):
 	return have_filter
 
 
-def get_tags():
-	results = CommonTags.query                 \
-		.order_by(CommonTags.tag)              \
-		.all()
-	return results
-
 
 @app.route('/ajax-search', methods=['POST'])
 def ajax_search():
@@ -286,8 +220,6 @@ def ajax_search():
 
 def render_search_page(search):
 
-
-
 	if 'json' in request.args:
 		args = json.loads(request.args['json'])
 
@@ -302,6 +234,91 @@ def render_search_page(search):
 			return render_template('not-implemented-yet.html', message="You have to provide some search parameters!")
 	else:
 		return render_template('not-implemented-yet.html', message="This endpoint requires json post data!")
+
+
+def get_tags():
+	results = CommonTags.query                 \
+		.order_by(CommonTags.tag)              \
+		.all()
+	return results
+
+def get_genres():
+	results = CommonGenres.query                 \
+		.order_by(CommonGenres.genre)              \
+		.all()
+	return results
+
+
+def execute_search():
+	# Flatten the passed dicts.
+	# This means that multiple identical parameters
+	# /WILL/ clobber each other in a non-determinsic manner,
+	# but that's not needed for search anyways, so I want
+	# to disabiguate.
+	searchd = {}
+	searchd.update(dict(request.args.items()))
+	searchd.update(dict(request.form.items()))
+
+	common_searches = 25
+
+	if 'title' in searchd:
+		data, searchtermclean = title_search(searchd['title'])
+		if not searchtermclean:
+			return render_template('not-implemented-yet.html', message='No search term entered (or search term collapsed down to nothing).')
+
+		return render_template('text-search.html',
+						   results         = data,
+						   name_key        = "tag",
+						   page_url_prefix = 'tag-id',
+						   searchTarget    = "Titles",
+						   searchValue     = searchtermclean,
+						   title           = 'Search for \'{name}\''.format(name=searchtermclean))
+
+	elif 'json' in request.args:
+		args = json.loads(request.args['json'])
+
+
+		if search_check_ok(args):
+			series_query = do_advanced_search(args)
+			series_query = series_query.limit(100)
+			series = series_query.all()
+
+			return render_template('advanced-search-results.html',
+				series = series,
+				search_params = args
+				)
+		else:
+			return render_template('not-implemented-yet.html', message="You have to provide some search parameters!")
+
+
+	else:
+		print("Render search page call!")
+		tag_results = get_tags()
+		genre_results = get_genres()
+
+		common_tags, rare_tags = [], []
+		for item in tag_results:
+			if item.tag_instances >= 25:
+				common_tags.append(item)
+			else:
+				rare_tags.append(item)
+
+		common_genres, rare_genres = [], []
+		for item in genre_results:
+			if item.genre_instances >= 25:
+				common_genres.append(item)
+			else:
+				rare_genres.append(item)
+
+		return render_template('advanced-search.html',
+			common_tags   = common_tags,
+			rare_tags     = rare_tags,
+			common_genres = common_genres,
+			rare_genres   = rare_genres,
+			common_thresh = common_searches
+			)
+
+
 
 # @login_required
 @app.route('/search', methods=['GET', 'POST'])

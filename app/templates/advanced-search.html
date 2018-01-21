@@ -46,21 +46,31 @@
 			</div>
 		{% endfor %}
 	</div>
+{% endmacro %}
 
+{% macro render_genre_categories(cats) %}
+	<div class="flex">
+		{% for category in cats %}
+			<div class='filter-entry mode-filter-entry col-md-3' data-type='genre-category'>
+				<div class="filter-mode">❍</div>
+				<div class="filter-mode-label">{{category.genre}}</div>
+			</div>
+		{% endfor %}
+	</div>
 {% endmacro %}
 
 {% macro order_by() %}
 	<div class="flex">
-			<div class='col-md-3' data-type='tag-category'>
+			<div class='col-md-3'>
 				Order by:
 			</div>
-			<div class='col-md-3' data-type='tag-category'>
+			<div class='col-md-3'>
 				<label><input class='sort-mode-radio' type="radio" name="order-by" value="name" checked="checked">Name</label>
 			</div>
-			<div class='col-md-3' data-type='tag-category'>
+			<div class='col-md-3'>
 				<label><input class='sort-mode-radio' type="radio" name="order-by" value="update">Latest update</label>
 			</div>
-			<div class='col-md-3' data-type='tag-category'>
+			<div class='col-md-3'>
 				<label><input class='sort-mode-radio' type="radio" name="order-by" value="chapter-count">Chapter Count</label>
 			</div>
 	</div>
@@ -85,8 +95,26 @@
 			{{render_chapter_count()}}
 		</div>
 		<div class='well'>
+			<h5>Series Type</h5>
 			{{render_series_type()}}
 		</div class='well'>
+		<div class='well'>
+			<h5>Common genres</h5>
+			{{render_genre_categories(common_genres)}}
+			<div class='clearfix' style='margin-top: 5px;'></div>
+			<div class="pull-right">
+				<button type="button" name="toggle-rare" id="toggle-rare" class='btn btn-primary'>Show</button>
+			</div>
+			<h5>Rare genres</h5>
+			<div style="display:none" id="rare-div">
+				{{render_genre_categories(rare_genres)}}
+			</div>
+			<div class='clearfix'></div>
+			<div class="pull-right">
+				<font color="#666">A genre can be used as a filter once it's applied to more then 2 series. A genre is treated as common once it is applied to more then {{common_thresh}} series.</font>
+			</div>
+			<div class='clearfix'></div>
+		</div>
 		<div class='well'>
 			<h5>Common tags</h5>
 			{{render_tag_categories(common_tags)}}
@@ -168,6 +196,7 @@
 		var active_filters = {
 			'series-type'  : {},
 			'tag-category' : {},
+			'genre-category' : {},
 			'sort-mode' : "name",
 			'title-search-text' : "",
 			'chapter-limits' : [0, false],
@@ -240,7 +269,7 @@
 				chapter_change();
 			}
 
-			else if (dtype == "series-type" || dtype == "tag-category")
+			else if (dtype == "series-type" || dtype == "tag-category" || dtype == "genre-category")
 			{
 				if (current_mode == "❍")
 				{

@@ -715,32 +715,51 @@ def install_trigram_indices():
 				install_trigram_indice_on_column(classtype, column)
 
 
-mv_name = "common_tags_mv"
-mv_selectable = db.select(
+tags_mv_name = "common_tags_mv"
+tags_mv_selectable = db.select(
 						[
 							Tags.tag.label('tag'),
 							db.func.count(Tags.tag).label('tag_instances'),
 						]
 					).group_by(Tags.tag)
 
+genre_mv_name = "common_genre_mv"
+genre_mv_selectable = db.select(
+						[
+							Genres.genre.label('genre'),
+							db.func.count(Genres.genre).label('genre_instances'),
+						]
+					).group_by(Genres.genre)
+
 class CommonTags(util.materialized_view_factory.MaterializedView):
 	__table__ = util.materialized_view_factory.create_mat_view(
-					mv_name,
-					mv_selectable)
+					tags_mv_name,
+					tags_mv_selectable)
+
+class CommonGenres(util.materialized_view_factory.MaterializedView):
+	__table__ = util.materialized_view_factory.create_mat_view(
+					genre_mv_name,
+					genre_mv_selectable)
 
 def refresh_materialized_view():
 	print("Trying to refresh materialized views")
-	util.materialized_view_factory.refresh_mat_view('common_tags_mv', False)
+	util.materialized_view_factory.refresh_mat_view(tags_mv_name, False)
+	util.materialized_view_factory.refresh_mat_view(genre_mv_name, False)
 	print("View refreshed.")
 
 
 try:
 	refresh_materialized_view()
 except sqlalchemy.exc.ProgrammingError:
-	# View not created yet
-	print("Materialized view missing!")
-	t2 = util.materialized_view_factory.CreateMaterializedView(mv_name, mv_selectable)
+	# View not created yet, or changed
+	print("Materialized view missing or damaged.")
+	db.engine.execute("""DROP MATERIALIZED VIEW IF EXISTS common_tags_mv""", )
+	db.engine.execute("""DROP MATERIALIZED VIEW IF EXISTS common_genre_mv""", )
+	print("Recreating.")
+	t2 = util.materialized_view_factory.CreateMaterializedView(tags_mv_name, tags_mv_selectable)
 	db.engine.execute(t2)
+	t3 = util.materialized_view_factory.CreateMaterializedView(genre_mv_name, genre_mv_selectable)
+	db.engine.execute(t3)
 
 ################################################################################################################################################################
 ################################################################################################################################################################
