@@ -14,15 +14,7 @@ from sqlalchemy.sql.expression import nullslast
 from app.utilities import get_latest_release
 from app.utilities import get_latest_releases
 
-
-@app.route('/watches', methods=['GET'])
-def renderUserWatches():
-	if not g.user.is_authenticated():
-		flash(gettext('You need to log in to create or view series watches.'))
-		return redirect(url_for('index'))
-
-	print("Watches!")
-	print("Params:", request.args)
+def load_watches():
 
 	watches = Watches                                    \
 				.query                                   \
@@ -37,7 +29,6 @@ def renderUserWatches():
 		print("Active filter in params")
 		active_filter = request.args['active-filter'] if request.args['active-filter'] in ['active', 'maybe-stalled', 'stalled', 'all'] else 'all'
 
-	print("Filter:", active_filter)
 
 	data = {}
 
@@ -112,14 +103,27 @@ def renderUserWatches():
 	for key in data.keys():
 		data[key].sort(key=lambda x: (x[0].title.lower()))
 
-	# data.sort(key=lambda x: (x[0].lower(), x[1].title.lower()))
-
 	lists = list(data.keys())
 	lists.sort(key=lambda x: (x.lower()))
 
+	return data, lists, active_filter
+
+@app.route('/watches', methods=['GET'])
+def renderUserWatches():
+	if not g.user.is_authenticated():
+		flash(gettext('You need to log in to create or view series watches.'))
+		return redirect(url_for('index'))
+
+	print("Watches!")
+	print("Params:", request.args)
+
+	# data.sort(key=lambda x: (x[0].lower(), x[1].title.lower()))
+
+	watches, lists, active_filter = load_watches()
+
 	return render_template(
 			'watched.html',
-			watches = data,
+			watches = watches,
 			lists   = lists,
 			active_filter = active_filter,
 		)

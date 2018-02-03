@@ -8,13 +8,16 @@ import app.sub_views.release_views  as release_view_items
 import app.sub_views.series_views   as series_view_items
 import app.sub_views.item_views     as item_view_items
 import app.sub_views.search         as search_views
+import app.sub_views.user_views     as user_views
 
 from sqlalchemy.orm import joinedload
+from sqlalchemy import desc
 
 from app.models import AlternateNames
 from app.models import CommonTags
 from app.models import CommonGenres
 from app.models import Tags
+from app.models import Feeds
 from app.models import Genres
 from app.models import Series
 from app.models import Releases
@@ -140,7 +143,7 @@ def unpack_releases(release_items):
 		'tlgroup'   : {
 				"name" : row.translators.name,
 				"id"   : row.translators.id,
-			},
+			} if row.translators else {},
 
 	} for row in release_items]
 
@@ -664,8 +667,31 @@ def get_search_advanced(data):
 
 
 def get_watches(data):
+
 	return getResponse(error=True, message="Not yet implemented")
 
 def get_feeds(data):
 	data = check_validate_range(data)
-	return getResponse(error=True, message="Not yet implemented")
+
+	feeds = Feeds.query.order_by(desc(Feeds.published))
+	feeds = feeds.options(joinedload('tags'))
+	feeds = feeds.options(joinedload('authors'))
+
+	feed_entries = feeds.paginate(data['offset'], app.config['SERIES_PER_PAGE'], False)
+
+	tmp = unpack_paginator(feed_entries)
+	rows = tmp['items']
+	tmp['items'] = [{
+			'title'     : row.title,
+			'contents'  : row.contents,
+			'guid'      : row.guid,
+			'linkurl'   : row.linkurl,
+			'published' : row.published,
+			'updated'   : row.updated,
+			'srcname'   : row.srcname,
+			'region'    : row.region,
+			'tags'      : [tag.tag for tag in row.tags],
+			'authors'   : [auth.name for auth in row.authors],
+	} for row in rows]
+	return getDataResponse(tmp)
+
