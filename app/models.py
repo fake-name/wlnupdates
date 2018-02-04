@@ -870,6 +870,8 @@ class Users(db.Model):
 	has_mod    = db.Column(db.Boolean, default=False)
 
 	news_posts = db.relationship('News_Posts')
+	ratings    = db.relationship('Ratings')
+	watches    = db.relationship('Watches')
 	# posts     = db.relationship('Post', backref='author', lazy='dynamic')
 
 

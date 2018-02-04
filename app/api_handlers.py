@@ -777,9 +777,12 @@ def updateChapterRelease(in_id, old, new):
 	assert row.srcurl  == old['release_pg'],  "Mismatch in old item data (release_pg) - %s <-> %s (%s)" % (row.srcurl,   old['release_pg'], row.srcurl   == old['release_pg'])
 
 
-	newv = new['volume']  if new['volume'] else None
-	newc = new['chapter'] if new['chapter'] else None
-	newf = new['subChap'] if new['subChap'] else None
+	newv = float(new['volume'])  if new['volume'] else None
+	newc = float(new['chapter']) if new['chapter'] else None
+	newf = float(new['subChap']) if new['subChap'] else None
+
+
+
 
 	newpfx = bleach.clean(new['postfix'], tags=[], strip=True)
 	oldpfx = bleach.clean(old['postfix'], tags=[], strip=True)
@@ -869,7 +872,7 @@ def processReleaseUpdateJson(data):
 
 	return updateChapterRelease(data['release-id'], data['old-info'], data['new-info'])
 
-	return getResponse("processReleaseUpdateJson call!.", error=True)
+	# return getResponse("processReleaseUpdateJson call!.", error=True)
 
 
 

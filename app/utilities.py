@@ -82,9 +82,9 @@ def update_latest_row(series_row):
 	for release in in_releases:
 		if release.include:
 			releases.append((
-					release.volume if release.volume is not None else 0,
-					release.chapter if release.chapter is not None else 0,
-					release.fragment if release.fragment is not None else 0
+					float(release.volume)   if release.volume   is not None else 0,
+					float(release.chapter)  if release.chapter  is not None else 0,
+					float(release.fragment) if release.fragment is not None else 0
 				))
 		if release.published > maxpub:
 			maxpub = release.published

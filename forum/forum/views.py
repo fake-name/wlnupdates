@@ -4,6 +4,7 @@ from flask_babel import gettext
 from flask_security import current_user, login_required
 
 from app import db
+from app import app
 from forum.models import Board, Thread, Post
 from app.models import Users
 from . import forms
@@ -160,3 +161,42 @@ def edit_post(slug, thread_id, post_id):
 						thread=thread,
 						form=form,
 						edit_post=post)
+
+
+
+
+@app.route('/delete_spammer/<int:user_id>', methods=GET_POST)
+@login_required
+def user_is_spammer(user_id):
+
+	if not g.user.is_admin():
+		flash(gettext('You need to be an admin to do that.'))
+		return redirect(url_for('index'))
+
+
+	try:
+		user    = Users.query.filter(Users.id == user_id).one()
+		threads = Thread.query.filter(Thread.author_id == user_id).all()
+		posts   = Post.query.filter(Post.author_id == user_id).all()
+	except sql_exc:
+		return redirect(url_for('.index'))
+
+	print("User:", user)
+	print("posts:", posts)
+	for thread in threads:
+		for post in thread.posts:
+			db.session.delete(post)
+		db.session.delete(thread)
+	for post in posts:
+		db.session.delete(post)
+
+	for rating in user.ratings:
+		db.session.delete(rating)
+	for watch in user.watches:
+		db.session.delete(watch)
+
+	db.session.delete(user)
+	db.session.commit()
+
+	flash(gettext('User %s deleted' % user_id))
+	return redirect(url_for('.index'))
