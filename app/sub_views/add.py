@@ -68,7 +68,7 @@ def add_series(form):
 
 	if len(have) == 1:
 		flash(gettext('Series exists under a different name!'))
-		return redirect(url_for('renderSeriesId', sid=have[0].series))
+		return redirect(url_for('renderSeriesIdWithoutSlug', sid=have[0].series))
 
 	elif have:
 		flash(gettext('Have multiple candidate series that look like that name!'))
@@ -90,7 +90,7 @@ def add_series(form):
 
 		flash(gettext('Series Created!'))
 		# return redirect(url_for('index'))
-		return redirect(url_for('renderSeriesId', sid=new.id))
+		return redirect(url_for('renderSeriesIdWithoutSlug', sid=new.id))
 
 def add_release(form):
 	print("Add_release call")
@@ -129,13 +129,13 @@ def add_release(form):
 
 	if not any((vol, chp, postfix)):
 		flash(gettext('Releases without content in any of the chapter, volume or postfix are not valid.'))
-		return redirect(url_for('renderSeriesId', sid=sid))
+		return redirect(url_for('renderSeriesIdWithoutSlug', sid=sid))
 
 	have = Releases.query.filter(and_(*flt)).all()
 
 	if have:
 		flash(gettext('That release appears to already have been added.'))
-		return redirect(url_for('renderSeriesId', sid=sid))
+		return redirect(url_for('renderSeriesIdWithoutSlug', sid=sid))
 
 	series = Series.query.filter(Series.id==sid).scalar()
 	if not series:
