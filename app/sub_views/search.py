@@ -18,8 +18,8 @@ from sqlalchemy import func
 from sqlalchemy.sql.functions import Function
 from sqlalchemy.sql.expression import select, desc, distinct
 
-from app import db
 from app import app
+from app import db
 import collections
 import json
 

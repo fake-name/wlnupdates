@@ -11,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
+import util.name_lookup
 from app import models
 
 Migrate(app, db, compare_type=True)
@@ -77,6 +78,18 @@ def install_enum():
 	models.install_tl_type_enum(conn)
 
 	print("Done")
+
+
+# This is also true for my indexes, since they use postgres specific extensions.
+@manager.command
+def do_name_lookup():
+	'''
+	Given a list of dotted names, look them up and return
+	probable matches using the alt-names system
+	'''
+
+	util.name_lookup.do_search()
+
 
 manager.add_command('db', MigrateCommand)
 
