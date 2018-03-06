@@ -1,4 +1,4 @@
-alembic==0.9.7
+alembic==0.9.8
 git+https://github.com/fake-name/AmqpConnector.git
 awesome-slugify==1.6.5
 Flask-Babel==0.11.2
@@ -19,17 +19,17 @@ Markdown==2.6.11
 psycopg2==2.7.4
 python-levenshtein==0.12.0
 pytz==2018.3
-SQLAlchemy==1.2.2
+SQLAlchemy==1.2.4
 sqlalchemy-citext==1.3-0
 sqlalchemy-migrate==0.11.0
-SQLAlchemy-Searchable==0.10.6
-SQLAlchemy-Utils==0.32.21
+SQLAlchemy-Searchable==1.0.3
+SQLAlchemy-Utils==0.33.0
 Werkzeug==0.14.1
 WTForms-JSON==0.3.3
 WTForms==2.1
 APScheduler==3.5.1
 Babel==2.5.3
-bleach==2.1.2
+bleach==2.1.3
 blinker==1.4
 coverage==4.5.1
 html5lib==1.0.1
@@ -50,4 +50,4 @@ speaklater==1.3
 sqlparse==0.2.4
 Tempita==0.5.2
 validators==0.12.1
-tqdm==4.19.5
+tqdm==4.19.6
