@@ -61,7 +61,7 @@ def handleApiGet():
 # CSRF protection is not needed if
 DISPATCH_TABLE = {
 	#
-	'get'                       : (api_handlers_anon.get_listing,                       False, False),
+	# 'get'                       : (api_handlers_anon.get_listing,                       False, False),
 	'get-artists'               : (api_handlers_anon.get_artists,                       False, False),
 	'get-authors'               : (api_handlers_anon.get_authors,                       False, False),
 	'get-genres'                : (api_handlers_anon.get_genres,                        False, False),

@@ -200,7 +200,7 @@ def search_check_ok(params):
 	have_filter |= 'tag-category'      in params and len(params['tag-category'])      > 0
 	have_filter |= 'genre-category'    in params and len(params['genre-category'])    > 0
 	have_filter |= 'series-type'       in params and len(params['series-type'])       > 0
-	have_filter |= 'title-search-text' in params and len(params['title-search-text']) > 0
+	have_filter |= 'title-search-text' in params and len(params['title-search-text'].strip()) >= 2
 
 	return have_filter
 

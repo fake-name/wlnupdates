@@ -660,7 +660,7 @@ def get_search_advanced(data):
 
 	# Convert the datetime object to timestamps to
 	for row in ret:
-		row['latest_published'] = row['latest_published'].timestamp()
+		row['latest_published'] = row['latest_published'].timestamp() if row['latest_published'] else None
 
 	return getDataResponse(ret)
 

@@ -7,7 +7,7 @@ import webFunctions
 
 
 MODES = [
-	'get-data',
+	'get',
 	'get-artists',
 	'get-authors',
 	'get-genres',
@@ -55,6 +55,7 @@ MODES = [
 
 def test():
 	wg = webFunctions.WebGetRobust()
+
 	for mode in MODES:
 
 		post = {
@@ -83,46 +84,47 @@ def test():
 
 
 
-	# post = {
-	# 	'mode'   : 'search-title',
-	# 	'title'     : "",
-	# }
-	# print("Request: ", post)
-	# pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
-	# print(pg)
+	post = {
+		'mode'   : 'search-title',
+		'title'     : "",
+	}
+	print("Request: ", post)
+	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+	print(pg)
 
 
-	# post = {
-	# 	'mode'   : 'search-advanced',
-	# 	# 'series-type'  : {'Translated' : 'included'},
-	# 	# 'tag-category' : {
-	# 	# 	'litrpg' : 'included',
-	# 	# 	},
-	# 	'sort-mode' : "update",
-	# 	'title-search-text' : "Fire",
-	# 	'chapter-limits' : [1, 0],
-	# }
-	# print("Request: ", post)
-	# pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
-	# print(pg)
+	post = {
+		'mode'   : 'search-advanced',
+		# 'series-type'  : {'Translated' : 'included'},
+		# 'tag-category' : {
+		# 	'litrpg' : 'included',
+		# 	},
+		# 'sort-mode' : "update",
+		'title-search-text' : "a a",
+		# 'chapter-limits' : [1, 0],
+	}
 
-	# include_options = ['covers', 'tags', 'genres', 'description']
+	print("Request: ", post)
+	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+	print(pg)
 
-	# for include in include_options:
-	# 	post = {
-	# 		'mode'   : 'search-advanced',
-	# 		# 'series-type'  : {'Translated' : 'included'},
-	# 		# 'tag-category' : {
-	# 		# 	'litrpg' : 'included',
-	# 		# 	},
-	# 		'sort-mode' : "update",
-	# 		'title-search-text' : "Fire Girl",
-	# 		'chapter-limits' : [40, 0],
-	# 		'include-results' : [include]
-	# 	}
-	# 	print("Request: ", post)
-	# 	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
-	# 	print(pg)
+	include_options = ['covers', 'tags', 'genres', 'description']
+
+	for include in include_options:
+		post = {
+			'mode'   : 'search-advanced',
+			# 'series-type'  : {'Translated' : 'included'},
+			# 'tag-category' : {
+			# 	'litrpg' : 'included',
+			# 	},
+			'sort-mode' : "update",
+			'title-search-text' : "Fire Girl",
+			'chapter-limits' : [40, 0],
+			'include-results' : [include]
+		}
+		print("Request: ", post)
+		pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+		print(pg)
 
 if __name__ == "__main__":
 	test()
