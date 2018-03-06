@@ -718,6 +718,7 @@ def install_trigram_indices():
 tags_mv_name = "common_tags_mv"
 tags_mv_selectable = db.select(
 						[
+							db.func.min(Tags.id).label('id'),
 							Tags.tag.label('tag'),
 							db.func.count(Tags.tag).label('tag_instances'),
 						]
@@ -726,6 +727,7 @@ tags_mv_selectable = db.select(
 genre_mv_name = "common_genre_mv"
 genre_mv_selectable = db.select(
 						[
+							db.func.min(Genres.id).label('id'),
 							Genres.genre.label('genre'),
 							db.func.count(Genres.genre).label('genre_instances'),
 						]
@@ -747,10 +749,7 @@ def refresh_materialized_view():
 	util.materialized_view_factory.refresh_mat_view(genre_mv_name, False)
 	print("View refreshed.")
 
-
-try:
-	refresh_materialized_view()
-except sqlalchemy.exc.ProgrammingError:
+def recreate_materialized_view():
 	# View not created yet, or changed
 	print("Materialized view missing or damaged.")
 	db.engine.execute("""DROP MATERIALIZED VIEW IF EXISTS common_tags_mv""", )
@@ -760,6 +759,13 @@ except sqlalchemy.exc.ProgrammingError:
 	db.engine.execute(t2)
 	t3 = util.materialized_view_factory.CreateMaterializedView(genre_mv_name, genre_mv_selectable)
 	db.engine.execute(t3)
+
+
+try:
+	refresh_materialized_view()
+except sqlalchemy.exc.ProgrammingError:
+	recreate_materialized_view()
+
 
 ################################################################################################################################################################
 ################################################################################################################################################################

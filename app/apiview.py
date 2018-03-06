@@ -77,10 +77,11 @@ DISPATCH_TABLE = {
 	'get-watches'               : (api_handlers_anon.get_watches,                       True, False),
 	'get-feeds'                 : (api_handlers_anon.get_feeds,                         False, False),
 
-	'search-title'              : (api_handlers_anon.get_search_title,                  False, False),
-	'search-advanced'           : (api_handlers_anon.get_search_advanced,               False, False),
 	'enumerate-tags'            : (api_handlers_anon.enumerate_search_tags,             False, False),
 	'enumerate-genres'          : (api_handlers_anon.enumerate_search_genres,           False, False),
+
+	'search-title'              : (api_handlers_anon.get_search_title,                  False, False),
+	'search-advanced'           : (api_handlers_anon.get_search_advanced,               False, False),
 
 	'get-artist-id'             : (api_handlers_anon.get_artist_id,                     False, False),
 	'get-author-id'             : (api_handlers_anon.get_author_id,                     False, False),

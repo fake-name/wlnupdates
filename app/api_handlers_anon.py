@@ -667,7 +667,6 @@ def get_search_advanced(data):
 
 
 def get_watches(data):
-
 	return getResponse(error=True, message="Not yet implemented")
 
 def get_feeds(data):

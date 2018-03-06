@@ -65,6 +65,15 @@ def sync_counts():
 	models.resynchronize_latest_counts()
 
 
+@manager.command
+def recreate_mv():
+	'''
+	Destroy and recreate the materialized views.
+	'''
+	print("Recreating materialized viewsa")
+	models.recreate_materialized_view()
+
+
 # This is also true for my indexes, since they use postgres specific extensions.
 @manager.command
 def install_enum():

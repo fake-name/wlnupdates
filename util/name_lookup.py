@@ -52,7 +52,9 @@ def do_search():
 				if dist <= 10:
 					name_map[name] = match
 				else:
-					print("What?", dist, name, match)
+					print("What?", (dist, name, match))
+			else:
+				print("Missing:", (name, ))
 
 	with open("fix_map.json", "w") as fp:
 		fp.write(json.dumps(name_map, indent=4))
