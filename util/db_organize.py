@@ -1,12 +1,14 @@
 
 import re
 import json
+import tqdm
 
 from app import models
 from app import db
 from app import app
 
 from . import askUser
+from concurrent.futures import ProcessPoolExecutor
 
 import app.api_handlers_admin as api_admin
 
@@ -21,6 +23,8 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import and_
 
 import Levenshtein as lv
+from datasketch import MinHash, MinHashLSH
+from nltk import ngrams
 
 def search_for_seriesname(name, nid):
 
@@ -297,6 +301,121 @@ def levenshein_merger_series(interactive=True):
 
 	if not interactive:
 		matchlogger.save_log("./seriesname-matchset.json")
+
+
+
+def minhash_str(in_str, perms, gram_sz):
+	minhash = MinHash(num_perm=perms)
+	for d in ngrams(in_str, gram_sz):
+		minhash.update("".join(d).encode('utf-8'))
+	return minhash
+
+
+def minhash_merger_series(interactive=True):
+
+
+	matchlogger = MatchLogBuilder()
+	if interactive:
+		callback=askuser_callback_series
+	else:
+		callback=matchlogger.add_match_series
+
+	print("fetching series")
+	with app.app_context():
+		items = models.Series.query.options(
+			joinedload(Series.alternatenames)
+			).all()
+		altn = []
+		for item in items:
+			for name in item.alternatenames:
+				altn.append((name.id, name.series, name.cleanname, item.title))
+
+	print("Building mapping dictionaries")
+	# Map altname id to series id
+	altnid_sid_dict  = dict([(tmp[0], tmp[1]) for tmp in altn])
+	altnid_name_dict = dict([(tmp[0], tmp[2]) for tmp in altn])
+	sid_sname_dict   = dict([(tmp[1], tmp[3]) for tmp in altn])
+
+	sid_altnid_dict = {}
+	for nid, sid in altnid_sid_dict.items():
+		sid_altnid_dict.setdefault(sid, [])
+		sid_altnid_dict[sid].append(nid)
+
+
+	print("Have %s altnames for %s series" % (len(altnid_sid_dict), len(sid_altnid_dict)))
+
+	perms = 512
+	gram_sz = 3
+	thresh = 0.7
+	minhashes = {}
+	lsh = MinHashLSH(threshold=thresh, num_perm=perms)
+
+	print("Building lsh minhash data structure")
+	with ProcessPoolExecutor(max_workers=8) as ex:
+		print("Submitting jobs")
+		futures = [(key, ex.submit(minhash_str, content, perms, gram_sz))
+				for
+					key, content
+				in
+					altnid_name_dict.items()
+				if
+					len(content) >= 5
+			]
+
+		print("Consuming futures")
+		for key, future in tqdm.tqdm(futures):
+			minhash = future.result()
+			lsh.insert(key, minhash)
+			minhashes[key] = minhash
+
+	print("Doing search")
+
+	for key, minhash in minhashes.items():
+
+		result = lsh.query(minhashes[key])
+		if key in result:
+			result.remove(key)
+		if result:
+			sid = altnid_sid_dict[result[0]]
+			src_sid = altnid_sid_dict[key]
+			if sid != src_sid:
+				sname = sid_sname_dict[sid]
+				res_sids = set([altnid_sid_dict[tmp] for tmp in result])
+				names = []
+				for res_id in result:
+					if altnid_sid_dict[res_id] != src_sid:
+						names.append((altnid_sid_dict[res_id], res_id, altnid_name_dict[res_id]))
+				if names:
+					names.sort()
+					print("Search returned %s results in %s series for %s:%s" % (len(result), len(res_sids), src_sid, sname))
+					for sid, nid, name in names:
+						print("	%s -> %s: %s" % (str(sid).rjust(8), str(nid).rjust(8), name))
+
+	# print("Searching for duplicates from %s names" % len(altn))
+	# done = 0
+	# for nid, name in altn:
+	# 	if name == 'RoyalRoadL':
+	# 		continue
+	# 	with app.app_context():
+	# 		matches = search_for_seriesname(name, nid)
+	# 		if matches:
+	# 			try:
+	# 				namerow = models.AlternateNames.query.filter(models.AlternateNames.id==nid).one()
+	# 				match_to_series(namerow, matches, callback)
+	# 			except sqlalchemy.orm.exc.NoResultFound:
+	# 				print("Row merged already?")
+	# 	done += 1
+
+	# 	if done % 10 == 0:
+	# 		print("Done %s items of %s" % (done, len(altn)))
+
+
+	print(len(items))
+	print("wat?")
+
+	if not interactive:
+		matchlogger.save_log("./seriesname-matchset-minhash.json")
+
 
 
 

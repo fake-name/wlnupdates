@@ -38,6 +38,11 @@ def printHelp():
 	print("		Use levenshtein string distance metrics to try to heuristically automatically")
 	print("		merge series with multiple instances.")
 	print("		")
+	print("		")
+	print("	minhash-merge-series")
+	print("		Use minhash string distance metrics to try to heuristically automatically")
+	print("		merge series with multiple instances.")
+	print("		")
 	print("	lv-auto-calc")
 	print("		Use levenshtein string distance metrics to try to heuristically automatically")
 	print("		merge series with multiple instances, write result to file for web-ui rather")
@@ -82,6 +87,8 @@ def parseOneArgCall(cmd):
 			util.db_organize.delete_postfix()
 	elif arg == "lv-merge-series":
 		util.db_organize.levenshein_merger_series()
+	elif arg == "minhash-merge-series":
+		util.db_organize.minhash_merger_series()
 	elif arg == "lv-auto-calc":
 		util.db_organize.levenshein_merger_series(interactive=False)
 	elif arg == "lv-group-calc":
