@@ -55,12 +55,12 @@
 		<h4>
 			{{ format_date(release_items[0].published) }}
 		</h4>
-		{% set lastitemday = release_items[0].published.day %}
+		{% set lastitemday = namespace(pd=release_items[0].published.day)  %}
 	{% endif %}
 	{{ tableHeader() }}
 	{% for entry in release_items: %}
 
-		{% if chunk and entry.published.day != lastitemday %}
+		{% if chunk and entry.published.day != lastitemday.pd %}
 
 			{{ tableFooter() }}
 
@@ -68,7 +68,7 @@
 				{{ format_date(entry.published) }}
 			</h4>
 			{{ tableHeader() }}
-			{% set lastitemday = entry.published.day %}
+			{% set lastitemday.pd = entry.published.day %}
 		{% endif %}
 
 		{% if g.user.is_authenticated() %}

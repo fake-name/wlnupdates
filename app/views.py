@@ -157,7 +157,7 @@ def get_release_feeds(srctype=None):
 	q = q.order_by(desc(Releases.published))
 	q = q.options(joinedload('series_row'))
 	q = q.options(joinedload('translators'))
-	q = q.limit(20)
+	q = q.limit(40)
 
 	return q.all()
 

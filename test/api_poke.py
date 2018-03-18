@@ -56,6 +56,9 @@ MODES = [
 def test():
 	wg = webFunctions.WebGetRobust()
 
+	endpoint = "http://127.0.0.1:5000/api"
+	endpoint = "https://www.wlnupdates.com/api"
+
 	for mode in MODES:
 
 		post = {
@@ -63,7 +66,7 @@ def test():
 			'id'     : 3,
 		}
 		print("Request: ", post)
-		pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+		pg = wg.getpage(endpoint, postJson=post)
 		print(json.loads(pg))
 
 		# for letter in "abcdefghijklmnopqrstuvwxyz0123456789":
@@ -89,7 +92,7 @@ def test():
 		'title'     : "",
 	}
 	print("Request: ", post)
-	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+	pg = wg.getpage(endpoint, postJson=post)
 	print(pg)
 
 
@@ -105,7 +108,7 @@ def test():
 	}
 
 	print("Request: ", post)
-	pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+	pg = wg.getpage(endpoint, postJson=post)
 	print(pg)
 
 	include_options = ['covers', 'tags', 'genres', 'description']
@@ -123,7 +126,7 @@ def test():
 			'include-results' : [include]
 		}
 		print("Request: ", post)
-		pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+		pg = wg.getpage(endpoint, postJson=post)
 		print(pg)
 
 if __name__ == "__main__":
