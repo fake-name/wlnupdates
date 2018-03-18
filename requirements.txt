@@ -52,6 +52,6 @@ Tempita==0.5.2
 validators==0.12.1
 tqdm==4.19.8
 
-datasketch
+datasketch==1.2.5
 
 nltk
