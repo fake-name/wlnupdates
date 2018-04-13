@@ -42,7 +42,7 @@ itsdangerous==0.24
 MarkupSafe==1.0
 pbr==4.0.2
 pstat==0.0.1
-psutil==5.4.3
+psutil==5.4.4
 pyparsing==2.2.0
 python-bcrypt==0.3.2
 six==1.11.0
