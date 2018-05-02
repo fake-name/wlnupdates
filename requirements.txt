@@ -12,7 +12,7 @@ Flask-OpenID==1.2.5
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
-Flask==1.0
+Flask==1.0.2
 Jinja2==2.10
 Mako==1.0.7
 Markdown==2.6.11
