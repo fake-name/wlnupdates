@@ -54,4 +54,4 @@ tqdm==4.23.1
 
 datasketch==1.2.5
 
-nltk==3.2.5
+nltk==3.3
