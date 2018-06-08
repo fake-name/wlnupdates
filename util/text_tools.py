@@ -61,4 +61,9 @@ def fix_dict(inRelease, recase=True):
 	for key in inRelease.keys():
 		if isinstance(inRelease[key], str):
 			inRelease[key] = fix_string(inRelease[key], recase)
+
+	# Managed to derp this somehow.
+	if 'tl_type' in inRelease:
+		inRelease["tl_type"] = inRelease["tl_type"].lower()
+
 	return inRelease
