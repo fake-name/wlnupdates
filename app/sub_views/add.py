@@ -107,7 +107,7 @@ def add_release(form):
 		group = None
 
 	pubdate = form.data['releasetime']
-	postfix = bleach.clean(form.data['postfix'], strip=True) if form.data['postfix'] else None
+	postfix = bleach.clean(form.data['postfix'], strip=True) if form.data['postfix'] else ""
 
 	# Limit publication dates to now to prevent post-dating.
 	if pubdate > datetime.datetime.now():
