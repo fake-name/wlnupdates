@@ -93,7 +93,6 @@ def add_series(form):
 		return redirect(url_for('renderSeriesIdWithoutSlug', sid=new.id))
 
 def add_release(form):
-	print("Add_release call")
 	chp = int(form.data['chapter'])   if form.data['chapter']   and int(form.data['chapter'])   >= 0 else None
 	vol = int(form.data['volume'])    if form.data['volume']    and int(form.data['volume'])    >= 0 else None
 	sid = int(form.data['series_id']) if form.data['series_id'] and int(form.data['series_id']) >= 0 else None
@@ -108,7 +107,7 @@ def add_release(form):
 		group = None
 
 	pubdate = form.data['releasetime']
-	postfix = bleach.clean(form.data['postfix'], strip=True)
+	postfix = bleach.clean(form.data['postfix'], strip=True) if form.data['postfix'] else None
 
 	# Limit publication dates to now to prevent post-dating.
 	if pubdate > datetime.datetime.now():
@@ -128,7 +127,7 @@ def add_release(form):
 		flt.append((Releases.chapter == vol))
 
 	if not any((vol, chp, postfix)):
-		flash(gettext('Releases without content in any of the chapter, volume or postfix are not valid.'))
+		flash(gettext('Releases without content in any of the chapter, volume or postfix fields are not valid.'))
 		return redirect(url_for('renderSeriesIdWithoutSlug', sid=sid))
 
 	have = Releases.query.filter(and_(*flt)).all()

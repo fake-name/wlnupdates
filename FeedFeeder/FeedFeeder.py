@@ -416,10 +416,13 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 			print("Loosely matched have:", series.title, have.volume, have.chapter, have.postfix)
 		return
 
-	print("Adding new release for series: ", series.title, " at date:", datetime.datetime.fromtimestamp(item['published']))
+	# Clamp timestamp
+	published_on = datetime.datetime.fromtimestamp(min(max(0, item['published']), time.time()))
+
+	print("Adding new release for series: ", series.title, " at date:", published_on)
 	release = Releases(
 			series     = series.id,
-			published  = datetime.datetime.fromtimestamp(item['published']),
+			published  = published_on,
 			volume     = item['vol'],
 			chapter    = item['chp'],
 			fragment   = item['frag'],
@@ -768,11 +771,11 @@ class FeedFeeder(object):
 			else:
 				try:
 					dispatchItem(data)
-				except Exception:
+				except Exception as exc:
 					with open("error - %s.txt" % time.time(), 'w') as fp:
 						fp.write("Error inserting item!\n")
-						if hasattr(exception, "extra_message"):
-							fp.write(exception.extra_message)
+						if hasattr(exc, "extra_message"):
+							fp.write(exc.extra_message)
 							fp.write("\n")
 						fp.write("\n")
 						fp.write(pprint.pformat(data))
