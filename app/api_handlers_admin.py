@@ -447,12 +447,17 @@ def consolidate_rrl_items(data, admin_override=False):
 
 	for item in long:
 		# if not all([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item]):
-		assert all((
-				all([item[0][2].scheme == tmp[2].scheme for tmp in item]),
+		if not all((
 				all([item[0][2].path   == tmp[2].path for tmp in item]),
 				all([item[0][2].query  == tmp[2].query for tmp in item]),
 				all([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item]),
-			))
+			)):
+			print("Wat?")
+			print([item[0][2].path   == tmp[2].path for tmp in item])
+			print([item[0][2].query  == tmp[2].query for tmp in item])
+			print([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item])
+			print(item)
+			assert True == False
 		# if not all((
 		# 		all([item[0][2].scheme == tmp[2].scheme for tmp in item]),
 		# 		all([item[0][2].path   == tmp[2].path for tmp in item]),

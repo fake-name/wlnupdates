@@ -82,8 +82,8 @@ def printer():
 
 tasks = [
 	# (printer,                   "printer",                   15),
-	(flatten_series_by_url,        "flatten_series_by_url",        hours( 1)),
 	(consolidate_rrl_items,        "consolidate_rrl_items",        hours( 1)),
+	(flatten_series_by_url,        "flatten_series_by_url",        hours( 1)),
 	(fix_escaped_quotes,           "fix_escaped_quotes",           hours( 1)),
 	(clean_tags,                   "clean_tags",                   hours( 1)),
 	(delete_bad_tags,              "delete_bad_tags",              hours( 1)),
@@ -116,8 +116,8 @@ def go():
 
 def go_all():
 
-	clean_garbage_releases()
 	consolidate_rrl_items()
+	clean_garbage_releases()
 	flatten_series_by_url()
 	delete_duplicate_releases()
 	fix_escaped_quotes()
