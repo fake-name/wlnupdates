@@ -61,10 +61,16 @@ def trim_spaces():
 def update_materialized_view():
 	with app.app_context():
 		models.refresh_materialized_view()
+
 def update_to_merge_series_list():
-	db_organize.levenshein_merger_series(interactive=False)
+	builder = db_organize.MatchLogBuilder()
+	db_organize.levenshein_merger_series(interactive=False, builder=builder)
+	db_organize.release_merger_series(interactive=False, builder=builder)
+
 def update_to_merge_groups_list():
-	db_organize.levenshein_merger_groups(interactive=False)
+	builder = db_organize.MatchLogBuilder()
+	db_organize.levenshein_merger_groups(interactive=False, builder=builder)
+	db_organize.release_merger_groups(interactive=False, builder=builder)
 
 def flatten_history_table():
 	with app.app_context():
@@ -132,12 +138,20 @@ def go_all():
 	update_materialized_view()
 
 
+def wat():
+	update_to_merge_series_list()
+	update_to_merge_groups_list()
+
+
+
 if __name__ == "__main__":
 	import logSetup
 	import sys
 	logSetup.initLogging()
+	wat()
 
-	if "all" in sys.argv:
-		go_all()
-	else:
-		go()
+
+	# if "all" in sys.argv:
+	# 	go_all()
+	# else:
+	# 	go()
