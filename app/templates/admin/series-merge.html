@@ -11,8 +11,8 @@
 		</div>
 		{% for matchitem in matches %}
 			{% if matchitem['r1'] and matchitem['r2'] %}
-				<hr>
 				<div class="spair-{{min(matchitem['r1'].id, matchitem['r2'].id)}}-{{max(matchitem['r1'].id, matchitem['r2'].id)}}" class="well well-large" style="min-height: 140px;">
+					<hr>
 					<div>
 						<h4>Merge targets: {{matchitem['r1'].id}} - {{matchitem['r2'].id}} (distance: {{matchitem['distance']}})</h4>
 						<div>
