@@ -1,6 +1,7 @@
 
 import re
 import json
+import pprint
 import urllib.parse
 import tqdm
 
@@ -532,15 +533,18 @@ def release_merger_groups(interactive=True, builder=None):
 	for item in tqdm.tqdm(reldicts):
 		relnl = urllib.parse.urlsplit(item['srcurl']).netloc
 		if relnl:
-			relmap.setdefault(relnl, set())
-			relmap[relnl].add(item['tlgroup'])
+			relmap.setdefault(relnl, {})
+			relmap[relnl].setdefault(item['tlgroup'], 0)
+			relmap[relnl][item['tlgroup']] += 1
 			tlgroups.add(item['tlgroup'])
 
 	print("%s unique release netlocs, %s groups." % (len(relmap), len(tlgroups)))
 
 	for key, val in relmap.items():
+		val = {key : item_cnt for key, item_cnt in val.items() if (item_cnt > 25 and key)}
 		if len(val) > 1:
-			print("More then 1: key: %s, val: %s" % (key, val))
+			print("More then 1: key: %s, val: " % (key, ))
+			pprint.pprint(val)
 			if len(val) > 1:
 				for gid_1, gid_2 in pairwise(val):
 					with app.app_context():
@@ -631,15 +635,6 @@ def delete_postfix():
 			item.postfix = ""
 			mismatch += 1
 
-
-	# for item in items:
-	# 	for name in item.alternatenames:
-	# 		matches = search_for_name(name.name)
-	# 		if matches:
-	# 			try:
-	# 				match_to(name, matches)
-	# 			except sqlalchemy.orm.exc.NoResultFound:
-	# 				print("Row merged already?")
 
 	db.session.commit()
 	print(len(items))
