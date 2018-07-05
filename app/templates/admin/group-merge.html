@@ -11,13 +11,17 @@
 		</div>
 		{% for matchitem in matches %}
 			{% if matchitem['r1'] and matchitem['r2'] %}
+				<hr>
 				<div class="spair-{{min(matchitem['r1'].id, matchitem['r2'].id)}}-{{max(matchitem['r1'].id, matchitem['r2'].id)}}" class="well well-large" style="min-height: 140px;">
 					<div>
-						<span class='pull-right'><input id="merge_button" type="button" value="Merge"
-							onclick="merge_group({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
-						<span class='pull-right'><input id="separate_button" type="button" value="Separate"
-							onclick="separate_group({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
 						<h4>Merge targets: {{matchitem['r1'].id}} - {{matchitem['r2'].id}} (distance: {{matchitem['distance']}})</h4>
+						<div>
+							<span class='pull-right'><input id="merge_button" type="button" value="Merge"
+								onclick="merge_group({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
+							<span class='pull-left'><input id="separate_button" type="button" value="Separate"
+								onclick="separate_group({{matchitem['r1'].id}}, {{matchitem['r2'].id}});" /></span>
+						</div>
+						<div class="clearfix"></div>
 						<h5>T1 Name: {{matchitem['r1'].name}} - {{matchitem['r1'].id}}</h5>
 						<h5>T2 Name: {{matchitem['r2'].name}} - {{matchitem['r2'].id}}</h5>
 						<h6>{{matchitem['r1']}} - {{matchitem['r2']}}</h6>

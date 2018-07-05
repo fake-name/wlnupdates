@@ -59,7 +59,12 @@ def search_for_seriesname(name, nid):
 			data[mgid] = []
 
 		distance = lv.distance(name, mcleanname)
-		data[mgid].append((mgid, mcleanname, mname, distance))
+		# The distance is normalized to the effective changed characters against the
+		# entire title length.
+		# This should ideally make close short-names not a match.
+		distance_corr = 1 - (distance / min(len(name), len(mcleanname)))
+		# print("Corrected distance:", distance, distance_corr, len(name), len(mcleanname), min(len(name), len(mcleanname)))
+		data[mgid].append((mgid, mcleanname, mname, distance_corr))
 
 	return data
 
@@ -257,7 +262,7 @@ class MatchLogBuilder(object):
 		with open(filepath, "w") as fp:
 			fp.write(json.dumps(items, indent=4, sort_keys=True))
 
-SIMILARITY_THRESHOLD = 2
+SIMILARITY_RATIO = 0.7
 
 def match_to_series(target, matches, callback):
 	fromid = target.series
@@ -265,7 +270,7 @@ def match_to_series(target, matches, callback):
 	for key in [key for key in matches.keys() if key != fromid]:
 		for key, dummy_clean_name, name, similarity in matches[key]:
 			if key != fromid:
-				if similarity <= SIMILARITY_THRESHOLD:
+				if similarity >= SIMILARITY_RATIO:
 					merge_query_series(
 						id1      = key,
 						id2      = target.series,
@@ -284,7 +289,7 @@ def match_to_group(target, matches, callback):
 		for key, dummy_clean_name, name, similarity in matches[key]:
 			# print((key, target.name, name, similarity))
 			if key != fromid:
-				if similarity <= SIMILARITY_THRESHOLD:
+				if similarity >= SIMILARITY_RATIO:
 					merge_query_group(
 							id1      = key,
 							id2      = target.group,

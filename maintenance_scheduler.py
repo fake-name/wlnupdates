@@ -143,8 +143,8 @@ def wat():
 	# db_organize.levenshein_merger_groups(interactive=False, builder=builder)
 	# db_organize.release_merger_groups(interactive=False, builder=builder)
 
-	update_to_merge_groups_list()
 	update_to_merge_series_list()
+	update_to_merge_groups_list()
 
 
 
