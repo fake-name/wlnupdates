@@ -40,7 +40,7 @@ guess-language-spirit==0.5.3
 guess-language==0.2
 itsdangerous==0.24
 MarkupSafe==1.0
-pbr==4.0.4
+pbr==4.1.0
 pstat==0.0.1
 psutil==5.4.6
 pyparsing==2.2.0
