@@ -1,11 +1,22 @@
-from sqlalchemy.exc import SQLAlchemyError as sql_exc
-from flask import Blueprint, redirect, render_template, url_for, g, flash
+
+from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
+
+from flask import Blueprint
+from flask import redirect
+from flask import render_template
+from flask import url_for
+from flask import g
+from flask import flash
 from flask_babel import gettext
-from flask_security import current_user, login_required
+from flask_security import current_user
+from flask_security import login_required
 
 from app import db
 from app import app
-from forum.models import Board, Thread, Post
+from forum.models import Board
+from forum.models import Thread
+from forum.models import Post
 from app.models import Users
 from . import forms
 
@@ -26,7 +37,7 @@ def board(slug):
 		board = Board.query.filter(Board.slug == slug).one()
 		threads = Thread.query.filter(Thread.board_id == board.id) \
 						.order_by(Thread.updated.desc()).all()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.index'))
 
 	return render_template('forum/board.html', board=board,
@@ -38,12 +49,12 @@ def board(slug):
 def thread(slug, id, title=None):
 	try:
 		board = Board.query.filter(Board.slug == slug).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.index'))
 
 	try:
 		thread = Thread.query.filter(Thread.id == id).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.board', slug=slug))
 
 	return render_template('forum/thread.html', board=board, thread=thread,
@@ -54,7 +65,7 @@ def thread(slug, id, title=None):
 def user(id):
 	try:
 		user = Users.query.filter(Users.id == id).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.index'))
 
 	return render_template('forum/user.html', user=user)
@@ -70,12 +81,22 @@ def create_thread(slug):
 
 	try:
 		board = Board.query.filter(Board.slug == slug).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.index'))
+
+	pcnt,  = db.session.query(func.count(Post.id)).filter(Post.author_id == g.user.id).one()
 
 	form = forms.CreateThreadForm()
 	if form.validate_on_submit():
-		t = Thread( name=form.name.data, board=board, author=current_user)
+		tname = form.name.data
+		if pcnt == 0:
+			if len(tname.strip().split(" ")) == 1:
+				flash(gettext("Your account has been deleted due to failure to follow instructions about post titles!"
+					'Try not behaving like a spammer (or failing to read) next time.'))
+				delete_id_internal(g.user.id)
+				return redirect(url_for('index'))
+
+		t = Thread( name=tname, board=board, author=current_user)
 		db.session.add(t)
 		db.session.flush()
 
@@ -84,6 +105,13 @@ def create_thread(slug):
 		db.session.commit()
 
 		return redirect(url_for('.board', slug=slug))
+
+	if pcnt == 0:
+
+		flash(gettext('This seems to be your first post. <br>'
+			'<strong><font size="+2">Your first thread MUST have more then one word in it\'s thread title.</font></strong>'
+			'<br>If you do not have more then one word in the thread title, your account will be immediately deleted!'
+			'<br>Unfortunately, this is a required anti-spam measure.'))
 
 	return render_template('forum/create_thread.html',
 							board=board,
@@ -100,11 +128,11 @@ def create_post(slug, id):
 
 	try:
 		board = Board.query.filter(Board.slug == slug).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.index'))
 	try:
 		thread = Thread.query.filter(Thread.id == id).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.board', slug=slug))
 
 	form = forms.CreatePostForm()
@@ -133,17 +161,17 @@ def edit_post(slug, thread_id, post_id):
 
 	try:
 		board = Board.query.filter(Board.slug == slug).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.index'))
 	try:
 		thread = Thread.query.filter(Thread.id == thread_id).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return redirect(url_for('.board', slug=slug))
 
 	thread_redirect = redirect(url_for('.thread', slug=slug, id=thread_id))
 	try:
 		post = Post.query.filter(Post.id == post_id).one()
-	except sql_exc:
+	except SQLAlchemyError:
 		return thread_redirect
 	if post.author_id != current_user.id:
 		return thread_redirect
@@ -163,23 +191,13 @@ def edit_post(slug, thread_id, post_id):
 						edit_post=post)
 
 
-
-
-@app.route('/delete_spammer/<int:user_id>', methods=GET_POST)
-@login_required
-def user_is_spammer(user_id):
-
-	if not g.user.is_admin():
-		flash(gettext('You need to be an admin to do that.'))
-		return redirect(url_for('index'))
-
-
+def delete_id_internal(del_id):
 	try:
-		user    = Users.query.filter(Users.id == user_id).one()
-		threads = Thread.query.filter(Thread.author_id == user_id).all()
-		posts   = Post.query.filter(Post.author_id == user_id).all()
-	except sql_exc:
-		return redirect(url_for('.index'))
+		user    = Users.query.filter(Users.id == del_id).one()
+		threads = Thread.query.filter(Thread.author_id == del_id).all()
+		posts   = Post.query.filter(Post.author_id == del_id).all()
+	except SQLAlchemyError:
+		return False
 
 	print("User:", user)
 	print("posts:", posts)
@@ -197,6 +215,20 @@ def user_is_spammer(user_id):
 
 	db.session.delete(user)
 	db.session.commit()
+	return True
+
+@app.route('/delete_spammer/<int:user_id>', methods=GET_POST)
+@login_required
+def user_is_spammer(user_id):
+
+	if not g.user.is_admin():
+		flash(gettext('You need to be an admin to do that.'))
+		return redirect(url_for('index'))
+
+	ok = delete_id_internal(user_id)
+	if not ok:
+		return redirect(url_for('.index'))
+
 
 	flash(gettext('User %s deleted' % user_id))
 	return redirect(url_for('.index'))

@@ -262,7 +262,7 @@ class MatchLogBuilder(object):
 		with open(filepath, "w") as fp:
 			fp.write(json.dumps(items, indent=4, sort_keys=True))
 
-SIMILARITY_RATIO = 0.7
+SIMILARITY_RATIO = 0.85
 
 def match_to_series(target, matches, callback):
 	fromid = target.series
@@ -457,9 +457,8 @@ def minhash_merger_series(interactive=True):
 
 	perms = 512
 	gram_sz = 3
-	thresh = 0.7
 	minhashes = {}
-	lsh = MinHashLSH(threshold=thresh, num_perm=perms)
+	lsh = MinHashLSH(threshold=SIMILARITY_RATIO, num_perm=perms)
 
 	print("Building lsh minhash data structure")
 	with ProcessPoolExecutor(max_workers=8) as ex:
