@@ -20,7 +20,7 @@ defusedxml==0.5.0
 fastnumbers==0.5.0
 Flask==1.0.2
 Flask-Admin==1.5.0
-Flask-Assets==0.11
+Flask-Assets==0.12
 Flask-Babel==0.11.2
 Flask-BabelEx==0.9.1
 Flask-Bcrypt==0.7.1
