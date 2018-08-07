@@ -64,7 +64,7 @@ pbr==4.2.0
 pstat==0.0.1
 psutil==5.4.6
 psycopg2==2.7.5
-py==1.4.27
+py==1.5.4
 pycparser==2.18
 Pygments==2.0.2
 pyparsing==2.2.0
