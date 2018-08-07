@@ -43,7 +43,7 @@ Flask-WTF==0.14.2
 flipflop==1.0
 ftfy==4.1.1
 gevent==1.1rc2
-greenlet==0.4.9
+greenlet==0.4.14
 guess-language==0.2
 guess-language-spirit==0.5.3
 gunicorn==19.4.1
