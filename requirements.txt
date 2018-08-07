@@ -46,7 +46,7 @@ gevent==1.1rc2
 greenlet==0.4.9
 guess-language==0.2
 guess-language-spirit==0.5.3
-gunicorn==19.4.1
+gunicorn==19.8.1
 html5lib==1.0.1
 itsdangerous==0.24
 Jinja2==2.10
