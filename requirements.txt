@@ -94,7 +94,7 @@ sqlparse==0.2.4
 Tempita==0.5.2
 tqdm==4.24.0
 tzlocal==1.5.1
-Unidecode==0.4.21
+Unidecode==1.0.22
 validators==0.12.2
 vine==1.1.0
 webassets==0.11.1
