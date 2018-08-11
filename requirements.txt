@@ -1,7 +1,7 @@
 git+https://github.com/fake-name/AmqpConnector.git
 alembic==1.0.0
 amqp==2.3.2
-APScheduler==3.5.1
+APScheduler==3.5.2
 awesome-slugify==1.6.5
 Babel==2.6.0
 bcrypt==3.1.4
@@ -68,11 +68,11 @@ py==1.5.4
 pycparser==2.18
 Pygments==2.2.0
 pyparsing==2.2.0
-pytest==2.7.1
+pytest==3.7.1
 pytest-cov==2.5.1
 pytest-random==0.2
 python-bcrypt==0.3.2
-python-dateutil==2.7.0
+python-dateutil==2.7.3
 python-editor==1.0.3
 python-Levenshtein==0.12.0
 python3-openid==3.1.0
@@ -80,7 +80,7 @@ pytz==2018.5
 rabbitpy==1.0.0
 redis==2.10.6
 regex==2018.06.21
-requests==2.7.0
+requests==2.19.1
 simplejson==3.16.0
 six==1.11.0
 speaklater==1.3
