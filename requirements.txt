@@ -68,7 +68,7 @@ py==1.6.0
 pycparser==2.18
 Pygments==2.2.0
 pyparsing==2.2.0
-pytest==3.7.2
+pytest==3.7.4
 pytest-cov==2.5.1
 pytest-random==0.2
 python-bcrypt==0.3.2
