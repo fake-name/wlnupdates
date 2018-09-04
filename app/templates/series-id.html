@@ -189,6 +189,39 @@
 
 
 
+{% macro genreItemBlock(name, inList, itemKey, valId, link_base, width=3) -%}
+	<div class="well well-tny info-item">
+		<div class="row multiitem" id="{{valId}}-container">
+			<div class="col-md-{{width}} rowTitle">
+				{{ name }}:
+				<span class='text-nowrap light-text'>
+					<a id='editlink' href="#" onclick="edit('{{valId}}-container');return false;">[edit]</a>
+					<a id='historylink' href="/history/{{valId}}/{{series.id}}">[history]</a>
+				</span>
+			</div>
+			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
+				{% for item in inList %}
+					<span class='multiitem' id='{{valId}}'><a href="/search?json= {{
+							{
+								'series-type' : {},
+								'genre-category' : {item[itemKey]:'included'},
+								'sort-mode' : "update",
+								'title-search-text' : "",
+								'chapter-limits' : [0, false]
+							} | tojson | urlencode
+						}}">
+						{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
+				{% else %}
+					<span class='multiitem' id='{{valId}}'>N/A</span>
+				{% endfor %}
+
+			</div>
+		</div>
+	</div>
+{%- endmacro %}
+
+
+
 
 {% macro tagItemBlock(inList) -%}
 	<div class="well well-tny info-item">
@@ -1196,7 +1229,7 @@
 
 			{{tagItemBlock(series.tags)}}
 
-			{{multiItemBlock("Genres",
+			{{genreItemBlock("Genres",
 								series.genres,
 								'genre',
 								'genre',

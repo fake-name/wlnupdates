@@ -545,7 +545,7 @@ def release_merger_groups(interactive=True, builder=None):
 	print("%s unique release netlocs, %s groups." % (len(relmap), len(tlgroups)))
 
 	for key, val in relmap.items():
-		val = {key : item_cnt for key, item_cnt in val.items() if (item_cnt > 25 and key)}
+		val = {key : item_cnt for key, item_cnt in val.items() if (item_cnt > 100 and key)}
 		if len(val) > 1:
 			print("More then 1: key: %s, val: " % (key, ))
 			pprint.pprint(val)

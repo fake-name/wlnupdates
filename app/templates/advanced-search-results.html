@@ -24,25 +24,41 @@
 					<li>having not more then {{search_params['chapter-limits'][1]}} chapters</li>
 				{% endif %}
 
-				{% for stype, mode in search_params['series-type'].items() %}
-					{% if mode == "included" %}
-						<li>including series type '{{stype}}'</li>
-					{% elif mode == "excluded" %}
-						<li>not including series type '{{stype}}'</li>
-					{% else %}
-						<li>Unknown mode '{{mode}}' for series type '{{stype}}'</li>
-					{% endif %}
-				{% endfor %}
+				{% if 'series-type' in search_params %}
+					{% for stype, mode in search_params['series-type'].items() %}
+						{% if mode == "included" %}
+							<li>including series type '{{stype}}'</li>
+						{% elif mode == "excluded" %}
+							<li>not including series type '{{stype}}'</li>
+						{% else %}
+							<li>Unknown mode '{{mode}}' for series type '{{stype}}'</li>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
 
-				{% for tag, mode in search_params['tag-category'].items() %}
-					{% if mode == "included" %}
-						<li>including tag '{{tag}}'</li>
-					{% elif mode == "excluded" %}
-						<li>not including tag '{{tag}}'</li>
-					{% else %}
-						<li>Unknown mode '{{mode}}' for tag '{{tag}}'</li>
-					{% endif %}
-				{% endfor %}
+				{% if 'genre-category' in search_params %}
+					{% for tag, mode in search_params['genre-category'].items() %}
+						{% if mode == "included" %}
+							<li>including genre '{{tag}}'</li>
+						{% elif mode == "excluded" %}
+							<li>not including genre '{{tag}}'</li>
+						{% else %}
+							<li>Unknown mode '{{mode}}' for genre '{{tag}}'</li>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+
+				{% if 'tag-category' in search_params %}
+					{% for tag, mode in search_params['tag-category'].items() %}
+						{% if mode == "included" %}
+							<li>including tag '{{tag}}'</li>
+						{% elif mode == "excluded" %}
+							<li>not including tag '{{tag}}'</li>
+						{% else %}
+							<li>Unknown mode '{{mode}}' for tag '{{tag}}'</li>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
 
 				{% if search_params['sort-mode'] == 'update' %}
 					<li>sorted by last update (most recent first).</li>

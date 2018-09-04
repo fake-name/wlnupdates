@@ -1,5 +1,7 @@
+
 from flask import render_template
 from flask import g
+from flask import request
 # from guess_language import guess_language
 from app import app
 from app import db
@@ -74,6 +76,12 @@ def renderAdminSeriesMerge():
 	if not g.user.is_authenticated():
 		return render_template('not-implemented-yet.html')
 
+
+	if 'oel' in request.args:
+		include_oel = True
+	else:
+		include_oel = False
+
 	try:
 		with open("./seriesname-matchset.json", "r") as fp:
 			matches = json.loads(fp.read())
@@ -82,12 +90,12 @@ def renderAdminSeriesMerge():
 
 	no_merge = api_admin.get_config_json()["no-merge-series"]
 	no_merge = [tuple(tmp) for tmp in no_merge]
-	print("Loading series data")
+
+	# print("Loading series data")
 
 	rowids = [tmp['id1'] for tmp in matches] + [tmp['id2'] for tmp in matches]
 
-	print("Beginning series load.")
-
+	# print("Beginning series load.")
 
 	db.session.commit()
 
@@ -100,7 +108,7 @@ def renderAdminSeriesMerge():
 	rows = series.all()
 	rows = {row.id : row for row in rows}
 
-	print("Cross-correlating IDs.")
+	# print("Cross-correlating IDs.")
 
 	tmp = {}
 	for matchitem in matches:
@@ -113,13 +121,19 @@ def renderAdminSeriesMerge():
 		if key in no_merge:
 			continue
 
+		if (matchitem['r1'] and matchitem['r1'].tl_type == 'oel') or (matchitem['r2'] and matchitem['r2'].tl_type == 'oel'):
+			if not include_oel:
+				continue
+
+
 		tmp[key] = matchitem
 
 	single_matches = list(tmp.values())
 
 	single_matches.sort(key=lambda x: min(x['id1'], x['id2']))
 
-	print("Series data loaded. Rendering")
+	# print("Series data loaded. Rendering")
+
 	return render_template('/admin/series-merge.html', matches=single_matches)
 
 
@@ -166,6 +180,7 @@ def renderAdminGroupMerge():
 			continue
 		if key in no_merge:
 			continue
+
 
 		tmp[key] = matchitem
 

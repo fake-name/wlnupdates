@@ -1,5 +1,10 @@
 
-from flask import render_template, flash, redirect, url_for, g, request
+from flask import render_template
+from flask import flash
+from flask import redirect
+from flask import url_for
+from flask import g
+from flask import request
 from app.forms import SearchForm
 import bleach
 from sqlalchemy.sql.expression import nullslast

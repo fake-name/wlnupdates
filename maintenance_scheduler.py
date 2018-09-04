@@ -72,6 +72,10 @@ def update_to_merge_groups_list():
 	db_organize.levenshein_merger_groups(interactive=False, builder=builder)
 	db_organize.release_merger_groups(interactive=False, builder=builder)
 
+def update_to_merge_groups_list_releases_only():
+	builder = db_organize.MatchLogBuilder()
+	db_organize.release_merger_groups(interactive=False, builder=builder)
+
 def flatten_history_table():
 	with app.app_context():
 		flatten_history.flatten_history()
@@ -143,8 +147,9 @@ def wat():
 	# db_organize.levenshein_merger_groups(interactive=False, builder=builder)
 	# db_organize.release_merger_groups(interactive=False, builder=builder)
 
-	update_to_merge_series_list()
-	update_to_merge_groups_list()
+	# update_to_merge_series_list()
+	# update_to_merge_groups_list()
+	update_to_merge_groups_list_releases_only()
 
 
 
