@@ -1,4 +1,6 @@
 
+import cachetools
+
 from flask import jsonify
 from flask import render_template
 from flask import request
@@ -57,83 +59,91 @@ def handleApiGet():
 
 
 
-# call_name : (function_to_call, auth_required_bool, csrf_protect)
+# call_name : (function_to_call, auth_required_bool, csrf_protect, rate_limit)
 # CSRF protection is not needed if
 DISPATCH_TABLE = {
 	#
 	# 'get'                       : (api_handlers_anon.get_listing,                       False, False),
-	'get-artists'               : (api_handlers_anon.get_artists,                       False, False),
-	'get-authors'               : (api_handlers_anon.get_authors,                       False, False),
-	'get-genres'                : (api_handlers_anon.get_genres,                        False, False),
-	'get-groups'                : (api_handlers_anon.get_groups,                        False, False),
-	'get-oel-releases'          : (api_handlers_anon.get_oel_releases,                  False, False),
-	'get-oel-series'            : (api_handlers_anon.get_oel_series,                    False, False),
-	'get-publishers'            : (api_handlers_anon.get_publishers,                    False, False),
-	'get-releases'              : (api_handlers_anon.get_releases,                      False, False),
-	'get-series'                : (api_handlers_anon.get_series,                        False, False),
-	'get-translated-releases'   : (api_handlers_anon.get_translated_releases,           False, False),
-	'get-translated-series'     : (api_handlers_anon.get_translated_series,             False, False),
+	'get-artists'               : (api_handlers_anon.get_artists,                       False, False, True),
+	'get-authors'               : (api_handlers_anon.get_authors,                       False, False, True),
+	'get-genres'                : (api_handlers_anon.get_genres,                        False, False, True),
+	'get-groups'                : (api_handlers_anon.get_groups,                        False, False, True),
+	'get-oel-releases'          : (api_handlers_anon.get_oel_releases,                  False, False, True),
+	'get-oel-series'            : (api_handlers_anon.get_oel_series,                    False, False, True),
+	'get-publishers'            : (api_handlers_anon.get_publishers,                    False, False, True),
+	'get-releases'              : (api_handlers_anon.get_releases,                      False, False, True),
+	'get-series'                : (api_handlers_anon.get_series,                        False, False, True),
+	'get-translated-releases'   : (api_handlers_anon.get_translated_releases,           False, False, True),
+	'get-translated-series'     : (api_handlers_anon.get_translated_series,             False, False, True),
 
-	'get-watches'               : (api_handlers_anon.get_watches,                       True, False),
-	'get-feeds'                 : (api_handlers_anon.get_feeds,                         False, False),
+	'get-watches'               : (api_handlers_anon.get_watches,                       True,  False, True),
+	'get-feeds'                 : (api_handlers_anon.get_feeds,                         False, False, True),
 
-	'enumerate-tags'            : (api_handlers_anon.enumerate_search_tags,             False, False),
-	'enumerate-genres'          : (api_handlers_anon.enumerate_search_genres,           False, False),
+	'enumerate-tags'            : (api_handlers_anon.enumerate_search_tags,             False, False, True),
+	'enumerate-genres'          : (api_handlers_anon.enumerate_search_genres,           False, False, True),
 
-	'search-title'              : (api_handlers_anon.get_search_title,                  False, False),
-	'search-advanced'           : (api_handlers_anon.get_search_advanced,               False, False),
+	'search-title'              : (api_handlers_anon.get_search_title,                  False, False, True),
+	'search-advanced'           : (api_handlers_anon.get_search_advanced,               False, False, True),
 
-	'get-artist-id'             : (api_handlers_anon.get_artist_id,                     False, False),
-	'get-author-id'             : (api_handlers_anon.get_author_id,                     False, False),
-	'get-genre-id'              : (api_handlers_anon.get_genre_id,                      False, False),
-	'get-group-id'              : (api_handlers_anon.get_group_id,                      False, False),
-	'get-publisher-id'          : (api_handlers_anon.get_publisher_id,                  False, False),
-	'get-series-id'             : (api_handlers_anon.get_series_id,                     False, False),
-	'get-tag-id'                : (api_handlers_anon.get_tag_id,                        False, False),
+	'get-artist-id'             : (api_handlers_anon.get_artist_id,                     False, False, True),
+	'get-author-id'             : (api_handlers_anon.get_author_id,                     False, False, True),
+	'get-genre-id'              : (api_handlers_anon.get_genre_id,                      False, False, True),
+	'get-group-id'              : (api_handlers_anon.get_group_id,                      False, False, True),
+	'get-publisher-id'          : (api_handlers_anon.get_publisher_id,                  False, False, True),
+	'get-series-id'             : (api_handlers_anon.get_series_id,                     False, False, True),
+	'get-tag-id'                : (api_handlers_anon.get_tag_id,                        False, False, True),
 
-	'get-artist-data'           : (api_handlers_anon.get_artist_id,                     False, False),
-	'get-author-data'           : (api_handlers_anon.get_author_id,                     False, False),
-	'get-genre-data'            : (api_handlers_anon.get_genre_id,                      False, False),
-	'get-group-data'            : (api_handlers_anon.get_group_id,                      False, False),
-	'get-publisher-data'        : (api_handlers_anon.get_publisher_id,                  False, False),
-	'get-series-data'           : (api_handlers_anon.get_series_id,                     False, False),
-	'get-tag-data'              : (api_handlers_anon.get_tag_id,                        False, False),
+	'get-artist-data'           : (api_handlers_anon.get_artist_id,                     False, False, True),
+	'get-author-data'           : (api_handlers_anon.get_author_id,                     False, False, True),
+	'get-genre-data'            : (api_handlers_anon.get_genre_id,                      False, False, True),
+	'get-group-data'            : (api_handlers_anon.get_group_id,                      False, False, True),
+	'get-publisher-data'        : (api_handlers_anon.get_publisher_id,                  False, False, True),
+	'get-series-data'           : (api_handlers_anon.get_series_id,                     False, False, True),
+	'get-tag-data'              : (api_handlers_anon.get_tag_id,                        False, False, True),
 
 	# Logged in stuff
-	'series-update'             : (api_handlers.process_series_update_json,             True,  False),
-	'release-update'            : (api_handlers.processReleaseUpdateJson,               True,  False),
-	'group-update'              : (api_handlers.processGroupUpdateJson,                 True,  False),
-	'set-watch'                 : (api_handlers.setSeriesWatchJson,                     True,  False),
-	'read-update'               : (api_handlers.setReadingProgressJson,                 True,  False),
-	'cover-update'              : (api_handlers.updateAddCoversJson,                    True,  False),
-	'set-rating'                : (api_handlers.setRatingJson,                          False, True),
+	'series-update'             : (api_handlers.process_series_update_json,             True,  False, False),
+	'release-update'            : (api_handlers.processReleaseUpdateJson,               True,  False, False),
+	'group-update'              : (api_handlers.processGroupUpdateJson,                 True,  False, False),
+	'set-watch'                 : (api_handlers.setSeriesWatchJson,                     True,  False, False),
+	'read-update'               : (api_handlers.setReadingProgressJson,                 True,  False, False),
+	'cover-update'              : (api_handlers.updateAddCoversJson,                    True,  False, False),
+	'set-rating'                : (api_handlers.setRatingJson,                          False, True,  False),
 
 	# Admin API bits
-	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,                 True,  False),
-	'block-merge-id'            : (api_handlers_admin.preventMergeSeriesItems,          True,  False),
+	'merge-id'                  : (api_handlers_admin.mergeSeriesItems,                 True,  False, False),
+	'block-merge-id'            : (api_handlers_admin.preventMergeSeriesItems,          True,  False, False),
 
-	'do-group-merge-id'         : (api_handlers_admin.mergeGroupEntries,                True,  False),
-	'block-group-merge-id'      : (api_handlers_admin.preventMergeGroupEntries,         True,  False),
+	'do-group-merge-id'         : (api_handlers_admin.mergeGroupEntries,                True,  False, False),
+	'block-group-merge-id'      : (api_handlers_admin.preventMergeGroupEntries,         True,  False, False),
 
-	'set-sort-mode'             : (api_handlers_admin.setSortOrder,                     True,  False),
-	'merge-group'               : (api_handlers_admin.mergeGroupItems,                  True,  False),
-	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,                 True,  False),
-	'delete-series'             : (api_handlers_admin.deleteSeries,                     True,  False),
-	'delete-auto-releases'      : (api_handlers_admin.deleteAutoReleases,               True,  False),
+	'set-sort-mode'             : (api_handlers_admin.setSortOrder,                     True,  False, False),
+	'merge-group'               : (api_handlers_admin.mergeGroupItems,                  True,  False, False),
+	'release-ctrl'              : (api_handlers_admin.alterReleaseItem,                 True,  False, False),
+	'delete-series'             : (api_handlers_admin.deleteSeries,                     True,  False, False),
+	'delete-auto-releases'      : (api_handlers_admin.deleteAutoReleases,               True,  False, False),
 
-	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,            True,  False),
-	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases,        True,  False),
-	'fix-escapes'               : (api_handlers_admin.fix_escaped_quotes,               True,  False),
-	'clean-tags'                : (api_handlers_admin.clean_tags,                       True,  False),
+	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,            True,  False, False),
+	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases,        True,  False, False),
+	'fix-escapes'               : (api_handlers_admin.fix_escaped_quotes,               True,  False, False),
+	'clean-tags'                : (api_handlers_admin.clean_tags,                       True,  False, False),
 
-	'delete-group'              : (api_handlers_admin.deleteGroup,                      True,  False),
-	'delete-auto-from-group'    : (api_handlers_admin.deleteGroupAutoReleases,          True,  False),
-	'toggle-volume-releases'    : (api_handlers_admin.bulkToggleVolumeCountedStatus,    True,  False),
+	'delete-group'              : (api_handlers_admin.deleteGroup,                      True,  False, False),
+	'delete-auto-from-group'    : (api_handlers_admin.deleteGroupAutoReleases,          True,  False, False),
+	'toggle-volume-releases'    : (api_handlers_admin.bulkToggleVolumeCountedStatus,    True,  False, False),
 
 }
 
+RATE_LIMITER = cachetools.TTLCache(maxsize = 1000 * 1000, ttl = 60)
+
 def dispatchApiCall(reqJson):
-	print("Json request:", reqJson)
+
+	forwarded_for = request.headers.get('X-Forwarded-For', None)
+
+	# if forwarded_for == '108.28.56.67':
+	# 	print("Bouncing possible abuse from %s" % (forwarded_for, ))
+	# 	return getResponse("Hi there! Please contact me on github.com/fake-name/wlnupdates before doing bulk scraping, please!", error=True)
+
 	if not "mode" in reqJson:
 		print("API JSON Request without mode!")
 		return getResponse("No mode in API Request!", error=True)
@@ -143,7 +153,7 @@ def dispatchApiCall(reqJson):
 		print("Invalid mode in request: '{mode}'".format(mode=mode))
 		return getResponse("Invalid mode in API Request ({mode})!".format(mode=mode), error=True)
 
-	dispatch_method, auth_required, csrf_required = DISPATCH_TABLE[mode]
+	dispatch_method, auth_required, csrf_required, rate_limited = DISPATCH_TABLE[mode]
 	try:
 		if csrf_required:
 			csrf.protect()
@@ -151,7 +161,20 @@ def dispatchApiCall(reqJson):
 		if auth_required and not current_user.is_authenticated():
 			return getResponse(LOGIN_REQ, error=True)
 
+		if rate_limited and not current_user.is_authenticated():
+			limiter_key = forwarded_for + " " + mode
+			if limiter_key in RATE_LIMITER:
+				print("Anon User hit rate limiting. Bouncing.")
+				return getResponse("API calls when not logged in are rate limited. Please either log in, or slow down. "
+					"Complain at github.com/fake-name/wlnupdates/issues if this is a problem", error=True)
+
+			print("Inserting anon requester into rate-limit cache.")
+			RATE_LIMITER[limiter_key] = True
+
+			ret = dispatch_method(reqJson)
+
 		else:
+			print("Current user:", current_user.id, current_user.nickname)
 			ret = dispatch_method(reqJson)
 
 	except AssertionError as e:
