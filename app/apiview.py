@@ -134,7 +134,7 @@ DISPATCH_TABLE = {
 
 }
 
-RATE_LIMITER = cachetools.TTLCache(maxsize = 1000 * 1000, ttl = 60)
+RATE_LIMITER = cachetools.TTLCache(maxsize = 1000 * 1000, ttl = 6)
 
 def dispatchApiCall(reqJson):
 
