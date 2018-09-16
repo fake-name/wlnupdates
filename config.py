@@ -6,6 +6,7 @@ from settings import DATABASE_USER          as C_DATABASE_USER
 from settings import DATABASE_PASS          as C_DATABASE_PASS
 from settings import SECRET_KEY             as C_SECRET_KEY
 from settings import WTF_CSRF_SECRET_KEY    as C_WTF_CSRF_SECRET_KEY
+from settings import MAIL_SERVER            as C_MAIL_SERVER
 from settings import MAIL_USERNAME          as C_MAIL_USERNAME
 from settings import MAIL_PASSWORD          as C_MAIL_PASSWORD
 from settings import MAIL_DEFAULT_SENDER    as C_MAIL_DEFAULT_SENDER
@@ -32,7 +33,7 @@ class BaseConfig(object):
 
 
 	# administrator list
-	ADMINS = ['you@example.com']
+	ADMINS = ['admin@wlnupdates.com']
 
 	# slow database query threshold (in seconds)
 	DATABASE_QUERY_TIMEOUT = 0.5
@@ -57,7 +58,7 @@ class BaseConfig(object):
 	SECURITY_PASSWORD_SALT = C_SECURITY_PASSWORD_SALT
 
 	# mail settings
-	MAIL_SERVER = 'smtp.googlemail.com'
+	MAIL_SERVER = C_MAIL_SERVER
 	MAIL_PORT = 465
 	MAIL_USE_TLS = False
 	MAIL_USE_SSL = True
