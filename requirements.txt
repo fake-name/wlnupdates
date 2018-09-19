@@ -71,7 +71,7 @@ pstat==0.0.1
 psutil==5.4.7
 psycopg2==2.7.5
 py==1.6.0
-pycparser==2.18
+pycparser==2.19
 Pygments==2.2.0
 pyparsing==2.2.1
 pytest==3.8.0
