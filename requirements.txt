@@ -73,7 +73,7 @@ psycopg2==2.7.5
 py==1.6.0
 pycparser==2.19
 Pygments==2.2.0
-pyparsing==2.2.1
+pyparsing==2.2.2
 pytest==3.8.1
 pytest-cov==2.6.0
 pytest-random==0.2
