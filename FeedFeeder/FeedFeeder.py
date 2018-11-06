@@ -185,23 +185,64 @@ def get_create_group(groupname, changeuser):
 		row = group.group_row
 		return row
 
-def get_create_series(seriesname, tl_type, changeuser, author_name=False):
-	# print("get_create_series(): '%s', '%s', '%s'" % (seriesname, tl_type, author_name))
 
+def create_series(seriesname, tl_type, changeuser, author_name, alt_names = None):
+
+	if alt_names is None:
+		alt_names = []
+
+	alt_names.append(seriesname)
+
+	print("Need to create new series entry for ", seriesname)
+	new = Series(
+			title=seriesname,
+			changeuser = changeuser,  # Hard coded RSS user ID. Probably a bad idea.
+			changetime = datetime.datetime.now(),
+			tl_type    = tl_type,
+
+
+		)
+	db.session.add(new)
+	db.session.flush()
+
+	if author_name:
+		if isinstance(author_name, str):
+			author_name = [author_name, ]
+		series_tools.setAuthorIllust(new, author=author_name)
+
+	for altname in alt_names:
+
+		altn_row = AlternateNames(
+				name       = altname,
+				cleanname  = nt.prepFilenameForMatching(altname),
+				series     = new.id,
+				changetime = datetime.datetime.now(),
+				changeuser = changeuser
+			)
+		db.session.add(altn_row)
+
+	return new
+
+def get_create_series(input_series_name, tl_type, changeuser, author_name_list=False):
+	# print("get_create_series(): '%s', '%s', '%s'" % (input_series_name, tl_type, author_name))
+
+	if isinstance(author_name_list, str):
+		author_name_list = [author_name_list]
 
 	tries = 0
 	while 1:
 		try:
 			have  = AlternateNames                             \
 					.query                                     \
-					.filter(AlternateNames.name == seriesname) \
+					.filter(AlternateNames.name == input_series_name) \
 					.order_by(AlternateNames.id)               \
 					.all()
-			# print("get_create_series for title: '%s'" % seriesname)
+
+			# print("get_create_series for title: '%s'" % input_series_name)
 			# print("Altnames matches: ", have)
 			# for item in have:
 			# 	print((item.series_row.id, item.series_row.title, [tmp.name.lower() for tmp in item.series_row.author]))
-			# print("Want:", author_name)
+			# print("Want:", author_name_list)
 
 			# There's 4 options here:
 			#  - Update and have item has author ->
@@ -225,15 +266,12 @@ def get_create_series(seriesname, tl_type, changeuser, author_name=False):
 			valid_haves = [tmp for tmp in have if tmp.series_row and tmp.series_row.tl_type == tl_type]
 
 			# Try for author match first:
-			if author_name:
+			if author_name_list:
 				for item in [tmp for tmp in valid_haves if tmp.series_row.author]:
-					if isinstance(author_name, list):
-						if any([auth_tmp.lower() in [tmp.name.lower() for tmp in item.series_row.author] for auth_tmp in author_name]):
-							# print("AuthorName match!")
+					if isinstance(author_name_list, list):
+						if any([auth_tmp.lower() in [tmp.name.lower() for tmp in item.series_row.author] for auth_tmp in author_name_list]):
 							return item.series_row
-					else:
-						if author_name.lower() in [tmp.name.lower() for tmp in item.series_row.author]:
-							return item.series_row
+
 
 				for item in [tmp for tmp in valid_haves if not tmp.series_row.author]:
 					return item.series_row
@@ -243,89 +281,47 @@ def get_create_series(seriesname, tl_type, changeuser, author_name=False):
 					return item.series_row
 
 
-
-			# print("No match found while filtering by author-name!")
-
-
-			haveS  = Series                              \
+			have_series_row  = Series                              \
 					.query                              \
-					.filter(Series.title == seriesname) \
+					.filter(Series.title == input_series_name) \
 					.limit(1)                           \
 					.scalar()
 
-			if haveS and author_name:
-				if isinstance(author_name, str):
-					sName = "{} ({})".format(seriesname, author_name)
-				else:
-					sName = "{} ({})".format(seriesname, ", ".join(author_name))
-			elif haveS:
-				if haveS.tl_type != tl_type:
+			if have_series_row and author_name_list:
+				full_series_name = "{} ({})".format(input_series_name, ", ".join(author_name_list))
+			elif have_series_row:
+				if have_series_row.tl_type != tl_type:
 					if tl_type == "oel":
 						st = "OEL"
 					else:
 						st = tl_type.title()
-					sName = "{} ({})".format(seriesname, st)
+					full_series_name = "{} ({})".format(input_series_name, st)
 				else:
 					# print("Wat? Item that isn't in the altname table but still exists?")
-					return haveS
+					return have_series_row
 			else:
-				sName = seriesname
+				full_series_name = input_series_name
 
 
 			# We've built a new series title by appending the author/tl_type
 			# Now we need to check if that exists too.
-			if sName != seriesname:
-				haveS  = Series                              \
+			if full_series_name != input_series_name:
+				have_series_row  = Series                              \
 						.query                              \
-						.filter(Series.title == seriesname) \
+						.filter(Series.title == input_series_name) \
 						.limit(1)                           \
 						.scalar()
 
-				return haveS
+				return have_series_row
 
+			new = create_series(seriesname=full_series_name, tl_type=tl_type, changeuser=changeuser, author_name=author_name_list, alt_names=[input_series_name])
 
-			print("Need to create new series entry for ", seriesname)
-			new = Series(
-					title=sName,
-					changeuser = changeuser,  # Hard coded RSS user ID. Probably a bad idea.
-					changetime = datetime.datetime.now(),
-					tl_type    = tl_type,
-
-
-				)
-			db.session.add(new)
-			db.session.flush()
-
-			if author_name:
-				if isinstance(author_name, str):
-					author_name = [author_name, ]
-				series_tools.setAuthorIllust(new, author=author_name)
-
-			altn1 = AlternateNames(
-					name       = seriesname,
-					cleanname  = nt.prepFilenameForMatching(seriesname),
-					series     = new.id,
-					changetime = datetime.datetime.now(),
-					changeuser = changeuser
-				)
-			db.session.add(altn1)
-
-			if sName != seriesname:
-				altn2 = AlternateNames(
-						name       = sName,
-						cleanname  = nt.prepFilenameForMatching(seriesname),
-						series     = new.id,
-						changetime = datetime.datetime.now(),
-						changeuser = changeuser
-					)
-				db.session.add(altn2)
 			db.session.commit()
-
 
 			return new
 		except sqlalchemy.exc.IntegrityError:
 			print("Concurrency issue?")
-			print("'%s', '%s', '%s'" % (seriesname, tl_type, author_name))
+			print("'%s', '%s', '%s'" % (input_series_name, tl_type, author_name_list))
 			db.session.rollback()
 
 			tries += 1
@@ -403,10 +399,11 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 	if loose_match:
 		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
 	else:
+		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
 		relQ = relQ.filter(Releases.volume   == item['vol'])
 		relQ = relQ.filter(Releases.chapter  == item['chp'])
 		relQ = relQ.filter(Releases.fragment == item['frag'])
-		relQ = relQ.filter(Releases.postfix == item['postfix'])
+		relQ = relQ.filter(Releases.postfix  == item['postfix'])
 
 	have = relQ.all()
 
@@ -441,6 +438,7 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 
 	db.session.commit()
 
+
 def insert_parsed_release(item):
 	assert 'tl_type' in item
 	assert 'srcname' in item
@@ -460,15 +458,20 @@ def insert_parsed_release(item):
 	group = get_create_group(item['srcname'], update_id)
 	assert group is not None
 
+	kwargs = {
+		"seriesname" : item['series'],
+		"tl_type"    : item["tl_type"],
+		"changeuser" : update_id,
+	}
+
+
+	if 'match_author' in item and item['match_author']:
+		kwargs['author_name_list'] = item['author']
+	series = get_create_series(**kwargs)
+
 	if 'loose_match' in item and item['loose_match']:
-		series = get_create_series(item['series'], item["tl_type"], update_id)
 		check_insert_release(item, group, series, update_id, loose_match=True)
 	else:
-		if 'match_author' in item and item['match_author']:
-			series = get_create_series(item['series'], item["tl_type"], update_id, item['author'])
-		else:
-			series = get_create_series(item['series'], item["tl_type"], update_id)
-
 		check_insert_release(item, group, series, update_id)
 
 def rowToDict(row):

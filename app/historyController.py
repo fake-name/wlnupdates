@@ -69,6 +69,7 @@ def generateSeriesHistArray(inRows):
 				previous[key] = row[key]
 				# print(item)
 				rowUpdate.append(item)
+
 		if rowUpdate:
 			ret.append(rowUpdate)
 

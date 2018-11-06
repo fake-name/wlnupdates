@@ -131,9 +131,10 @@ series_sort_enum = ENUM('parsed_title_order', 'chronological_order', name='serie
 
 class SeriesBase(object):
 	id          = db.Column(db.Integer, primary_key=True)
+	type        = db.Column(db.Text())
+
 	title       = db.Column(CIText())
 	description = db.Column(db.Text())
-	type        = db.Column(db.Text())
 	origin_loc  = db.Column(db.Text())
 	demographic = db.Column(db.Text())
 	orig_lang   = db.Column(db.Text())
@@ -145,7 +146,6 @@ class SeriesBase(object):
 	region      = db.Column(region_enum, default='unknown')
 	sort_mode   = db.Column(series_sort_enum, default='parsed_title_order')
 	tl_type     = db.Column(tl_type_enum, nullable=False, index=True)
-	# tl_complete = db.Column(db.Boolean, nullable=False, default=False)
 	license_en  = db.Column(db.Boolean)
 
 	pub_date    = db.Column(db.DateTime)
@@ -161,6 +161,7 @@ class SeriesBase(object):
 	rating             = db.Column(db.Float())
 	rating_count       = db.Column(db.Integer())
 
+	# tl_complete = db.Column(db.Boolean, nullable=False, default=False)
 	__table_args__ = (
 		CheckConstraint('''(rating >= 0 and rating <= 10) or rating IS NULL'''),
 		)
@@ -502,7 +503,8 @@ def create_trigger(cls):
 	# The Foreign key is null when we delete
 	deleteFromCols = ", ".join(["OLD."+item for item in colNames]+['NULL', ])
 
-	# Otherwise, mirror the new changes into the log table.
+	# Otherwise, mirror the new changes into the log table. The changed column id gets
+	# inserted into the "srccol" colum, since the current table has it's own "id" column
 	oldFromCols    = ", ".join(["NEW."+item for item in colNames+['id', ]])
 	newFromCols    = ", ".join(["NEW."+item for item in colNames+['id', ]])
 

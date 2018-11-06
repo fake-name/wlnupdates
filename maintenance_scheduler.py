@@ -149,7 +149,8 @@ def wat():
 
 	# update_to_merge_series_list()
 	# update_to_merge_groups_list()
-	update_to_merge_groups_list_releases_only()
+	# update_to_merge_groups_list_releases_only()
+	flatten_history_table()
 
 
 
