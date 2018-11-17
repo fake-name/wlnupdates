@@ -28,6 +28,9 @@ def object_as_dict(obj):
 	return ret
 
 def purge_dup_oel_author_tags(seriesid):
+
+	had_multiple_authors = False
+
 	srow = Series.query                   \
 		.filter(Series.id == seriesid) \
 		.scalar()
@@ -37,6 +40,7 @@ def purge_dup_oel_author_tags(seriesid):
 			return
 		popauth = len(list(srow.author))
 		if popauth > 2:
+			had_multiple_authors = True
 			print(seriesid, srow.tl_type, [tmp.name for tmp in srow.author], srow.website)
 			while popauth > 1:
 				print("Popping")
@@ -50,9 +54,14 @@ def purge_dup_oel_author_tags(seriesid):
 				if altname.name != srow.title:
 					db.session.delete(altname)
 
+	return had_multiple_authors
+
 def consolidate_seriesid(seriesid, purge_dup_oel_authors=False):
+
+	had_dup_oel_auth = False
+
 	if purge_dup_oel_authors:
-		purge_dup_oel_author_tags(seriesid)
+		had_dup_oel_auth = purge_dup_oel_author_tags(seriesid)
 
 	print("Fetching rows for SID: ", seriesid)
 	srows = SeriesChanges.query                   \
@@ -147,7 +156,11 @@ def consolidate_seriesid(seriesid, purge_dup_oel_authors=False):
 		for key in compare_keys:
 			if old[key] != new[key]:
 				mismatched = True
-				print("Mismatch", (old[key],  new[key]))
+
+				if had_dup_oel_auth:
+					print("Mismatch with multiple authors. Deleting", (old[key],  new[key]))
+					db.session.delete(old['row'])
+
 
 
 		diff = {(key, old[key], new[key]) for key in all_keys if old[key] != new[key]}
@@ -158,7 +171,7 @@ def consolidate_seriesid(seriesid, purge_dup_oel_authors=False):
 			db.session.delete(new['row'])
 			fixes += 1
 			deletes += 1
-			if fixes > 10:
+			if fixes > 50:
 				fixes = 0
 				db.session.flush()
 
@@ -167,7 +180,7 @@ def consolidate_seriesid(seriesid, purge_dup_oel_authors=False):
 	print("Done processing series-id %s, deleting %s change rows. Committing." % (seriesid, deletes))
 	db.session.commit()
 
-def flatten_history(purge_dup_oel_authors):
+def flatten_history(purge_dup_oel_authors=False):
 	print("fetching series")
 	ret = db.session.execute("""
 		SELECT srccol, COUNT(srccol) As cnt

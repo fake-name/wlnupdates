@@ -152,7 +152,10 @@ def wat():
 	# update_to_merge_groups_list_releases_only()
 	flatten_history_table()
 
+def flatten_dedup_oel():
 
+	with app.app_context():
+		flatten_history.flatten_history(purge_dup_oel_authors=True)
 
 if __name__ == "__main__":
 	import logSetup

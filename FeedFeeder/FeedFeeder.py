@@ -211,15 +211,21 @@ def create_series(seriesname, tl_type, changeuser, author_name, alt_names = None
 		series_tools.setAuthorIllust(new, author=author_name)
 
 	for altname in alt_names:
+		have  = AlternateNames                          \
+				.query                                  \
+				.filter(AlternateNames.name == altname) \
+				.order_by(AlternateNames.id)            \
+				.scalar()
 
-		altn_row = AlternateNames(
-				name       = altname,
-				cleanname  = nt.prepFilenameForMatching(altname),
-				series     = new.id,
-				changetime = datetime.datetime.now(),
-				changeuser = changeuser
-			)
-		db.session.add(altn_row)
+		if not have:
+			altn_row = AlternateNames(
+					name       = altname,
+					cleanname  = nt.prepFilenameForMatching(altname),
+					series     = new.id,
+					changetime = datetime.datetime.now(),
+					changeuser = changeuser
+				)
+			db.session.add(altn_row)
 
 	return new
 
@@ -410,7 +416,7 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 	if have:
 		have = have.pop(0)
 		if loose_match:
-			print("Loosely matched have:", series.title, have.volume, have.chapter, have.postfix)
+			print("Loosely matched release:", series.title, have.volume, have.chapter, have.postfix)
 		return
 
 	# Clamp timestamp
@@ -459,9 +465,9 @@ def insert_parsed_release(item):
 	assert group is not None
 
 	kwargs = {
-		"seriesname" : item['series'],
-		"tl_type"    : item["tl_type"],
-		"changeuser" : update_id,
+		"input_series_name" : item['series'],
+		"tl_type"           : item["tl_type"],
+		"changeuser"        : update_id,
 	}
 
 
@@ -534,7 +540,12 @@ def update_series_info(item):
 	if item['update_only']:
 		series = get_series_from_any(item['alt_titles'], item["tl_type"], item['author'])
 	else:
-		series = get_create_series(item['title'], item["tl_type"], RSS_USER_ID, item['author'])
+		series = get_create_series(
+				input_series_name = item['title'],
+				tl_type           = item["tl_type"],
+				changeuser        = RSS_USER_ID,
+				author_name_list  = item['author']
+			)
 
 	# Break if the tl type has changed, something is probably mismatched
 	if series.tl_type != item['tl_type']:
