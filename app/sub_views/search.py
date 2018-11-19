@@ -20,6 +20,7 @@ import app.nameTools as nt
 from sqlalchemy import or_
 from sqlalchemy import and_
 from sqlalchemy import func
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql.functions import Function
 from sqlalchemy.sql.expression import select, desc, distinct
 
@@ -111,6 +112,9 @@ def title_search(searchterm):
 
 def do_advanced_search(params, queried_columns=None):
 
+	print("Doing search....")
+
+
 	if queried_columns:
 		print("Queried columns overridden: ", queried_columns)
 		queried_columns = list(queried_columns)
@@ -123,20 +127,23 @@ def do_advanced_search(params, queried_columns=None):
 	# q = q.filter(Releases.series == Series.id)
 
 	if 'tag-category' in params:
-		q = q.join(Tags)
+
 		for text, mode in params['tag-category'].items():
+			tag_filt = aliased(Tags)
+			q = q.join(tag_filt)
 			if mode == "included":
-				q = q.filter(Tags.tag == str(text))
+				q = q.filter(tag_filt.tag == str(text))
 			elif mode == 'excluded':
-				q = q.filter(Tags.tag != str(text))
+				q = q.filter(tag_filt.tag != str(text))
 
 	if 'genre-category' in params:
-		q = q.join(Genres)
 		for text, mode in params['genre-category'].items():
+			genre_filt = aliased(Genres)
+			q = q.join(genre_filt)
 			if mode == "included":
-				q = q.filter(Genres.genre == str(text))
+				q = q.filter(genre_filt.genre == str(text))
 			elif mode == 'excluded':
-				q = q.filter(Genres.genre != str(text))
+				q = q.filter(genre_filt.genre != str(text))
 
 
 	if 'title-search-text' in params and params['title-search-text']:
