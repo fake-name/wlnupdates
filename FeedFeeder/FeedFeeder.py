@@ -229,7 +229,7 @@ def create_series(seriesname, tl_type, changeuser, author_name, alt_names = None
 
 	return new
 
-def get_create_series(input_series_name, tl_type, changeuser, author_name_list=False):
+def get_create_series(input_series_name, tl_type, changeuser, author_name_list=False, should_create_series_if_missing=True):
 	# print("get_create_series(): '%s', '%s', '%s'" % (input_series_name, tl_type, author_name))
 
 	if isinstance(author_name_list, str):
@@ -319,6 +319,9 @@ def get_create_series(input_series_name, tl_type, changeuser, author_name_list=F
 						.scalar()
 
 				return have_series_row
+
+			if not should_create_series_if_missing:
+				return None
 
 			new = create_series(seriesname=full_series_name, tl_type=tl_type, changeuser=changeuser, author_name=author_name_list, alt_names=[input_series_name])
 
@@ -444,6 +447,45 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 
 	db.session.commit()
 
+def check_delete_release(item, group, series, update_id, loose_match=False):
+	cleankeys = ['itemurl', 'postfix']
+	for cleans in cleankeys:
+		if item[cleans] and isinstance(item[cleans], str):
+			item[cleans] = item[cleans].strip()
+
+	for key in ['vol', 'chp', 'frag']:
+		if item[key] is not None:
+			item[key]  = float(item[key])
+
+	relQ = have = Releases.query
+	relQ = relQ.filter(Releases.series   == series.id)
+	relQ = relQ.filter(Releases.tlgroup  == group.id)
+
+	# "Loose matching" means just check against the URL.
+	if loose_match:
+		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
+	else:
+		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
+		relQ = relQ.filter(Releases.volume   == item['vol'])
+		relQ = relQ.filter(Releases.chapter  == item['chp'])
+		relQ = relQ.filter(Releases.fragment == item['frag'])
+		relQ = relQ.filter(Releases.postfix  == item['postfix'])
+
+	have = relQ.all()
+
+	have = list(have)
+	print("Deleting %s releases!" % len(have))
+
+	if not have:
+		return
+
+	for bad in have:
+		db.session.delete(bad)
+
+
+	app.utilities.update_latest_row(series)
+	db.session.commit()
+
 
 def insert_parsed_release(item):
 	assert 'tl_type' in item
@@ -479,6 +521,44 @@ def insert_parsed_release(item):
 		check_insert_release(item, group, series, update_id, loose_match=True)
 	else:
 		check_insert_release(item, group, series, update_id)
+
+def delete_parsed_release(item):
+	assert 'tl_type' in item
+	assert 'srcname' in item
+	assert 'series'  in item
+
+	if "nu_release" in item:
+		update_id = NU_SRC_USER_ID
+	else:
+		update_id = RSS_USER_ID
+
+
+	item = text_tools.fix_dict(item, recase=False)
+
+	if item["tl_type"] not in ['oel', 'translated']:
+		raise ValueError("Invalid TL Type '%s'! Wat?" % item["tl_type"])
+
+	group = get_create_group(item['srcname'], update_id)
+	assert group is not None
+
+	kwargs = {
+		"input_series_name" : item['series'],
+		"tl_type"           : item["tl_type"],
+		"changeuser"        : update_id,
+	}
+
+	if 'match_author' in item and item['match_author']:
+		kwargs['author_name_list'] = item['author']
+
+	series = get_create_series(should_create_series_if_missing=False, **kwargs)
+
+	if not series:
+		return
+
+	if 'loose_match' in item and item['loose_match']:
+		check_delete_release(item, group, series, update_id, loose_match=True)
+	else:
+		check_delete_release(item, group, series, update_id)
 
 def rowToDict(row):
 	return {x.name: getattr(row, x.name) for x in row.__table__.columns}
@@ -708,6 +788,9 @@ def dispatchItem(item):
 			elif item['type'] == 'parsed-release':
 				# print("Dispatching item of type: ", item['type'])
 				insert_parsed_release(item['data'])
+			elif item['type'] == 'delete-release':
+				# print("Dispatching item of type: ", item['type'])
+				delete_parsed_release(item['data'])
 			elif item['type'] == 'series-metadata':
 				# print("Dispatching item of type: ", item['type'])
 				update_series_info(item['data'])
