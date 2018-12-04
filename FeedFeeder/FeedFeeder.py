@@ -390,7 +390,7 @@ def get_series_from_any(title_list, tl_type, author_name=False):
 
 	# return have.series_row
 
-def check_insert_release(item, group, series, update_id, loose_match=False):
+def check_insert_release(item, group, series, update_id, loose_match=False, prefix_match=False):
 	cleankeys = ['itemurl', 'postfix']
 	for cleans in cleankeys:
 		if item[cleans] and isinstance(item[cleans], str):
@@ -405,7 +405,9 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 	relQ = relQ.filter(Releases.tlgroup  == group.id)
 
 	# "Loose matching" means just check against the URL.
-	if loose_match:
+	if prefix_match:
+		relQ = relQ.filter(Releases.srcurl.startswith(item['itemurl']))
+	elif loose_match:
 		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
 	else:
 		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
@@ -447,7 +449,7 @@ def check_insert_release(item, group, series, update_id, loose_match=False):
 
 	db.session.commit()
 
-def check_delete_release(item, group, series, update_id, loose_match=False):
+def check_delete_release(item, group, series, update_id, loose_match=False, prefix_match=False):
 	cleankeys = ['itemurl', 'postfix']
 	for cleans in cleankeys:
 		if item[cleans] and isinstance(item[cleans], str):
@@ -462,7 +464,9 @@ def check_delete_release(item, group, series, update_id, loose_match=False):
 	relQ = relQ.filter(Releases.tlgroup  == group.id)
 
 	# "Loose matching" means just check against the URL.
-	if loose_match:
+	if prefix_match:
+		relQ = relQ.filter(Releases.srcurl.startswith(item['itemurl']))
+	elif loose_match:
 		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
 	else:
 		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
@@ -517,10 +521,10 @@ def insert_parsed_release(item):
 		kwargs['author_name_list'] = item['author']
 	series = get_create_series(**kwargs)
 
-	if 'loose_match' in item and item['loose_match']:
-		check_insert_release(item, group, series, update_id, loose_match=True)
-	else:
-		check_insert_release(item, group, series, update_id)
+
+	prefix_match = item.get('prefix_match', False)
+	loose_match  = item.get('loose_match', False)
+	check_insert_release(item, group, series, update_id, loose_match=loose_match, prefix_match=prefix_match)
 
 def delete_parsed_release(item):
 	assert 'tl_type' in item
@@ -555,10 +559,10 @@ def delete_parsed_release(item):
 	if not series:
 		return
 
-	if 'loose_match' in item and item['loose_match']:
-		check_delete_release(item, group, series, update_id, loose_match=True)
-	else:
-		check_delete_release(item, group, series, update_id)
+	prefix_match = item.get('prefix_match', False)
+	loose_match  = item.get('loose_match', False)
+
+	check_delete_release(item, group, series, update_id, loose_match=loose_match, prefix_match=prefix_match)
 
 def rowToDict(row):
 	return {x.name: getattr(row, x.name) for x in row.__table__.columns}
