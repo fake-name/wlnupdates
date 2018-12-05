@@ -8,6 +8,7 @@ import time
 
 import sqlalchemy.exc
 from sqlalchemy import desc
+from sqlalchemy import or_
 import bleach
 import Levenshtein
 import app.utilities
@@ -404,13 +405,23 @@ def check_insert_release(item, group, series, update_id, loose_match=False, pref
 	relQ = relQ.filter(Releases.series   == series.id)
 	relQ = relQ.filter(Releases.tlgroup  == group.id)
 
+	# Allow http/https ambiguities. Sigh.
+	if item['itemurl'].startswith("http://"):
+		mainurl = item['itemurl']
+		alturl  = "https://" + item['itemurl'][7:]
+	elif item['itemurl'].startswith("https://"):
+		mainurl = item['itemurl']
+		alturl  = "http://" + item['itemurl'][8:]
+	else:
+		raise RuntimeError("Invalid url for item! Url '%s', item: '%s'" % (item['itemurl'], item))
+
 	# "Loose matching" means just check against the URL.
 	if prefix_match:
-		relQ = relQ.filter(Releases.srcurl.startswith(item['itemurl']))
+		relQ = relQ.filter(or_(Releases.srcurl.startswith(mainurl), Releases.srcurl.startswith(alturl)))
 	elif loose_match:
-		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
+		relQ = relQ.filter(or_(Releases.srcurl == mainurl, Releases.srcurl == alturl))
 	else:
-		relQ = relQ.filter(Releases.srcurl   == item['itemurl'])
+		relQ = relQ.filter(or_(Releases.srcurl == mainurl, Releases.srcurl == alturl))
 		relQ = relQ.filter(Releases.volume   == item['vol'])
 		relQ = relQ.filter(Releases.chapter  == item['chp'])
 		relQ = relQ.filter(Releases.fragment == item['frag'])
