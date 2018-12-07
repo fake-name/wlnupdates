@@ -76,9 +76,9 @@ jerberscript = Bundle(
 		"js/jquery-latest.min.js",
 		"js/bootstrap.min.js",
 		"js/jquery.contextMenu.js",
-		"js/editable.js",
 		"js/jquery.datetimepicker.js",
-		filters='slimit',
+		"js/editable.js",
+		filters='jsmin',
 		output='gen/jerberscript.js'
 	)
 
