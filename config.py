@@ -70,10 +70,4 @@ class BaseConfig(object):
 	ADMIN_USERID  = 2
 	SYSTEM_USERID = 1
 
-
-	# flask-assets
-	# ------------
-	ASSETS_DEST = 'app/static'
-
-
 	SQLALCHEMY_TRACK_MODIFICATIONS = False

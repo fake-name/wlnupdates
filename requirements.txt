@@ -108,3 +108,7 @@ Werkzeug==0.14.1
 Whoosh==2.7.4
 WTForms==2.2.1
 WTForms-JSON==0.3.3
+
+jsmin
+cssmin
+slimit

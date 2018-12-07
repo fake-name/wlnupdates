@@ -18,3 +18,4 @@ __pycache__
 /test/cookietemp.lwp
 /do-not-merge.json
 /matchset.json
+/app/static/gen

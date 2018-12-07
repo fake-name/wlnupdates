@@ -11,7 +11,8 @@ from config import basedir
 import datetime
 from babel.dates import format_datetime
 from babel.dates import get_timezone
-from flask_assets import Bundle, Environment
+from flask_assets import Bundle
+from flask_assets import Environment
 
 import urllib.parse
 
@@ -69,12 +70,43 @@ if not app.debug:
 # Forum
 # ========================================================
 
-# assets = Environment(app)
-# assets.url = '/static'
-# assets.directory = app.config['ASSETS_DEST']
+assets = Environment(app)
 
-# less = Bundle('less/style.less', filters='less', output='gen/style.css')
-# assets.register('all-css', less)
+jerberscript = Bundle(
+		"js/jquery-latest.min.js",
+		"js/bootstrap.min.js",
+		"js/jquery.contextMenu.js",
+		"js/editable.js",
+		"js/jquery.datetimepicker.js",
+		filters='slimit',
+		output='gen/jerberscript.js'
+	)
+
+assets.register('all_jerberscript', jerberscript)
+
+darkside_css = Bundle(
+	'css/bootstrap_dark.css',
+	filters='cssmin',
+	output='gen/darkside_css.css'
+	)
+
+lightside_css = Bundle(
+	'css/bootstrap_light.css',
+	filters='cssmin',
+	output='gen/lightside_css.css'
+	)
+
+css_common = Bundle(
+	'css/custom.css',
+	'css/jquery.contextMenu.css',
+	'css/jquery.datetimepicker.css',
+	filters='cssmin',
+	output='gen/stylin.css'
+	)
+
+assets.register('darkside_css',  darkside_css)
+assets.register('lightside_css', lightside_css)
+assets.register('most_css',      css_common)
 
 import forum.forum.views as forum
 app.register_blueprint(forum.bp, url_prefix='/forum')
