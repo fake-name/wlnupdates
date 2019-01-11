@@ -100,7 +100,7 @@ sqlparse==0.2.4
 Tempita==0.5.2
 tqdm==4.29.0
 tzlocal==1.5.1
-validators==0.12.3
+validators==0.12.4
 vine==1.1.4
 webassets==0.12.1
 webencodings==0.5.1
