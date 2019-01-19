@@ -101,7 +101,7 @@ Tempita==0.5.2
 tqdm==4.29.1
 tzlocal==1.5.1
 validators==0.12.4
-vine==1.1.4
+vine==1.2.0
 webassets==0.12.1
 webencodings==0.5.1
 Werkzeug==0.14.1
