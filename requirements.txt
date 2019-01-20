@@ -109,6 +109,6 @@ Whoosh==2.7.4
 WTForms==2.2.1
 WTForms-JSON==0.3.3
 
-jsmin
+jsmin==2.2.2
 cssmin
 slimit
