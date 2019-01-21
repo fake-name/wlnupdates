@@ -110,5 +110,5 @@ WTForms==2.2.1
 WTForms-JSON==0.3.3
 
 jsmin==2.2.2
-cssmin
+cssmin==0.2.0
 slimit
