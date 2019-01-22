@@ -30,7 +30,7 @@ def printHelp():
 	print("		")
 	print("	fix-escaped-quotes")
 	print("		")
-	print("	clean-tags")
+	print("	clean-singleton-tags")
 	print("		")
 	print("	delete-postfix")
 	print("		")
@@ -79,9 +79,9 @@ def parseOneArgCall(cmd):
 	elif arg == "fix-escaped-quotes":
 		with app.app_context():
 			print(api_handlers_admin.fix_escaped_quotes(None, admin_override=True))
-	elif arg == "clean-tags":
+	elif arg == "clean-singleton-tags":
 		with app.app_context():
-			print(api_handlers_admin.clean_tags(None, admin_override=True))
+			print(api_handlers_admin.clean_singleton_tags(None, admin_override=True))
 	elif arg == "delete-postfix":
 		with app.app_context():
 			util.db_organize.delete_postfix()

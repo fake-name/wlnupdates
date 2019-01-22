@@ -126,7 +126,7 @@ DISPATCH_TABLE = {
 	'flatten-series-by-url'     : (api_handlers_admin.flatten_series_by_url,            True,  False, False),
 	'delete-duplicate-releases' : (api_handlers_admin.delete_duplicate_releases,        True,  False, False),
 	'fix-escapes'               : (api_handlers_admin.fix_escaped_quotes,               True,  False, False),
-	'clean-tags'                : (api_handlers_admin.clean_tags,                       True,  False, False),
+	'clean-singleton-tags'      : (api_handlers_admin.clean_singleton_tags,             True,  False, False),
 
 	'delete-group'              : (api_handlers_admin.deleteGroup,                      True,  False, False),
 	'delete-auto-from-group'    : (api_handlers_admin.deleteGroupAutoReleases,          True,  False, False),

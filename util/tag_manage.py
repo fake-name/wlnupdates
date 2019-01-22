@@ -29,21 +29,22 @@ from sqlalchemy.orm import joinedload_all
 
 
 def replace_tag(oldname, newname):
-	print("Replacing: ", (oldname, newname))
+	print("Replacing tag '%s' with tag '%s'." % (oldname, newname))
 	to_fix = Tags.query.filter(Tags.tag == oldname).all()
 	matched_series = [tag.series_row for tag in to_fix]
 
 	for series in matched_series:
-		tag_taglist = [tag.tag for tag in series.tags]
-		changed = False
-		if oldname in tag_taglist:
-			changed = True
-			tag_taglist.remove(oldname)
-		if not newname in tag_taglist:
-			changed = True
-			tag_taglist.append(newname)
-		if changed:
-			app.series_tools.updateTags(series, tag_taglist)
+		if series:
+			tag_taglist = [tag.tag for tag in series.tags]
+			changed = False
+			if oldname in tag_taglist:
+				changed = True
+				tag_taglist.remove(oldname)
+			if not newname in tag_taglist:
+				changed = True
+				tag_taglist.append(newname)
+			if changed:
+				app.series_tools.updateTags(series, tag_taglist)
 	print("Committing changes.")
 	db.session.commit()
 
@@ -67,6 +68,11 @@ def dedup_tags():
 
 	for tagn in [tmp for tmp in tag_names if "&amp;" in tmp]:
 		fixed_ampersand = tagn.replace("&amp;", "&")
+		if fixed_ampersand in tag_names:
+			bad_pairs.append((tagn, fixed_ampersand))
+
+	for tagn in [tmp for tmp in tag_names if "_" in tmp]:
+		fixed_ampersand = tagn.replace("_", "-")
 		if fixed_ampersand in tag_names:
 			bad_pairs.append((tagn, fixed_ampersand))
 

@@ -46,9 +46,9 @@ def delete_duplicate_releases():
 def fix_escaped_quotes():
 	with app.app_context():
 		api_handlers_admin.fix_escaped_quotes(None, admin_override=True)
-def clean_tags():
+def clean_singleton_tags():
 	with app.app_context():
-		api_handlers_admin.clean_tags(None, admin_override=True)
+		api_handlers_admin.clean_singleton_tags(None, admin_override=True)
 def delete_bad_tags():
 	with app.app_context():
 		api_handlers_admin.delete_bad_tags(None, admin_override=True)
@@ -95,7 +95,7 @@ tasks = [
 	(consolidate_rrl_items,        "consolidate_rrl_items",        hours( 1)),
 	(flatten_series_by_url,        "flatten_series_by_url",        hours( 1)),
 	(fix_escaped_quotes,           "fix_escaped_quotes",           hours( 1)),
-	(clean_tags,                   "clean_tags",                   hours( 1)),
+	(clean_singleton_tags,         "clean_singleton_tags",         hours( 1)),
 	(delete_bad_tags,              "delete_bad_tags",              hours( 1)),
 	(delete_duplicate_releases,    "delete_duplicate_releases",    hours( 2)),
 	(clean_garbage_releases,       "clean_garbage_releases",       hours( 1)),
@@ -131,7 +131,7 @@ def go_all():
 	flatten_series_by_url()
 	delete_duplicate_releases()
 	fix_escaped_quotes()
-	clean_tags()
+	clean_singleton_tags()
 	trim_spaces()
 	update_materialized_view()
 	update_to_merge_series_list()
@@ -150,7 +150,10 @@ def wat():
 	# update_to_merge_series_list()
 	# update_to_merge_groups_list()
 	# update_to_merge_groups_list_releases_only()
-	flatten_history_table()
+
+	print("Doing tag dedupe")
+	deduplicate_tags()
+	# flatten_history_table()
 
 def flatten_dedup_oel():
 

@@ -19,7 +19,7 @@
 		</div>
 		<div class="well well-sm">
 			Delete tags that only occur once across the entire database.
-			<button id="clean-tags-btn">Go</button>
+			<button id="clean-singleton-tags-btn">Go</button>
 		</div>
 	</div>
 
@@ -81,9 +81,9 @@
 				}
 				do_post(post_data)
 			});
-			$('#clean-tags-btn').click(function() {
+			$('#clean-singleton-tags-btn').click(function() {
 				var post_data = {
-					'mode' : 'clean-tags'
+					'mode' : 'clean-singleton-tags'
 				}
 				do_post(post_data)
 			});

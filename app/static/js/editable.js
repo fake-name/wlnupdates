@@ -5,26 +5,27 @@
 
 function singleEditable(spans, contentDiv, containerId)
 {
-	var showNote = spans.first().hasClass("description")
-	var content = spans.first().html()
+	var showNote = spans.first().hasClass("description");
+	var content = spans.first().html();
 	// Clean up the markup a little bit
 	// these changes will be reversed by the markdown
 	// processing.
 	content = content.replace(/(<br>)/g, "\n");
 	content = content.replace(/(<p>)/g, "");
 	content = content.replace(/(<\/p>)/g, "\n\n");
-	if (content == 'N/A') content = ""
-	var contentArr = []
+	if (content == 'N/A')
+		content = "";
+	var contentArr = [];
 	if (showNote)
 	{
 		contentArr.push("<span class='light-grey'><font size=-2.5>Text will be processed with <a href='https://help.github.com/articles/markdown-basics/'>markdown</a>.");
-		contentArr.push("<br>Some HTML tags (like &lt;a&gt;) are also allowed.")
-		contentArr.push("<br>Please don't make me block all markup.</font></span>")
+		contentArr.push("<br>Some HTML tags (like &lt;a&gt;) are also allowed.");
+		contentArr.push("<br>Please don't make me block all markup.</font></span>");
 	}
-	contentArr.push("<textarea name='input-" + containerId + "' rows='2' id='singleitem'>"+content.trim()+"\n</textarea>")
-	contentArr.push("<script>$('textarea').autogrow({onInitialize:true});</script>")
+	contentArr.push("<textarea name='input-" + containerId + "' rows='2' id='singleitem'>"+content.trim()+"\n</textarea>");
+	contentArr.push("<script>$('textarea').autogrow({onInitialize:true});</script>");
 
-	contentDiv.html(contentArr.join("\n"))
+	contentDiv.html(contentArr.join("\n"));
 }
 
 function dropboxEditable(spans, contentDiv, containerId)
@@ -32,9 +33,9 @@ function dropboxEditable(spans, contentDiv, containerId)
 	var text = contentDiv.find('.dropitem-text').first();
 	var edit = contentDiv.find('.dropitem-box').first();
 
-	console.log(spans)
-	console.log(text)
-	console.log(edit)
+	console.log(spans);
+	console.log(text);
+	console.log(edit);
 	text.hide();
 	edit.show();
 	// contentDiv.html()
@@ -42,34 +43,36 @@ function dropboxEditable(spans, contentDiv, containerId)
 
 function multiEditable(spans, contentDiv, containerId)
 {
-	var content = ""
+	var content = "";
+
 	spans.each(function(){
-		content += $(this).find("a").first().text() + "\n"
-	})
-	// console.log(content)
-	if (content == 'N/A') content = ""
+		content += $(this).find("a").first().text() + "\n";
+	});
+
+	if (content == 'N/A')
+		content = "";
 	var contentArr = [
 		"<p>One entry per line, please.</p>",
 		"<textarea name='input-" + containerId + "' rows='2' id='multiitem'>"+content+"</textarea>",
 		"<script>$('textarea').autogrow({onInitialize:true});</script>"
-	]
-	contentDiv.html(contentArr.join("\n"))
+	];
+	contentDiv.html(contentArr.join("\n"));
 }
 
 function listEditable(spans, contentDiv, containerId)
 {
-	var content = ""
+	var content = "";
 	spans.each(function(){
 		content += $(this).text() + "\n"
-	})
-	// console.log(content)
-	if (content == 'N/A') content = ""
+	});
+	if (content == 'N/A')
+		content = "";
 	var contentArr = [
 		"<p>One entry per line, please.</p>",
 		"<textarea name='input-" + containerId + "' rows='2' id='multiitem'>"+content+"</textarea>",
 		"<script>$('textarea').autogrow({onInitialize:true});</script>"
-	]
-	contentDiv.html(contentArr.join("\n"))
+	];
+	contentDiv.html(contentArr.join("\n"));
 }
 
 function dateEditable(spans, contentDiv, containerId)
@@ -103,8 +106,8 @@ function dateEditable(spans, contentDiv, containerId)
 			"<script>",
 			"	$('#datetimepicker').datetimepicker({value:\"" + content + "\", timepicker:false,format:'Y-m-d'});",
 			"</script>",
-	]
-	contentDiv.html(contentArr.join("\n"))
+	];
+	contentDiv.html(contentArr.join("\n"));
 }
 
 
@@ -161,8 +164,8 @@ function toggle_watch(containerId, mangaId, callback)
 	callback = typeof callback !== 'undefined' ?  callback : watchCalback;
 
 	var container = $(containerId);
-	console.log("Container: ", $(containerId))
-	console.log("Contents: ", container.text())
+	console.log("Container: ", $(containerId));
+	console.log("Contents: ", container.text());
 
 	var watch = false;
 	if (container.text().indexOf('No') > -1 ||  (container.text().indexOf('Add') > -1))
@@ -174,14 +177,14 @@ function toggle_watch(containerId, mangaId, callback)
 	var data = [];
 
 	if (typeof mangaId == 'undefined')
-		mangaId = $('meta[name=manga-id]').attr('content')
+		mangaId = $('meta[name=manga-id]').attr('content');
 
 	var params = {
 		"mode"      : "set-watch",
 		"item-id"   : mangaId,
 		"watch"     : watch,
 		"list"      : "watched"
-	}
+	};
 
 	$.ajax({
 		url : "/api",
@@ -209,7 +212,7 @@ function edit_watch(containerId, mangaId, callback)
 	var data = [];
 
 	if (typeof mangaId == 'undefined')
-		mangaId = $('meta[name=manga-id]').attr('content')
+		mangaId = $('meta[name=manga-id]').attr('content');
 
 	var watch_val = $(containerId+" option:selected").val();
 
@@ -252,16 +255,16 @@ function edit_watch(containerId, mangaId, callback)
 function new_watch_as(srcname)
 {
 	var watch_val = $("#watch-list-select option:selected").val();
-	var mangaId = $('meta[name=manga-id]').attr('content')
-	var selected = $('input[name=' + srcname + ']:checked')
+	var mangaId = $('meta[name=manga-id]').attr('content');
+	var selected = $('input[name=' + srcname + ']:checked');
 
-	console.log("wat?")
-	console.log("srcname", srcname)
-	console.log("Buh: ", watch_val)
-	console.log("Buh: ", mangaId)
-	console.log("Buh: ", selected)
-	console.log("Buh: ", selected.data())
-	console.log("Buh: ", selected.data()['name'])
+	console.log("wat?");
+	console.log("srcname", srcname);
+	console.log("Buh: ", watch_val);
+	console.log("Buh: ", mangaId);
+	console.log("Buh: ", selected);
+	console.log("Buh: ", selected.data());
+	console.log("Buh: ", selected.data()['name']);
 
 	var watch_as = selected.data()['name'];
 
@@ -310,7 +313,7 @@ function setList(mangaId, container, watch_val, callback)
 		"item-id"   : mangaId,
 		"watch"     : watch,
 		"list"      : watch_val
-	}
+	};
 
 	console.log(params);
 
@@ -326,15 +329,15 @@ function setList(mangaId, container, watch_val, callback)
 
 function watchCalback(result)
 {
-	console.log(result)
-	console.log("Watch callback!")
+	console.log(result);
+	console.log("Watch callback!");
 	if (!result.hasOwnProperty("error"))
 	{
-		console.log("No error result?")
+		console.log("No error result?");
 	}
 	if (!result.hasOwnProperty("watch_str"))
 	{
-		console.log("No watch_str result?")
+		console.log("No watch_str result?");
 	}
 
 	if (result['error'])
@@ -350,8 +353,8 @@ function watchCalback(result)
 		// console.log("Message:", result['message'])
 		// console.log("watch_str:", result['watch_str'])
 		var container = $('#watch-link').first();
-		container.text(result['watch_str'])
-		location.reload()
+		container.text(result['watch_str']);
+		location.reload();
 	}
 }
 
@@ -423,10 +426,8 @@ function saveEdits(containerId)
 	console.log("Data:", data)
 
 
-	var mangaId  = $('meta[name=manga-id]').attr('content')
-	var seriesId = $('meta[name=group-id]').attr('content')
-	console.log(mangaId)
-	console.log(seriesId)
+	var mangaId  = $('meta[name=manga-id]').attr('content');
+	var seriesId = $('meta[name=group-id]').attr('content');
 
 	var itemId = -1;
 	var mode = "error";
@@ -483,7 +484,7 @@ function saveCallback(containerId)
 		{
 			bootbox.alert("Error on update!<br/><br/>"+result["message"], function()
 				{
-					location.reload()
+					location.reload();
 				}
 			)
 		}
@@ -491,7 +492,6 @@ function saveCallback(containerId)
 		{
 			location.reload();
 		}
-		console.log(result)
 
 	}
 }
@@ -514,9 +514,8 @@ function sendChange()
 	var vol  = $("#vol").val();
 	var chp  = $("#chap").val();
 	var frag = $("#frag").val();
-	console.log("vol, chp, frag", vol, chp, frag)
 
-	var mangaId  = $('meta[name=manga-id]').attr('content')
+	var mangaId  = $('meta[name=manga-id]').attr('content');
 	var params = {
 		'mode'      : 'read-update',
 		'item-id'   : mangaId,
@@ -547,7 +546,7 @@ function readCallback(result)
 	{
 		bootbox.alert("Error on update!<br/><br/>"+result["message"], function()
 			{
-				location.reload()
+				location.reload();
 			}
 		)
 	}
@@ -558,12 +557,12 @@ function readCallback(result)
 }
 
 
-var csrftoken = $('meta[name=csrf-token]').attr('content')
+var csrftoken = $('meta[name=csrf-token]').attr('content');
 
 $.ajaxSetup({
 	beforeSend: function(xhr, settings) {
 		if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-			xhr.setRequestHeader("X-CSRFToken", csrftoken)
+			xhr.setRequestHeader("X-CSRFToken", csrftoken);
 		}
 	}
 })
@@ -579,20 +578,19 @@ $.ajaxSetup({
 
 function updateCallback(result)
 {
-	console.log("Callback!")
 	if (!result.hasOwnProperty("error"))
 	{
-		console.log("No error result?")
+		console.log("No error result?");
 	}
 	if (result['error'])
 	{
-		alert("Error on update!\n\n"+result["message"])
+		alert("Error on update!\n\n"+result["message"]);
 	}
 	else
 	{
 		location.reload();
 	}
-	console.log(result)
+	console.log(result);
 
 }
 
@@ -609,13 +607,13 @@ function delete_release(key, opt)
 
 
 	console.log("opt:");
-	console.log(opt)
+	console.log(opt);
 
 	console.log("Params:");
-	console.log(params)
+	console.log(params);
 
 	console.log("itemdat:");
-	console.log(itemdat)
+	console.log(itemdat);
 
 
 	if (confirm('Are you sure you want to delete that release?'))
@@ -641,7 +639,7 @@ function toggle_count_release(key, opt)
 		"op"        : "toggle-counted",
 		"id"        : itemdat['id'],
 		"count"     : itemdat['counted'],
-	}
+	};
 
 	$.ajax({
 		url : "/api",
@@ -661,29 +659,29 @@ function get_callback_for_handle_release_edited(itemdat)
 
 		var container = $('.release-edit');
 
-		var container_volin  = $('input#volume')
-		var container_chpin  = $('input#chapter')
-		var container_frgin  = $('input#part')
-		var container_pfxin  = $('input#postfix')
-		var container_urlin  = $('input#release-url')
-		var container_datein = $('input#datetimepicker')
-		var container_counts = $('input#should-count')
+		var container_volin  = $('input#volume');
+		var container_chpin  = $('input#chapter');
+		var container_frgin  = $('input#part');
+		var container_pfxin  = $('input#postfix');
+		var container_urlin  = $('input#release-url');
+		var container_datein = $('input#datetimepicker');
+		var container_counts = $('input#should-count');
 
-		var old_volin  = itemdat['volume']   != "" ? parseInt(itemdat['volume'])   : ""
-		var old_chpin  = itemdat['chapter']  != "" ? parseInt(itemdat['chapter'])  : ""
-		var old_frgin  = itemdat['fragment'] != "" ? parseInt(itemdat['fragment']) : ""
-		var old_pfxin  = itemdat['postfix']  ? itemdat['postfix'] : ""
-		var old_urlin  = itemdat['url']
-		var old_datein = itemdat['addedOn']
-		var old_counts = itemdat['counted'] == "True" ? true : false
+		var old_volin  = itemdat['volume']   != "" ? parseInt(itemdat['volume'])   : "";
+		var old_chpin  = itemdat['chapter']  != "" ? parseInt(itemdat['chapter'])  : "";
+		var old_frgin  = itemdat['fragment'] != "" ? parseInt(itemdat['fragment']) : "";
+		var old_pfxin  = itemdat['postfix']  ? itemdat['postfix'] : "";
+		var old_urlin  = itemdat['url'];
+		var old_datein = itemdat['addedOn'];
+		var old_counts = itemdat['counted'] == "True" ? true : false;
 
-		var new_volin  = container_volin.val()
-		var new_chpin  = container_chpin.val()
-		var new_frgin  = container_frgin.val()
-		var new_pfxin  = container_pfxin.val()
-		var new_urlin  = container_urlin.val()
-		var new_datein = container_datein.val()
-		var new_counts = container_counts.prop('checked')
+		var new_volin  = container_volin.val();
+		var new_chpin  = container_chpin.val();
+		var new_frgin  = container_frgin.val();
+		var new_pfxin  = container_pfxin.val();
+		var new_urlin  = container_urlin.val();
+		var new_datein = container_datein.val();
+		var new_counts = container_counts.prop('checked');
 
 		if (old_volin  != new_volin  ||
 			old_chpin  != new_chpin  ||
@@ -719,8 +717,8 @@ function get_callback_for_handle_release_edited(itemdat)
 				"release-id" : release_id,
 				"new-info"   : new_release_update_info,
 				"old-info"   : old_release_update_info,
-			}
-			console.log(params)
+			};
+			console.log(params);
 
 			// console.log([old_volin  == new_volin,  old_volin,  new_volin ]);
 			// console.log([old_chpin  == new_chpin,  old_chpin,  new_chpin ]);
@@ -730,7 +728,7 @@ function get_callback_for_handle_release_edited(itemdat)
 			// console.log([old_datein == new_datein, old_datein, new_datein]);
 			// console.log([old_counts == new_counts, old_counts, new_counts]);
 
-			console.log("Need to do update")
+			console.log("Need to do update");
 
 			$.ajax({
 				url : "/api",
@@ -752,14 +750,14 @@ function edit_release_info(key, opt)
 {
 	var itemdat = opt.$trigger.parent().data()
 
-	var vol = itemdat['volume']   != "" ? parseInt(itemdat['volume'])   : ""
-	var chp = itemdat['chapter']  != "" ? parseInt(itemdat['chapter'])  : ""
-	var frg = itemdat['fragment'] != "" ? parseInt(itemdat['fragment']) : ""
-	var pfx = itemdat['postfix']  ? itemdat['postfix'] : ""
-	var itmurl = itemdat['url']
-	var added = itemdat['addedOn']
+	var vol = itemdat['volume']   != "" ? parseInt(itemdat['volume'])   : "";
+	var chp = itemdat['chapter']  != "" ? parseInt(itemdat['chapter'])  : "";
+	var frg = itemdat['fragment'] != "" ? parseInt(itemdat['fragment']) : "";
+	var pfx = itemdat['postfix']  ? itemdat['postfix'] : "";
+	var itmurl = itemdat['url'];
+	var added = itemdat['addedOn'];
 
-	var chkstr = itemdat['counted'] == "True" ? "checked" : ""
+	var chkstr = itemdat['counted'] == "True" ? "checked" : "";
 
 	// I should probably feed bad about this inline HTML?
 
@@ -847,12 +845,12 @@ function attach_context_menu(admin)
 				items['sep1']   =  "---------";
 			}
 
-			var dat = trigger.parent().data()
-			var addedBy  = dat.addedBy
-			var addedOn  = dat.addedOn
-			var addedAgo = dat.addedAgo
-			var addId    = dat.addedById
-			var counted  = dat.counted
+			var dat = trigger.parent().data();
+			var addedBy  = dat.addedBy;
+			var addedOn  = dat.addedOn;
+			var addedAgo = dat.addedAgo;
+			var addId    = dat.addedById;
+			var counted  = dat.counted;
 
 			// if (addId == current_user_id || admin)
 			// {

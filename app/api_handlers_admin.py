@@ -674,7 +674,7 @@ def fix_escaped_quotes(dummy_data, admin_override=False):
 	return getResponse("%s main titles, %s alt titles, %s descriptions required fixing.%s" % (bad_title, bad_alt_title, bad_desc, conflicts), error=False)
 
 
-def clean_tags(dummy_data, admin_override=False):
+def clean_singleton_tags(dummy_data, admin_override=False):
 	if admin_override is False and (not current_user.is_mod()):
 		return getResponse(error=True, message="You have to have moderator privileges to do that!")
 	bad_tags = 0

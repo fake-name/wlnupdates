@@ -74,7 +74,7 @@ def updateTags(series, tags, deleteother=True, allow_new=True):
 	havetags = Tags.query.filter((Tags.series==series.id)).all()
 	havetags = {item.tag.lower() : item for item in havetags}
 
-	tags = [tag.lower().strip().replace(" ", "-") for tag in tags]
+	tags = [tag.lower().strip().replace(" ", "-").replace("_", "-") for tag in tags]
 	tags = [bleach.clean(item, strip=True) for item in tags]
 	tags = [tag for tag in tags if tag.strip()]
 

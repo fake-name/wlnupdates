@@ -6,8 +6,8 @@
 
 # Anyways, build a venv that works.
 
-python3 -m venv --without-pip flask
+python3 -m venv --without-pip venv
 wget https://bootstrap.pypa.io/get-pip.py
-./flask/bin/python3 get-pip.py
+./venv/bin/python3 get-pip.py
 rm get-pip
-./flask/bin/pip install -r requirements.txt
+./venv/bin/pip install -r requirements.txt
