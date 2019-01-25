@@ -69,7 +69,7 @@ passlib==1.7.1
 pbr==5.1.1
 pstat==0.0.1
 psutil==5.5.0
-psycopg2==2.7.6.1
+psycopg2==2.7.7
 py==1.7.0
 pycparser==2.19
 Pygments==2.3.1
