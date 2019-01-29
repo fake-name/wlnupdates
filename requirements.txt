@@ -90,7 +90,7 @@ requests==2.21.0
 simplejson==3.16.0
 six==1.12.0
 speaklater==1.3
-SQLAlchemy==1.2.16
+SQLAlchemy==1.2.17
 sqlalchemy-citext==1.3.post0
 sqlalchemy-gevent==0.2
 sqlalchemy-migrate==0.12.0
