@@ -174,7 +174,6 @@ def dispatchApiCall(reqJson):
 			ret = dispatch_method(reqJson)
 
 		else:
-			print("Current user:", current_user.id, current_user.nickname)
 			ret = dispatch_method(reqJson)
 
 	except AssertionError as e:
