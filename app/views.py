@@ -1,6 +1,7 @@
 from flask import render_template
 from flask import flash
 from flask import redirect
+from flask import session as flask_session
 from flask import url_for
 from flask import request
 from flask import g
@@ -101,6 +102,16 @@ def after_request(response):
 				 query.context))
 
 	db.session.rollback()
+
+	url = request.url
+	if ('.css' in url or '.js' in url or '.svg' in url or '.png' in url or
+		'.gif' in url) :
+		# Flasks adds to the header `Vary: cookie` meaning the client should
+		# re-download the asset if the cookie changed.  If you look at the Flask
+		# source code that comes next after the below return, it will add
+		# `Vary: cookie` if and only if session.accessed is true.
+		flask_session.accessed = False
+
 	return response
 
 

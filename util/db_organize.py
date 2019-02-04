@@ -340,28 +340,32 @@ def release_merger_series(interactive=False, builder=None):
 			sids = list(set([tmp['series'] for tmp in val]))
 			if len(sids) > 1:
 				for sid_1, sid_2 in pairwise(sids):
-					with app.app_context():
+					print("Match values: ", ((sid_1, val[sid_1]), (sid_2, val[sid_2])))
+
+					# If we have at least 5 netlocs in common
+					if val[sid_1] > 5 and val[sid_2] > 5:
+						with app.app_context():
 
 
-						s1 = models.Series.query.filter(
-							models.Series.id==sid_1
-							).one()
-						s2 = models.Series.query.filter(
-							models.Series.id==sid_2
-							).one()
+							s1 = models.Series.query.filter(
+								models.Series.id==sid_1
+								).one()
+							s2 = models.Series.query.filter(
+								models.Series.id==sid_2
+								).one()
 
-						print("Merge request for %s -> %s" % (sid_1, sid_2))
-						print("	%s " % (s1.title, ))
-						print("	%s " % (s2.title, ))
+							print("Merge request for %s -> %s" % (sid_1, sid_2))
+							print("	%s " % (s1.title, ))
+							print("	%s " % (s2.title, ))
 
-						merge_query_series(
-							id1      = sid_1,
-							id2      = sid_2,
-							n1       = s1.title,
-							n2       = s2.title,
-							distance = 1,
-							callback = callback
-							)
+							merge_query_series(
+								id1      = sid_1,
+								id2      = sid_2,
+								n1       = s1.title,
+								n2       = s2.title,
+								distance = 1,
+								callback = callback
+								)
 
 def levenshein_merger_series(interactive=True, builder=None):
 
@@ -543,6 +547,8 @@ def release_merger_groups(interactive=True, builder=None):
 			tlgroups.add(item['tlgroup'])
 
 	print("%s unique release netlocs, %s groups." % (len(relmap), len(tlgroups)))
+
+	# relmap is a dict[netloc][group] = count_of_releases_at_netloc
 
 	for key, val in relmap.items():
 		val = {key : item_cnt for key, item_cnt in val.items() if (item_cnt > 100 and key)}

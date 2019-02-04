@@ -120,8 +120,8 @@ def run_scheduler():
 def go():
 	# delete_bad_tags()
 	# update_materialized_view()
-	# update_to_merge_groups_list()
-	# update_to_merge_series_list()
+	update_to_merge_groups_list()
+	update_to_merge_series_list()
 	deduplicate_genres()
 
 def go_all():
@@ -164,10 +164,10 @@ if __name__ == "__main__":
 	import logSetup
 	import sys
 	logSetup.initLogging()
-	wat()
+	# wat()
 
 
-	# if "all" in sys.argv:
-	# 	go_all()
-	# else:
-	# 	go()
+	if "all" in sys.argv:
+		go_all()
+	else:
+		go()
