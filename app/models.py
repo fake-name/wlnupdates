@@ -927,7 +927,7 @@ class Users(db.Model):
 	def __init__(self, nickname, email, password, verified):
 		self.nickname  = nickname
 		self.email     = email
-		self.password  = generate_password_hash(password)
+		self.password  = generate_password_hash(password.encode("UTF-8"))
 		self.verified  = verified
 
 class HttpRequestLog(db.Model):

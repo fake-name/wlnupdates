@@ -44,7 +44,7 @@ class LoginForm(FlaskForm):
 			print("Old: ", old, "new: ", user.password)
 			db.session.commit()
 
-		if not check_password_hash(user.password, form.password.data):
+		if not check_password_hash(user.password.encode("UTF-8"), form.password.data.encode("UTF-8")):
 			loginError()
 
 class SignupForm(FlaskForm):
