@@ -234,7 +234,7 @@ def addNewItem(add_type, sid=None):
 	else:
 		form = form_class()
 
-	print("Trying to validate")
+	print("Trying to validate:", form, request.form)
 	# print(form.validate_on_submit())
 	if form.validate_on_submit():
 		print("Post request. Validating")

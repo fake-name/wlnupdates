@@ -122,7 +122,7 @@ def shutdown_session(exception=None):
 
 @app.errorhandler(404)
 def not_found_error(dummy_error):
-	print("404. Wat?")
+	print("404 for '%s'. Wat?" % (request.path, ))
 	return render_template('404.html'), 404
 
 
@@ -271,6 +271,7 @@ def login():
 		return redirect(url_for('index'))
 	form = LoginForm()
 	if form.validate_on_submit():
+		print("Login attempt %s for form %s" & (request.form.get("username", ""), form))
 		user = Users.query.filter_by(nickname=form.username.data).first()
 		if user.verified:
 			login_user(user, remember=bool(form.remember_me.data))
