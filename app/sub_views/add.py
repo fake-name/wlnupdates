@@ -4,6 +4,7 @@ import util.text_tools as text_tools
 from flask import render_template
 from flask import flash
 from flask import redirect
+from flask import request
 from flask import url_for
 from flask import g
 from flask_babel import gettext
