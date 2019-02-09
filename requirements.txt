@@ -84,7 +84,7 @@ python3-openid==3.1.0
 pytz==2018.9
 rabbitpy==1.0.0
 redis==3.1.0
-regex==2019.01.24
+regex==2019.02.07
 requests==2.21.0
 simplejson==3.16.0
 six==1.12.0
