@@ -96,7 +96,7 @@ SQLAlchemy-Searchable==1.0.3
 SQLAlchemy-Utils==0.33.11
 sqlparse==0.2.4
 Tempita==0.5.2
-tqdm==4.30.0
+tqdm==4.31.0
 tzlocal==1.5.1
 validators==0.12.4
 vine==1.2.0
