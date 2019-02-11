@@ -1,0 +1,7 @@
+
+# Idiot robots are spamming forms. Goddammit.
+
+User-agent: *
+Disallow: /signup
+Disallow: /login
+Disallow: /add/

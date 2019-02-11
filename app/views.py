@@ -122,7 +122,7 @@ def shutdown_session(exception=None):
 
 @app.errorhandler(404)
 def not_found_error(dummy_error):
-	print("404 for '%s'. Wat?" % (request.path, ))
+	print("404 for '%s'. Wat?" % (request.path, request.headers.get('User-Agent')))
 	return render_template('404.html'), 404
 
 
@@ -226,6 +226,13 @@ def renderCoverImage(cid):
 def sendFavIcon():
 	return send_file(
 		"./static/favicon.ico",
+		conditional=True
+		)
+
+@app.route('/robots.txt')
+def sendFavIcon():
+	return send_file(
+		"./static/robots.txt",
 		conditional=True
 		)
 
