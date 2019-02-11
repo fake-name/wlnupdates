@@ -230,7 +230,7 @@ def sendFavIcon():
 		)
 
 @app.route('/robots.txt')
-def sendFavIcon():
+def sendRobots():
 	return send_file(
 		"./static/robots.txt",
 		conditional=True
