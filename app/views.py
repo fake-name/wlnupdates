@@ -293,6 +293,13 @@ def signup():
 		return redirect(url_for('index'))
 	form = SignupForm()
 	if form.validate_on_submit():
+
+		have = Users.query.filter(Users.email == form.email.data).scalar()
+
+		if have:
+			return render_template('email-in-use.html', email=form.email.data)
+
+
 		user = Users(
 			nickname  = form.username.data,
 			password  = form.password.data,
