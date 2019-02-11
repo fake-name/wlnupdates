@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source flask/bin/activate
+. ./flask/bin/activate
 
 
 while true;
