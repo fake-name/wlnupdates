@@ -122,7 +122,7 @@ def shutdown_session(exception=None):
 
 @app.errorhandler(404)
 def not_found_error(dummy_error):
-	print("404 for '%s'. Wat?" % (request.path, request.headers.get('User-Agent')))
+	print("404 for '%s' (%s). Wat?" % (request.path, request.headers.get('User-Agent')))
 	return render_template('404.html'), 404
 
 
