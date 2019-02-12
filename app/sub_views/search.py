@@ -274,6 +274,9 @@ def execute_search():
 	common_searches = 25
 
 	if 'title' in searchd:
+		if not searchd['title'].strip():
+			return render_template('not-implemented-yet.html', message='You need to enter a serarch-term!.')
+
 		data, searchtermclean = title_search(searchd['title'])
 		if not searchtermclean:
 			return render_template('not-implemented-yet.html', message='No search term entered (or search term collapsed down to nothing).')
