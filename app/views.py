@@ -278,7 +278,7 @@ def login():
 		return redirect(url_for('index'))
 	form = LoginForm()
 	if form.validate_on_submit():
-		print("Login attempt %s for form %s" & (request.form.get("username", ""), form))
+		print("Login attempt %s for form %s" % (request.form.get("username", ""), form))
 		user = Users.query.filter_by(nickname=form.username.data).first()
 		if user.verified:
 			login_user(user, remember=bool(form.remember_me.data))

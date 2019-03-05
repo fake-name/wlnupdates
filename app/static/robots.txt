@@ -5,3 +5,6 @@ User-agent: *
 Disallow: /signup
 Disallow: /login
 Disallow: /add/
+Disallow: /series-id/edit-covers
+Disallow: /submit
+Disallow: /search
