@@ -387,6 +387,8 @@ def get_rating(sid):
 			db.session.delete(row)
 		db.session.commit()
 		user_rtng = None
+	else:
+		user_rtng = None
 
 	# Funky tuple unpacking
 	avg,   = db.session.query(Series.rating).filter(Series.id == sid).one()
