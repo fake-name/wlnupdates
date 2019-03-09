@@ -375,7 +375,18 @@ def get_rating(sid):
 		.filter(Ratings.series_id == sid) \
 		.filter(Ratings.user_id   == uid) \
 		.filter(Ratings.source_ip == ip ) \
-		.scalar()
+		.all()
+
+	if len(user_rtng) == 1:
+		user_rtng = user_rtng[0]
+
+	elif len(user_rtng) >  1:
+		# If we have more then one rating (how did that happen?)
+		# just delete everything
+		for row in user_rtng:
+			db.session.delete(row)
+		db.session.commit()
+		user_rtng = None
 
 	# Funky tuple unpacking
 	avg,   = db.session.query(Series.rating).filter(Series.id == sid).one()
