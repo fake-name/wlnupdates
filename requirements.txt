@@ -53,7 +53,7 @@ guess-language-spirit==0.5.3
 gunicorn==19.9.0
 html5lib==1.0.1
 itsdangerous==1.1.0
-Jinja2==2.10
+Jinja2==2.10.1
 Mako==1.0.8
 Markdown==3.0.1
 MarkupSafe==1.1.1
