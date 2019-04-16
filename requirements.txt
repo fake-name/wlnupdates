@@ -1,5 +1,5 @@
 git+https://github.com/fake-name/AmqpConnector.git
-alembic==1.0.8
+alembic==1.0.9
 amqp==2.4.2
 APScheduler==3.6.0
 awesome-slugify==1.6.5
