@@ -55,7 +55,7 @@ html5lib==1.0.1
 itsdangerous==1.1.0
 Jinja2==2.10.1
 Mako==1.0.9
-Markdown==3.0.1
+Markdown==3.1
 MarkupSafe==1.1.1
 mistune==0.8.4
 msgpack-python==0.5.6
