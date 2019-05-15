@@ -166,8 +166,9 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 	# wat()
 
+	flatten_dedup_oel()
 
-	if "all" in sys.argv:
-		go_all()
-	else:
-		go()
+	# if "all" in sys.argv:
+	# 	go_all()
+	# else:
+	# 	go()
