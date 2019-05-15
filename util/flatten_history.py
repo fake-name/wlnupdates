@@ -173,7 +173,7 @@ def consolidate_seriesid(seriesid, purge_dup_oel_authors=False):
 			deletes += 1
 			if fixes > 50:
 				fixes = 0
-				db.session.flush()
+				db.session.commit()
 
 		# print("Diff", diff)
 
