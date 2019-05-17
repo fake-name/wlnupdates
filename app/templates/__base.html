@@ -161,7 +161,7 @@
 		set_theme(theme);
 
 		console.log("Attaching context menus.")
-		attach_context_menu({{ "true" if g.user.is_mod() else "false" }});
+		attach_context_menu({{ "true" if g.user.is_authenticated() else "false" }});
 
 	</script>
 

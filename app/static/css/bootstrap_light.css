@@ -994,6 +994,9 @@ th {
 .glyphicon-option-vertical:before {
   content: "\e235";
 }
+.glyphicon-option-vertical-open:before {
+  content: "\e24a";
+}
 .glyphicon-menu-hamburger:before {
   content: "\e236";
 }

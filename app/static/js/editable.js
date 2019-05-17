@@ -833,43 +833,60 @@ function edit_release_info(key, opt)
 
 function attach_context_menu(admin)
 {
-	$.contextMenu({
-		selector: "#release-entry-cell",
-		build: function(trigger, e) {
 
-			var items = new Object();
-			if (admin)
-			{
-				items['del']    = {name:'Delete Release',      icon:'delete', callback:delete_release };
-				items['toggle'] = {name:'Toggle Countability', icon:'quit',     callback:toggle_count_release };
-				items['sep1']   =  "---------";
-			}
 
-			var dat = trigger.parent().data();
-			var addedBy  = dat.addedBy;
-			var addedOn  = dat.addedOn;
-			var addedAgo = dat.addedAgo;
-			var addId    = dat.addedById;
-			var counted  = dat.counted;
+	function context_manu_handler(trigger, e)
+	{
 
-			// if (addId == current_user_id || admin)
-			// {
-				items['edit'] = {name:'Edit Release', icon: "edit",     callback:edit_release_info };
-				items['sep2']   =  "---------";
-			// }
-
-			console.log("Items: ", dat);
-
-			items["addedby"]  = {name: "Added by: "+addedBy, disabled:true};
-			items["addedon"]  = {name: "Added on: "+addedOn, disabled:true};
-			items["addedago"] = {name: "(Ago: "    +addedAgo+")", disabled:true};
-			items["counted"]  = {name: "Counted: " +counted, disabled:true};
-
-			return {
-				'items' : items
-			};
+		var items = new Object();
+		if (admin)
+		{
+			items['del']    = {name:'Delete Release',      icon:'delete', callback:delete_release };
+			items['toggle'] = {name:'Toggle Countability', icon:'quit',     callback:toggle_count_release };
+			items['sep1']   =  "---------";
 		}
-	});
+
+		var dat = trigger.parent().data();
+		var addedBy  = dat.addedBy;
+		var addedOn  = dat.addedOn;
+		var addedAgo = dat.addedAgo;
+		var addId    = dat.addedById;
+		var counted  = dat.counted ? "Yes" : "No";
+
+		// if (addId == current_user_id || admin)
+		// {
+			items['edit'] = {name:'Edit Release', icon: "edit",     callback:edit_release_info };
+			items['sep2']   =  "---------";
+		// }
+
+		console.log("Items: ", dat);
+
+
+		items["addedby"]  = {name: "Added by: "+addedBy, disabled:true};
+		items["addedon"]  = {name: "Added on: "+addedOn, disabled:true};
+		items["addedago"] = {name: "(Ago: "    +addedAgo+")", disabled:true};
+		items["counted"]  = {name: "Counted: " +counted, disabled:true};
+
+		return {
+			'items' : items
+		};
+	}
+
+
+	$.contextMenu(
+		{
+			selector: ".release-entry-cell",
+			build: context_manu_handler
+		}
+	);
+
+	$.contextMenu(
+		{
+			selector: ".release-entry-left-clickable",
+			build: context_manu_handler,
+			trigger: 'left'
+		}
+	);
 }
 
 

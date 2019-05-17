@@ -38,7 +38,7 @@
 				</th>
 			{% endif %}
 
-			{% if g.user.is_mod() %}
+			{% if g.user.is_authenticated() %}
 				<th>
 					C
 				</th>
@@ -102,38 +102,38 @@
 
 			</td>
 			{% if entry.volume != None %}
-				<td class='numeric' id='release-entry-cell'>
+				<td class='numeric' class='release-entry-cell'>
 					{{ ( entry.volume | float |round(2)|string).rstrip('0').rstrip('.') }}
 				</td>
 			{% endif %}
 			{% if entry.chapter != None or entry.fragment != None %}
-				<td class='numeric' {{ "colspan=2" if entry.volume == None  }} id='release-entry-cell'>
+				<td class='numeric' {{ "colspan=2" if entry.volume == None  }} class='release-entry-cell'>
 
 					{% if entry.chapter %}{{ ( entry.chapter | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}{% if entry.chapter and entry.fragment %}-{% endif %}{% if entry.fragment %}{{ ( entry.fragment | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
 				</td>
 			{% endif %}
 
 			{% if entry.chapter == None and entry.volume == None and entry.fragment == None %}
-				<td class='postfix' {{ "colspan=3" if entry.chapter == None  }} id='release-entry-cell'>
+				<td class='postfix' {{ "colspan=3" if entry.chapter == None  }} class='release-entry-cell'>
 			{% elif entry.chapter == None and entry.fragment == None %}
-				<td class='postfix' {{ "colspan=2" if entry.chapter == None  }} id='release-entry-cell'>
+				<td class='postfix' {{ "colspan=2" if entry.chapter == None  }} class='release-entry-cell'>
 			{% else %}
-				<td class='postfix' id='release-entry-cell'>
+				<td class='postfix' class='release-entry-cell'>
 			{% endif %}
 				{{entry.postfix | safe}}
 			</td>
 
 			{% if show_group != False %}
-				<td id='release-entry-cell'>
+				<td class='release-entry-cell'>
 					<a href='/group-id/{{ entry.translators.id }}/'>{{entry.translators.name}}</a>
 				</td>
 			{% endif %}
-			{% if g.user.is_mod() %}
-				<td id='release-entry-cell'>
+			{% if g.user.is_authenticated() %}
+				<td class='release-entry-cell release-entry-left-clickable'>
 					{% if entry.include %}
-						◯
+						<center><i class="glyphicon glyphicon-option-vertical"></i></center>
 					{% else %}
-						✖
+						<center><i class="glyphicon glyphicon-option-vertical-open"></i></center>
 					{% endif %}
 				</td>
 			{% endif %}
