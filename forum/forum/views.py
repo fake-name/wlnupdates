@@ -247,7 +247,6 @@ def delete_id_internal(del_id):
 				("AlternateTranslatorNames",        AlternateTranslatorNames       .query.filter(AlternateTranslatorNames       .changeuser == del_id).all()),
 				("TagsLink",                        TagsLink                       .query.filter(TagsLink                       .changeuser == del_id).all()),
 				("TagsLinkChanges",                 TagsLinkChanges                .query.filter(TagsLinkChanges                .changeuser == del_id).all()),
-				("Series",                          Series                         .query.filter(Series                         .changeuser == del_id).all()),
 				("WikiPage",                        WikiPage                       .query.filter(WikiPage                       .changeuser == del_id).all()),
 				("Tags",                            Tags                           .query.filter(Tags                           .changeuser == del_id).all()),
 				("Genres",                          Genres                         .query.filter(Genres                         .changeuser == del_id).all()),
@@ -258,6 +257,7 @@ def delete_id_internal(del_id):
 				("Releases",                        Releases                       .query.filter(Releases                       .changeuser == del_id).all()),
 				("Language",                        Language                       .query.filter(Language                       .changeuser == del_id).all()),
 				("Covers",                          Covers                         .query.filter(Covers                         .changeuser == del_id).all()),
+				("Series",                          Series                         .query.filter(Series                         .changeuser == del_id).all()),
 
 			]
 
@@ -271,7 +271,7 @@ def delete_id_internal(del_id):
 		for item in itemlist:
 			db.session.delete(item)
 
-		db.session.commit()
+			db.session.commit()
 
 	print("posts:", posts)
 	for thread in threads:
