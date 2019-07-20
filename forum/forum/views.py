@@ -231,6 +231,20 @@ def delete_id_internal(del_id):
 				("Releases",                 Post.query.filter(Releases                .changeuser == del_id).all()),
 				("Language",                 Post.query.filter(Language                .changeuser == del_id).all()),
 				("Covers",                   Post.query.filter(Covers                  .changeuser == del_id).all()),
+
+				("SeriesChanges",                  Post.query.filter(SeriesChanges                  .changeuser == del_id).all()),
+				("WikiChanges",                    Post.query.filter(WikiChanges                    .changeuser == del_id).all()),
+				("TagsChanges",                    Post.query.filter(TagsChanges                    .changeuser == del_id).all()),
+				("GenresChanges",                  Post.query.filter(GenresChanges                  .changeuser == del_id).all()),
+				("AuthorChanges",                  Post.query.filter(AuthorChanges                  .changeuser == del_id).all()),
+				("IllustratorsChanges",            Post.query.filter(IllustratorsChanges            .changeuser == del_id).all()),
+				("TranslatorsChanges",             Post.query.filter(TranslatorsChanges             .changeuser == del_id).all()),
+				("ReleasesChanges",                Post.query.filter(ReleasesChanges                .changeuser == del_id).all()),
+				("CoversChanges",                  Post.query.filter(CoversChanges                  .changeuser == del_id).all()),
+				("AlternateNamesChanges",          Post.query.filter(AlternateNamesChanges          .changeuser == del_id).all()),
+				("PublishersChanges",              Post.query.filter(PublishersChanges              .changeuser == del_id).all()),
+				("AlternateTranslatorNamesChanges",Post.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).all()),
+				("LanguageChanges",                Post.query.filter(LanguageChanges                .changeuser == del_id).all()),
 			]
 
 	except SQLAlchemyError:
