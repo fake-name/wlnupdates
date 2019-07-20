@@ -27,6 +27,13 @@ If you are not logged in, please log in.<br>
 If you do not have an account, you must create one in order to edit things or watch series."""
 
 
+
+# These people look kinda like spammers, or are doing bizarre things.
+weird_ips = [
+		'101.173.145.176',
+		'179.199.182.48',
+	]
+
 @csrf.exempt
 @app.route('/api', methods=['POST'])
 def handleApiPost():
@@ -41,6 +48,20 @@ def handleApiPost():
 		resp.status_code = 200
 		resp.mimetype="application/json"
 		return resp
+
+	if request.headers.get('X-Forwarded-For').strip() in weird_ips:
+		# print("Non-JSON request!")
+		js = {
+			"error"   : True,
+			"message" : "You're behaving weirdly or running a bot, so your api access privileges have been disabled."
+		}
+		resp = jsonify(js)
+		resp.status_code = 200
+		resp.mimetype="application/json"
+		return resp
+
+
+
 
 	ret = dispatchApiCall(request.json)
 
