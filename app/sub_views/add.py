@@ -62,6 +62,13 @@ def add_series(form):
 
 	name = text_tools.fix_string(name, recase=False)
 
+
+	if "UHB949" in name or "K B R 7 7 7 .COM" in name:
+		flash(gettext("Your account has been deleted."
+			'Try not behaving like a spammer (or failing to read) next time.'))
+		delete_id_internal(g.user.id)
+		return redirect(url_for('index'))
+
 	stripped = nt.prepFilenameForMatching(name)
 	have = AlternateNames.query.filter(AlternateNames.cleanname==stripped).all()
 
@@ -238,7 +245,7 @@ def addNewItem(add_type, sid=None):
 	print("Trying to validate:", (form, request.form, request.args, request.headers.get('User-Agent')))
 	# print(form.validate_on_submit())
 	if form.validate_on_submit():
-		print("Post request. Validating")
+		print("Post request by uid %s. Validating" % g.user.id)
 		if have_auth:
 			print("Validation succeeded!")
 			return callee(form)
