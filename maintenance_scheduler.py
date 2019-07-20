@@ -155,6 +155,34 @@ def wat():
 	deduplicate_tags()
 	# flatten_history_table()
 
+def print_help():
+	print("You need to specify an operation!")
+	print("Possible arguments:")
+	for _, name, _ in tasks:
+		print("	%s" % name)
+	pass
+
+def cli_interface():
+	if not len(sys.argv) > 1:
+		print_help()
+		return
+
+	arg = sys.argv[1]
+
+	for func, name, _ in tasks:
+		if name == arg:
+			print("Found function for arg %s" % arg)
+			print("Function: %s" % func)
+			func()
+			print("Done")
+			return
+
+	print("Function \"%s\" not found!" % arg)
+	print_help()
+
+
+
+
 def flatten_dedup_oel():
 
 	with app.app_context():
@@ -164,10 +192,11 @@ if __name__ == "__main__":
 	import logSetup
 	import sys
 	logSetup.initLogging()
+
+	cli_interface()
+
 	# wat()
-
-	flatten_dedup_oel()
-
+	# flatten_dedup_oel()
 	# if "all" in sys.argv:
 	# 	go_all()
 	# else:

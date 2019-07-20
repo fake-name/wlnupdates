@@ -394,7 +394,7 @@ def levenshein_merger_series(interactive=True, builder=None):
 
 	print("Searching for duplicates from %s names" % len(altn))
 	done = 0
-	for nid, name in altn:
+	for nid, name in tqdm.tqdm(altn):
 		if name == 'RoyalRoadL':
 			continue
 		with app.app_context():
@@ -407,8 +407,6 @@ def levenshein_merger_series(interactive=True, builder=None):
 					print("Row merged already?")
 		done += 1
 
-		if done % 10 == 0:
-			print("Done %s items of %s" % (done, len(altn)))
 
 
 	print(len(items))
@@ -613,7 +611,7 @@ def levenshein_merger_groups(interactive=True, builder=None):
 
 	print("Searching for duplicates from %s names" % len(altn))
 	done = 0
-	for nid, name, cleanname in altn:
+	for nid, name, cleanname in tqdm.tqdm(altn):
 		with app.app_context():
 			matches = search_for_tlname(cleanname, nid, altn)
 			if matches:
@@ -624,8 +622,6 @@ def levenshein_merger_groups(interactive=True, builder=None):
 					print("Row merged already?")
 		done += 1
 
-		if done % 10 == 0:
-			print("Done %s items of %s" % (done, len(altn)))
 
 	print(len(items))
 	print("wat?")

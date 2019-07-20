@@ -17,7 +17,25 @@ from app import app
 from forum.models import Board
 from forum.models import Thread
 from forum.models import Post
+
 from app.models import Users
+from app.models import TagsLink
+from app.models import TagsLinkChanges
+from app.models import Series
+from app.models import WikiPage
+from app.models import Tags
+from app.models import Genres
+from app.models import Author
+from app.models import Illustrators
+from app.models import AlternateNames
+from app.models import AlternateTranslatorNames
+from app.models import Translators
+from app.models import Publishers
+from app.models import Releases
+from app.models import Language
+from app.models import Covers
+
+
 from . import forms
 
 GET_POST = ['GET', 'POST']
@@ -196,10 +214,34 @@ def delete_id_internal(del_id):
 		user    = Users.query.filter(Users.id == del_id).one()
 		threads = Thread.query.filter(Thread.author_id == del_id).all()
 		posts   = Post.query.filter(Post.author_id == del_id).all()
+
+		del_items = [
+				Post.query.filter(TagsLink                .changeuser == del_id).all(),
+				Post.query.filter(TagsLinkChanges         .changeuser == del_id).all(),
+				Post.query.filter(Series                  .changeuser == del_id).all(),
+				Post.query.filter(WikiPage                .changeuser == del_id).all(),
+				Post.query.filter(Tags                    .changeuser == del_id).all(),
+				Post.query.filter(Genres                  .changeuser == del_id).all(),
+				Post.query.filter(Author                  .changeuser == del_id).all(),
+				Post.query.filter(Illustrators            .changeuser == del_id).all(),
+				Post.query.filter(AlternateNames          .changeuser == del_id).all(),
+				Post.query.filter(AlternateTranslatorNames.changeuser == del_id).all(),
+				Post.query.filter(Translators             .changeuser == del_id).all(),
+				Post.query.filter(Publishers              .changeuser == del_id).all(),
+				Post.query.filter(Releases                .changeuser == del_id).all(),
+				Post.query.filter(Language                .changeuser == del_id).all(),
+				Post.query.filter(Covers                  .changeuser == del_id).all(),
+			]
+
 	except SQLAlchemyError:
 		return False
 
 	print("User:", user)
+
+	for itemlist in del_items:
+		for item in itemlist:
+			db.session.delete(item)
+
 	print("posts:", posts)
 	for thread in threads:
 		for post in thread.posts:
