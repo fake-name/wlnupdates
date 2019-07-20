@@ -270,7 +270,7 @@ def delete_id_internal(del_id):
 		print("Deleting for table %s with %s items" % (itemname, len(itemlist)))
 		for item in itemlist:
 			db.session.delete(item)
-
+			print("Item:", item)
 			db.session.commit()
 
 	print("posts:", posts)
