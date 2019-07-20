@@ -30,6 +30,7 @@ from app.forms import PostForm
 import app.series_tools as series_tools
 from app import app
 import datetime
+from forum.forum.views import delete_id_internal
 
 def add_group(form):
 	name = form.name.data.strip()
@@ -63,7 +64,7 @@ def add_series(form):
 	name = text_tools.fix_string(name, recase=False)
 
 
-	if "UHB949" in name or "K B R 7 7 7 .COM" in name:
+	if "UHB949" in name or "KBR777" in name or "K B R 7 7 7 .COM" in name:
 		flash(gettext("Your account has been deleted."
 			'Try not behaving like a spammer (or failing to read) next time.'))
 		delete_id_internal(g.user.id)
