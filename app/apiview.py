@@ -48,12 +48,13 @@ def handleApiPost():
 		resp.status_code = 200
 		resp.mimetype="application/json"
 		return resp
-
-	if request.headers.get('X-Forwarded-For').strip() in weird_ips:
+	from_ip = request.headers.get('X-Forwarded-For').strip()
+	if from_ip in weird_ips:
+		print("Bouncing IP with strange behaviour: %s" % (from_ip, ))
 		# print("Non-JSON request!")
 		js = {
 			"error"   : True,
-			"message" : "You're behaving weirdly or running a bot, so your api access privileges have been disabled."
+			"message" : "You're behaving weirdly or running a bot, so your api access privileges have been disabled. If you believe this is in error, please let me know at https://github.com/fake-name/wlnupdates/issues"
 		}
 		resp = jsonify(js)
 		resp.status_code = 200
