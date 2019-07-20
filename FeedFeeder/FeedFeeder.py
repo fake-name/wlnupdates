@@ -831,6 +831,14 @@ def dispatchItem(item):
 				e.extra_message = "Assertion Error inserting row (attempt %s)!" % x
 				raise e
 
+		except sqlalchemy.exc.StaleDataError as e:
+			print("ERROR INSERTING ROW (attempt %s)!" % x)
+			traceback.print_exc()
+			db.session.rollback()
+			if x > 20:
+				e.extra_message = "Failure after %s retries!" % x
+				raise e
+
 		except sqlalchemy.exc.IntegrityError as e:
 			print("ERROR INSERTING ROW (attempt %s)!" % x)
 			traceback.print_exc()

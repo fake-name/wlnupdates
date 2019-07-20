@@ -225,11 +225,25 @@ def edit_post(slug, thread_id, post_id):
 
 def delete_id_internal(del_id):
 	try:
-		user    = Users.query.filter(Users.id == del_id).one()
+		user    = Users .query.filter(Users.id         == del_id).one()
 		threads = Thread.query.filter(Thread.author_id == del_id).all()
-		posts   = Post.query.filter(Post.author_id == del_id).all()
+		posts   = Post  .query.filter(Post.author_id   == del_id).all()
 
 		del_items = [
+				("AlternateNames",                  AlternateNames                 .query.filter(AlternateNames                 .changeuser == del_id).all()),
+				("AlternateTranslatorNames",        AlternateTranslatorNames       .query.filter(AlternateTranslatorNames       .changeuser == del_id).all()),
+				("TagsLink",                        TagsLink                       .query.filter(TagsLink                       .changeuser == del_id).all()),
+				("WikiPage",                        WikiPage                       .query.filter(WikiPage                       .changeuser == del_id).all()),
+				("Tags",                            Tags                           .query.filter(Tags                           .changeuser == del_id).all()),
+				("Genres",                          Genres                         .query.filter(Genres                         .changeuser == del_id).all()),
+				("Author",                          Author                         .query.filter(Author                         .changeuser == del_id).all()),
+				("Illustrators",                    Illustrators                   .query.filter(Illustrators                   .changeuser == del_id).all()),
+				("Translators",                     Translators                    .query.filter(Translators                    .changeuser == del_id).all()),
+				("Publishers",                      Publishers                     .query.filter(Publishers                     .changeuser == del_id).all()),
+				("Releases",                        Releases                       .query.filter(Releases                       .changeuser == del_id).all()),
+				("Language",                        Language                       .query.filter(Language                       .changeuser == del_id).all()),
+				("Covers",                          Covers                         .query.filter(Covers                         .changeuser == del_id).all()),
+				("Series",                          Series                         .query.filter(Series                         .changeuser == del_id).all()),
 				("SeriesChanges",                   SeriesChanges                  .query.filter(SeriesChanges                  .changeuser == del_id).all()),
 				("WikiChanges",                     WikiChanges                    .query.filter(WikiChanges                    .changeuser == del_id).all()),
 				("TagsChanges",                     TagsChanges                    .query.filter(TagsChanges                    .changeuser == del_id).all()),
@@ -243,21 +257,7 @@ def delete_id_internal(del_id):
 				("PublishersChanges",               PublishersChanges              .query.filter(PublishersChanges              .changeuser == del_id).all()),
 				("AlternateTranslatorNamesChanges", AlternateTranslatorNamesChanges.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).all()),
 				("LanguageChanges",                 LanguageChanges                .query.filter(LanguageChanges                .changeuser == del_id).all()),
-				("AlternateNames",                  AlternateNames                 .query.filter(AlternateNames                 .changeuser == del_id).all()),
-				("AlternateTranslatorNames",        AlternateTranslatorNames       .query.filter(AlternateTranslatorNames       .changeuser == del_id).all()),
-				("TagsLink",                        TagsLink                       .query.filter(TagsLink                       .changeuser == del_id).all()),
 				("TagsLinkChanges",                 TagsLinkChanges                .query.filter(TagsLinkChanges                .changeuser == del_id).all()),
-				("WikiPage",                        WikiPage                       .query.filter(WikiPage                       .changeuser == del_id).all()),
-				("Tags",                            Tags                           .query.filter(Tags                           .changeuser == del_id).all()),
-				("Genres",                          Genres                         .query.filter(Genres                         .changeuser == del_id).all()),
-				("Author",                          Author                         .query.filter(Author                         .changeuser == del_id).all()),
-				("Illustrators",                    Illustrators                   .query.filter(Illustrators                   .changeuser == del_id).all()),
-				("Translators",                     Translators                    .query.filter(Translators                    .changeuser == del_id).all()),
-				("Publishers",                      Publishers                     .query.filter(Publishers                     .changeuser == del_id).all()),
-				("Releases",                        Releases                       .query.filter(Releases                       .changeuser == del_id).all()),
-				("Language",                        Language                       .query.filter(Language                       .changeuser == del_id).all()),
-				("Covers",                          Covers                         .query.filter(Covers                         .changeuser == del_id).all()),
-				("Series",                          Series                         .query.filter(Series                         .changeuser == del_id).all()),
 
 			]
 
