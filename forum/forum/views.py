@@ -243,7 +243,7 @@ def delete_id_internal(del_id):
 		for item in itemlist:
 			db.session.delete(item)
 
-	db.session.flush()
+	db.session.commit()
 
 	print("posts:", posts)
 	for thread in threads:
