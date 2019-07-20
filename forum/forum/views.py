@@ -230,35 +230,35 @@ def delete_id_internal(del_id):
 		posts   = Post.query.filter(Post.author_id == del_id).all()
 
 		del_items = [
-				("AlternateNames",           Post.query.filter(AlternateNames          .changeuser == del_id).all()),
-				("AlternateTranslatorNames", Post.query.filter(AlternateTranslatorNames.changeuser == del_id).all()),
-				("TagsLink",                 Post.query.filter(TagsLink                .changeuser == del_id).all()),
-				("TagsLinkChanges",          Post.query.filter(TagsLinkChanges         .changeuser == del_id).all()),
-				("Series",                   Post.query.filter(Series                  .changeuser == del_id).all()),
-				("WikiPage",                 Post.query.filter(WikiPage                .changeuser == del_id).all()),
-				("Tags",                     Post.query.filter(Tags                    .changeuser == del_id).all()),
-				("Genres",                   Post.query.filter(Genres                  .changeuser == del_id).all()),
-				("Author",                   Post.query.filter(Author                  .changeuser == del_id).all()),
-				("Illustrators",             Post.query.filter(Illustrators            .changeuser == del_id).all()),
-				("Translators",              Post.query.filter(Translators             .changeuser == del_id).all()),
-				("Publishers",               Post.query.filter(Publishers              .changeuser == del_id).all()),
-				("Releases",                 Post.query.filter(Releases                .changeuser == del_id).all()),
-				("Language",                 Post.query.filter(Language                .changeuser == del_id).all()),
-				("Covers",                   Post.query.filter(Covers                  .changeuser == del_id).all()),
+				("SeriesChanges",                   SeriesChanges                  .query.filter(SeriesChanges                  .changeuser == del_id).all()),
+				("WikiChanges",                     WikiChanges                    .query.filter(WikiChanges                    .changeuser == del_id).all()),
+				("TagsChanges",                     TagsChanges                    .query.filter(TagsChanges                    .changeuser == del_id).all()),
+				("GenresChanges",                   GenresChanges                  .query.filter(GenresChanges                  .changeuser == del_id).all()),
+				("AuthorChanges",                   AuthorChanges                  .query.filter(AuthorChanges                  .changeuser == del_id).all()),
+				("IllustratorsChanges",             IllustratorsChanges            .query.filter(IllustratorsChanges            .changeuser == del_id).all()),
+				("TranslatorsChanges",              TranslatorsChanges             .query.filter(TranslatorsChanges             .changeuser == del_id).all()),
+				("ReleasesChanges",                 ReleasesChanges                .query.filter(ReleasesChanges                .changeuser == del_id).all()),
+				("CoversChanges",                   CoversChanges                  .query.filter(CoversChanges                  .changeuser == del_id).all()),
+				("AlternateNamesChanges",           AlternateNamesChanges          .query.filter(AlternateNamesChanges          .changeuser == del_id).all()),
+				("PublishersChanges",               PublishersChanges              .query.filter(PublishersChanges              .changeuser == del_id).all()),
+				("AlternateTranslatorNamesChanges", AlternateTranslatorNamesChanges.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).all()),
+				("LanguageChanges",                 LanguageChanges                .query.filter(LanguageChanges                .changeuser == del_id).all()),
+				("AlternateNames",                  AlternateNames                 .query.filter(AlternateNames                 .changeuser == del_id).all()),
+				("AlternateTranslatorNames",        AlternateTranslatorNames       .query.filter(AlternateTranslatorNames       .changeuser == del_id).all()),
+				("TagsLink",                        TagsLink                       .query.filter(TagsLink                       .changeuser == del_id).all()),
+				("TagsLinkChanges",                 TagsLinkChanges                .query.filter(TagsLinkChanges                .changeuser == del_id).all()),
+				("Series",                          Series                         .query.filter(Series                         .changeuser == del_id).all()),
+				("WikiPage",                        WikiPage                       .query.filter(WikiPage                       .changeuser == del_id).all()),
+				("Tags",                            Tags                           .query.filter(Tags                           .changeuser == del_id).all()),
+				("Genres",                          Genres                         .query.filter(Genres                         .changeuser == del_id).all()),
+				("Author",                          Author                         .query.filter(Author                         .changeuser == del_id).all()),
+				("Illustrators",                    Illustrators                   .query.filter(Illustrators                   .changeuser == del_id).all()),
+				("Translators",                     Translators                    .query.filter(Translators                    .changeuser == del_id).all()),
+				("Publishers",                      Publishers                     .query.filter(Publishers                     .changeuser == del_id).all()),
+				("Releases",                        Releases                       .query.filter(Releases                       .changeuser == del_id).all()),
+				("Language",                        Language                       .query.filter(Language                       .changeuser == del_id).all()),
+				("Covers",                          Covers                         .query.filter(Covers                         .changeuser == del_id).all()),
 
-				("SeriesChanges",                  Post.query.filter(SeriesChanges                  .changeuser == del_id).all()),
-				("WikiChanges",                    Post.query.filter(WikiChanges                    .changeuser == del_id).all()),
-				("TagsChanges",                    Post.query.filter(TagsChanges                    .changeuser == del_id).all()),
-				("GenresChanges",                  Post.query.filter(GenresChanges                  .changeuser == del_id).all()),
-				("AuthorChanges",                  Post.query.filter(AuthorChanges                  .changeuser == del_id).all()),
-				("IllustratorsChanges",            Post.query.filter(IllustratorsChanges            .changeuser == del_id).all()),
-				("TranslatorsChanges",             Post.query.filter(TranslatorsChanges             .changeuser == del_id).all()),
-				("ReleasesChanges",                Post.query.filter(ReleasesChanges                .changeuser == del_id).all()),
-				("CoversChanges",                  Post.query.filter(CoversChanges                  .changeuser == del_id).all()),
-				("AlternateNamesChanges",          Post.query.filter(AlternateNamesChanges          .changeuser == del_id).all()),
-				("PublishersChanges",              Post.query.filter(PublishersChanges              .changeuser == del_id).all()),
-				("AlternateTranslatorNamesChanges",Post.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).all()),
-				("LanguageChanges",                Post.query.filter(LanguageChanges                .changeuser == del_id).all()),
 			]
 
 	except SQLAlchemyError:
@@ -271,7 +271,7 @@ def delete_id_internal(del_id):
 		for item in itemlist:
 			db.session.delete(item)
 
-	db.session.commit()
+		db.session.commit()
 
 	print("posts:", posts)
 	for thread in threads:
