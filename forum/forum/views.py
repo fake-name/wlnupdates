@@ -216,21 +216,21 @@ def delete_id_internal(del_id):
 		posts   = Post.query.filter(Post.author_id == del_id).all()
 
 		del_items = [
-				Post.query.filter(AlternateNames          .changeuser == del_id).all(),
-				Post.query.filter(AlternateTranslatorNames.changeuser == del_id).all(),
-				Post.query.filter(TagsLink                .changeuser == del_id).all(),
-				Post.query.filter(TagsLinkChanges         .changeuser == del_id).all(),
-				Post.query.filter(Series                  .changeuser == del_id).all(),
-				Post.query.filter(WikiPage                .changeuser == del_id).all(),
-				Post.query.filter(Tags                    .changeuser == del_id).all(),
-				Post.query.filter(Genres                  .changeuser == del_id).all(),
-				Post.query.filter(Author                  .changeuser == del_id).all(),
-				Post.query.filter(Illustrators            .changeuser == del_id).all(),
-				Post.query.filter(Translators             .changeuser == del_id).all(),
-				Post.query.filter(Publishers              .changeuser == del_id).all(),
-				Post.query.filter(Releases                .changeuser == del_id).all(),
-				Post.query.filter(Language                .changeuser == del_id).all(),
-				Post.query.filter(Covers                  .changeuser == del_id).all(),
+				("AlternateNames",           Post.query.filter(AlternateNames          .changeuser == del_id).all()),
+				("AlternateTranslatorNames", Post.query.filter(AlternateTranslatorNames.changeuser == del_id).all()),
+				("TagsLink",                 Post.query.filter(TagsLink                .changeuser == del_id).all()),
+				("TagsLinkChanges",          Post.query.filter(TagsLinkChanges         .changeuser == del_id).all()),
+				("Series",                   Post.query.filter(Series                  .changeuser == del_id).all()),
+				("WikiPage",                 Post.query.filter(WikiPage                .changeuser == del_id).all()),
+				("Tags",                     Post.query.filter(Tags                    .changeuser == del_id).all()),
+				("Genres",                   Post.query.filter(Genres                  .changeuser == del_id).all()),
+				("Author",                   Post.query.filter(Author                  .changeuser == del_id).all()),
+				("Illustrators",             Post.query.filter(Illustrators            .changeuser == del_id).all()),
+				("Translators",              Post.query.filter(Translators             .changeuser == del_id).all()),
+				("Publishers",               Post.query.filter(Publishers              .changeuser == del_id).all()),
+				("Releases",                 Post.query.filter(Releases                .changeuser == del_id).all()),
+				("Language",                 Post.query.filter(Language                .changeuser == del_id).all()),
+				("Covers",                   Post.query.filter(Covers                  .changeuser == del_id).all()),
 			]
 
 	except SQLAlchemyError:
@@ -238,7 +238,8 @@ def delete_id_internal(del_id):
 
 	print("User:", user)
 
-	for itemlist in del_items:
+	for itemname, itemlist in del_items:
+		print("Deleting for table %s with %s items" % (itemname, len(itemlist)))
 		for item in itemlist:
 			db.session.delete(item)
 
