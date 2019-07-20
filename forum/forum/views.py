@@ -36,6 +36,20 @@ from app.models import Language
 from app.models import Covers
 
 
+from app.models import SeriesChanges
+from app.models import WikiChanges
+from app.models import TagsChanges
+from app.models import GenresChanges
+from app.models import AuthorChanges
+from app.models import IllustratorsChanges
+from app.models import TranslatorsChanges
+from app.models import ReleasesChanges
+from app.models import CoversChanges
+from app.models import AlternateNamesChanges
+from app.models import PublishersChanges
+from app.models import AlternateTranslatorNamesChanges
+from app.models import LanguageChanges
+
 from . import forms
 
 GET_POST = ['GET', 'POST']
