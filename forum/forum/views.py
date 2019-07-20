@@ -216,6 +216,8 @@ def delete_id_internal(del_id):
 		posts   = Post.query.filter(Post.author_id == del_id).all()
 
 		del_items = [
+				Post.query.filter(AlternateNames          .changeuser == del_id).all(),
+				Post.query.filter(AlternateTranslatorNames.changeuser == del_id).all(),
 				Post.query.filter(TagsLink                .changeuser == del_id).all(),
 				Post.query.filter(TagsLinkChanges         .changeuser == del_id).all(),
 				Post.query.filter(Series                  .changeuser == del_id).all(),
@@ -224,8 +226,6 @@ def delete_id_internal(del_id):
 				Post.query.filter(Genres                  .changeuser == del_id).all(),
 				Post.query.filter(Author                  .changeuser == del_id).all(),
 				Post.query.filter(Illustrators            .changeuser == del_id).all(),
-				Post.query.filter(AlternateNames          .changeuser == del_id).all(),
-				Post.query.filter(AlternateTranslatorNames.changeuser == del_id).all(),
 				Post.query.filter(Translators             .changeuser == del_id).all(),
 				Post.query.filter(Publishers              .changeuser == del_id).all(),
 				Post.query.filter(Releases                .changeuser == del_id).all(),
