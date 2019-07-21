@@ -340,6 +340,10 @@ def release_merger_series(interactive=False, builder=None):
 			sids = list(set([tmp['series'] for tmp in val]))
 			if len(sids) > 1:
 				for sid_1, sid_2 in pairwise(sids):
+
+					if len(sids) <= sid_1 or len(sids) <= sid_2:
+						continue
+
 					print("Match values: ", ((sid_1, val[sid_1]), (sid_2, val[sid_2])))
 
 					# If we have at least 5 netlocs in common
