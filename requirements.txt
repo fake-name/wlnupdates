@@ -66,7 +66,7 @@ pamqp==2.3.0
 passlib==1.7.1
 pbr==5.4.1
 pstat==0.0.1
-psutil==5.6.2
+psutil==5.6.3
 psycopg2==2.8.2
 py==1.8.0
 pycparser==2.19
