@@ -18,7 +18,7 @@ click==7.0
 colorama==0.4.1
 cov-core==1.15.0
 coverage==4.5.3
-datasketch==1.4.3
+datasketch==1.4.7
 decorator==4.4.0
 defusedxml==0.6.0
 fastnumbers==2.2.1
