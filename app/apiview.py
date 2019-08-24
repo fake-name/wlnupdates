@@ -37,9 +37,8 @@ weird_ips = [
 @csrf.exempt
 @app.route('/api', methods=['POST'])
 def handleApiPost():
-	print("Api Post!")
 	if not request.json:
-		# print("Non-JSON request!")
+		print("Non-JSON API Post!")
 		js = {
 			"error"   : True,
 			"message" : "This endpoint only accepts JSON POST requests."
@@ -60,8 +59,6 @@ def handleApiPost():
 		resp.status_code = 200
 		resp.mimetype="application/json"
 		return resp
-
-
 
 
 	ret = dispatchApiCall(request.json)
@@ -174,6 +171,9 @@ def dispatchApiCall(reqJson):
 	if not mode in DISPATCH_TABLE:
 		print("Invalid mode in request: '{mode}'".format(mode=mode))
 		return getResponse("Invalid mode in API Request ({mode})!".format(mode=mode), error=True)
+
+
+	print("Api Post: ", mode)
 
 	dispatch_method, auth_required, csrf_required, rate_limited = DISPATCH_TABLE[mode]
 	try:
