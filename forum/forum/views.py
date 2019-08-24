@@ -139,7 +139,6 @@ def create_thread(slug):
 		return redirect(url_for('.board', slug=slug))
 
 	if pcnt == 0:
-
 		flash(gettext('This seems to be your first post. <br>'
 			'<strong><font size="+2">Your first thread MUST have more then one word in it\'s thread title.</font></strong>'
 			'<br>If you do not have more then one word in the thread title, your account will be immediately deleted!'
@@ -231,35 +230,35 @@ def delete_id_internal(del_id):
 
 		del_items = [
 				("AlternateNames",                  AlternateNames                 .query.filter(AlternateNames                 .changeuser == del_id).all()),
+				("AlternateNamesChanges",           AlternateNamesChanges          .query.filter(AlternateNamesChanges          .changeuser == del_id).all()),
 				("AlternateTranslatorNames",        AlternateTranslatorNames       .query.filter(AlternateTranslatorNames       .changeuser == del_id).all()),
+				("AlternateTranslatorNamesChanges", AlternateTranslatorNamesChanges.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).all()),
 				("TagsLink",                        TagsLink                       .query.filter(TagsLink                       .changeuser == del_id).all()),
 				("WikiPage",                        WikiPage                       .query.filter(WikiPage                       .changeuser == del_id).all()),
+				("WikiChanges",                     WikiChanges                    .query.filter(WikiChanges                    .changeuser == del_id).all()),
 				("Tags",                            Tags                           .query.filter(Tags                           .changeuser == del_id).all()),
+				("TagsChanges",                     TagsChanges                    .query.filter(TagsChanges                    .changeuser == del_id).all()),
+				("TagsLinkChanges",                 TagsLinkChanges                .query.filter(TagsLinkChanges                .changeuser == del_id).all()),
 				("Genres",                          Genres                         .query.filter(Genres                         .changeuser == del_id).all()),
+				("GenresChanges",                   GenresChanges                  .query.filter(GenresChanges                  .changeuser == del_id).all()),
 				("Author",                          Author                         .query.filter(Author                         .changeuser == del_id).all()),
+				("AuthorChanges",                   AuthorChanges                  .query.filter(AuthorChanges                  .changeuser == del_id).all()),
 				("Illustrators",                    Illustrators                   .query.filter(Illustrators                   .changeuser == del_id).all()),
+				("IllustratorsChanges",             IllustratorsChanges            .query.filter(IllustratorsChanges            .changeuser == del_id).all()),
 				("Translators",                     Translators                    .query.filter(Translators                    .changeuser == del_id).all()),
+				("TranslatorsChanges",              TranslatorsChanges             .query.filter(TranslatorsChanges             .changeuser == del_id).all()),
 				("Publishers",                      Publishers                     .query.filter(Publishers                     .changeuser == del_id).all()),
+				("PublishersChanges",               PublishersChanges              .query.filter(PublishersChanges              .changeuser == del_id).all()),
 				("Releases",                        Releases                       .query.filter(Releases                       .changeuser == del_id).all()),
+				("ReleasesChanges",                 ReleasesChanges                .query.filter(ReleasesChanges                .changeuser == del_id).all()),
 				("Language",                        Language                       .query.filter(Language                       .changeuser == del_id).all()),
+				("LanguageChanges",                 LanguageChanges                .query.filter(LanguageChanges                .changeuser == del_id).all()),
 				("Covers",                          Covers                         .query.filter(Covers                         .changeuser == del_id).all()),
+				("CoversChanges",                   CoversChanges                  .query.filter(CoversChanges                  .changeuser == del_id).all()),
 				("Series",                          Series                         .query.filter(Series                         .changeuser == del_id).all()),
 				("SeriesChanges",                   SeriesChanges                  .query.filter(SeriesChanges                  .changeuser == del_id).all()),
-				("WikiChanges",                     WikiChanges                    .query.filter(WikiChanges                    .changeuser == del_id).all()),
-				("TagsChanges",                     TagsChanges                    .query.filter(TagsChanges                    .changeuser == del_id).all()),
-				("GenresChanges",                   GenresChanges                  .query.filter(GenresChanges                  .changeuser == del_id).all()),
-				("AuthorChanges",                   AuthorChanges                  .query.filter(AuthorChanges                  .changeuser == del_id).all()),
-				("IllustratorsChanges",             IllustratorsChanges            .query.filter(IllustratorsChanges            .changeuser == del_id).all()),
-				("TranslatorsChanges",              TranslatorsChanges             .query.filter(TranslatorsChanges             .changeuser == del_id).all()),
-				("ReleasesChanges",                 ReleasesChanges                .query.filter(ReleasesChanges                .changeuser == del_id).all()),
-				("CoversChanges",                   CoversChanges                  .query.filter(CoversChanges                  .changeuser == del_id).all()),
-				("AlternateNamesChanges",           AlternateNamesChanges          .query.filter(AlternateNamesChanges          .changeuser == del_id).all()),
-				("PublishersChanges",               PublishersChanges              .query.filter(PublishersChanges              .changeuser == del_id).all()),
-				("AlternateTranslatorNamesChanges", AlternateTranslatorNamesChanges.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).all()),
-				("LanguageChanges",                 LanguageChanges                .query.filter(LanguageChanges                .changeuser == del_id).all()),
-				("TagsLinkChanges",                 TagsLinkChanges                .query.filter(TagsLinkChanges                .changeuser == del_id).all()),
-
 			]
+
 
 	except SQLAlchemyError:
 		return False
