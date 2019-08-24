@@ -10,11 +10,23 @@
 			<tr>
 				<td>
 					<a href="/series-id/{{page.id}}/">{{ page[access_key] }}</a>
+
 					{% if page.tl_type == 'oel' %}
 						<div class='pull-right'>
-							<a href='/help#what-is-oel'>OEL</a>
+							<a href='/help#what-is-oel'>
+								<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block btn-inline">OEL</button>
+							</a>
 						</div>
 					{% endif %}
+
+					{% if g.user.is_mod() %}
+						<div class='pull-right'>
+							<form class="form-inline" action="javascript:delete_ajax({{page.id}});">
+									<button style='margin-top:4px' class="btn btn-danger btn-xs btn-block btn-inline">Delete</button>
+							</form>
+						</div>
+					{% endif %}
+
 				</td>
 
 			</tr>
@@ -71,4 +83,34 @@
 	</div>
 
 	</ul>
+{% endblock %}
+
+
+
+{% block footer %}
+	<script>
+		function delete_ajax(seriesid)
+		{
+
+			var params = {
+				'mode'      : 'delete-series',
+				'item-id'   : seriesid,
+			}
+
+			bootbox.confirm("Really delete series ID " + seriesid + "?", function(result) {
+				if (result != true)
+					return;
+
+				$.ajax({
+					url : "/api",
+					success : saveCallback(false),
+					data: JSON.stringify(params),
+					method: "POST",
+					dataType: 'json',
+					contentType: "application/json;",
+				});
+			});
+		}
+	</script>
+
 {% endblock %}
