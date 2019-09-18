@@ -20,6 +20,7 @@ from app import app
 from app import db
 from app import lm
 from app import babel
+from app import captcha
 from .forms import  LoginForm, SearchForm, SignupForm
 from .models import Users
 from .models import News_Posts
@@ -300,6 +301,12 @@ def signup():
 		return redirect(url_for('index'))
 	form = SignupForm()
 	if form.validate_on_submit():
+		if not captcha.validate():
+			flash(gettext('Captcha Incorrect!'))
+			return render_template('signup.html',
+								   title='Sign In',
+								   form=form)
+
 
 		have = Users.query.filter(Users.email == form.email.data).scalar()
 

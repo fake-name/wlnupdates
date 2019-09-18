@@ -103,6 +103,13 @@
 				<br>
 				<div class="control-group">
 					<div class="controls">
+						Confirmation CAPTCHA. Please enter the following text.
+						{{ captcha() }} <!-- This renders an <img> tag with the captcha img. -->
+						<input type="text" name="captcha">
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="controls">
 						<input class="btn btn-primary" type="submit" value="{{ _('Sign Up') }}">
 					</div>
 				</div>

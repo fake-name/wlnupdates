@@ -27,6 +27,7 @@ Flask-Admin==1.5.3
 Flask-Assets==0.12
 Flask-Babel==0.12.2
 Flask-BabelEx==0.9.3
+py-bcrypt
 Flask-Bcrypt==0.7.1
 Flask-Cache==0.13.1
 Flask-DebugToolbar==0.10.1
@@ -67,7 +68,7 @@ passlib==1.7.1
 pbr==5.4.2
 pstat==0.0.1
 psutil==5.6.3
-psycopg2==2.8.3
+psycopg2-binary
 py==1.8.0
 pycparser==2.19
 Pygments==2.4.2
@@ -108,3 +109,7 @@ WTForms-JSON==0.3.3
 jsmin==2.2.2
 cssmin==0.2.0
 slimit==0.8.1
+
+
+flask_sessionstore
+flask-session-captcha

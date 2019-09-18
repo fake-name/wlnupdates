@@ -1,4 +1,8 @@
 import os
+import urllib.parse
+import sys
+import warnings
+
 from flask import Flask
 from flask.json import JSONEncoder
 from flask_sqlalchemy import SQLAlchemy
@@ -13,8 +17,9 @@ from babel.dates import format_datetime
 from babel.dates import get_timezone
 from flask_assets import Bundle
 from flask_assets import Environment
+# from flask_sessionstore import Session
+from .sub_views import captcha
 
-import urllib.parse
 
 class AnonUser():
 	def is_authenticated(self):
@@ -30,10 +35,9 @@ class AnonUser():
 	def get_id(self):
 		return None
 
-
+# This needs more plugins.
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
-import sys
 if "debug" in sys.argv:
 	print("Flask running in debug mode!")
 	app.debug = True
@@ -48,6 +52,10 @@ lm.login_message = 'Please log in to access this page.'
 mail = Mail(app)
 babel = Babel(app)
 csrf = CSRFProtect(app)
+# Session(app)
+
+
+captcha = captcha.FlaskSessionCaptcha(app)
 
 if "debug" in sys.argv:
 	print("Installing debug toolbar!")

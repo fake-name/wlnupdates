@@ -1,4 +1,7 @@
 
+import os
+import sys
+import uuid
 
 from settings import DATABASE_IP            as C_DATABASE_IP
 from settings import DATABASE_DB_NAME       as C_DATABASE_DB_NAME
@@ -13,8 +16,7 @@ from settings import MAIL_DEFAULT_SENDER    as C_MAIL_DEFAULT_SENDER
 from settings import SECURITY_PASSWORD_SALT as C_SECURITY_PASSWORD_SALT
 from settings import COVER_PATH             as C_COVER_PATH
 
-import os
-import sys
+
 if len(sys.argv) > 1 and "debug" in sys.argv:
 	SQLALCHEMY_ECHO = True
 
@@ -25,6 +27,12 @@ class BaseConfig(object):
 
 	SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{passwd}@{host}:5432/{database}'.format(user=C_DATABASE_USER, passwd=C_DATABASE_PASS, host=C_DATABASE_IP, database=C_DATABASE_DB_NAME)
 	SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+
+	# Captcha parameters
+	SECRET_KEY = uuid.uuid4()
+	CAPTCHA_ENABLE = True
+	CAPTCHA_LENGTH = 5
+	SESSION_TYPE   = 'null'
 
 	CSRF_ENABLED = True
 	WTF_CSRF_ENABLED = True
