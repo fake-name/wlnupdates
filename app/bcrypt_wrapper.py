@@ -113,16 +113,10 @@ class Bcrypt(object):
     def _unicode_to_bytes(self, unicode_string):
         '''Converts a unicode string to a bytes object.
         :param unicode_string: The unicode string to convert.'''
-        if PY3:
-            if isinstance(unicode_string, str):
-                bytes_object = bytes(unicode_string, 'utf-8')
-            else:
-                bytes_object = unicode_string
+        if isinstance(unicode_string, str):
+            bytes_object = bytes(unicode_string, 'utf-8')
         else:
-            if isinstance(unicode_string, unicode):
-                bytes_object = unicode_string.encode('utf-8')
-            else:
-                bytes_object = unicode_string
+            bytes_object = unicode_string
         return bytes_object
 
     def generate_password_hash(self, password, rounds=None, prefix=None):
