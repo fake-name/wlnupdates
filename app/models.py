@@ -7,7 +7,7 @@ from app import db
 from app import app
 
 from sqlalchemy.orm import relationship
-from flask_bcrypt import generate_password_hash
+from .bcrypt_wrapper import generate_password_hash
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import event
 from sqlalchemy.schema import DDL

@@ -16,7 +16,7 @@ from wtforms.validators import EqualTo
 from wtforms.validators import ValidationError
 from wtforms.validators import URL
 from .models import Users
-from flask_bcrypt import check_password_hash
+from .bcrypt_wrapper import check_password_hash
 from app.models import Users
 from app import db
 
