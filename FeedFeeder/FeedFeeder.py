@@ -1,3 +1,4 @@
+.
 #!/usr/bin/env python3
 #
 import json
@@ -7,6 +8,7 @@ import pprint
 import time
 
 import sqlalchemy.exc
+import sqlalchemy.orm.exc
 from sqlalchemy import desc
 from sqlalchemy import or_
 import bleach
@@ -831,7 +833,7 @@ def dispatchItem(item):
 				e.extra_message = "Assertion Error inserting row (attempt %s)!" % x
 				raise e
 
-		except sqlalchemy.exc.StaleDataError as e:
+		except sqlalchemy.orm.exc.StaleDataError as e:
 			print("ERROR INSERTING ROW (attempt %s)!" % x)
 			traceback.print_exc()
 			db.session.rollback()
