@@ -1,12 +1,7 @@
 #!flask/bin/python
-try:
-	import logSetup
-	logSetup.initLogging()
-except:
-	print("No logging!")
-	import traceback
-	traceback.print_exc()
-	pass
+
+import logSetup
+logSetup.initLogging()
 
 from app import app
 import threading

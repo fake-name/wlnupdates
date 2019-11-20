@@ -88,6 +88,24 @@ def install_enum():
 
 	print("Done")
 
+@manager.command
+def validate_altnames():
+	'''
+	Check the altnames tables have valid entries for each item in the table they map to.
+	'''
+	print("Validating")
+	models.validate_altnames()
+	print("Done")
+
+@manager.command
+def fix_ampersands():
+	'''
+	Fix overencoded ampersands in the various content.
+	'''
+	print("Fixing")
+	models.fix_ampersands()
+	print("Done")
+
 
 # This is also true for my indexes, since they use postgres specific extensions.
 @manager.command

@@ -149,13 +149,24 @@ def get_create_group(groupname, changeuser):
 	groupname = groupname[:500]
 	cleanName = nt.prepFilenameForMatching(groupname)
 
+	have = False
+
 	# If the group name collapses down to nothing when cleaned, search for it without cleaning.
 	if len(cleanName):
 		have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname==cleanName).all()
-	else:
+
+	if not have:
 		have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.name==groupname).all()
 
 	if not have:
+
+		last_try = Translators.query.filter(Translators.name == groupname).scalar()
+		if last_try:
+			# How would this be reached? Something adding groups without adding the appropriate AlternateNames?
+			return last_try
+
+
+
 		print("Need to create new translator entry for ", groupname)
 		new = Translators(
 				name = groupname,

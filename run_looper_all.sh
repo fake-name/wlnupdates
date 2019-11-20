@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+. ./flask/bin/activate
 
 while true;
 do

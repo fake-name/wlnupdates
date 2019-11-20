@@ -212,7 +212,7 @@ class AlternateTranslatorNamesBase(object):
 	def group(cls):
 		return db.Column(db.Integer, db.ForeignKey('translators.id'))
 	name        = db.Column(db.Text(), nullable=False, index=True)
-	cleanname   = db.Column(CIText(), nullable=False, index=True)
+	cleanname   = db.Column(CIText(),  nullable=False, index=True)
 
 class TranslatorsBase(object):
 	id    = db.Column(db.Integer, primary_key=True)
@@ -700,6 +700,7 @@ def install_region_enum(conn):
 	print("Installing region enum type!")
 	region_enum.create(bind=conn, checkfirst=True)
 
+
 def install_tl_type_enum(conn):
 	print("Installing tl_type enum type!")
 	tl_type_enum.create(bind=conn, checkfirst=True)
@@ -938,3 +939,63 @@ class HttpRequestLog(db.Model):
 	referer        = db.Column(db.String)
 	forwarded_for  = db.Column(db.String)
 	originating_ip = db.Column(db.String)
+
+
+
+def validate_altnames():
+	import app.nameTools as nt
+	import app.api_handlers as aapi
+	import app.series_tools as ast
+	with app.app_context():
+		print("Loading all series")
+		all_series = Series.query.all()
+		print("Checking.")
+		for series in tqdm.tqdm(all_series):
+
+			have_plain    = AlternateNames.query.filter(AlternateNames.name      == series.title).all()
+
+			if not have_plain:
+				ast.updateAltNames(series, [series.title], deleteother=False)
+				print("Missing name entry for series '%s'" % series.title)
+
+			stripped = nt.prepFilenameForMatching(series.title)
+			if stripped:
+				have_stripped = AlternateNames.query.filter(AlternateNames.cleanname == stripped).all()
+				if not have_plain:
+					ast.updateAltNames(series, [series.title], deleteother=False)
+					print("Missing cleannedname entry for series '%s' -> '%s'" % (series.title, stripped))
+			else:
+				print("Series Name collapsed to empty: '%s'" % series.title)
+
+	with app.app_context():
+		print("Loading all TLs")
+		all_tls = Translators.query.all()
+		print("Checking.")
+		for tl in tqdm.tqdm(all_tls):
+
+
+			have_plain    = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.name == AlternateTranslatorNames.name).all()
+
+			if not have_plain:
+				print("Missing name entry for tl group '%s'" % series.title)
+				aapi.updateGroupAltNames(tl, [tl.name], delete=False)
+
+			stripped = nt.prepFilenameForMatching(tl.name)
+			if stripped:
+				have_stripped = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname == stripped).all()
+
+				if not have_plain:
+					print("Missing cleannedname entry for tl group '%s' -> '%s'" % (tl.name, stripped))
+					aapi.updateGroupAltNames(tl, [tl.name], delete=False)
+			else:
+				print("TL Name collapsed to empty: '%s'" % tl.name)
+
+def fix_ampersands():
+	import app.nameTools as nt
+	import app.api_handlers as aapi
+	import app.series_tools as ast
+	with app.app_context():
+		print("Loading all series")
+		all_series = Series.query.all()
+
+	pass

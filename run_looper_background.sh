@@ -2,7 +2,6 @@
 
 . ./flask/bin/activate
 
-
 while true;
 do
     python3 run_background.py

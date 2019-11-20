@@ -22,6 +22,12 @@ from .sub_views import captcha
 
 
 class AnonUser():
+	def __init__(self):
+		self.id = None
+
+		if "db_migrate.py" in sys.argv:
+			self.id = 2
+
 	def is_authenticated(self):
 		return False
 	def is_active(self):
