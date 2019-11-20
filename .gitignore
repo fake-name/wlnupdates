@@ -19,3 +19,10 @@ __pycache__
 /do-not-merge.json
 /matchset.json
 /app/static/gen
+/error - *.txt
+/mq error *.txt
+/dotted.pyson
+/fix_map.json
+/seriesname-matchset.json
+/translatorname-matchset.json
+/volatile_config.json
