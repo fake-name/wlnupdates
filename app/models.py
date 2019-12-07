@@ -952,11 +952,13 @@ def validate_altnames():
 		print("Checking.")
 		for series in tqdm.tqdm(all_series):
 
-			have_plain    = AlternateNames.query.filter(AlternateNames.name      == series.title).all()
-
+			have_plain    = AlternateNames.query.filter(AlternateNames.name      == series.title.strip()).all()
 			if not have_plain:
-				ast.updateAltNames(series, [series.title], deleteother=False)
 				print("Missing name entry for series '%s'" % series.title)
+				ast.updateAltNames(series, [series.title], deleteother=False)
+
+				have_now = AlternateNames.query.filter(AlternateNames.name      == series.title).count()
+				assert have_now
 
 			stripped = nt.prepFilenameForMatching(series.title)
 			if stripped:
@@ -964,6 +966,8 @@ def validate_altnames():
 				if not have_plain:
 					ast.updateAltNames(series, [series.title], deleteother=False)
 					print("Missing cleannedname entry for series '%s' -> '%s'" % (series.title, stripped))
+					have_clean_now = AlternateNames.query.filter(AlternateNames.cleanname == stripped).count()
+					assert have_clean_now
 			else:
 				print("Series Name collapsed to empty: '%s'" % series.title)
 
@@ -972,8 +976,6 @@ def validate_altnames():
 		all_tls = Translators.query.all()
 		print("Checking.")
 		for tl in tqdm.tqdm(all_tls):
-
-
 			have_plain    = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.name == AlternateTranslatorNames.name).all()
 
 			if not have_plain:
@@ -991,11 +993,41 @@ def validate_altnames():
 				print("TL Name collapsed to empty: '%s'" % tl.name)
 
 def fix_ampersands():
+	return
+
 	import app.nameTools as nt
 	import app.api_handlers as aapi
 	import app.series_tools as ast
 	with app.app_context():
 		print("Loading all series")
 		all_series = Series.query.all()
+		for series in tqdm.tqdm(all_series):
+			dirty = False
+			if "&amp;" in series.title:
+				dirty = True
+				series.title = series.title.replace("&amp;", "&")
+			for altname in series.alternatenames:
+				if "&amp;" in altname.name:
+					altname.name = altname.name.replace("&amp;", "&")
+					dirty = True
+				if "&amp;" in altname.cleanname:
+					altname.cleanname = altname.cleanname.replace("&amp;", "&")
+					dirty = True
+			if dirty:
+				db.session.commit()
 
-	pass
+
+def remove_n_a_altname():
+	import app.nameTools as nt
+	import app.api_handlers as aapi
+	import app.series_tools as ast
+	with app.app_context():
+		print("Loading all series")
+		all_series = Series.query.all()
+		for series in tqdm.tqdm(all_series):
+			for altname in series.alternatenames:
+				if altname.name == "N/A":
+					print(series, altname, altname.name)
+
+					db.session.delete(altname)
+					db.session.commit()

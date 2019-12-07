@@ -2,6 +2,14 @@
 import re
 import json
 import pprint
+import tqdm
+import sqlalchemy.orm.exc
+from sqlalchemy import inspect
+from sqlalchemy.sql.functions import Function
+from sqlalchemy.sql.expression import select, desc
+from sqlalchemy.orm import joinedload_all
+
+import Levenshtein as lv
 
 from app import models
 from app import db
@@ -13,8 +21,6 @@ from . import askUser
 
 import app.api_handlers_admin as api_admin
 
-import sqlalchemy.orm.exc
-from sqlalchemy import inspect
 from app.models import CommonTags
 from app.models import Tags
 from app.models import Genres
@@ -22,10 +28,8 @@ from app.models import Series
 
 from app.models import AlternateNames
 from app.models import SeriesChanges
-from sqlalchemy.sql.functions import Function
-from sqlalchemy.sql.expression import select, desc
-from sqlalchemy.orm import joinedload_all
 
+from app import tag_lut
 
 
 def replace_tag(oldname, newname):
@@ -107,6 +111,42 @@ def dedup_tags():
 				print("Need to fix: ", sid)
 
 	print("wat?")
+
+
+def fix_from_tag_lut():
+	scount = Series.query.count()
+	items  = Series.query.all()
+
+	for item in tqdm.tqdm(items, total=scount):
+		tags = [tag.tag for tag in item.Tags]
+
+		if tags and any([tag in tag_lut.tag_fix_lut for tag in tags]):
+			# to_fix = Tags.query.filter(Tags.tag == oldname).all()
+			print(item.id, item.title, "Tags:", tags)
+
+			app.series_tools.updateTags(item, tags)
+
+def find_similar_tags():
+	tags = Tags.query.distinct(Tags.tag).all()
+	tags = [tag.tag for tag in tags]
+
+	print("Total tags:", len(tags))
+
+	tags.sort()
+	items = []
+	for idx in range(len(tags)):
+
+		for idx2 in range(idx+1, len(tags)):
+			tag_1 = tags[idx]
+			tag_2 = tags[idx2]
+			dist = lv.distance(tag_1, tag_2)
+			if dist <= 2:
+				items.append((dist, tag_1, tag_2))
+
+	items.sort()
+	with open("out.json", "w") as fp:
+		json.dump(items, fp, indent=2)
+
 
 
 def dedup_genres():

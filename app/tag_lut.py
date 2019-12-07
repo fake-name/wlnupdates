@@ -13,6 +13,16 @@ tag_fix_lut = {
 
 	'sword-and-magic'                      : 'sword-and-sorcery',
 	'transported-into-another-world'       : 'transported-to-another-world',
+
+	# WTF is generating censored tags?
+	'an*l'                                 : 'anal',
+	'c*nnilingus'                          : 'cunnilingus',
+	'f*llatio'                             : 'fellatio',
+	'h*ndjob'                              : 'handjob',
+	'reverse-r*pe'                         : 'reverse-rape',
+	'r*pe'                                 : 'rape',
+	'r*pe-victim-becomes-lover'            : 'rape-victim-becomes-lover',
+	's*x-slaves'                           : 'sex-slaves',
 }
 
 # If the key is present, the value should also be present.

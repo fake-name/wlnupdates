@@ -4,15 +4,19 @@
 # logging.basicConfig()
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
-from app import app, db
 from citext import CIText
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
+from flask_migrate import Migrate
+from flask_migrate import MigrateCommand
+
+from app import app
+from app import db
+from app import models
 
 import util.name_lookup
-from app import models
+from util import tag_manage
 
 Migrate(app, db, compare_type=True)
 manager = Manager(app)
@@ -98,6 +102,15 @@ def validate_altnames():
 	print("Done")
 
 @manager.command
+def fix_n_a_names():
+	'''
+	Remove all the entries of "N/A" in the altnames system (not sure where they're coming from).
+	'''
+	print("Cleaning")
+	models.remove_n_a_altname()
+	print("Done")
+
+@manager.command
 def fix_ampersands():
 	'''
 	Fix overencoded ampersands in the various content.
@@ -116,6 +129,26 @@ def do_name_lookup():
 	'''
 
 	util.name_lookup.do_search()
+
+@manager.command
+def find_similar_tags():
+	'''
+	Find tags within a small edit distance of each other
+	'''
+	print("Searching")
+	with app.app_context():
+		tag_manage.find_similar_tags()
+	print("Done")
+
+@manager.command
+def apply_tag_lut():
+	'''
+	Apply the tag fix lookup table to ever series
+	'''
+	print("Fixing")
+	with app.app_context():
+		tag_manage.fix_from_tag_lut()
+	print("Done")
 
 
 manager.add_command('db', MigrateCommand)

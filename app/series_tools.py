@@ -149,23 +149,21 @@ def updatePublishers(series, publishers, deleteother=True):
 def updateAltNames(series, altnames, deleteother=True):
 	# print("Alt names:", altnames)
 	altnames = [name.strip() for name in altnames]
-	cleaned = {}
-	for name in altnames:
-		if name.lower().strip():
-			cleaned[name.lower().strip()] = name
+	altnames = [name for name in altnames if name]
+
 
 	havenames = AlternateNames.query.filter(AlternateNames.series==series.id).order_by(AlternateNames.name).all()
-	havenames = {bleach.clean(name.name.lower().strip(), strip=True) : name for name in havenames}
+	havenames = {name.name : name for name in havenames}
 
-	for name in cleaned.keys():
+	for name in altnames:
 		if name in havenames:
 			havenames.pop(name)
 		else:
-			have = AlternateNames.query.filter(AlternateNames.series==series.id).filter(AlternateNames.name == cleaned[name]).count()
+			have = AlternateNames.query.filter(AlternateNames.series==series.id).filter(AlternateNames.name == name).count()
 			if not have:
 				newname = AlternateNames(
-						name       = cleaned[name],
-						cleanname  = nt.prepFilenameForMatching(cleaned[name]),
+						name       = name,
+						cleanname  = nt.prepFilenameForMatching(name),
 						series     = series.id,
 						changetime = datetime.datetime.now(),
 						changeuser = getCurrentUserId()

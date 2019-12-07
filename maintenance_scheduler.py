@@ -83,6 +83,7 @@ def flatten_history_table():
 def deduplicate_tags():
 	with app.app_context():
 		tag_manage.dedup_tags()
+
 def deduplicate_genres():
 	with app.app_context():
 		tag_manage.dedup_genres()
