@@ -200,28 +200,3 @@ def renderAdminTools():
 
 	return render_template('/admin/tools.html')
 
-
-	# series       =       Series.query.filter(Series.id==sid).first()
-
-	# if g.user.is_authenticated():
-	# 	watch      =       Watches.query.filter(Watches.series_id==sid)     \
-	# 	                                  .filter(Watches.user_id==g.user.id) \
-	# 	                                  .scalar()
-	# else:
-	# 	watch = False
-
-	# if series is None:
-	# 	flash(gettext('Series %(sid)s not found.', sid=sid))
-	# 	return redirect(url_for('index'))
-
-	# releases = series.releases
-
-
-	# series.covers.sort(key=get_cover_sorter())
-
-	# return render_template('series-id.html',
-	# 					series_id    = sid,
-	# 					series       = series,
-	# 					releases     = releases,
-	# 					watch        = watch,
-	# 					)

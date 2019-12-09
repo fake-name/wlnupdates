@@ -404,6 +404,15 @@
 						<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block">Delete Auto-Releases</button>
 					</div>
 				</form>
+
+				{% if g.user.is_admin() %}
+					<form class="form-inline" action="javascript:delete_series_spammer({{series_id}});">
+						<div class="col-md-3 rowTitle">
+							<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block">Delete Spam Series</button>
+						</div>
+					</form>
+
+				{% endif %}
 			</div>
 		</div>
 		<hr />
@@ -1301,6 +1310,8 @@
 
 				{{admin_view(series)}}
 			{% endif %}
+
+
 			<div style="clear: both;"></div>
 			<hr class='padded-rule'>
 

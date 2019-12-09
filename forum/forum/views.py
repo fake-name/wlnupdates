@@ -222,55 +222,59 @@ def edit_post(slug, thread_id, post_id):
 						edit_post=post)
 
 
-def delete_id_internal(del_id):
-	try:
-		user    = Users .query.filter(Users.id         == del_id).one()
-		threads = Thread.query.filter(Thread.author_id == del_id).all()
-		posts   = Post  .query.filter(Post.author_id   == del_id).all()
+def delete_all_altnames(series_obj):
+	'''
+	Handle cases where the name cleanup system has added altnames that
+	have a different change user then the spammer.
+	'''
+	badlists = [
+			AlternateNames       .query.filter(AlternateNames       .series == series_obj.id).all(),
+			AlternateNamesChanges.query.filter(AlternateNamesChanges.series == series_obj.id).all(),
+			Covers               .query.filter(Covers               .series == series_obj.id).all(),
+			CoversChanges        .query.filter(CoversChanges        .series == series_obj.id).all(),
+			Releases             .query.filter(Releases             .series == series_obj.id).all(),
+			ReleasesChanges      .query.filter(ReleasesChanges      .series == series_obj.id).all(),
+		]
 
-		del_items = [
-				("AlternateNames",                  AlternateNames                 .query.filter(AlternateNames                 .changeuser == del_id).all()),
-				("AlternateNamesChanges",           AlternateNamesChanges          .query.filter(AlternateNamesChanges          .changeuser == del_id).all()),
-				("AlternateTranslatorNames",        AlternateTranslatorNames       .query.filter(AlternateTranslatorNames       .changeuser == del_id).all()),
-				("AlternateTranslatorNamesChanges", AlternateTranslatorNamesChanges.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).all()),
-				("TagsLink",                        TagsLink                       .query.filter(TagsLink                       .changeuser == del_id).all()),
-				("WikiPage",                        WikiPage                       .query.filter(WikiPage                       .changeuser == del_id).all()),
-				("WikiChanges",                     WikiChanges                    .query.filter(WikiChanges                    .changeuser == del_id).all()),
-				("Tags",                            Tags                           .query.filter(Tags                           .changeuser == del_id).all()),
-				("TagsChanges",                     TagsChanges                    .query.filter(TagsChanges                    .changeuser == del_id).all()),
-				("TagsLinkChanges",                 TagsLinkChanges                .query.filter(TagsLinkChanges                .changeuser == del_id).all()),
-				("Genres",                          Genres                         .query.filter(Genres                         .changeuser == del_id).all()),
-				("GenresChanges",                   GenresChanges                  .query.filter(GenresChanges                  .changeuser == del_id).all()),
-				("Author",                          Author                         .query.filter(Author                         .changeuser == del_id).all()),
-				("AuthorChanges",                   AuthorChanges                  .query.filter(AuthorChanges                  .changeuser == del_id).all()),
-				("Illustrators",                    Illustrators                   .query.filter(Illustrators                   .changeuser == del_id).all()),
-				("IllustratorsChanges",             IllustratorsChanges            .query.filter(IllustratorsChanges            .changeuser == del_id).all()),
-				("Translators",                     Translators                    .query.filter(Translators                    .changeuser == del_id).all()),
-				("TranslatorsChanges",              TranslatorsChanges             .query.filter(TranslatorsChanges             .changeuser == del_id).all()),
-				("Publishers",                      Publishers                     .query.filter(Publishers                     .changeuser == del_id).all()),
-				("PublishersChanges",               PublishersChanges              .query.filter(PublishersChanges              .changeuser == del_id).all()),
-				("Releases",                        Releases                       .query.filter(Releases                       .changeuser == del_id).all()),
-				("ReleasesChanges",                 ReleasesChanges                .query.filter(ReleasesChanges                .changeuser == del_id).all()),
-				("Language",                        Language                       .query.filter(Language                       .changeuser == del_id).all()),
-				("LanguageChanges",                 LanguageChanges                .query.filter(LanguageChanges                .changeuser == del_id).all()),
-				("Covers",                          Covers                         .query.filter(Covers                         .changeuser == del_id).all()),
-				("CoversChanges",                   CoversChanges                  .query.filter(CoversChanges                  .changeuser == del_id).all()),
-				("Series",                          Series                         .query.filter(Series                         .changeuser == del_id).all()),
-				("SeriesChanges",                   SeriesChanges                  .query.filter(SeriesChanges                  .changeuser == del_id).all()),
-			]
-
-
-	except SQLAlchemyError:
-		return False
-
-	print("User:", user)
-
-	for itemname, itemlist in del_items:
-		print("Deleting for table %s with %s items" % (itemname, len(itemlist)))
-		for item in itemlist:
-			db.session.delete(item)
-			print("Item:", item)
+	for badlist in badlists:
+		for bad in badlist:
+			db.session.delete(bad)
 			db.session.commit()
+
+def delete_translator(translator):
+
+	badlists = [
+			Releases                       .query.filter(Releases                       .tlgroup == translator.id).all(),
+			AlternateTranslatorNames       .query.filter(AlternateTranslatorNames       .group == translator.id).all(),
+			AlternateTranslatorNamesChanges.query.filter(AlternateTranslatorNamesChanges.group == translator.id).all(),
+		]
+
+	for badlist in badlists:
+		for bad in badlist:
+			db.session.delete(bad)
+			db.session.commit()
+
+	db.session.delete(translator)
+
+
+def delete_id_internal(del_id):
+
+	user    = Users .query.filter(Users.id         == del_id).one()
+	threads = Thread.query.filter(Thread.author_id == del_id).all()
+	posts   = Post  .query.filter(Post.author_id   == del_id).all()
+
+
+	# Delete dependent series and their properties first
+	for spam_series in Series.query.filter(Series.changeuser == del_id).all():
+		flash("Spam series: %s -> %s deleted" % (spam_series, spam_series.title))
+		print("Spam series:", spam_series, spam_series.title)
+		delete_all_altnames(spam_series)
+
+	db.session.commit()
+
+	for spam_tl in Translators.query.filter(Translators.changeuser == del_id).all():
+		delete_translator(spam_tl)
+	db.session.commit()
 
 	print("posts:", posts)
 	for thread in threads:
@@ -285,9 +289,97 @@ def delete_id_internal(del_id):
 	for watch in user.watches:
 		db.session.delete(watch)
 
+	for x in range(3):
+		SeriesChanges                  .query.filter(SeriesChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+		AlternateNamesChanges          .query.filter(AlternateNamesChanges          .changeuser == del_id).delete()
+		db.session.commit()
+		AlternateTranslatorNamesChanges.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).delete()
+		db.session.commit()
+		TagsLinkChanges                .query.filter(TagsLinkChanges                .changeuser == del_id).delete()
+		db.session.commit()
+		GenresChanges                  .query.filter(GenresChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+		AuthorChanges                  .query.filter(AuthorChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+		IllustratorsChanges            .query.filter(IllustratorsChanges            .changeuser == del_id).delete()
+		db.session.commit()
+		TranslatorsChanges             .query.filter(TranslatorsChanges             .changeuser == del_id).delete()
+		db.session.commit()
+		PublishersChanges              .query.filter(PublishersChanges              .changeuser == del_id).delete()
+		db.session.commit()
+		ReleasesChanges                .query.filter(ReleasesChanges                .changeuser == del_id).delete()
+		db.session.commit()
+		LanguageChanges                .query.filter(LanguageChanges                .changeuser == del_id).delete()
+		db.session.commit()
+		CoversChanges                  .query.filter(CoversChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+		SeriesChanges                  .query.filter(SeriesChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+		AlternateNames                 .query.filter(AlternateNames                 .changeuser == del_id).delete()
+		db.session.commit()
+		AlternateNamesChanges          .query.filter(AlternateNamesChanges          .changeuser == del_id).delete()
+		db.session.commit()
+		AlternateTranslatorNames       .query.filter(AlternateTranslatorNames       .changeuser == del_id).delete()
+		db.session.commit()
+		AlternateTranslatorNamesChanges.query.filter(AlternateTranslatorNamesChanges.changeuser == del_id).delete()
+		db.session.commit()
+		TagsLink                       .query.filter(TagsLink                       .changeuser == del_id).delete()
+		db.session.commit()
+		WikiPage                       .query.filter(WikiPage                       .changeuser == del_id).delete()
+		db.session.commit()
+		WikiChanges                    .query.filter(WikiChanges                    .changeuser == del_id).delete()
+		db.session.commit()
+		Tags                           .query.filter(Tags                           .changeuser == del_id).delete()
+		db.session.commit()
+		TagsChanges                    .query.filter(TagsChanges                    .changeuser == del_id).delete()
+		db.session.commit()
+		TagsLinkChanges                .query.filter(TagsLinkChanges                .changeuser == del_id).delete()
+		db.session.commit()
+		Genres                         .query.filter(Genres                         .changeuser == del_id).delete()
+		db.session.commit()
+		GenresChanges                  .query.filter(GenresChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+		Author                         .query.filter(Author                         .changeuser == del_id).delete()
+		db.session.commit()
+		AuthorChanges                  .query.filter(AuthorChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+		Illustrators                   .query.filter(Illustrators                   .changeuser == del_id).delete()
+		db.session.commit()
+		IllustratorsChanges            .query.filter(IllustratorsChanges            .changeuser == del_id).delete()
+		db.session.commit()
+		Translators                    .query.filter(Translators                    .changeuser == del_id).delete()
+		db.session.commit()
+		TranslatorsChanges             .query.filter(TranslatorsChanges             .changeuser == del_id).delete()
+		db.session.commit()
+		Publishers                     .query.filter(Publishers                     .changeuser == del_id).delete()
+		db.session.commit()
+		PublishersChanges              .query.filter(PublishersChanges              .changeuser == del_id).delete()
+		db.session.commit()
+		Releases                       .query.filter(Releases                       .changeuser == del_id).delete()
+		db.session.commit()
+		ReleasesChanges                .query.filter(ReleasesChanges                .changeuser == del_id).delete()
+		db.session.commit()
+		Language                       .query.filter(Language                       .changeuser == del_id).delete()
+		db.session.commit()
+		LanguageChanges                .query.filter(LanguageChanges                .changeuser == del_id).delete()
+		db.session.commit()
+		Covers                         .query.filter(Covers                         .changeuser == del_id).delete()
+		db.session.commit()
+		CoversChanges                  .query.filter(CoversChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+		Series                         .query.filter(Series                         .changeuser == del_id).delete()
+		db.session.commit()
+		SeriesChanges                  .query.filter(SeriesChanges                  .changeuser == del_id).delete()
+		db.session.commit()
+
+
+
+	db.session.commit()
 	db.session.delete(user)
 	db.session.commit()
 	return True
+
 
 @app.route('/delete_spammer/<int:user_id>', methods=GET_POST)
 @login_required
@@ -304,3 +396,44 @@ def user_is_spammer(user_id):
 
 	flash(gettext('User %s deleted' % user_id))
 	return redirect(url_for('.index'))
+
+@app.route('/delete_spam_series/<int:spam_series_id>', methods=GET_POST)
+@login_required
+def series_is_spam(spam_series_id):
+
+	if not g.user.is_admin():
+		flash(gettext('You need to be an admin to do that.'))
+		return redirect(url_for('index'))
+
+	clean_item = Series.query.filter(Series.id==spam_series_id).scalar()
+	if not clean_item:
+		flash(gettext('Series %s not found' % (spam_series_id, )))
+		return redirect(url_for('.index'))
+
+
+	print("Should delete series: ", clean_item, clean_item.title)
+
+	changeuser = clean_item.changeuser
+	print("ChangeUser: ", changeuser)
+
+	data = SeriesChanges                                   \
+			.query                                 \
+			.filter((SeriesChanges.srccol==spam_series_id))                   \
+			.all()
+
+	print("Series changes:", data)
+
+	print("Change users:", [tmp.changeuser for tmp in data])
+	if not all([tmp.changeuser == changeuser for tmp in data]):
+		flash(gettext('More then one user edit item %s. Editing User-IDs %s.' % (spam_series_id, [tmp.changeuser for tmp in data])))
+		return redirect(url_for('.'))
+
+	delete_all_altnames(clean_item)
+	ok = delete_id_internal(changeuser)
+	if not ok:
+		flash(gettext('Error deleting series %s and associated user %s deleted' % (spam_series_id, changeuser)))
+		return redirect(url_for('.index'))
+
+
+	flash(gettext('Series %s and associated user %s deleted' % (spam_series_id, changeuser)))
+	return redirect(url_for('index'))
