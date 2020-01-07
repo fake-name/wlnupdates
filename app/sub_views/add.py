@@ -67,6 +67,7 @@ def add_series(form):
 	if "UHB949" in name or "KBR777" in name or "K B R 7 7 7 .COM" in name:
 		flash(gettext("Your account has been deleted."
 			'Try not behaving like a spammer (or failing to read) next time.'))
+		print("Delete id internal from add_series dialog for user %s (%s)" % (g.user.id, g.user.nickname))
 		delete_id_internal(g.user.id)
 		return redirect(url_for('index'))
 

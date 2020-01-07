@@ -1,4 +1,6 @@
 
+import traceback
+
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -125,6 +127,8 @@ def create_thread(slug):
 			if len(tname.strip().split(" ")) == 1:
 				flash(gettext("Your account has been deleted due to failure to follow instructions about post titles!"
 					'Try not behaving like a spammer (or failing to read) next time.'))
+				print("Deleting user %s (%s) because they had a single-word thread name on their first post." % (
+					g.user.id, g.user.nickname))
 				delete_id_internal(g.user.id)
 				return redirect(url_for('index'))
 
@@ -263,6 +267,8 @@ def delete_id_internal(del_id):
 	threads = Thread.query.filter(Thread.author_id == del_id).all()
 	posts   = Post  .query.filter(Post.author_id   == del_id).all()
 
+	print("Delete id internal for user %s (%s)" % (user.id, user.nickname, ))
+	traceback.print_stack()
 
 	# Delete dependent series and their properties first
 	for spam_series in Series.query.filter(Series.changeuser == del_id).all():
@@ -389,6 +395,7 @@ def user_is_spammer(user_id):
 		flash(gettext('You need to be an admin to do that.'))
 		return redirect(url_for('index'))
 
+	print("Deleting spammer user ID %s" % (user_id, ))
 	ok = delete_id_internal(user_id)
 	if not ok:
 		return redirect(url_for('.index'))
@@ -405,6 +412,7 @@ def series_is_spam(spam_series_id):
 		flash(gettext('You need to be an admin to do that.'))
 		return redirect(url_for('index'))
 
+	print("Deleting spam series ID %s" % (spam_series_id, ))
 	clean_item = Series.query.filter(Series.id==spam_series_id).scalar()
 	if not clean_item:
 		flash(gettext('Series %s not found' % (spam_series_id, )))
