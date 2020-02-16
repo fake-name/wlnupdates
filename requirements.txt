@@ -72,7 +72,7 @@ py==1.8.1
 pycparser==2.19
 Pygments==2.5.2
 pyparsing==2.4.6
-pytest==5.1.1
+pytest==5.3.5
 pytest-cov==2.7.1
 pytest-random==0.2
 python-dateutil==2.8.0
