@@ -13,6 +13,8 @@ down_revision = ${repr(down_revision)}
 from alembic import op
 import sqlalchemy as sa
 import citext
+from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.dialects.postgresql import JSONB
 ${imports if imports else ""}
 
 def upgrade():

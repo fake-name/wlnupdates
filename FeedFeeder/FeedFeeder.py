@@ -97,8 +97,8 @@ def insert_raw_item(item):
 
 
 	for tag in item.pop('tags'):
-		if not FeedTags.query                           \
-			.filter(FeedTags.article_id==itemrow.id)    \
+		if tag and not FeedTags.query                      \
+			.filter(FeedTags.article_id==itemrow.id)       \
 			.filter(FeedTags.tag == tag.strip()).scalar():
 
 			newtag = FeedTags(article_id=itemrow.id, tag=tag.strip())
@@ -150,53 +150,63 @@ def get_create_group(groupname, changeuser):
 	cleanName = nt.prepFilenameForMatching(groupname)
 
 	have = False
+	fails = 0
 
-	# If the group name collapses down to nothing when cleaned, search for it without cleaning.
-	if len(cleanName):
-		have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname==cleanName).all()
+	while True:
+		try:
 
-	if not have:
-		have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.name==groupname).all()
+			# If the group name collapses down to nothing when cleaned, search for it without cleaning.
+			if len(cleanName):
+				have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.cleanname==cleanName).all()
 
-	if not have:
+			if not have:
+				have = AlternateTranslatorNames.query.filter(AlternateTranslatorNames.name==groupname).all()
 
-		last_try = Translators.query.filter(Translators.name == groupname).scalar()
-		if last_try:
-			# How would this be reached? Something adding groups without adding the appropriate AlternateNames?
-			return last_try
+			if not have:
+				last_try = Translators.query.filter(Translators.name == groupname).scalar()
+				if last_try:
+					# How would this be reached? Something adding groups without adding the appropriate AlternateNames?
+					return last_try
+
+				print("Need to create new translator entry for ", groupname)
+				new = Translators(
+						name = groupname,
+						changeuser = changeuser,
+						changetime = datetime.datetime.now()
+						)
+				db.session.add(new)
+				db.session.commit()
+				newalt = AlternateTranslatorNames(
+					group      = new.id,
+					name       = new.name,
+					cleanname  = nt.prepFilenameForMatching(new.name),
+					changetime = datetime.datetime.now(),
+					changeuser = changeuser,
+					)
+				db.session.add(newalt)
+				db.session.commit()
+				return new
+			else:
+				if len(have) == 1:
+					group = have[0]
+					assert group.group_row is not None, ("Wat? Row: '%s', '%s', '%s'" % (group.id, group.name, group.group_row))
+				elif len(have) > 1:
+					group = pick_best_match(have, groupname)
+				else:
+					raise ValueError("Wat for groupname: '%s'" % groupname)
+
+				row = group.group_row
+				return row
 
 
+		except sqlalchemy.exc.IntegrityError:
+			print("Concurrency issue?")
+			print("'%s', '%s'a" % (groupname, changeuser))
+			fails += 1
+			db.session.rollback()
 
-		print("Need to create new translator entry for ", groupname)
-		new = Translators(
-				name = groupname,
-				changeuser = changeuser,
-				changetime = datetime.datetime.now()
-				)
-		db.session.add(new)
-		db.session.commit()
-		newalt = AlternateTranslatorNames(
-			group      = new.id,
-			name       = new.name,
-			cleanname  = nt.prepFilenameForMatching(new.name),
-			changetime = datetime.datetime.now(),
-			changeuser = changeuser,
-			)
-		db.session.add(newalt)
-		db.session.commit()
-		return new
-	else:
-
-		if len(have) == 1:
-			group = have[0]
-			assert group.group_row is not None, ("Wat? Row: '%s', '%s', '%s'" % (group.id, group.name, group.group_row))
-		elif len(have) > 1:
-			group = pick_best_match(have, groupname)
-		else:
-			raise ValueError("Wat for groupname: '%s'" % groupname)
-
-		row = group.group_row
-		return row
+			if fails > 5:
+				raise
 
 
 def create_series(seriesname, tl_type, changeuser, author_name, alt_names = None):
@@ -685,7 +695,6 @@ def update_series_info(item):
 	changeable = generate_automated_only_change_flags(series)
 	# print(changeable)
 	# print(item)
-
 
 	# {
 	# 	'license_en': True,

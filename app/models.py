@@ -21,6 +21,7 @@ import datetime
 from settings import DATABASE_DB_NAME
 from sqlalchemy import CheckConstraint
 from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.dialects.postgresql import JSONB
 from citext import CIText
 from sqlalchemy.ext.associationproxy import association_proxy
 
@@ -161,6 +162,10 @@ class SeriesBase(object):
 	rating             = db.Column(db.Float())
 	rating_count       = db.Column(db.Integer())
 
+	extra_metadata     = db.Column(JSONB)
+
+
+
 	# tl_complete = db.Column(db.Boolean, nullable=False, default=False)
 	__table_args__ = (
 		CheckConstraint('''(rating >= 0 and rating <= 10) or rating IS NULL'''),
@@ -299,6 +304,7 @@ class Series(db.Model, SeriesBase, ModificationInfoMixin):
 	__table_args__ = (
 			UniqueConstraint('title'),
 		)
+
 	tags           = relationship("Tags",           backref='Series', order_by="Tags.tag")
 	genres         = relationship("Genres",         backref='Series')
 	author         = relationship("Author",         backref='Series')

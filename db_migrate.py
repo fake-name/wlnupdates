@@ -17,6 +17,7 @@ from app import models
 
 import util.name_lookup
 from util import tag_manage
+from util import series_manage
 
 Migrate(app, db, compare_type=True)
 manager = Manager(app)
@@ -148,6 +149,17 @@ def apply_tag_lut():
 	print("Fixing")
 	with app.app_context():
 		tag_manage.fix_from_tag_lut()
+	print("Done")
+
+
+@manager.command
+def update_series_meta():
+	'''
+	Apply the tag fix lookup table to ever series
+	'''
+	print("Fixing")
+	with app.app_context():
+		series_manage.update_series_metadata_column()
 	print("Done")
 
 

@@ -20,12 +20,20 @@
 						Last Release
 					</th>
 				</tr>
-				{%- for series_id, series_title, latest_rel, relcnt in series %}
+				{%- for series_id, series_title, latest_rel, relcnt, extra_metadata in series %}
 					<tr>
 						<td>
 							<a href='/series-id/{{ series_id }}/'>
 								{{ series_title }}
 							</a>
+
+								{%- if extra_metadata.get("is_yaoi") -%}
+									<span class='pull-right fa fa-mars-double' title="This series contains Yaoi content"></span>
+								{% endif %}
+								{%- if extra_metadata.get("is_yuri") -%}
+									<span class='pull-right fa fa-venus-double' title="This series contains Yuri content"></span>
+								{% endif %}
+
 						</td>
 						<td>
 							{{relcnt}}

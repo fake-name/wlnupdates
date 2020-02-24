@@ -886,7 +886,7 @@ input: : -moz-focus-inner{
 	content: "\e235"
 }
 .glyphicon-option-vertical-open:before {
-  content: "\e24a";
+	content: "\e24a";
 }
 .glyphicon-menu-hamburger: before{
 	content: "\e236"
@@ -962,7 +962,92 @@ input: : -moz-focus-inner{
 }
 .glyphicon-menu-up: before{
 	content: "\e260"
-}*{
+}
+
+
+
+/* ------------------------------------------------------- */
+/* Fontawesome stuff */
+
+.fa-venus:before {
+	content: "\f221";
+}
+
+.fa-venus-double:before {
+	content: "\f226";
+}
+
+.fa-venus-mars:before {
+	content: "\f228";
+}
+
+.fa-mars:before {
+	content: "\f222";
+}
+
+.fa-mars-double:before {
+	content: "\f227";
+}
+
+.fa-mars-stroke:before {
+	content: "\f229";
+}
+
+.fa-mars-stroke-h:before {
+	content: "\f22b";
+}
+
+.fa-mars-stroke-v:before {
+	content: "\f22a";
+}
+
+
+
+@font-face {
+	font-family: 'Font Awesome 5 Brands';
+	font-style: normal;
+	font-weight: 400;
+	font-display: auto;
+	src: url("../fonts/fa-brands-400.eot");
+	src: url("../fonts/fa-brands-400.eot?#iefix") format("embedded-opentype"), url("../fonts/fa-brands-400.woff2") format("woff2"), url("../fonts/fa-brands-400.woff") format("woff"), url("../fonts/fa-brands-400.ttf") format("truetype"), url("../fonts/fa-brands-400.svg#fontawesome") format("svg");
+}
+
+.fab {
+	font-family: 'Font Awesome 5 Brands';
+	font-weight: 400;
+}
+@font-face {
+	font-family: 'Font Awesome 5 Free';
+	font-style: normal;
+	font-weight: 400;
+	font-display: auto;
+	src: url("../fonts/fa-regular-400.eot");
+	src: url("../fonts/fa-regular-400.eot?#iefix") format("embedded-opentype"), url("../fonts/fa-regular-400.woff2") format("woff2"), url("../fonts/fa-regular-400.woff") format("woff"), url("../fonts/fa-regular-400.ttf") format("truetype"), url("../fonts/fa-regular-400.svg#fontawesome") format("svg");
+}
+
+.far {
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 400;
+}
+@font-face {
+	font-family: 'Font Awesome 5 Free';
+	font-style: normal;
+	font-weight: 900;
+	font-display: auto;
+	src: url("../fonts/fa-solid-900.eot");
+	src: url("../fonts/fa-solid-900.eot?#iefix") format("embedded-opentype"), url("../fonts/fa-solid-900.woff2") format("woff2"), url("../fonts/fa-solid-900.woff") format("woff"), url("../fonts/fa-solid-900.ttf") format("truetype"), url("../fonts/fa-solid-900.svg#fontawesome") format("svg");
+}
+
+.fa,
+.fas {
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+}
+/* ------------------------------------------------------- */
+
+
+
+*{
 	-webkit-box-sizing: border-box
 	-moz-box-sizing: border-box
 	box-sizing: border-box

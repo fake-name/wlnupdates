@@ -119,7 +119,7 @@ def do_advanced_search(params, queried_columns=None):
 		print("Queried columns overridden: ", queried_columns)
 		queried_columns = list(queried_columns)
 	else:
-		queried_columns = (Series.id, Series.title, Series.latest_published, Series.release_count)
+		queried_columns = (Series.id, Series.title, Series.latest_published, Series.release_count, Series.extra_metadata)
 
 	q = db.session.query(*queried_columns).group_by(Series.id)
 

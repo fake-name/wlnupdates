@@ -1,5 +1,25 @@
 
+
+import markdown
+import bleach
+import os.path
+import os
+import hashlib
+import datetime
+
+from sqlalchemy import or_
+from sqlalchemy.sql import func
 import sqlalchemy.exc
+
+from data_uri import DataURI
+from flask_login import current_user
+from flask import g
+from flask import request
+
+from app.api_common import getResponse
+from app import tag_lut
+import app.utilities as autil
+import app.nameTools as nt
 from app.models import Series
 from app.models import Tags
 from app.models import Genres
@@ -14,24 +34,6 @@ from app.models import AlternateNames
 from app.models import AlternateTranslatorNames
 from app import db
 from app import app
-import markdown
-import bleach
-import os.path
-import os
-import hashlib
-from data_uri import DataURI
-from flask_login import current_user
-import datetime
-import app.nameTools as nt
-
-from sqlalchemy import or_
-from sqlalchemy.sql import func
-
-from flask import g
-from flask import request
-
-from app.api_common import getResponse
-from app import tag_lut
 
 def getCurrentUserId():
 	'''
@@ -74,7 +76,17 @@ def updateTags(series, tags, deleteother=True, allow_new=True):
 	havetags = Tags.query.filter((Tags.series==series.id)).all()
 	havetags = {item.tag.lower() : item for item in havetags}
 
-	tags = [tag.lower().strip().replace(" ", "-").replace("_", "-") for tag in tags]
+	# Something is generating comma-separated tags. Anyways, handle that.
+	tags_out = []
+	for tag in tags:
+		if "," in tag:
+			for subtag in tag.split(","):
+				subtag = subtag.strip().strip("-")
+				tags_out.append(subtag)
+		else:
+			tags_out.append(tag)
+
+	tags = [tag.lower().strip().replace(" ", "-").replace("_", "-") for tag in tags_out]
 	tags = [bleach.clean(item, strip=True) for item in tags]
 	tags = [tag for tag in tags if tag.strip()]
 
@@ -107,6 +119,8 @@ def updateTags(series, tags, deleteother=True, allow_new=True):
 		for dummy_key, value in havetags.items():
 			db.session.delete(value)
 
+	autil.update_metadata(series)
+
 	db.session.commit()
 
 def updateGenres(series, genres, deleteother=True):
@@ -125,6 +139,9 @@ def updateGenres(series, genres, deleteother=True):
 	if deleteother:
 		for dummy_key, value in havegenres.items():
 			db.session.delete(value)
+
+	autil.update_metadata(series)
+
 	db.session.commit()
 
 def updatePublishers(series, publishers, deleteother=True):

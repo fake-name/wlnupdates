@@ -108,3 +108,22 @@ def update_latest_row(series_row):
 	series_row.release_count    = len([tmp for tmp in series_row.releases if tmp.include])
 
 
+def update_metadata(series_row):
+
+	db.session.flush()
+
+	gstr = " ".join([genre.genre for genre in series_row.genres])
+	tstr = " ".join([tag.tag for tag in series_row.tags])
+
+	meta_str = gstr + " " + tstr
+
+	if not series_row.extra_metadata:
+		series_row.extra_metadata = {}
+
+	# if 'yaoi' in meta_str or 'bl-subtext' in meta_str or 'yuri' in meta_str or 'gl-subtext' in meta_str:
+	# 	print(series_row.title, "yaoi" if ('yaoi' in meta_str or 'bl-subtext' in meta_str) else "", 'yuri' if ('yuri' in meta_str or 'gl-subtext' in meta_str) else "")
+
+	series_row.extra_metadata['is_yaoi'] = 'yaoi' in meta_str or 'bl-subtext' in meta_str
+	series_row.extra_metadata['is_yuri'] = 'yuri' in meta_str or 'gl-subtext' in meta_str
+
+

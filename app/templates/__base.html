@@ -10,6 +10,7 @@
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 
 		<link rel="preload" href="/static/fonts/glyphicons-halflings-regular.woff2" as="font" crossorigin="anonymous">
+		<link rel="preload" href="/static/fonts/fa-regular-400.woff2" as="font" crossorigin="anonymous">
 
 		{% assets "darkside_css" %}
 			<link href="{{ ASSET_URL }}" rel="preload" as="style">
@@ -25,6 +26,20 @@
 		{% assets "all_jerberscript" %}
 			<link href="{{ ASSET_URL }}"  rel="preload" as="script">
 		{% endassets %}
+
+
+
+		{% assets "darkside_css" %}
+			<link href="{{ ASSET_URL }}" rel="stylesheet alternative" media="screen" id="dark-style"  disabled >
+		{% endassets %}
+		{% assets "lightside_css" %}
+			<link href="{{ ASSET_URL }}" rel="stylesheet"             media="screen" id="light-style">
+		{% endassets %}
+
+		{% assets "most_css" %}
+			<link href="{{ ASSET_URL }}" rel="stylesheet" type="text/css" media="screen">
+		{% endassets %}
+
 
 		{% block header %}{% endblock %}
 	</head>
@@ -88,17 +103,6 @@
 
 
 	</body>
-
-	{% assets "darkside_css" %}
-		<link href="{{ ASSET_URL }}" rel="stylesheet alternative" media="screen" id="dark-style"  disabled >
-	{% endassets %}
-	{% assets "lightside_css" %}
-		<link href="{{ ASSET_URL }}" rel="stylesheet"             media="screen" id="light-style">
-	{% endassets %}
-
-	{% assets "most_css" %}
-		<link href="{{ ASSET_URL }}" rel="stylesheet" type="text/css" media="screen">
-	{% endassets %}
 
 	{% assets "all_jerberscript" %}
 		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
