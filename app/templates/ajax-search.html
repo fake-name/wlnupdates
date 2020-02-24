@@ -27,10 +27,10 @@
 								{{ series_title }}
 							</a>
 
-								{%- if extra_metadata.get("is_yaoi") -%}
+								{%- if extra_metadata and extra_metadata.get("is_yaoi") -%}
 									<span class='pull-right fa fa-mars-double' title="This series contains Yaoi content"></span>
 								{% endif %}
-								{%- if extra_metadata.get("is_yuri") -%}
+								{%- if extra_metadata and extra_metadata.get("is_yuri") -%}
 									<span class='pull-right fa fa-venus-double' title="This series contains Yuri content"></span>
 								{% endif %}
 

@@ -99,10 +99,10 @@
 			</td>
 			<td>
 				<a href='/series-id/{{entry.series}}/'>{{entry.series_row.title}}</a>
-				{%- if entry.series_row.extra_metadata.get("is_yaoi") -%}
+				{%- if entry.series_row.extra_metadata and entry.series_row.extra_metadata.get("is_yaoi") -%}
 					<span class='pull-right fa fa-mars-double'></span>
 				{% endif %}
-				{%- if entry.series_row.extra_metadata.get("is_yuri") -%}
+				{%- if entry.series_row.extra_metadata and entry.series_row.extra_metadata.get("is_yuri") -%}
 					<span class='pull-right fa fa-venus-double'></span>
 				{% endif %}
 
