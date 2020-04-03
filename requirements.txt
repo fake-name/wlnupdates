@@ -98,7 +98,7 @@ tqdm==4.45.0
 tzlocal==2.0.0
 validators==0.14.3
 vine==1.3.0
-webassets==0.12.1
+webassets==2.0
 webencodings==0.5.1
 Werkzeug==0.15.5
 Whoosh==2.7.4
