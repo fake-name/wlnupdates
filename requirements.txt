@@ -22,7 +22,7 @@ datasketch==1.5.1
 decorator==4.4.2
 defusedxml==0.6.0
 fastnumbers==2.2.1
-Flask==1.1.1
+Flask==1.1.2
 Flask-Admin==1.5.3
 Flask-Assets==0.12
 Flask-Babel==0.12.2
