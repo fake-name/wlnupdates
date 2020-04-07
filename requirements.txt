@@ -12,7 +12,7 @@ cffi==1.14.0
 ## TODO: Upgrade to 18.04
 CherryPy<18.0.0  # pyup: <18.0.0
 
-cachetools==3.1.1
+cachetools==4.0.0
 
 click==7.0
 colorama==0.4.1
