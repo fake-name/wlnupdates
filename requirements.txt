@@ -79,7 +79,7 @@ python-dateutil==2.8.1
 python-editor==1.0.4
 python-Levenshtein==0.12.0
 python3-openid==3.1.0
-pytz==2019.2
+pytz==2019.3
 redis==3.3.8
 regex==2019.08.19
 requests==2.22.0
