@@ -1,7 +1,7 @@
 git+https://github.com/fake-name/AmqpConnector.git
 alembic==1.4.2
 amqp==2.5.2
-APScheduler==3.6.1
+APScheduler==3.6.3
 awesome-slugify==1.6.5
 Babel==2.7.0
 beautifulsoup4==4.8.0
