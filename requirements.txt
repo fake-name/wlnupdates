@@ -110,5 +110,5 @@ cssmin==0.2.0
 slimit==0.8.1
 
 
-flask_sessionstore
+flask_sessionstore==0.4.5
 flask-session-captcha
