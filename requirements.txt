@@ -17,7 +17,7 @@ cachetools==4.1.0
 click==7.1.2
 colorama==0.4.3
 cov-core==1.15.0
-coverage==4.5.4
+coverage==5.1
 datasketch==1.4.7
 decorator==4.4.0
 defusedxml==0.6.0
