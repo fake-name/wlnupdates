@@ -15,7 +15,7 @@ CherryPy<18.0.0  # pyup: <18.0.0
 cachetools==4.1.0
 
 click==7.1.2
-colorama==0.4.1
+colorama==0.4.3
 cov-core==1.15.0
 coverage==4.5.4
 datasketch==1.4.7
