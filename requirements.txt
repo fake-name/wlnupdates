@@ -7,7 +7,7 @@ Babel==2.8.0
 beautifulsoup4==4.9.0
 bleach==3.1.4
 blinker==1.4
-cffi==1.12.3
+cffi==1.14.0
 ## I'm still running py3.4 on Ubuntu 14.04 in a few places. 
 ## TODO: Upgrade to 18.04
 CherryPy<18.0.0  # pyup: <18.0.0
