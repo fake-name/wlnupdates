@@ -632,7 +632,7 @@ def get_search_advanced(data):
 		for item in ret:
 			item['covers'] = [
 						{
-							'url'         : '://www.wlnupdates.com/cover-img/{}/'.format(tmp.id),
+							'url'         : '://www.wlnupdates.com/cover-img/{}'.format(tmp.id),
 							'description' : tmp.description,
 							'volume'      : tmp.volume,
 							'chapter'     : tmp.chapter,
