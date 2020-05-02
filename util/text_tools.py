@@ -1,4 +1,6 @@
 
+import urllib.parse
+import re
 import ftfy
 
 
@@ -67,3 +69,23 @@ def fix_dict(inRelease, recase=True):
 		inRelease["tl_type"] = inRelease["tl_type"].lower()
 
 	return inRelease
+
+is_rrl_chap_re = re.compile(r'^https?://(?:www\.)?royalroadl?\.com/fiction/\d+/[a-z0-9\-]+/chapter/(\d+)/[a-z0-9\-]+$', flags=re.IGNORECASE)
+
+def check_fix_rrl(url):
+
+	is_chp = is_rrl_chap_re.search(url)
+	if is_chp:
+		url = "https://www.royalroad.com/fiction/chapter/{}".format(is_chp.group(1))
+
+	return url
+
+
+def clean_fix_url(url):
+	nl = urllib.parse.urlparse(url).netloc
+
+	if nl.endswith("royalroad.com") or nl.endswith("royalroadl.com"):
+		url = check_fix_rrl(url)
+
+	return url
+

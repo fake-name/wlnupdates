@@ -437,6 +437,10 @@ def check_insert_release(item, group, series, update_id, loose_match=False, pref
 	else:
 		raise RuntimeError("Invalid url for item! Url '%s', item: '%s'" % (item['itemurl'], item))
 
+	# Patch the URL (principally the bunch of ways you can access RRL chapters.)
+	mainurl = text_tools.clean_fix_url(mainurl)
+	alturl  = text_tools.clean_fix_url(alturl)
+
 	# "Loose matching" means just check against the URL.
 	if prefix_match:
 		relQ = relQ.filter(or_(Releases.srcurl.startswith(mainurl), Releases.srcurl.startswith(alturl)))
