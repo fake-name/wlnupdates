@@ -18,6 +18,7 @@ from app import models
 import util.name_lookup
 from util import tag_manage
 from util import series_manage
+import maintenance_scheduler
 
 Migrate(app, db, compare_type=True)
 manager = Manager(app)
@@ -161,6 +162,70 @@ def update_series_meta():
 	with app.app_context():
 		series_manage.update_series_metadata_column()
 	print("Done")
+
+
+
+
+
+@manager.command
+def consolidate_rrl_items():
+	maintenance_scheduler.consolidate_rrl_items()
+
+@manager.command
+def flatten_series_by_url():
+	maintenance_scheduler.flatten_series_by_url()
+
+@manager.command
+def fix_escaped_quotes():
+	maintenance_scheduler.fix_escaped_quotes()
+
+@manager.command
+def clean_singleton_tags():
+	maintenance_scheduler.clean_singleton_tags()
+
+@manager.command
+def delete_bad_tags():
+	maintenance_scheduler.delete_bad_tags()
+
+@manager.command
+def delete_duplicate_releases():
+	maintenance_scheduler.delete_duplicate_releases()
+
+@manager.command
+def clean_garbage_releases():
+	maintenance_scheduler.clean_garbage_releases()
+
+@manager.command
+def trim_spaces():
+	maintenance_scheduler.trim_spaces()
+
+@manager.command
+def update_materialized_view():
+	maintenance_scheduler.update_materialized_view()
+
+@manager.command
+def update_to_merge_series_list():
+	maintenance_scheduler.update_to_merge_series_list()
+
+@manager.command
+def update_to_merge_groups_list():
+	maintenance_scheduler.update_to_merge_groups_list()
+
+@manager.command
+def flatten_history_table():
+	maintenance_scheduler.flatten_history_table()
+
+@manager.command
+def deduplicate_tags():
+	maintenance_scheduler.deduplicate_tags()
+
+@manager.command
+def deduplicate_genres():
+	maintenance_scheduler.deduplicate_genres()
+
+@manager.command
+def consolidate_rrl_releases():
+	maintenance_scheduler.consolidate_rrl_releases()
 
 
 manager.add_command('db', MigrateCommand)

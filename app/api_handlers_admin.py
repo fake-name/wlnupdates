@@ -1,7 +1,9 @@
 
 import pprint
 import json
+import itertools
 import urllib.parse
+import tqdm
 
 from app import db
 from app import app
@@ -44,6 +46,8 @@ from app.api_common import getResponse
 import FeedFeeder.FeedFeeder
 import sqlalchemy.exc
 
+
+import util.text_tools as text_tools
 
 import app.api_handlers
 
@@ -310,10 +314,20 @@ def merge_series_ids(m1, m2):
 	if itm_from.orig_status and not itm_to.orig_status:
 		itm_to.orig_status = itm_from.orig_status
 
-	if itm_from.website and not itm_to.website:
-		itm_to.website = itm_from.website
 	if itm_from.pub_date and not itm_to.pub_date:
 		itm_to.pub_date = itm_from.pub_date
+
+
+	if itm_from.website and not itm_to.website:
+		itm_to.website = itm_from.website.lower
+
+	# Merge item links
+	elif itm_from.website and itm_to.website:
+		websites = list(set(itm_from.website.split("\n") + itm_to.website.split("\n")))
+		websites.sort()
+		websites = "\n".join(websites)
+		itm_to.website = websites
+
 
 	db.session.flush()
 	sid = itm_from.id
@@ -407,9 +421,9 @@ def clean_bad_releases(data, admin_override=False):
 			db.session.commit()
 	print("Deleted %s items." % bad)
 
-def consolidate_rrl_items(data, admin_override=False):
-	if admin_override is False and (not current_user.is_mod()):
-		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+
+def _consolidate_rrl_items():
 
 	dups = db.engine.execute('''
 		SELECT
@@ -422,8 +436,12 @@ def consolidate_rrl_items(data, admin_override=False):
 
 	match_num = 0
 	paths = {}
+
+	dups = list(dups)
+
+	print("Found %s rows with non-null URLs" % (len(dups), ))
 	for idno, website in dups:
-		if not "royalroadl.com" in website.lower():
+		if not ("royalroadl.com" in website.lower() or "royalroad.com" in website.lower()):
 			continue
 
 
@@ -450,12 +468,12 @@ def consolidate_rrl_items(data, admin_override=False):
 		if not all((
 				all([item[0][2].path   == tmp[2].path for tmp in item]),
 				all([item[0][2].query  == tmp[2].query for tmp in item]),
-				all([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item]),
+				all([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com' or tmp[2].netloc == 'royalroad.com' or tmp[2].netloc == 'www.royalroad.com') for tmp in item]),
 			)):
 			print("Wat?")
 			print([item[0][2].path   == tmp[2].path for tmp in item])
 			print([item[0][2].query  == tmp[2].query for tmp in item])
-			print([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com') for tmp in item])
+			print([(tmp[2].netloc == 'royalroadl.com' or tmp[2].netloc == 'www.royalroadl.com' or tmp[2].netloc == 'royalroad.com' or tmp[2].netloc == 'www.royalroad.com') for tmp in item])
 			print(item)
 			assert True == False
 		# if not all((
@@ -480,7 +498,141 @@ def consolidate_rrl_items(data, admin_override=False):
 		db.session.commit()
 
 	print("Merged: ", match_num)
+	return match_num
 
+
+def consolidate_rrl_items(data, admin_override=False):
+	if admin_override is False and (not current_user.is_mod()):
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+	# We repeatedly execute the merge until it no longer results in any changes.
+	match_num = 0
+	merged = _consolidate_rrl_items()
+	while merged:
+		match_num += merged
+		merged = _consolidate_rrl_items()
+
+	return getResponse("%s Items merged." % match_num, error=False)
+
+def dump_results(res_list):
+	for row in res_list:
+		print("	https://www.wlnupdates.com/series-id/%s/ , %s" % (row.series, (
+					row.volume, row.chapter, row.fragment, row.postfix
+				)
+			))
+
+	pass
+
+class MatchTracker():
+	def __init__(self):
+		self.map = {}
+
+	def add_match(self, s1, s2):
+
+		assert isinstance(s1, int)
+		assert isinstance(s2, int)
+
+		if s1 == s2:
+			return
+
+		s1, s2 = min((s1, s2)), max((s1, s2))
+		self.map.setdefault((s1, s2), 0)
+		self.map[(s1, s2)] += 1
+
+def pairwise(iterable):
+	"s -> (s0,s1), (s1,s2), (s2, s3), ..."
+	a, b = itertools.tee(iterable)
+	next(b, None)
+	return zip(a, b)
+
+def _update_consolidate_release(mt, from_url, new_url):
+	old = Releases.query.filter(Releases.srcurl == from_url).all()
+	new = Releases.query.filter(Releases.srcurl == new_url).all()
+
+	if not old:
+		print("What?", from_url, new_url)
+		return
+
+	if len(old) > 1:
+		# print("Multiple old results: ", from_url)
+		# dump_results(old)
+		map(mt.add_match, pairwise([tmp.series for tmp in old]))
+		if new:
+			map(mt.add_match, pairwise([tmp.series for tmp in old+new]))
+			map(mt.add_match, pairwise([tmp.series for tmp in new+old]))
+		return
+	if len(new) > 1:
+		# print("Multiple new results: ", new_url)
+		# dump_results(new)
+		map(mt.add_match, pairwise([tmp.series for tmp in new]))
+		if old:
+			map(mt.add_match, pairwise([tmp.series for tmp in old+new]))
+			map(mt.add_match, pairwise([tmp.series for tmp in new+old]))
+		return
+
+	if old:
+		old, = old
+	if new:
+		new, = new
+
+	if old and not new:
+		old.srcurl = new_url
+		db.session.commit()
+		return
+
+	if old and new:
+		if old.series == new.series:
+			db.session.delete(old)
+			db.session.commit()
+			return
+
+
+		mt.add_match(old.series, new.series)
+		# print("Series mismatch! https://www.wlnupdates.com/series-id/%s , https://www.wlnupdates.com/series-id/%s" % (old.series, new.series))
+
+
+
+def consolidate_rrl_releases(data, admin_override=False):
+	if admin_override is False and (not current_user.is_mod()):
+		return getResponse(error=True, message="You have to have moderator privileges to do that!")
+
+	rrl = Translators.query.filter(Translators.name == "RoyalRoadL").scalar()
+
+	print("RRL TL Group")
+	print(rrl)
+
+	mt = MatchTracker()
+
+	print("Total releases:")
+	print(Releases.query.filter(Releases.tlgroup == rrl.id).count())
+	print("Loading releases....")
+	db.session.execute("BEGIN;")
+	urls = Releases.query.with_entities(Releases.srcurl).filter(Releases.tlgroup == rrl.id).all()
+	try:
+		for srcurl, in tqdm.tqdm(urls):
+			if 'http://royalroadl.com/forum/showthread.php?tid=' in srcurl:
+				to_delete = Releases.query.filter(Releases.srcurl == srcurl).all()
+				for bad in to_delete:
+					db.session.delete(bad)
+				continue
+
+
+			fixed = text_tools.clean_fix_url(srcurl)
+
+			if fixed != srcurl:
+				to_fix = Releases.query.filter(Releases.srcurl == srcurl).all()
+				for row in to_fix:
+					row.srcurl = fixed
+
+				db.session.commit()
+
+				# _update_consolidate_release(mt, srcurl, fixed)
+				# print("Change: %s <- %s" % (fixed, release.srcurl))
+	finally:
+		with open("rrl_match_items.json", "w") as fp:
+			json.dump(mt.map, fp=fp, indent=4)
+
+	match_num = 0
 	return getResponse("%s Items merged." % match_num, error=False)
 
 
@@ -540,13 +692,13 @@ def delete_duplicate_releases(data, admin_override=False):
 		zipped = list(zip(matches, matches[1:]))
 		for m1, m2 in zipped:
 			if m1.series != m2.series:
-				tup = (m1.series, m2.series)
+				tup = (int(m1.series), int(m2.series))
 				if tup not in mismatches:
 					print("Mismatch: ", m1.series, m2.series, m1.srcurl, m2.srcurl)
 					mismatches.add(tup)
 			else:
 				match_num += 1
-				print(m1.series, m2.series)
+				# print(m1.series, m2.series)
 
 				# ~~~Sort by change-time, since we care more about~~~
 				# ~~~the latest change (since it'll probably be more accurate)~~~
@@ -568,6 +720,10 @@ def delete_duplicate_releases(data, admin_override=False):
 
 	# print(dups)
 	# print(list(dups))
+
+	with open("rrl_match_items.json", "w") as fp:
+		json.dump(mismatches, fp=fp, indent=4)
+
 
 	return getResponse("%s Items merged." % match_num, error=False)
 

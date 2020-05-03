@@ -70,11 +70,16 @@ def fix_dict(inRelease, recase=True):
 
 	return inRelease
 
-is_rrl_chap_re = re.compile(r'^https?://(?:www\.)?royalroadl?\.com/fiction/\d+/[a-z0-9\-]+/chapter/(\d+)/[a-z0-9\-]+$', flags=re.IGNORECASE)
+is_rrl_slug_chap_re = re.compile(r'^https?://(?:www\.)?royalroadl?\.com/fiction/\d+/[a-z0-9\-]+/chapter/(\d+)/[a-z0-9\-]+$', flags=re.IGNORECASE)
+is_rrl_base_chap_re = re.compile(r'^https?://(?:www\.)?royalroadl?\.com/fiction/chapter/(\d+)/?$', flags=re.IGNORECASE)
 
 def check_fix_rrl(url):
 
-	is_chp = is_rrl_chap_re.search(url)
+	is_chp = is_rrl_slug_chap_re.search(url)
+	if is_chp:
+		url = "https://www.royalroad.com/fiction/chapter/{}".format(is_chp.group(1))
+
+	is_chp = is_rrl_base_chap_re.search(url)
 	if is_chp:
 		url = "https://www.royalroad.com/fiction/chapter/{}".format(is_chp.group(1))
 

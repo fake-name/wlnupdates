@@ -40,6 +40,9 @@ def flatten_series_by_url():
 def consolidate_rrl_items():
 	with app.app_context():
 		api_handlers_admin.consolidate_rrl_items(None, admin_override=True)
+def consolidate_rrl_releases():
+	with app.app_context():
+		api_handlers_admin.consolidate_rrl_releases(None, admin_override=True)
 def delete_duplicate_releases():
 	with app.app_context():
 		api_handlers_admin.delete_duplicate_releases(None, admin_override=True)
@@ -107,6 +110,8 @@ tasks = [
 	(flatten_history_table,        "flatten_history_table",        hours(48)),
 	(deduplicate_tags,             "deduplicate_tags",             hours( 1)),
 	(deduplicate_genres,           "deduplicate_genres",           hours( 1)),
+	(consolidate_rrl_items,        "consolidate_rrl_items",        hours(12)),
+	(consolidate_rrl_releases,     "consolidate_rrl_releases",     hours(12)),
 ]
 
 
