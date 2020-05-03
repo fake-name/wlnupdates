@@ -96,7 +96,6 @@ def printer():
 
 tasks = [
 	# (printer,                   "printer",                   15),
-	(consolidate_rrl_items,        "consolidate_rrl_items",        hours( 1)),
 	(flatten_series_by_url,        "flatten_series_by_url",        hours( 1)),
 	(fix_escaped_quotes,           "fix_escaped_quotes",           hours( 1)),
 	(clean_singleton_tags,         "clean_singleton_tags",         hours( 1)),
