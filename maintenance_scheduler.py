@@ -65,12 +65,28 @@ def update_materialized_view():
 	with app.app_context():
 		models.refresh_materialized_view()
 
+def levenshein_calculate_to_merge_series_list():
+	builder = db_organize.MatchLogBuilder()
+	db_organize.levenshein_merger_series(interactive=False, builder=builder)
+
+def levenshein_calculate_to_merge_groups_list():
+	builder = db_organize.MatchLogBuilder()
+	db_organize.levenshein_merger_groups(interactive=False, builder=builder)
+
 def update_to_merge_series_list():
+	builder = db_organize.MatchLogBuilder()
+	db_organize.release_merger_series(interactive=False, builder=builder)
+
+def update_to_merge_groups_list():
+	builder = db_organize.MatchLogBuilder()
+	db_organize.release_merger_groups(interactive=False, builder=builder)
+
+def sched_update_to_merge_series_list():
 	builder = db_organize.MatchLogBuilder()
 	db_organize.levenshein_merger_series(interactive=False, builder=builder)
 	db_organize.release_merger_series(interactive=False, builder=builder)
 
-def update_to_merge_groups_list():
+def sched_update_to_merge_groups_list():
 	builder = db_organize.MatchLogBuilder()
 	db_organize.levenshein_merger_groups(interactive=False, builder=builder)
 	db_organize.release_merger_groups(interactive=False, builder=builder)
@@ -95,22 +111,22 @@ def printer():
 	print("Background task!")
 
 tasks = [
-	# (printer,                   "printer",                   15),
-	(flatten_series_by_url,        "flatten_series_by_url",        hours( 1)),
-	(fix_escaped_quotes,           "fix_escaped_quotes",           hours( 1)),
-	(clean_singleton_tags,         "clean_singleton_tags",         hours( 1)),
-	(delete_bad_tags,              "delete_bad_tags",              hours( 1)),
-	(delete_duplicate_releases,    "delete_duplicate_releases",    hours( 2)),
-	(clean_garbage_releases,       "clean_garbage_releases",       hours( 1)),
-	(trim_spaces,                  "trim_spaces",                  hours( 1)),
-	(update_materialized_view,     "update_materialized_view",     hours( 1)),
-	(update_to_merge_series_list,  "update_to_merge_series_list",  hours(48)),
-	(update_to_merge_groups_list,  "update_to_merge_groups_list",  hours(48)),
-	(flatten_history_table,        "flatten_history_table",        hours(48)),
-	(deduplicate_tags,             "deduplicate_tags",             hours( 1)),
-	(deduplicate_genres,           "deduplicate_genres",           hours( 1)),
-	(consolidate_rrl_items,        "consolidate_rrl_items",        hours(12)),
-	(consolidate_rrl_releases,     "consolidate_rrl_releases",     hours(12)),
+	# (printer,                         "printer",                   15),
+	(flatten_series_by_url,              "flatten_series_by_url",        hours( 1)),
+	(fix_escaped_quotes,                 "fix_escaped_quotes",           hours( 1)),
+	(clean_singleton_tags,               "clean_singleton_tags",         hours( 1)),
+	(delete_bad_tags,                    "delete_bad_tags",              hours( 1)),
+	(delete_duplicate_releases,          "delete_duplicate_releases",    hours( 2)),
+	(clean_garbage_releases,             "clean_garbage_releases",       hours( 1)),
+	(trim_spaces,                        "trim_spaces",                  hours( 1)),
+	(update_materialized_view,           "update_materialized_view",     hours( 1)),
+	(sched_update_to_merge_series_list,  "update_to_merge_series_list",  hours(18)),
+	(sched_update_to_merge_groups_list,  "update_to_merge_groups_list",  hours(24)),
+	(flatten_history_table,              "flatten_history_table",        hours(48)),
+	(deduplicate_tags,                   "deduplicate_tags",             hours( 1)),
+	(deduplicate_genres,                 "deduplicate_genres",           hours( 1)),
+	(consolidate_rrl_items,              "consolidate_rrl_items",        hours(12)),
+	(consolidate_rrl_releases,           "consolidate_rrl_releases",     hours(12)),
 ]
 
 

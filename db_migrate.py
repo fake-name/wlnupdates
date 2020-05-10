@@ -204,6 +204,14 @@ def update_materialized_view():
 	maintenance_scheduler.update_materialized_view()
 
 @manager.command
+def levenshein_calculate_to_merge_series_list():
+	maintenance_scheduler.levenshein_calculate_to_merge_series_list()
+
+@manager.command
+def levenshein_calculate_to_merge_groups_list():
+	maintenance_scheduler.levenshein_calculate_to_merge_groups_list()
+
+@manager.command
 def update_to_merge_series_list():
 	maintenance_scheduler.update_to_merge_series_list()
 

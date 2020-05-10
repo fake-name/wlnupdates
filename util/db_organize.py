@@ -228,13 +228,13 @@ class MatchLogBuilder(object):
 			return
 		print_match(s1, s2, id1, id2, n1, n2, distance)
 		self.matchsets[key] = {
-				"id1"      : id1,
-				"id2"      : id2,
-				"n1"       : n1,
-				"n2"       : n2,
-				"ns1"      : [n.name for n in s1.alternatenames],
-				"ns2"      : [n.name for n in s2.alternatenames],
-				"distance" : distance,
+				"id1"      : int(id1),
+				"id2"      : int(id2),
+				"n1"       : str(n1),
+				"n2"       : str(n2),
+				"ns1"      : [str(n.name) for n in s1.alternatenames],
+				"ns2"      : [str(n.name) for n in s2.alternatenames],
+				"distance" : float(distance),
 			}
 	def add_match_group(self, s1, s2, id1, id2, n1, n2, distance):
 		key = (id1, id2) if id1 <= id2 else (id2, id1)
@@ -315,13 +315,13 @@ def release_merger_series(interactive=False, builder=None):
 	print("Fetching releases")
 	reldicts = []
 	with app.app_context():
-		items = models.Releases.query.all()
+		items = models.Releases.query.with_entities(models.Releases.series, models.Releases.srcurl, models.Releases.tlgroup).all()
 		print("Fetched %s release objects" % len(items))
-		for item in tqdm.tqdm(items):
+		for (series, srcurl, tlgroup) in tqdm.tqdm(items):
 			reldicts.append({
-				"series"  : item.series,
-				"srcurl"  : item.srcurl,
-				"tlgroup" : item.tlgroup,
+				"series"  : series,
+				"srcurl"  : srcurl,
+				"tlgroup" : tlgroup,
 				})
 
 	print("Have %s items." % len(reldicts))
@@ -335,7 +335,7 @@ def release_merger_series(interactive=False, builder=None):
 
 	for key, val in relmap.items():
 		if len(val) > 1:
-			print("More then 1: ", key, )
+			print("(release_merger_series) More then 1: ", key, )
 
 			sids = list(set([tmp['series'] for tmp in val]))
 			if len(sids) > 1:
@@ -349,8 +349,6 @@ def release_merger_series(interactive=False, builder=None):
 					# If we have at least 5 netlocs in common
 					if val[sid_1] > 5 and val[sid_2] > 5:
 						with app.app_context():
-
-
 							s1 = models.Series.query.filter(
 								models.Series.id==sid_1
 								).one()
@@ -526,14 +524,15 @@ def release_merger_groups(interactive=True, builder=None):
 
 	print("Fetching releases")
 	reldicts = []
+
 	with app.app_context():
-		items = models.Releases.query.all()
+		items = models.Releases.query.with_entities(models.Releases.series, models.Releases.srcurl, models.Releases.tlgroup).all()
 		print("Fetched %s release objects" % len(items))
-		for item in tqdm.tqdm(items):
+		for (series, srcurl, tlgroup) in tqdm.tqdm(items):
 			reldicts.append({
-				"series"  : item.series,
-				"srcurl"  : item.srcurl,
-				"tlgroup" : item.tlgroup,
+				"series"  : series,
+				"srcurl"  : srcurl,
+				"tlgroup" : tlgroup,
 				})
 
 	print("Have %s items. Parsing out unique netlocs." % len(reldicts))
@@ -555,7 +554,7 @@ def release_merger_groups(interactive=True, builder=None):
 	for key, val in relmap.items():
 		val = {key : item_cnt for key, item_cnt in val.items() if (item_cnt > 100 and key)}
 		if len(val) > 1:
-			print("More then 1: key: %s, val: " % (key, ))
+			print("(release_merger_groups) More then 1: key: %s, val: " % (key, ))
 			pprint.pprint(val)
 			if len(val) > 1:
 				for gid_1, gid_2 in pairwise(val):
