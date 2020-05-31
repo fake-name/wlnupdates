@@ -1,8 +1,7 @@
 ## API Documentation
 
-##### Note: the API documentation is unfinished, because the person asking for it apparently evaporated.
 
-#### I'd be happy to finish both the API and the associated documentation as soon as someone indicate they'll actually *use* it. Feel free to show interest on the [issue](https://github.com/fake-name/wlnupdates/issues/3) on github.
+##### For any problems/questions, please open an [issue](https://github.com/fake-name/wlnupdates/issues/) on github. 
 
 ------
 
@@ -10,12 +9,13 @@ WLNUpdates has a fairly simple API. It talks JSON, both for commands and the res
 There is only one endpoint, different operations are denoted by the contents of the
 POSTed JSON. The endpoint path is `/api`.
 
+The API basically exposes the underlying calls that are used for generating the HTML content. In fact, in most cases the primary codepaths are literally the same, with just the response rendering differing. 
+
 All commands must post data of mimetype `application/json`. A exmple jquery call for this API is [here](https://github.com/fake-name/wlnupdates/blob/master/app/static/js/editable.js#L496-L502).
 
 Note that all non-read-only calls for the the API currently have CSRF protection via [Flask-WTF](http://flask-wtf.readthedocs.org/en/latest/csrf.html). This is handled via a `$.ajaxSetup` `beforeSend` callback [here](https://github.com/fake-name/wlnupdates/blob/master/app/static/js/editable.js#L530-L536). This requirement will be relaxed in the future, as soon as I determine a good way to still maintain a decent level of protection in it's absence. Currently, the CSRF token is passed to the endpoints via a [meta tag](https://github.com/fake-name/wlnupdates/blob/master/app/static/js/editable.js#L528) on each  HTML page.
 
 For most calls, if you call the relevant API method with invalid/incorrect parameters, the error message should tell you how to fix your API call.
-
 
 
 ## API Calls
