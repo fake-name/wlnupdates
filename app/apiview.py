@@ -110,6 +110,7 @@ DISPATCH_TABLE = {
 	'get-group-id'              : (api_handlers_anon.get_group_id,                      False, False, True),
 	'get-publisher-id'          : (api_handlers_anon.get_publisher_id,                  False, False, True),
 	'get-series-id'             : (api_handlers_anon.get_series_id,                     False, False, True),
+	'get-series-data'           : (api_handlers_anon.get_series_id,                     False, False, True),
 	'get-tag-id'                : (api_handlers_anon.get_tag_id,                        False, False, True),
 
 	'get-artist-data'           : (api_handlers_anon.get_artist_id,                     False, False, True),
@@ -117,7 +118,6 @@ DISPATCH_TABLE = {
 	'get-genre-data'            : (api_handlers_anon.get_genre_id,                      False, False, True),
 	'get-group-data'            : (api_handlers_anon.get_group_id,                      False, False, True),
 	'get-publisher-data'        : (api_handlers_anon.get_publisher_id,                  False, False, True),
-	'get-series-data'           : (api_handlers_anon.get_series_id,                     False, False, True),
 	'get-tag-data'              : (api_handlers_anon.get_tag_id,                        False, False, True),
 
 	# Logged in stuff

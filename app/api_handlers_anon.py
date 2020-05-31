@@ -150,18 +150,20 @@ def unpack_releases(release_items):
 	return release_items
 def get_oel_releases(data):
 	data = check_validate_range(data)
-	releases = release_view_items.get_releases(page = data['offset'])
-	tmp = unpack_paginator(releases)
-
-	tmp['items'] = unpack_releases(tmp['items'])
-	return getDataResponse(tmp)
-def get_releases(data):
-	data = check_validate_range(data)
 	releases = release_view_items.get_releases(page = data['offset'], srctype='oel')
 	tmp = unpack_paginator(releases)
 
 	tmp['items'] = unpack_releases(tmp['items'])
 	return getDataResponse(tmp)
+
+def get_releases(data):
+	data = check_validate_range(data)
+	releases = release_view_items.get_releases(page = data['offset'])
+	tmp = unpack_paginator(releases)
+
+	tmp['items'] = unpack_releases(tmp['items'])
+	return getDataResponse(tmp)
+
 def get_translated_releases(data):
 	data = check_validate_range(data)
 	releases = release_view_items.get_releases(page = data['offset'], srctype='translated')
@@ -412,6 +414,7 @@ def unpack_tag_genre_publisher(row_item, series):
 	if "genre" in row_keys:
 		name = "genre"
 		val  = row_item.genre
+
 	if "name" in row_keys:
 		name = "name"
 		val  = row_item.name

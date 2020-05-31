@@ -1,55 +1,55 @@
 
-import logSetup
 import json
+import pprint
 import webFunctions
+import logSetup
 # if __name__ == "__main__":
 # 	logSetup.initLogging()
 
 
 MODES = [
-	'get',
-	'get-artists',
-	'get-authors',
-	'get-genres',
-	'get-groups',
-	'get-publishers',
+	# 'get-artists',
+	# 'get-authors',
+	# 'get-genres',
+	# 'get-groups',
+	# 'get-publishers',
 
-	'get-tags',
+	# 'get-tags',
 
-	'get-oel-releases',
-	'get-releases',
-	'get-translated-releases',
+	# 'get-releases',
+	# 'get-oel-releases',
+	# 'get-translated-releases',
 
-	'get-oel-series',
-	'get-series',
-	'get-translated-series',
+	# 'get-oel-series',
+	# 'get-series',
+	# 'get-translated-series',
 
 
-	'get-artist-id',
-	'get-author-id',
+	# 'get-artist-id',
+	# 'get-author-id',
 	'get-tag-id',
-	'get-genre-id',
-	'get-publisher-id',
-	'get-group-id',
+	# 'get-genre-id',
+	# 'get-publisher-id',
+	# 'get-group-id',
 
-	'get-artist-data',
-	'get-author-data',
-	'get-tag-data',
-	'get-genre-data',
-	'get-publisher-data',
-	'get-group-data',
+	# 'get-artist-data',
+	# 'get-author-data',
+	# 'get-tag-data',
+	# 'get-genre-data',
+	# 'get-publisher-data',
+	# 'get-group-data',
 
-	'get-series-id',
-	'get-series-data',
+	# 'get-series-id',
+	# 'get-series-data',
 
-	'get-feeds',
-	'get-watches',
+	# 'get-feeds',
+	# 'get-watches',
 
-	'enumerate-tags',
-	'enumerate-genres',
+	# 'enumerate-tags',
+	# 'enumerate-genres',
 
-	'search-title',
-	'search-advanced',
+	# 'search-title',
+	# 'search-advanced',
 
 ]
 
@@ -65,9 +65,10 @@ def test():
 			'mode'   : mode,
 			'id'     : 3,
 		}
-		print("Request: ", post)
+		pprint.pprint("Request: ")
+		pprint.pprint(post)
 		pg = wg.getpage(endpoint, postJson=post)
-		print(json.loads(pg))
+		pprint.pprint(json.loads(pg))
 
 		# for letter in "abcdefghijklmnopqrstuvwxyz0123456789":
 		# 	for page in range(4):
@@ -87,47 +88,47 @@ def test():
 
 
 
-	post = {
-		'mode'   : 'search-title',
-		'title'     : "",
-	}
-	print("Request: ", post)
-	pg = wg.getpage(endpoint, postJson=post)
-	print(pg)
+	# post = {
+	# 	'mode'   : 'search-title',
+	# 	'title'     : "",
+	# }
+	# print("Request: ", post)
+	# pg = wg.getpage(endpoint, postJson=post)
+	# print(pg)
 
 
-	post = {
-		'mode'   : 'search-advanced',
-		# 'series-type'  : {'Translated' : 'included'},
-		# 'tag-category' : {
-		# 	'litrpg' : 'included',
-		# 	},
-		# 'sort-mode' : "update",
-		'title-search-text' : "a a",
-		# 'chapter-limits' : [1, 0],
-	}
+	# post = {
+	# 	'mode'   : 'search-advanced',
+	# 	# 'series-type'  : {'Translated' : 'included'},
+	# 	# 'tag-category' : {
+	# 	# 	'litrpg' : 'included',
+	# 	# 	},
+	# 	# 'sort-mode' : "update",
+	# 	'title-search-text' : "a a",
+	# 	# 'chapter-limits' : [1, 0],
+	# }
 
-	print("Request: ", post)
-	pg = wg.getpage(endpoint, postJson=post)
-	print(pg)
+	# print("Request: ", post)
+	# pg = wg.getpage(endpoint, postJson=post)
+	# print(pg)
 
-	include_options = ['covers', 'tags', 'genres', 'description']
+	# include_options = ['covers', 'tags', 'genres', 'description']
 
-	for include in include_options:
-		post = {
-			'mode'   : 'search-advanced',
-			# 'series-type'  : {'Translated' : 'included'},
-			# 'tag-category' : {
-			# 	'litrpg' : 'included',
-			# 	},
-			'sort-mode' : "update",
-			'title-search-text' : "Fire Girl",
-			'chapter-limits' : [40, 0],
-			'include-results' : [include]
-		}
-		print("Request: ", post)
-		pg = wg.getpage(endpoint, postJson=post)
-		print(pg)
+	# for include in include_options:
+	# 	post = {
+	# 		'mode'   : 'search-advanced',
+	# 		# 'series-type'  : {'Translated' : 'included'},
+	# 		# 'tag-category' : {
+	# 		# 	'litrpg' : 'included',
+	# 		# 	},
+	# 		'sort-mode' : "update",
+	# 		'title-search-text' : "Fire Girl",
+	# 		'chapter-limits' : [40, 0],
+	# 		'include-results' : [include]
+	# 	}
+	# 	print("Request: ", post)
+	# 	pg = wg.getpage(endpoint, postJson=post)
+	# 	print(pg)
 
 if __name__ == "__main__":
 	test()

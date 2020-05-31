@@ -1,6 +1,6 @@
 ## API Documentation
 
-### Note: the API is unfinished, because the person asking for it apparently evaporated.
+##### Note: the API documentation is unfinished, because the person asking for it apparently evaporated.
 
 #### I'd be happy to finish both the API and the associated documentation as soon as someone indicate they'll actually *use* it. Feel free to show interest on the [issue](https://github.com/fake-name/wlnupdates/issues/3) on github.
 
@@ -14,6 +14,7 @@ All commands must post data of mimetype `application/json`. A exmple jquery call
 
 Note that all non-read-only calls for the the API currently have CSRF protection via [Flask-WTF](http://flask-wtf.readthedocs.org/en/latest/csrf.html). This is handled via a `$.ajaxSetup` `beforeSend` callback [here](https://github.com/fake-name/wlnupdates/blob/master/app/static/js/editable.js#L530-L536). This requirement will be relaxed in the future, as soon as I determine a good way to still maintain a decent level of protection in it's absence. Currently, the CSRF token is passed to the endpoints via a [meta tag](https://github.com/fake-name/wlnupdates/blob/master/app/static/js/editable.js#L528) on each  HTML page.
 
+For most calls, if you call the relevant API method with invalid/incorrect parameters, the error message should tell you how to fix your API call.
 
 
 
@@ -27,10 +28,22 @@ Due to this fact, all the list lookup functions return both the human readable i
 
 Note that IDs are not globally unique. There may be valid items in multiple categories with the same ID. As such, a unambiguous identifier is actually the combination of the category *and* the ID.
 
+
+In most cases, the ID can be used to construct a corresponding URL without too much work. For series, Series-ids correlate to URLs as: `https://www.wlnupdates.com/series-id/<series-id>/<slug>`. The slug is optional, and can be ignored or left out entirely. `https://www.wlnupdates.com/series-id/<series-id>/` or `https://www.wlnupdates.com/series-id/<series-id>/garbage` will 302 redirect to the full URL. 
+
+For most other topics, there isn't a slug, but the construction is the same:
+
+ - `https://www.wlnupdates.com/author-id/<author-id>/`
+ - `https://www.wlnupdates.com/genre-id/<genre-id>/`
+ - `https://www.wlnupdates.com/artist-id/<artist-id>/`
+ - `https://www.wlnupdates.com/tag-id/<tag-id>/`
+ - `https://www.wlnupdates.com/group-id/<group-id>/`
+ - `https://www.wlnupdates.com/publisher-id/<publisher-id>/`
+
+
 #### Structure:
 
 All API calls are, at minimum, composed of a base JSON object containing the key `mode`, with the value of `mode` determining which function the request maps to.
-
 
 API call responses are a JSON object with at minimum 3 keys: `{ 'error'   : error, 'message' : message, 'reload'  : shouldReload} `. If the API call returns data, it will be the object for a fourth key, `data`
 
@@ -49,6 +62,468 @@ Floats/strings passed to integer parameters will be cast to integers, errors on 
 
 
 ## Read-Only API Methods
+
+
+### `get-series-id` 
+
+Note: `get-series-data` is a synonym for `get-series-id`. I don't remember why I have two synonyms for the same internal call.
+
+Post:
+
+    {
+    	'id': 3, 
+    	'mode': 'get-series-id'
+    }
+
+`id` is the series-id for the series in question.
+
+Response:
+
+    {'data': 
+    	{
+    		'alternatenames': 
+    		[
+    			'Hamachi',
+                             'やはり俺の青春ラブコメはまちがっている。',
+                             'My Teen Romantic Comedy is Wrong as I Expected',
+                             '我的青春恋爱物 语果然有问题（小说）',
+                             'My Teen Romantic Comedy SNAFU',
+							 <snip>
+                             'Oregairu',
+                             'Yahari Ore no Seishun Love Come wa '
+                             'Machigatteiru.'
+			],
+          'authors': [{'author': 'WATARI Wataru', 'id': 3},
+                      {'author': 'Wataru Watari', 'id': 52604}],
+          'covers': [{'chapter': None,
+                      'description': None,
+                      'id': 3,
+                      'srcfname': 'i203641.jpg',
+                      'url': 'https://www.wlnupdates.com/cover-img/3',
+                      'volume': None},
+							 <snip>
+                     {'chapter': None,
+                      'description': 'Yahari Ore no Seishun Rom-Com wa '
+                                     'Machigatteiru. 10.5',
+                      'id': 2264,
+                      'srcfname': '5548.jpeg',
+                      'url': 'https://www.wlnupdates.com/cover-img/2264',
+                      'volume': 10.0}],
+          'demographic': 'Male',
+          'description': '<p>Yahari Ore no Seishun Rabukome wa Machigatte Iru. '
+                         'is a romantic comedy which revolves around '
+                         'antisocial high school student, Hachiman Hikigaya, '
+                         'who has no friends, no girlfriend, and a severely '
+                         'distorted view on life. When he sees his classmates '
+                         'talking excitedly about living their adolescent '
+                         'lives, he mutters, "They\'re a bunch of liars." When '
+                         'he is asked about his future dreams, he responds, '
+                         '"Not working." In an attempt to fix Hachiman\'s '
+                         'twisted personality, his teacher forces him to join '
+                         "the volunteer 'service club', where the only other "
+                         "member happens to be one of the school's most "
+                         'beautiful and smartest girls, Yukino '
+                         'Yukinoshita.</p>',
+          'genres': [{'genre': 'comedy', 'id': 4},
+                     {'genre': 'drama', 'id': 5},
+                     {'genre': 'harem', 'id': 16991},
+                     {'genre': 'psychological', 'id': 36752},
+                     {'genre': 'romance', 'id': 6},
+                     {'genre': 'school-life', 'id': 7},
+                     {'genre': 'seinen', 'id': 8},
+                     {'genre': 'slice-of-life', 'id': 13994}],
+          'id': 3,
+          'illustrators': [{'id': 3572, 'illustrators': 'Ponkan⑧'},
+                           {'id': 3, 'illustrators': 'Ponkan 8'},
+                           {'id': 3782, 'illustrators': 'Ponkan8'}],
+          'latest': {'chp': 8.0, 'frg': 0.0, 'vol': 14.0},
+          'latest_published': 'Sat, 08 Feb 2020 21:50:33 GMT',
+          'latest_str': 'vol. 14.0, ch. 8.0',
+          'license_en': True,
+          'most_recent': 'Sat, 08 Feb 2020 21:50:33 GMT',
+          'orig_lang': None,
+          'orig_status': '14 Volumes + 3 Side-story Volumes (6.5,7.5,10.5) '
+                         '(Completed)',
+          'origin_loc': None,
+          'progress': {'chp': 8.0, 'frg': 0.0, 'vol': 14.0},
+          'pub_date': 'Sat, 01 Jan 2011 00:00:00 GMT',
+          'publishers': [{'id': 5653, 'publisher': 'Gagaga Bunko'},
+                         {'id': 779, 'publisher': 'Shogakukan'},
+                         {'id': 780, 'publisher': 'Yen Press'}],
+          'rating': {'avg': 7.77142857142857, 'num': 35, 'user': -1},
+          'rating_count': 35,
+          'region': 'unknown',
+          'releases': [{'chapter': 8.0,
+                        'fragment': None,
+                        'postfix': '',
+                        'published': 'Fri, 03 Jan 2020 07:00:27 GMT',
+                        'series': {'id': 3,
+                                   'name': 'Yahari Ore no Seishun Rabukome wa '
+                                           'Machigatte Iru.'},
+                        'srcurl': 'https://kyakka.wordpress.com/2020/01/03/oregairu-volume-14-chapter-8-happy-birthday-yukino/',
+                        'tlgroup': {'id': 102, 'name': 'Kyakka'},
+                        'volume': 14.0},
+                       {'chapter': 7.0,
+                        'fragment': None,
+                        'postfix': '',
+                        'published': 'Thu, 26 Dec 2019 01:11:40 GMT',
+                        'series': {'id': 3,
+                                   'name': 'Yahari Ore no Seishun Rabukome wa '
+                                           'Machigatte Iru.'},
+                        'srcurl': 'https://kyakka.wordpress.com/2019/12/25/oregairu-volume-14-chapter-7/',
+                        'tlgroup': {'id': 102, 'name': 'Kyakka'},
+                        'volume': 14.0},
+							 <snip>
+                       {'chapter': 1.0,
+                        'fragment': None,
+                        'postfix': '',
+                        'published': 'Sun, 14 Sep 2014 03:15:03 GMT',
+                        'series': {'id': 3,
+                                   'name': 'Yahari Ore no Seishun Rabukome wa '
+                                           'Machigatte Iru.'},
+                        'srcurl': 'https://kyakka.wordpress.com/2014/09/14/yahari-4koma-chapter-1/',
+                        'tlgroup': {'id': 102, 'name': 'Kyakka'},
+                        'volume': None},
+                       {'chapter': 1.0,
+                        'fragment': None,
+                        'postfix': 'Prologue 1',
+                        'published': 'Tue, 21 Feb 2017 04:02:12 GMT',
+                        'series': {'id': 3,
+                                   'name': 'Yahari Ore no Seishun Rabukome wa '
+                                           'Machigatte Iru.'},
+                        'srcurl': 'https://kyakka.wordpress.com/2015/06/25/yahari-light-novel-volume-a-prologue-1/',
+                        'tlgroup': {'id': 102, 'name': 'Kyakka'},
+                        'volume': None}],
+          'similar_series': [{'id': 44440,
+                              'title': 'Youkoso Jitsuryoku Shijou Shugi no '
+                                       'Kyoushitsu e'},
+                             {'id': 581,
+                              'title': 'Death March kara Hajimaru Isekai '
+                                       'Kyusoukyoku'},
+                             {'id': 45289, 'title': 'Yowa-chara Tomozaki-kun'},
+                             {'id': 33188,
+                              'title': 'Genjitsushugisha no Oukokukaizouki'},
+                             {'id': 1471,
+                              'title': 'Mahouka Koukou no Rettousei'},
+                             {'id': 2085,
+                              'title': 'Arifureta Shokugyou de Sekai Saikyou'}],
+          'tags': [{'id': 3, 'tag': 'adapted-to-anime'},
+                   {'id': 4, 'tag': 'adapted-to-manga'},
+                   {'id': 990206, 'tag': 'androgynous-characters'},
+                   {'id': 436136, 'tag': 'anti-social-lead'},
+                   {'id': 2165069, 'tag': 'average-looking-lead'},
+                   {'id': 383940, 'tag': 'beautiful-female-lead'},
+                   {'id': 2496059, 'tag': 'calm-lead'},
+                   {'id': 2495814, 'tag': 'character-growth'},
+                   {'id': 436167, 'tag': 'clever-lead'},
+                   {'id': 6, 'tag': 'club/s'},
+                   {'id': 348397, 'tag': 'comedy'},
+                   {'id': 2496058, 'tag': 'cunning-lead'},
+                   {'id': 510471, 'tag': 'drama'},
+                   {'id': 393033, 'tag': 'egotistical-male-lead'},
+                   {'id': 8, 'tag': 'female-dominance'},
+                   {'id': 2496056, 'tag': 'hard-working-protagonist/s'},
+                   {'id': 9, 'tag': 'harem-subtext'},
+                   {'id': 2495819, 'tag': 'late-romance'},
+                   {'id': 436850, 'tag': 'loner-lead'},
+                   {'id': 2495822, 'tag': 'love-interest-falls-in-love-first'},
+                   {'id': 434533, 'tag': 'love-triangle/s'},
+                   {'id': 434534, 'tag': 'male-lead'},
+                   {'id': 680083, 'tag': 'modern-day'},
+                   {'id': 2495821, 'tag': 'philosophical'},
+                   {'id': 11, 'tag': 'popular-female-lead'},
+                   {'id': 348401, 'tag': 'romance'},
+                   {'id': 348400, 'tag': 'school-life'},
+                   {'id': 348398, 'tag': 'slice-of-life'},
+                   {'id': 2495826, 'tag': 'slow-romance'},
+                   {'id': 12, 'tag': 'social-outcast/s'},
+                   {'id': 13, 'tag': 'talented-female-lead'},
+                   {'id': 680084, 'tag': 'tsundere'}],
+          'title': 'Yahari Ore no Seishun Rabukome wa Machigatte Iru.',
+          'tl_type': 'translated',
+          'total_watches': 4,
+          'type': 'Novel',
+          'watch': False,
+          'watchlists': False,
+          'website': None},
+ 'error': False,
+ 'message': None}
+
+
+ 
+#### `get-artist-data`/`get-artist-id`
+
+Post:
+
+    {
+    	'id': 3, 
+    	'mode': `get-artist-id`
+    }
+
+Response:
+
+    {'data': {'name': 'Ponkan 8',
+              'series': [{'id': 3,
+                          'title': 'Yahari Ore no Seishun Rabukome wa Machigatte '
+                                   'Iru.'}]},
+     'error': False,
+     'message': None}
+
+
+#### `get-author-data`/`get-author-id`
+
+Post:
+
+    {
+    	'id': 3, 
+    	'mode': `get-author-id`
+    }
+
+Response:
+
+    {'data': {'name': 'WATARI Wataru',
+              'series': [{'id': 3,
+                          'title': 'Yahari Ore no Seishun Rabukome wa Machigatte '
+                                   'Iru.'}]},
+     'error': False,
+     'message': None}
+
+
+
+#### `get-genre-data`/`get-genre-id`
+
+Post:
+
+    {
+    	'id': 3, 
+    	'mode': `get-genre-id`
+    }
+
+Response:
+
+Note: This response is not paginated, and can be quite large as a result.
+
+	{'data': {'genre': 'shounen',
+	          'series': [{'id': 298, 'title': '1/2 Prince'},
+	                     {'id': 1, 'title': "3-Z Class's Ginpachi-sensei"},
+	                     {'id': 57522, 'title': '400 Years Old Virgin Demon King'},
+	                     {'id': 33430, 'title': '7Th'},
+	                     <snip>
+	                     {'id': 268,
+	                      'title': 'Yuusha ni Nare Nakatta Ore wa Shibushibu '
+	                               'Shuushoku o Ketsui Shimashita'},
+	                     {'id': 56692, 'title': 'Yuusha no Segare'},
+	                     {'id': 670,
+	                      'title': 'Yuusha Party ni Kawaii Ko ga Ita node, '
+	                               'Kokuhaku Shitemita.'},
+	                     {'id': 1631, 'title': 'Zero no Tsukaima'},
+	                     {'id': 1098, 'title': 'Zhan Long'}]},
+	 'error': False,
+	 'message': None}
+
+
+
+#### `get-group-data`/`get-group-id`
+
+Post:
+
+    {
+    	'id': 3, 
+    	'mode': `get-group-id`
+    }
+
+Response:
+Note: Feed and releases are paginated using the same page number.
+
+    {'data': {'active-series': {'110407': 'The Girl Who Sold Her Body, Who Might '
+                                      'Be The Person Who Bought Her',
+                            '112300': "4 JK's Life in Another World!",
+                            '1135': 'Manowa Mamono Taosu Nouryoku Ubau Watashi '
+                                    'Tsuyokunaru',
+                            '116475': "Blunt Type Ogre Girl's Way to Live "
+                                      'Streaming',
+                            '1540': 'Kansutoppu!',
+                            '2326': 'Garudina okoku kokoku-ki',
+                            '2352': 'Yuusha Yori Saikyouna Kuro Kishi',
+                            '2696': "Astarte's Knight",
+                            '33497': 'Gob Tensei',
+                            '33498': 'Harassing Thief Girl',
+                            '43995': 'Me and My Beloved Cat (Girlfriend)',
+                            '56687': 'Yuri Maid Cafe',
+                            '59183': 'Being Recognized as an Evil God, I '
+                                     'Changed My Job to Guardian Deity of the '
+                                     'Beastmen Country',
+                            '59901': 'From Junior (Kouhai) to Girlfriend',
+                            '60139': 'Just Loving You',
+                            '62454': 'The Lonely Monster and The Blind Girl',
+                            '84966': 'Small Village Tridente',
+                            '88828': 'Onna dakara, to Party wo Tsuihou Sareta '
+                                     'no de Densetsu no Majo to Saikyou Tag wo '
+                                     'Kumimashita'},
+          'alternate-names': ['TheLazy9', 'The Lazy 9'],
+          'feed-paginated': [{'contents': 'N/A',
+                              'guid': 'http://9ethtranslations.wordpress.com/?p=5758',
+                              'linkurl': 'https://9ethtranslations.wordpress.com/2020/05/31/ogregirl-ch8/',
+                              'published': 'Sat, 30 May 2020 20:54:33 GMT',
+                              'region': 'eastern',
+                              'srcname': 'The Lazy 9',
+                              'tags': ['Uncategorized'],
+                              'title': 'Ogregirl ch8',
+                              'updated': 'Sat, 30 May 2020 21:16:26 GMT'},
+                              <snip>
+                             {'contents': 'N/A',
+                              'guid': 'http://9ethtranslations.wordpress.com/?p=5421',
+                              'linkurl': 'https://9ethtranslations.wordpress.com/2019/05/18/tridente-48/',
+                              'published': 'Sat, 18 May 2019 06:23:24 GMT',
+                              'region': 'eastern',
+                              'srcname': 'The Lazy 9',
+                              'tags': ['Uncategorized'],
+                              'title': 'Tridente 48',
+                              'updated': 'Sat, 18 May 2019 06:45:21 GMT'}],
+          'group': 'TheLazy9',
+          'id': 3,
+          'releases-paginated': [{'chapter': 8.0,
+                                  'fragment': 0.0,
+                                  'include': True,
+                                  'postfix': '',
+                                  'published': 'Sat, 30 May 2020 21:10:24 GMT',
+                                  'srcurl': 'https://9ethtranslations.wordpress.com/2020/05/31/ogregirl-ch8/',
+                                  'volume': None},
+                                  <snip>
+                                 {'chapter': 14.0,
+                                  'fragment': 0.0,
+                                  'include': True,
+                                  'postfix': '',
+                                  'published': 'Thu, 05 Dec 2019 07:52:46 GMT',
+                                  'srcurl': 'https://9ethtranslations.wordpress.com/2016/01/12/gob-tensei-chapter-14/',
+                                  'volume': None}],
+          'site': None},
+    'error': False,
+    'message': None}
+
+
+#### `get-publisher-data`/`get-publisher-id`
+
+Post:
+
+    {
+    	'id': 3, 
+    	'mode': `get-publisher-id`
+    }
+
+Response:
+
+	{'data': {'name': 'ROK Media',
+	          'series': [{'id': 1139, 'title': 'Ark'},
+	                     {'id': 43318, 'title': 'Ark The Legend'},
+	                     {'id': 58531, 'title': 'Haroon'},
+	                     {'id': 85800, 'title': 'Isaac'},
+	                     {'id': 108349, 'title': 'Namjang Secretary'},
+	                     {'id': 2975, 'title': 'Red Storm'},
+	                     {'id': 49321, 'title': 'Taming Master'},
+	                     {'id': 1387, 'title': 'The Legendary Moonlight Sculptor'},
+	                     {'id': 98840,
+	                      'title': 'The Monster Duchess and Contract Princess'}],
+	          'site': None},
+	 'error': False,
+	 'message': None}
+
+
+
+#### `get-tag-data`/`get-tag-id`
+
+Post:
+
+    {
+    	'id': 3, 
+    	'mode': `get-tag-id`
+    }
+
+Response:
+Note: This response is not paginated, and can be quite large as a result.
+
+	{'data': {'series': [{'id': 63327, 'title': '2013'},
+	                     {'id': 56910, 'title': '86'},
+	                     {'id': 1042, 'title': 'Absolute Duo'},
+	                     {'id': 191, 'title': 'Accel World'},
+	                     {'id': 1530, 'title': 'Adachi to Shimamura'},
+	                     {'id': 65219, 'title': 'Adorable Food Goddess'},
+	                     {'id': 2147, 'title': 'Ai no Kusabi'},
+	                     {'id': 58404, 'title': 'Akatsuki no Yona'},
+	                     {'id': 554, 'title': 'Alderamin on the Sky'},
+	                     {'id': 34910, 'title': 'All-Duties Mage'},
+	                     {'id': 502, 'title': 'Allison'},
+	                     {'id': 812, 'title': 'Amagi Brilliant Park'},
+	                     {'id': 2019, 'title': 'Another'},
+	                    
+	                     <snip>
+	                     {'id': 53829, 'title': 'The Sky Crawlers'},
+	                     {'id': 50936,
+	                      'title': 'The Super High Schoolers Affording to Live in '
+	                               'Another World!'},
+	                     {'id': 104249, 'title': 'The Sword Dynasty'},
+	                     {'id': 110739, 'title': 'The Tatami Galaxy'},
+	                     {'id': 318, 'title': 'The Third'},
+	                     {'id': 41960, 'title': 'The Tiger and I'},
+	                     {'id': 77823,
+	                      'title': 'This Hero Is Invincible but Too Cautious'},
+	                     {'id': 85665, 'title': 'Those Years I Opened a Zoo'},
+	                     {'id': 109400, 'title': 'Tianbao Fuyao Lu'},
+	                     {'id': 1018, 'title': 'Toaru Majutsu no Index'},
+	                     {'id': 50793, 'title': 'Toaru Majutsu no Index SS'},
+	                     {'id': 1150, 'title': 'Tokyo Ravens'},
+	                     {'id': 339, 'title': 'Toradora!'},
+	                     {'id': 607, 'title': 'Toshokan Sensou'},
+	                     {'id': 1199, 'title': 'Tsuki no Sango'},
+	                     {'id': 575, 'title': 'TsunPri - Aishite Ohime-sama'},
+	                     {'id': 107134,
+	                      'title': 'Tsurune: Kazemai Koukou Kyuudoubu'},
+	                     {'id': 56807,
+	                      'title': 'Tsuujou Kougeki ga Zentai Kougeki de Ni-kai '
+	                               'Kougeki no Okaa-san wa Suki desu ka?'},
+	                     {'id': 34217,
+	                      'title': 'Uchi no Musume no Tame naraba, Ore wa '
+	                               'Moshikashitara Maou mo Taoseru kamo Shirenai '
+	                               '(WN)'},
+	                     {'id': 110738, 'title': 'Uchouten Kazoku'},
+	                     {'id': 108565,
+	                      'title': 'Uchouten Kazoku: Nidaime no Kichou'},
+	                     {'id': 2256, 'title': 'Vampire Hunter D (novel)'},
+	                     {'id': 44559, 'title': 'Violet Evergarden'},
+	                     {'id': 569, 'title': 'Washio Sumi wa Yuusha de Aru'},
+	                     {'id': 58439,
+	                      'title': 'While Killing Slimes for 300 Years, I Became '
+	                               'the MAX Level Unknowingly'},
+	                     {'id': 35887, 'title': 'Wu Dong Qian Kun'},
+	                     {'id': 1826, 'title': 'Xingchenbian'},
+	                     {'id': 3,
+	                      'title': 'Yahari Ore no Seishun Rabukome wa Machigatte '
+	                               'Iru.'},
+	                     {'id': 91571, 'title': 'Yes, No, or Maybe Half?'},
+	                     {'id': 1665, 'title': 'Yoku Wakaru Gendai Mahou'},
+	                     {'id': 462, 'title': 'Youjo Senki'},
+	                     {'id': 44440,
+	                      'title': 'Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu '
+	                               'e'},
+	                     {'id': 45289, 'title': 'Yowa-chara Tomozaki-kun'},
+	                     {'id': 268,
+	                      'title': 'Yuusha ni Nare Nakatta Ore wa Shibushibu '
+	                               'Shuushoku o Ketsui Shimashita'},
+	                     {'id': 1006, 'title': 'Zaregoto Series'},
+	                     {'id': 1288, 'title': 'Zero kara Hajimeru Mahou no Sho'},
+	                     {'id': 1631, 'title': 'Zero no Tsukaima'},
+	                     {'id': 2044, 'title': 'Ze Tian Ji'},
+	                     {'id': 66967, 'title': 'Zombie Brother'}],
+	          'tag': 'adapted-to-anime'},
+	 'error': False,
+	 'message': None}
+
+
+#### `get-search`
+TBD
+
+#### `get-watches`
+TBD
 
 #### Paginated responses:
 
@@ -71,13 +546,25 @@ Currently, all paginated objects return the actual items in the `items` member o
 >
 > Modes:
 >
+> - `get-series`
+> - `get-oel-series`
+> - `get-translated-series`
 > - `get-artists`
 > - `get-authors`
 > - `get-genres`
 > - `get-groups`
 > - `get-publishers`
 > - `get-tags`
->
+> - `get-feeds`
+> 
+> 
+> Recent Releases views (these underpin the "Latest /xxx/ releases" sections on the site homepage):
+> 
+> - `get-releases` (Aggregate of both OEL and tranlsated releases, sorted by most recent)
+> - `get-oel-releases`  (OEL releases, sorted by most recent)
+> - `get-translated-releases` (OEL releases, sorted by most recent)
+> 
+> 
 > Required keys:
 >
 > - `mode` - One of the literal strings from above.
@@ -572,23 +1059,5 @@ There are two endpoints relevant to parametric searching:
 >
 >
 
-More:
->
->
-  - `get-releases`
-  - `get-series`
-  - `get-translated-releases`
-  - `get-translated-series`
-  - `get-watches`
-  - `get-search`
-  - `get-feeds`
-  - `get-artist-data`
-  - `get-author-data`
-  - `get-genre-data`
-  - `get-group-data`
-  - `get-publisher-data`
-  - `get-series-data`
-  - `get-tag-data`
->
 
 

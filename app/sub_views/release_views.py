@@ -30,6 +30,10 @@ def get_releases(page, srctype=None):
 @app.route('/releases/')
 def renderReleasesTable(page=1):
 
+	if page > 50:
+		flash('Historical pages limited to 50 for performance reasons!')
+		page = 1
+
 	releases = get_releases(page=page)
 
 	return render_template('releases.html',
@@ -46,6 +50,10 @@ def renderReleasesTable(page=1):
 @app.route('/translated-releases/')
 def renderTranslatedReleasesTable(page=1):
 
+	if page > 50:
+		flash('Historical pages limited to 50 for performance reasons!')
+		page = 1
+
 	releases = get_releases(page=page, srctype='translated')
 
 	return render_template('releases.html',
@@ -60,6 +68,10 @@ def renderTranslatedReleasesTable(page=1):
 @app.route('/oel-releases/<int:page>')
 @app.route('/oel-releases/')
 def renderOelReleasesTable(page=1):
+
+	if page > 50:
+		flash('Historical pages limited to 50 for performance reasons!')
+		page = 1
 
 	releases = get_releases(page=page, srctype='oel')
 
