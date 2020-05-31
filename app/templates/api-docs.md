@@ -246,8 +246,8 @@ Response:
           'watch': False,
           'watchlists': False,
           'website': None},
- 'error': False,
- 'message': None}
+     'error': False,
+     'message': None}
 
 
  
@@ -558,7 +558,7 @@ Currently, all paginated objects return the actual items in the `items` member o
 > - `get-feeds`
 > 
 > 
-> Recent Releases views (these underpin the "Latest /xxx/ releases" sections on the site homepage):
+> Recent Releases views (these underpin the "Latest {Category} releases" sections on the site homepage):
 > 
 > - `get-releases` (Aggregate of both OEL and tranlsated releases, sorted by most recent)
 > - `get-oel-releases`  (OEL releases, sorted by most recent)
@@ -793,7 +793,11 @@ There are two endpoints relevant to parametric searching:
 >         + `covers` - Include the list of cover URLs/descriptions.
 >         + `tags` - Include the item tags for each item in the return.
 >         + `genres` - Include the item genres for each item in the return.
->
+>  
+>  Search-advanced can also be accessed as permalinks via some slighly janky GET abuse:
+>  `https://www.wlnupdates.com/search?json=<stringified-post-json>`. Yes, this is feeding json as get parameters, and is super gross but was very easy to implement.
+>  There is currently no way to get json-based responses via GET. this facility is basically just for a few browser nicieties.
+>  
 > Example:
 >
 > {
