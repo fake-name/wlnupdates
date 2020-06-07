@@ -376,8 +376,6 @@ def renderLatestUnreadForSeriesId(sid):
 					+ 'make unread shortcut links functional.'))
 		return redirect(url_for("renderSeriesId", sid=sid, slug=slugify(series.title, to_lower=True)))
 
-
-	print(series, series.sort_mode)
 	if series.sort_mode == "chronological_order":
 		# In chronological order mode, we just sort by date only
 		# TODO: Push sorting down to the DB query
@@ -475,9 +473,6 @@ def renderSeriesId(sid, slug):
 	if series.orig_status and "&lt;br&gt;" in series.orig_status:
 		series.orig_status = series.orig_status.replace("&lt;br&gt;", ", ")
 		db.session.commit()
-
-	print(releases)
-
 
 	return render_template('series-id.html',
 						series_id      = sid,
