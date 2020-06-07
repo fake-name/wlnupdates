@@ -317,8 +317,8 @@ def unpack_series_page(row):
 
 		'illustrators'           : [
 			{
-				'id'           : illustrators.id,
-				'illustrators' : illustrators.name,
+				'id'          : illustrators.id,
+				'illustrator' : illustrators.name,
 			}
 			for illustrators in row.illustrators
 		],
