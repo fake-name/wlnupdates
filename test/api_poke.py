@@ -27,7 +27,7 @@ MODES = [
 
 	# 'get-artist-id',
 	# 'get-author-id',
-	'get-tag-id',
+	# 'get-tag-id',
 	# 'get-genre-id',
 	# 'get-publisher-id',
 	# 'get-group-id',
@@ -39,7 +39,7 @@ MODES = [
 	# 'get-publisher-data',
 	# 'get-group-data',
 
-	# 'get-series-id',
+	'get-series-id',
 	# 'get-series-data',
 
 	# 'get-feeds',
@@ -57,13 +57,13 @@ def test():
 	wg = webFunctions.WebGetRobust()
 
 	endpoint = "http://127.0.0.1:5000/api"
-	endpoint = "https://www.wlnupdates.com/api"
+	# endpoint = "https://www.wlnupdates.com/api"
 
 	for mode in MODES:
 
 		post = {
 			'mode'   : mode,
-			'id'     : 3,
+			'id'     : 231,
 		}
 		pprint.pprint("Request: ")
 		pprint.pprint(post)

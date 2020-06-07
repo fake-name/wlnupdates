@@ -137,7 +137,7 @@ def unpack_releases(release_items):
 		'published' : row.published,
 		'volume'    : row.volume,
 		'chapter'   : row.chapter,
-		'fragment'  : None,
+		'fragment'  : row.fragment,
 		'postfix'   : row.postfix,
 		'srcurl'    : row.srcurl,
 		'tlgroup'   : {

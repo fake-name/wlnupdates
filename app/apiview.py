@@ -47,7 +47,7 @@ def handleApiPost():
 		resp.status_code = 200
 		resp.mimetype="application/json"
 		return resp
-	from_ip = request.headers.get('X-Forwarded-For').strip()
+	from_ip = request.headers.get('X-Forwarded-For', "Empty").strip()
 	if from_ip in weird_ips:
 		print("Bouncing IP with strange behaviour: %s" % (from_ip, ))
 		# print("Non-JSON request!")
@@ -157,7 +157,7 @@ RATE_LIMITER = cachetools.TTLCache(maxsize = 1000 * 1000, ttl = 0.25)
 
 def dispatchApiCall(reqJson):
 
-	forwarded_for = request.headers.get('X-Forwarded-For', None)
+	forwarded_for = request.headers.get('X-Forwarded-For', "Empty")
 
 	# if forwarded_for == '108.28.56.67':
 	# 	print("Bouncing possible abuse from %s" % (forwarded_for, ))

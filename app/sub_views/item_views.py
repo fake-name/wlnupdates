@@ -176,6 +176,8 @@ def get_similar_by_tags(sid, taglist):
 	results = db.session.execute(query).fetchall()
 	return results
 
+
+
 def load_series_data(sid):
 	series       =       Series.query
 
@@ -474,8 +476,7 @@ def renderSeriesId(sid, slug):
 		series.orig_status = series.orig_status.replace("&lt;br&gt;", ", ")
 		db.session.commit()
 
-
-
+	print(releases)
 
 
 	return render_template('series-id.html',
