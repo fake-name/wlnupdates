@@ -56,35 +56,35 @@ MODES = [
 def test():
 	wg = webFunctions.WebGetRobust()
 
-	# endpoint = "http://127.0.0.1:5000/api"
-	endpoint = "https://www.wlnupdates.com/api"
+	endpoint = "http://127.0.0.1:5000/api"
+	# endpoint = "https://www.wlnupdates.com/api"
 
-	for mode in MODES:
+	# for mode in MODES:
 
-		post = {
-			'mode'   : mode,
-			'id'     : 231,
-		}
-		pprint.pprint("Request: ")
-		pprint.pprint(post)
-		pg = wg.getpage(endpoint, postJson=post)
-		pprint.pprint(json.loads(pg))
+	# 	post = {
+	# 		'mode'   : mode,
+	# 		'id'     : 231,
+	# 	}
+	# 	pprint.pprint("Request: ")
+	# 	pprint.pprint(post)
+	# 	pg = wg.getpage(endpoint, postJson=post)
+	# 	pprint.pprint(json.loads(pg))
 
-		# for letter in "abcdefghijklmnopqrstuvwxyz0123456789":
-		# 	for page in range(4):
-		# 		post = {
-		# 			'mode'   : mode,
-		# 			'offset' : page+1,
-		# 			'prefix' : letter,
-		# 		}
+	# 	# for letter in "abcdefghijklmnopqrstuvwxyz0123456789":
+	# 	# 	for page in range(4):
+	# 	# 		post = {
+	# 	# 			'mode'   : mode,
+	# 	# 			'offset' : page+1,
+	# 	# 			'prefix' : letter,
+	# 	# 		}
 
-		# 		# post = {
-		# 		# 	'mode'   : mode,
-		# 		# 	# 'id'     : 1,
-		# 		# }
-		# 		print("Request: ", post)
-		# 		pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
-		# 		print(pg)
+	# 	# 		# post = {
+	# 	# 		# 	'mode'   : mode,
+	# 	# 		# 	# 'id'     : 1,
+	# 	# 		# }
+	# 	# 		print("Request: ", post)
+	# 	# 		pg = wg.getpage("http://127.0.0.1:5000/api", postJson=post)
+	# 	# 		print(pg)
 
 
 
@@ -97,20 +97,21 @@ def test():
 	# print(pg)
 
 
-	# post = {
-	# 	'mode'   : 'search-advanced',
-	# 	# 'series-type'  : {'Translated' : 'included'},
-	# 	# 'tag-category' : {
-	# 	# 	'litrpg' : 'included',
-	# 	# 	},
-	# 	# 'sort-mode' : "update",
-	# 	'title-search-text' : "a a",
-	# 	# 'chapter-limits' : [1, 0],
-	# }
+	post = {
+		'mode'   : 'search-advanced',
+		# 'series-type'  : {'Translated' : 'included'},
+		# 'tag-category' : {
+		# 	'litrpg' : 'included',
+		# 	},
+		# 'sort-mode' : "update",
+		'title-search-text' : "Isekai",
+		# 'chapter-limits' : [1, 0],
+	}
 
-	# print("Request: ", post)
-	# pg = wg.getpage(endpoint, postJson=post)
-	# print(pg)
+	print("Request: ")
+	pprint.pprint(post)
+	pg = wg.getpage(endpoint, postJson=post)
+	pprint.pprint(pg)
 
 	# include_options = ['covers', 'tags', 'genres', 'description']
 

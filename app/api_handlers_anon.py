@@ -598,7 +598,7 @@ def get_search_advanced(data):
 		return getResponse(error=True, message="Insufficent filter parameters!")
 
 	queried_columns = [Series]
-	col_names = ['id', 'title']
+	col_names = ['id', 'title', 'tl_type', 'rating', 'rating_count', 'extra_metadata']
 	join_on = []
 	if 'include-results' in data:
 		print("Include results:", data['include-results'])
@@ -625,7 +625,6 @@ def get_search_advanced(data):
 	series = series_query.all()
 
 	ret = [
-
 		{
 			col_name : getattr(tmp, col_name) for col_name in col_names
 		}
@@ -635,7 +634,7 @@ def get_search_advanced(data):
 		for item in ret:
 			item['covers'] = [
 						{
-							'url'         : '://www.wlnupdates.com/cover-img/{}'.format(tmp.id),
+							'url'         : 'https://www.wlnupdates.com/cover-img/{}'.format(tmp.id),
 							'description' : tmp.description,
 							'volume'      : tmp.volume,
 							'chapter'     : tmp.chapter,
