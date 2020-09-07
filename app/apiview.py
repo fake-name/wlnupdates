@@ -174,8 +174,8 @@ def dispatchApiCall(reqJson):
 		print("Invalid mode in request: '{mode}'".format(mode=mode))
 		return getResponse("Invalid mode in API Request ({mode})!".format(mode=mode), error=True)
 
-
-	print("Api Post: ", mode)
+	ua = request.headers.get('User-Agent', "No user agent?")
+	print("Api Post! Mode: '{}', Source IP: '{}', User agent: '{}'".format(mode, forwarded_for, ua))
 
 	dispatch_method, auth_required, csrf_required, rate_limited = DISPATCH_TABLE[mode]
 	try:
