@@ -918,7 +918,7 @@ Otherwise, `error` will be True, and the contents of `message` will detail what 
 
 Once you are logged in, you will no longer be API rate limited.
 
-NOTE: the `do-login` API endpoint has a independent rate-limiting system that allows one call ever 3 seconds as a security precaution. If you are behind NAT and this is causing issues, please open an [issue](https://github.com/fake-name/wlnupdates/issues/) on github. The rate limiting here is rather speculative and may be possible to remove in the future.
+NOTE: the `do-login` API endpoint has a independent rate-limiting system that allows one call every 3 seconds as a security precaution. If you are behind NAT and this is causing issues, please open an [issue](https://github.com/fake-name/wlnupdates/issues/) on github. The rate limiting here is rather speculative and may be possible to remove in the future.
 
 
 #### `get-watches`
