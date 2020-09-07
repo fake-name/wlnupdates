@@ -83,6 +83,8 @@ def handleApiGet():
 DISPATCH_TABLE = {
 	#
 	# 'get'                       : (api_handlers_anon.get_listing,                       False, False),
+	'do-login'                  : (api_handlers_anon.do_login,                          False, False, True),
+
 	'get-artists'               : (api_handlers_anon.get_artists,                       False, False, True),
 	'get-authors'               : (api_handlers_anon.get_authors,                       False, False, True),
 	'get-genres'                : (api_handlers_anon.get_genres,                        False, False, True),

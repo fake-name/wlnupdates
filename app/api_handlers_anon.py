@@ -1,8 +1,14 @@
 import datetime
+import cachetools
 import werkzeug.exceptions
+from wtforms.validators import ValidationError
+from flask import g
+from flask import request
+from flask_login import login_user
 from app import app
 from app.api_common import getResponse
 from app.api_common import getDataResponse
+import app.forms                    as app_forms
 import app.sub_views.sequence_views as sequence_view_items
 import app.sub_views.release_views  as release_view_items
 import app.sub_views.series_views   as series_view_items
@@ -22,6 +28,7 @@ from app.models import Genres
 from app.models import Series
 from app.models import Releases
 from app.models import Watches
+from app.models import Users
 
 def check_validate_range(data):
 	if "offset" in data:
@@ -669,7 +676,11 @@ def get_search_advanced(data):
 
 
 def get_watches(data):
-	return getResponse(error=True, message="Not yet implemented")
+	active_filter = data.get("active-filter", None)
+
+	watches = user_views.load_watches(active_filter_override=active_filter)
+	watches_serialized = user_views.serialize_watches(watches)
+	return getDataResponse(watches_serialized)
 
 def get_feeds(data):
 	data = check_validate_range(data)
@@ -695,4 +706,39 @@ def get_feeds(data):
 			'authors'   : [auth.name for auth in row.authors],
 	} for row in rows]
 	return getDataResponse(tmp)
+
+
+LOGIN_LIMIT_TTL = 3
+LOGIN_RATE_LIMITER = cachetools.TTLCache(maxsize = 1000 * 1000, ttl = LOGIN_LIMIT_TTL)
+
+def do_login(data):
+	if g.user is not None and g.user.is_authenticated():
+		return getDataResponse(None, message='You are already logged in.', error=True)
+
+
+	limiter_key = request.headers.get('X-Forwarded-For', "Empty")
+
+	if limiter_key in LOGIN_RATE_LIMITER:
+		print("API Login rate limit. Bouncing.")
+		return getResponse("Login calls are limited to one call ever {} seconds!".format(LOGIN_LIMIT_TTL), error=True)
+
+	assert "username" in data, "You need to specify the 'username' field"
+	assert "password" in data, "You need to specify the 'password' field"
+
+	username    = data['username']
+	password    = data['password']
+	remember_me = data.get("remember_me", True)
+
+	try:
+		app_forms.validate_login_password(username, password)
+	except ValidationError:
+		return getDataResponse(None, message="Your username or password is incorrect.", error=True)
+
+
+	user = Users.query.filter_by(nickname=username).first()
+	if user.verified:
+		login_user(user, remember=bool(remember_me))
+		return getDataResponse(None, message="Logged in successfully", error=False)
+	else:
+		return getDataResponse(None, message="Please confirm your account first.", error=True)
 

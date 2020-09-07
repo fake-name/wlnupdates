@@ -1,20 +1,27 @@
-
-from flask import render_template, flash, redirect, url_for, g, request
-from app.context_processors import staleness_factor
-from app.models import Watches
-from app.models import Series
-from app.models import Releases
+import datetime
 from sqlalchemy import desc
-from app import app
-from app import db
 from flask_babel import gettext
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import nullslast
 
+from flask import render_template
+from flask import flash
+from flask import redirect
+from flask import url_for
+from flask import g
+from flask import request
+
+from app.context_processors import staleness_factor
+from app.models import Watches
+from app.models import Series
+from app.models import Releases
+from app import app
+from app import db
+
 from app.utilities import get_latest_release
 from app.utilities import get_latest_releases
 
-def load_watches():
+def load_watches(active_filter_override=None):
 
 	watches = Watches                                    \
 				.query                                   \
@@ -22,13 +29,12 @@ def load_watches():
 				.filter(Watches.user_id == g.user.id)    \
 				.all()
 
-	print("queried")
-
 	active_filter = 'all'
 	if 'active-filter' in request.args:
-		print("Active filter in params")
 		active_filter = request.args['active-filter'] if request.args['active-filter'] in ['active', 'maybe-stalled', 'stalled', 'all'] else 'all'
 
+	if active_filter_override:
+		active_filter = active_filter_override if active_filter_override in ['active', 'maybe-stalled', 'stalled', 'all'] else 'all'
 
 	data = {}
 
@@ -108,14 +114,44 @@ def load_watches():
 
 	return data, lists, active_filter
 
+def recursively_convert_dt(in_val):
+	if isinstance(in_val, dict):
+		return {key : recursively_convert_dt(val) for key, val in in_val.items()}
+	elif isinstance(in_val, datetime.datetime):
+		return in_val.timestamp()
+	elif isinstance(in_val, (list, tuple)):
+		return [recursively_convert_dt(item) for item in in_val]
+
+	return in_val
+
+def serialize_series_object(series):
+	return {
+		"name"           : series.title,
+		"id"             : series.id,
+		"tl_type"        : series.tl_type,
+		"rating"         : series.rating,
+		"rating_count"   : series.rating_count,
+		"extra_metadata" : series.extra_metadata,
+	}
+
+
+def serialize_watches(watches):
+
+	data, lists, active_filter = watches
+	clean_data = {}
+
+	for listname, listitems in data.items():
+		clean_data[listname] = [(serialize_series_object(series), prog, recursively_convert_dt(avail), watch_as_name) for series, prog, avail, watch_as_name in listitems]
+
+	return clean_data, lists, active_filter
+
+
 @app.route('/watches', methods=['GET'])
 def renderUserWatches():
 	if not g.user.is_authenticated():
 		flash(gettext('You need to log in to create or view series watches.'))
 		return redirect(url_for('index'))
 
-	print("Watches!")
-	print("Params:", request.args)
 
 	# data.sort(key=lambda x: (x[0].lower(), x[1].title.lower()))
 

@@ -43,7 +43,7 @@ MODES = [
 	# 'get-series-data',
 
 	# 'get-feeds',
-	# 'get-watches',
+	'get-watches',
 
 	# 'enumerate-tags',
 	# 'enumerate-genres',
@@ -53,10 +53,11 @@ MODES = [
 
 ]
 
+endpoint = "http://127.0.0.1:5000/api"
+
 def test():
 	wg = webFunctions.WebGetRobust()
 
-	endpoint = "http://127.0.0.1:5000/api"
 	# endpoint = "https://www.wlnupdates.com/api"
 
 	# for mode in MODES:
@@ -95,23 +96,30 @@ def test():
 	# print("Request: ", post)
 	# pg = wg.getpage(endpoint, postJson=post)
 	# print(pg)
+	#
 
 
 	post = {
 		'mode'   : 'search-advanced',
-		# 'series-type'  : {'Translated' : 'included'},
+		'series-type'  : {'Translated' : 'included'},
+		'tag-category' : { 'ability-steal' : 'included', 'virtual-reality' : 'excluded' },
+		'sort-mode' : "update",
+		# 'chapter-limits' : [40, 0],
 		# 'tag-category' : {
 		# 	'litrpg' : 'included',
 		# 	},
 		# 'sort-mode' : "update",
-		'title-search-text' : "Isekai",
+		# 'title-search-text' : "Isekai",
 		# 'chapter-limits' : [1, 0],
 	}
 
 	print("Request: ")
 	pprint.pprint(post)
 	pg = wg.getpage(endpoint, postJson=post)
+	pg = json.loads(pg)
 	pprint.pprint(pg)
+
+	print("Results:", len(pg['data']))
 
 	# include_options = ['covers', 'tags', 'genres', 'description']
 
@@ -131,5 +139,54 @@ def test():
 	# 	pg = wg.getpage(endpoint, postJson=post)
 	# 	print(pg)
 
+def watches_test():
+
+	wg = webFunctions.WebGetRobust()
+
+	post = {
+		'mode'          : 'get-watches',
+		'active-filter' : 'active',
+	}
+	print("Request: ", post)
+	pg = wg.getpage(endpoint, postJson=post)
+	pg = json.loads(pg)
+	pprint.pprint(pg)
+
+
+def login_test():
+	wg = webFunctions.WebGetRobust()
+
+	with open("login_secret.json") as fp:
+		params = json.load(fp)
+
+	post = {
+		'mode'   : 'do-login',
+
+		'username' : params['username'],
+		'password' : params['password'],
+		'remember_me' : True,
+
+		# 'chapter-limits' : [40, 0],
+		# 'tag-category' : {
+		# 	'litrpg' : 'included',
+		# 	},
+		# 'sort-mode' : "update",
+		# 'title-search-text' : "Isekai",
+		# 'chapter-limits' : [1, 0],
+	}
+
+	print("Request: ")
+	pprint.pprint(post)
+	pg = wg.getpage(endpoint, postJson=post)
+	pg = json.loads(pg)
+	pprint.pprint(pg)
+
+
+	print(params)
+
 if __name__ == "__main__":
-	test()
+	import logging
+	logging.basicConfig(level=logging.DEBUG)
+	login_test()
+	# watches_test()
+	# test()

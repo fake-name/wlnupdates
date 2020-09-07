@@ -26,3 +26,4 @@ __pycache__
 /seriesname-matchset.json
 /translatorname-matchset.json
 /volatile_config.json
+/test/login_secret.json

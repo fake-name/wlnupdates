@@ -522,110 +522,6 @@ Note: This response is not paginated, and can be quite large as a result.
 #### `get-search`
 TBD
 
-#### `get-watches`
-TBD
-
-#### Paginated responses:
-
-Many API calls return paginated responses. In the case of a paginated object, additional metadata is inserted into the `data` call return object, to make client-management of the pagination easier:
-
- - `has_next` - Boolean indicating if there is a "next" page.
- - `has_prev` - Boolean indicating if there is a "previous" page.
- - `next_num` - The number for the "next" page that must be passed as the `offet` value to get the item set that follows the current set. Invalid if `has_next` is false.
- - `prev_num` - The number for the "next" page that must be passed as the `offet` value to get the item set that preceeds the current set. Invalid if `has_prev` is false.
- - `pages` - The integer number of pages that the result set is paginated into.
- - `per_page` - The number of items being returned per-page. For informational purposes only, at the moment.
- - `total` - The total number of items the current API call has found.
-
-Currently, all paginated objects return the actual items in the `items` member of the `data` object
-
-> **Sequence view browsing**
->
-> These API calls are used for viewing bulk contents of different categories.
-> Each category type behaves very similarly.
->
-> Modes:
->
-> - `get-series`
-> - `get-oel-series`
-> - `get-translated-series`
-> - `get-artists`
-> - `get-authors`
-> - `get-genres`
-> - `get-groups`
-> - `get-publishers`
-> - `get-tags`
-> - `get-feeds`
-> 
-> 
-> Recent Releases views (these underpin the "Latest {Category} releases" sections on the site homepage):
-> 
-> - `get-releases` (Aggregate of both OEL and tranlsated releases, sorted by most recent)
-> - `get-oel-releases`  (OEL releases, sorted by most recent)
-> - `get-translated-releases` (OEL releases, sorted by most recent)
-> 
-> 
-> Required keys:
->
-> - `mode` - One of the literal strings from above.
->
-> Optional keys:
->
-> - `offset` - Page to retreive. If there are more then 50 items in the response,
->   it will be paginated in sets of 50. Defaults to 1 if unspecified. Values < 1 are invalid.
-> - `prefix` - Starting character to limit the query results to. Allowable values are
->   one of the > chars in the set: `abcdefghijklmnopqrstuvwxyz0123456789`. If not
->   specified, defaults to returning all items. The prefix string also must be of length 1.
->   TODO: Handle unicode here?
->
-> Return examples:
->
-> > `get-tags`
-> > `response['data']['items']` =
-> >
-> >     {
-> >       "data": {
-> >         "has_next": true,
-> >         "has_prev": false,
-> >         "items": [
-> >           {
-> >             "id": 427,
-> >             "tag": "20th-century"
-> >           },
-> >           {
-> >             "id": 679,
-> >             "tag": "21st-century"
-> >           },
-> >                       [ snip some results ]
-> >           {
-> >             "id": 729,
-> >             "tag": "angel/s"
-> >           },
-> >           {
-> >             "id": 801,
-> >             "tag": "angst"
-> >           }
-> >         ],
-> >         "next_num": 2,
-> >         "pages": 20,
-> >         "per_page": 50,
-> >         "prev_num": 0,
-> >         "total": 992
-> >       },
-> >       "error": false,
-> >       "message": null
-> >     }
->
-> The API call has succeeded (`error == false`), as such there was no error message (`message ==
-> null`). Additionally, we have the pagination information (`"next_num": 2, "pages": 20,
-> "per_page": 50, "prev_num": 0, "total": 992`). Lastly, we have a list of objects in the `items`
-> member.
->
-> Each item is actually a pair of values, the human-readable name for the item, and the
-> corresponding ID. In order to look up items by the item (for example, to get series that
-> have a tag), the relevant API call must be passed the ID, rather then the string.
-
-
 
 #### Searching:
 
@@ -998,6 +894,216 @@ There are two endpoints relevant to parametric searching:
 
 
 ### Authenticated Only API Methods
+
+#### Logging in: `do-login`
+
+Post:
+
+    {
+      'mode'          : 'do-login',
+      'username' : <your username>,
+      'password' : <your password>,
+      'remember_me' : True,   # Optional
+    }
+
+Response on successful login:
+
+    {
+      'data': None, 
+      'error': False, 
+      'message': 'Logged in successfully'
+    }
+
+Otherwise, `error` will be True, and the contents of `message` will detail what went wrong.
+
+Once you are logged in, you will no longer be API rate limited.
+
+NOTE: the `do-login` API endpoint has a independent rate-limiting system that allows one call ever 3 seconds as a security precaution. If you are behind NAT and this is causing issues, please open an [issue](https://github.com/fake-name/wlnupdates/issues/) on github. The rate limiting here is rather speculative and may be possible to remove in the future.
+
+
+#### `get-watches`
+
+Get you watches. You must be logged in for this to work.
+
+Post:
+
+    {
+      'mode'          : 'get-watches',
+      'active-filter' : 'active',     # OPTIONAL
+    }
+
+The active-filter parameter can be one of `'active', 'maybe-stalled', 'stalled', 'all'`.
+These filter the returned items on your watched list by activity state. 
+If omitted, defaults to all.
+
+Response:
+
+
+  {'data': [{'Amusing': [[{'extra_metadata': {'is_yaoi': False, 'is_yuri': False},
+                           'id': 66866,
+                           'name': '10 Years after saying "Leave this to me and '
+                                   'go", I Became a Legend.',
+                           'rating': 5.0,
+                           'rating_count': 4,
+                           'tl_type': 'translated'},
+                          {'agg': 79.0, 'chp': 79.0, 'frag': -1, 'vol': -1},
+                          {'agg': 245.0,
+                           'chp': 245.0,
+                           'date': 1598255671.0,
+                           'frag': 0.0,
+                           'vol': -1},
+                          None],
+                         [{'extra_metadata': {'is_yaoi': False, 'is_yuri': False},
+                           'id': 33442,
+                           'name': 'A Wild Last Boss Appeared',
+                           'rating': 7.16216216216216,
+                           'rating_count': 37,
+                           'tl_type': 'translated'},
+                          {'agg': 47.0, 'chp': 47.0, 'frag': -1, 'vol': -1},
+                          {'agg': 182.0,
+                           'chp': 182.0,
+                           'date': 1599327613.0,
+                           'frag': 0.0,
+                           'vol': -1},
+                          None],
+                         [{'extra_metadata': {'is_yaoi': False, 'is_yuri': False},
+                           'id': 62698,
+                           'name': 'Adorable Treasured Fox: Divine Doctor Mother '
+                            'rating': 7.42857142857143,
+                            'rating_count': 7,
+                            'tl_type': 'translated'},
+                           {'agg': 68.0, 'chp': 68.0, 'frag': -1, 'vol': -1},
+                           {'agg': 139.0,
+                            'chp': 139.0,
+                            'date': 1599266413.0,
+                            'frag': 0.0,
+                            'vol': -1},
+                           None]],
+    <....snip....>
+             'z - Complete': []},
+            ['Amusing',
+             'Great',
+             'Inbox',
+             'z - Complete'],
+            'active'],
+   'error': False,
+   'message': None}
+
+The returned data has some duplicates as it's the internal data-structure used to drive the watch-list webpage. 
+The contents of `data` is a 3 item list: [`watch list dict`, `list names`, `active filter`]
+
+ - `watch list dict` is a dict of {"watch list name" : list of items in watch list}
+   - The items in the list are each a 4 item list:
+      [
+          Series info,
+          current reading progress,
+          available reading progress,
+          name override (if any)
+      ]
+    The name override is part of a faility to allow useres to have a series in their watched list under any of it's available alternate names. This is useful for contexts where the a series has two well known names (often the romanized japanese name, and the translated name).
+    Basically, if this item isn't `None`, it's probably better to use it instead of the actual series name from the series-info entry.
+ - `list names` is a list of all watch lists the user has created. This is redundant with the keys in the `watch list dict` object.
+ - `active-filter` is just the currently active filter as passed through the `active-filter` argument. If the passed `active-filter` is invalid, this will reflect the default value.
+
+#### Paginated responses:
+
+Many API calls return paginated responses. In the case of a paginated object, additional metadata is inserted into the `data` call return object, to make client-management of the pagination easier:
+
+ - `has_next` - Boolean indicating if there is a "next" page.
+ - `has_prev` - Boolean indicating if there is a "previous" page.
+ - `next_num` - The number for the "next" page that must be passed as the `offet` value to get the item set that follows the current set. Invalid if `has_next` is false.
+ - `prev_num` - The number for the "next" page that must be passed as the `offet` value to get the item set that preceeds the current set. Invalid if `has_prev` is false.
+ - `pages` - The integer number of pages that the result set is paginated into.
+ - `per_page` - The number of items being returned per-page. For informational purposes only, at the moment.
+ - `total` - The total number of items the current API call has found.
+
+Currently, all paginated objects return the actual items in the `items` member of the `data` object
+
+> **Sequence view browsing**
+>
+> These API calls are used for viewing bulk contents of different categories.
+> Each category type behaves very similarly.
+>
+> Modes:
+>
+> - `get-series`
+> - `get-oel-series`
+> - `get-translated-series`
+> - `get-artists`
+> - `get-authors`
+> - `get-genres`
+> - `get-groups`
+> - `get-publishers`
+> - `get-tags`
+> - `get-feeds`
+> 
+> 
+> Recent Releases views (these underpin the "Latest {Category} releases" sections on the site homepage):
+> 
+> - `get-releases` (Aggregate of both OEL and tranlsated releases, sorted by most recent)
+> - `get-oel-releases`  (OEL releases, sorted by most recent)
+> - `get-translated-releases` (OEL releases, sorted by most recent)
+> 
+> 
+> Required keys:
+>
+> - `mode` - One of the literal strings from above.
+>
+> Optional keys:
+>
+> - `offset` - Page to retreive. If there are more then 50 items in the response,
+>   it will be paginated in sets of 50. Defaults to 1 if unspecified. Values < 1 are invalid.
+> - `prefix` - Starting character to limit the query results to. Allowable values are
+>   one of the > chars in the set: `abcdefghijklmnopqrstuvwxyz0123456789`. If not
+>   specified, defaults to returning all items. The prefix string also must be of length 1.
+>   TODO: Handle unicode here?
+>
+> Return examples:
+>
+> > `get-tags`
+> > `response['data']['items']` =
+> >
+> >     {
+> >       "data": {
+> >         "has_next": true,
+> >         "has_prev": false,
+> >         "items": [
+> >           {
+> >             "id": 427,
+> >             "tag": "20th-century"
+> >           },
+> >           {
+> >             "id": 679,
+> >             "tag": "21st-century"
+> >           },
+> >                       [ snip some results ]
+> >           {
+> >             "id": 729,
+> >             "tag": "angel/s"
+> >           },
+> >           {
+> >             "id": 801,
+> >             "tag": "angst"
+> >           }
+> >         ],
+> >         "next_num": 2,
+> >         "pages": 20,
+> >         "per_page": 50,
+> >         "prev_num": 0,
+> >         "total": 992
+> >       },
+> >       "error": false,
+> >       "message": null
+> >     }
+>
+> The API call has succeeded (`error == false`), as such there was no error message (`message ==
+> null`). Additionally, we have the pagination information (`"next_num": 2, "pages": 20,
+> "per_page": 50, "prev_num": 0, "total": 992`). Lastly, we have a list of objects in the `items`
+> member.
+>
+> Each item is actually a pair of values, the human-readable name for the item, and the
+> corresponding ID. In order to look up items by the item (for example, to get series that
+> have a tag), the relevant API call must be passed the ID, rather then the string.
 
 
 
