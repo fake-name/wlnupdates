@@ -939,7 +939,7 @@ If omitted, defaults to all.
 Response:
 
 
-  {'data': [{'Amusing': [[{'extra_metadata': {'is_yaoi': False, 'is_yuri': False},
+    {'data': [{'Amusing': [[{'extra_metadata': {'is_yaoi': False, 'is_yuri': False},
                            'id': 66866,
                            'name': '10 Years after saying "Leave this to me and '
                                    'go", I Became a Legend.',
@@ -986,20 +986,22 @@ Response:
              'Inbox',
              'z - Complete'],
             'active'],
-   'error': False,
-   'message': None}
+    'error': False,
+    'message': None}
 
 The returned data has some duplicates as it's the internal data-structure used to drive the watch-list webpage. 
 The contents of `data` is a 3 item list: [`watch list dict`, `list names`, `active filter`]
 
  - `watch list dict` is a dict of {"watch list name" : list of items in watch list}
    - The items in the list are each a 4 item list:
+      ```
       [
           Series info,
           current reading progress,
           available reading progress,
           name override (if any)
       ]
+      ```
     The name override is part of a faility to allow useres to have a series in their watched list under any of it's available alternate names. This is useful for contexts where the a series has two well known names (often the romanized japanese name, and the translated name).
     Basically, if this item isn't `None`, it's probably better to use it instead of the actual series name from the series-info entry.
  - `list names` is a list of all watch lists the user has created. This is redundant with the keys in the `watch list dict` object.
