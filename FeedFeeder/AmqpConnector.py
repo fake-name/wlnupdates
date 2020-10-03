@@ -603,7 +603,7 @@ class Connector:
 			self.queue_fetched += 1
 			self.forwarded += 1
 			if self.forwarded >= 25:
-				self.log.info("Fetched item from proxy queue. Total received: %s, total sent: %s", self.queue_fetched, self.queue_put)
+				self.log.info("Fetched item from proxy queue. Total received: %s, total sent: %s, qsizes: %s, %s", self.queue_fetched, self.queue_put, self.responseQueue.qsize(), self.taskQueue.qsize())
 				self.forwarded = 0
 			return put
 		except queue.Empty:

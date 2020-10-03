@@ -184,9 +184,20 @@ def login_test():
 
 	print(params)
 
+def other_poke():
+	import requests
+	headers = {'Content-Type': 'application/json'}
+	url = "https://www.wlnupdates.com/api"
+	payload = { "mode" : "search-advanced", "series-type" : {"Translated" : "included"}, "genre-category": {"harem" : "included"}, "tag-category": { "ability-steal" : "included", "virtual-reality" : "excluded" }, "sort-mode" : "update", "chapter-limits" : [40, 0], }
+	response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+	json_data = response.json()
+	print(len(json_data['data']))
+
+
 if __name__ == "__main__":
 	import logging
 	logging.basicConfig(level=logging.DEBUG)
-	login_test()
+	other_poke()
+	# login_test()
 	# watches_test()
 	# test()

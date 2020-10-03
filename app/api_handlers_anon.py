@@ -363,8 +363,13 @@ def unpack_series_page(row):
 def get_series_id(data):
 	assert "id" in data, "You must specify a id to query for."
 
+	items = item_view_items.load_series_data(data['id'])
+
+	if not items:
+		return getResponse(error=True, message='No series found for ID {}!'.format(data['id']))
+
 	series, releases, watch, watchlists, progress, latest, latest_dict, most_recent, \
-		latest_str, rating, total_watches, similar_series = item_view_items.load_series_data(data['id'])
+		latest_str, rating, total_watches, similar_series = items
 
 	ret                  = unpack_series_page(series)
 	ret['releases']      = unpack_releases(releases)
