@@ -10,21 +10,35 @@ except:
 
 from app import app
 import threading
+import concurrent.futures
 import time
 import maintenance_scheduler
 
 import FeedFeeder.FeedFeeder
 import flags
 
+
 def amqp_thread_run():
 	print("AMQP Thread running.")
 	interface = None
+
+	# This nesting makes me sad, but I don't want to have threads continually
+	# being created/destroyed.
 	while flags.RUNSTATE:
 		try:
-			if not interface:
-				interface = FeedFeeder.FeedFeeder.FeedFeeder()
-			interface.process()
+			workers = 3
+			with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as exc:
+				while flags.RUNSTATE:
+					if not interface:
+						interface = FeedFeeder.FeedFeeder.FeedFeeder()
+
+					interface.process()
+					res = [exc.submit(interface.process) for _ in range(workers)]
+					[item.result() for item in res]
+
+
 		except Exception:
+			traceback.print_exc()
 			interface = None
 			time.sleep(10)
 		time.sleep(1)
