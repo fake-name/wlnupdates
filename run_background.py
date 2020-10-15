@@ -32,15 +32,21 @@ def amqp_thread_run():
 					if not interface:
 						interface = FeedFeeder.FeedFeeder.FeedFeeder()
 
-					interface.process()
-					res = [exc.submit(interface.process) for _ in range(workers)]
+					res = [exc.submit(interface.process) for _ in range(workers * 10)]
 					[item.result() for item in res]
 
+		except KeyboardInterrupt:
+			break
 
 		except Exception:
+			with open("threading error %s.txt" % time.time(), 'w') as fp:
+				fp.write("Error!\n\n")
+				fp.write(traceback.format_exc())
 			traceback.print_exc()
 			interface = None
 			time.sleep(10)
+
+
 		time.sleep(1)
 	print("Background thread closing interface")
 	if interface:
