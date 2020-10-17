@@ -17,7 +17,7 @@ set -e
 echo "Fetching db dump from remote server";
 ssh client@ks1 'sudo -u postgres pg_dump --clean -d wlndb | xz' | pv -cN Db-Fetch-Progress > /web/wlnupdates/db_sync/wln_db_dump_$(date +%Y-%m-%d).sql.xz
 echo "Updating local database from dump file";
-xz -d /web/wlnupdates/db_sync/wln_db_dump_$(date +%Y-%m-%d).sql.xz -c | pv -c | ssh wlnuser@10.1.1.61 -t "psql -d wlndb"
+xz -d /web/wlnupdates/db_sync/wln_db_dump_$(date +%Y-%m-%d).sql.xz -c | pv -c | psql -d wlndb
 echo "Synchronizing cover folder!"
 rsync -rvvP client@ks1:/media/Storage/wlnupdates/covers /web/wlnupdates/covers
 echo "Done!"
