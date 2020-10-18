@@ -1,3 +1,9 @@
+{% if mode_read_only %}
+<div class="alert alert-danger">
+    {{ mode_read_only_msg | safe }}
+</div>
+{% endif %}
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 {% for message in messages %}

@@ -212,6 +212,10 @@ dispatch = {
 @app.route('/add/<add_type>/', methods=('GET', 'POST'))
 def addNewItem(add_type, sid=None):
 
+	if app.config['READ_ONLY']:
+		flash(gettext('Site is in read-only mode!'))
+		return redirect(url_for('index'))
+
 	if not add_type in dispatch:
 		flash(gettext('Unknown type of content to add!'))
 		return redirect(url_for('index'))

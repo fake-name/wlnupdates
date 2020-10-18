@@ -1,5 +1,5 @@
 
 <div class="well well-sm">
-	<strong>{{news.title | safe}}</strong>
+	<strong>{{news.title | safe}}</strong> - {{terse_ago(news.timestamp)}} ago
 	{{news.body | safe}}
 </div>

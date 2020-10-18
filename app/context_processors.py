@@ -129,4 +129,6 @@ def utility_processor():
 			build_name_qs      = build_name_qs,
 			min                = min,
 			max                = max,
+			mode_read_only     = app.config['READ_ONLY'],
+			mode_read_only_msg = app.config['READ_ONLY_MSG'],
 			)

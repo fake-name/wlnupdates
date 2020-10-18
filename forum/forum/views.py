@@ -109,6 +109,10 @@ def user(id):
 @login_required
 def create_thread(slug):
 
+	if app.config['READ_ONLY']:
+		flash(gettext('Site is in read-only mode!'))
+		return redirect(url_for('index'))
+
 	if not g.user.is_authenticated():
 		flash(gettext('You need to log in to post in the forums.'))
 		return redirect(url_for('index'))
@@ -157,6 +161,10 @@ def create_thread(slug):
 @login_required
 def create_post(slug, id):
 
+	if app.config['READ_ONLY']:
+		flash(gettext('Site is in read-only mode!'))
+		return redirect(url_for('index'))
+
 	if not g.user.is_authenticated():
 		flash(gettext('You need to log in to post in the forums.'))
 		return redirect(url_for('index'))
@@ -189,6 +197,10 @@ def create_post(slug, id):
 @bp.route('/<slug>/<int:thread_id>/<int:post_id>/edit', methods=GET_POST)
 @login_required
 def edit_post(slug, thread_id, post_id):
+
+	if app.config['READ_ONLY']:
+		flash(gettext('Site is in read-only mode!'))
+		return redirect(url_for('index'))
 
 	if not g.user.is_authenticated():
 		flash(gettext('You need to log in to post in the forums.'))
@@ -391,6 +403,10 @@ def delete_id_internal(del_id):
 @login_required
 def user_is_spammer(user_id):
 
+	if app.config['READ_ONLY']:
+		flash(gettext('Site is in read-only mode!'))
+		return redirect(url_for('index'))
+
 	if not g.user.is_admin():
 		flash(gettext('You need to be an admin to do that.'))
 		return redirect(url_for('index'))
@@ -408,6 +424,11 @@ def user_is_spammer(user_id):
 @login_required
 def series_is_spam(spam_series_id):
 
+	if app.config['READ_ONLY']:
+		flash(gettext('Site is in read-only mode!'))
+		return redirect(url_for('index'))
+
+
 	if not g.user.is_admin():
 		flash(gettext('You need to be an admin to do that.'))
 		return redirect(url_for('index'))
@@ -423,6 +444,8 @@ def series_is_spam(spam_series_id):
 
 	changeuser = clean_item.changeuser
 	print("ChangeUser: ", changeuser)
+
+	assert changeuser > 3, "Spam series added by automatic feeder! Not deleting all relations!"
 
 	data = SeriesChanges                                   \
 			.query                                 \

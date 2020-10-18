@@ -37,6 +37,18 @@ weird_ips = [
 @csrf.exempt
 @app.route('/api', methods=['POST'])
 def handleApiPost():
+	if app.config['READ_ONLY']:
+		js = {
+			"error"   : True,
+			"message" : "Website is in read-only mode!"
+		}
+		resp = jsonify(js)
+		resp.status_code = 200
+		resp.mimetype="application/json"
+		return resp
+
+
+
 	if not request.json:
 		print("Non-JSON API Post!")
 		js = {
@@ -47,6 +59,7 @@ def handleApiPost():
 		resp.status_code = 200
 		resp.mimetype="application/json"
 		return resp
+
 	from_ip = request.headers.get('X-Forwarded-For', "Empty").strip()
 	if from_ip in weird_ips:
 		print("Bouncing IP with strange behaviour: %s" % (from_ip, ))

@@ -28,12 +28,12 @@
 		{% endassets %}
 
 
-
+		{{request.cookies.get("page_theme", "light") }}
 		{% assets "darkside_css" %}
-			<link href="{{ ASSET_URL }}" rel="stylesheet alternative" media="screen" id="dark-style"  disabled >
+			<link href="{{ ASSET_URL }}" rel="stylesheet alternative" media="screen" id="dark-style"  {{ "disabled" if request.cookies.get("page_theme", "light") == "light" else "" }} >
 		{% endassets %}
 		{% assets "lightside_css" %}
-			<link href="{{ ASSET_URL }}" rel="stylesheet"             media="screen" id="light-style">
+			<link href="{{ ASSET_URL }}" rel="stylesheet"             media="screen" id="light-style"  {{ "disabled" if request.cookies.get("page_theme", "light") == "dark" else "" }} >
 		{% endassets %}
 
 		{% assets "most_css" %}

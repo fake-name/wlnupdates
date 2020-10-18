@@ -97,9 +97,11 @@ def insert_raw_item(item):
 
 
 	for tag in item.pop('tags'):
+
+		# This is hitting duplicate tags somehow.
 		if tag and not FeedTags.query                      \
 			.filter(FeedTags.article_id==itemrow.id)       \
-			.filter(FeedTags.tag == tag.strip()).scalar():
+			.filter(FeedTags.tag == tag.strip()).count():
 
 			newtag = FeedTags(article_id=itemrow.id, tag=tag.strip())
 			db.session.add(newtag)
@@ -111,7 +113,7 @@ def insert_raw_item(item):
 
 		if not FeedAuthors.query                        \
 			.filter(FeedAuthors.article_id==itemrow.id) \
-			.filter(FeedAuthors.name == author['name'].strip()).scalar():
+			.filter(FeedAuthors.name == author['name'].strip()).count():
 
 			newtag = FeedAuthors(article_id=itemrow.id, name=author['name'].strip())
 			db.session.add(newtag)

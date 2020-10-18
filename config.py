@@ -15,6 +15,8 @@ from settings import MAIL_PASSWORD          as C_MAIL_PASSWORD
 from settings import MAIL_DEFAULT_SENDER    as C_MAIL_DEFAULT_SENDER
 from settings import SECURITY_PASSWORD_SALT as C_SECURITY_PASSWORD_SALT
 from settings import COVER_PATH             as C_COVER_PATH
+from settings import READ_ONLY              as C_READ_ONLY
+from settings import READ_ONLY_MSG          as C_READ_ONLY_MSG
 
 
 if len(sys.argv) > 1 and "debug" in sys.argv:
@@ -79,3 +81,7 @@ class BaseConfig(object):
 	SYSTEM_USERID = 1
 
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+	READ_ONLY     = C_READ_ONLY
+	READ_ONLY_MSG = C_READ_ONLY_MSG
+
