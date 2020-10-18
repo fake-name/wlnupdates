@@ -1,55 +1,55 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div class="">
 		<h3>News</h3>
-		{% include '_block_news.html' %}
+		{% include '_block_news.html' -%}
 		<a href='/news/'>Older news</a>
 	</div>
 
 	<hr class='padded-rule'>
-	{% set release_items = trans_release_items %}
-	{% set show_group = True %}
+	{% set release_items = trans_release_items -%}
+	{% set show_group = True -%}
 
 	<div>
 		<h3>Latest Translated Releases</h3>
-		{% include '_block_releases.html' %}
+		{% include '_block_releases.html' -%}
 		<a href='/translated-releases/'>More Releases</a>
 	</div>
 	<hr class='padded-rule'>
 
-	{% set release_items = oel_release_items %}
-	{% set show_group = False %}
+	{% set release_items = oel_release_items -%}
+	{% set show_group = False -%}
 	<div>
 		<h3>Latest OEL Releases</h3>
-		{% include '_block_releases.html' %}
+		{% include '_block_releases.html' -%}
 		<a href='/oel-releases/'>More Releases</a>
 	</div>
 
 	<hr class='padded-rule'>
 	<div>
 		<h3>Latest RSS Feeds</h3>
-		{% include '_block_feeds.html' %}
+		{% include '_block_feeds.html' -%}
 		<a href='/feeds/'>More Feeds</a>
 	</div>
 
 	<hr class='padded-rule'>
 
-	{% set show_group = False %}
+	{% set show_group = False -%}
 	<div>
 		<h4>A few random series</h4>
-		{% for post in random_series %}
+		{% for post in random_series -%}
 			<div class="well well-tny">
 
 				<a href='/series-id/{{ post.id }}/'>{{ post.title }}</a>
 
 			</div>
-		{% endfor %}
+		{% endfor -%}
 	</div>
 
 	<hr class='padded-rule'>
-{% endblock %}
+{% endblock -%}
 
 

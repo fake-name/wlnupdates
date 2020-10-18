@@ -26,21 +26,21 @@
 	<a href='/feeds/'><h5 style='color:#2196f3'>Rss Feeds</h5></a>
 	<a href='/forum/'><h5 style='color:#2196f3'>Forum</h5></a>
 	<hr>
-	{% if current_user.is_authenticated() %}
+	{% if current_user.is_authenticated() -%}
 		<h4>User Preferences</h4>
 		<div class='nav-item'>Logged in as <strong>{{g.user.nickname}}</strong></div>
 		<br>
 		<div class='nav-item'><a href='/watches'>Watched Series</a></div>
 		<div class='nav-item'><a href='/user-cp'>User Control Panel</a></div>
 		<hr>
-		{% if current_user.is_admin() %}
-			{% include 'admin/admin-nav-block.html' %}
-		{% endif %}
+		{% if current_user.is_admin() -%}
+			{% include 'admin/admin-nav-block.html' -%}
+		{% endif -%}
 		<hr>
 		<div class='nav-item'><a href='/logout'>Log Out</a></div>
-	{% else %}
+	{% else -%}
 		<div class='nav-item'><a href='/login'>Login</a></div>
 		<div class='nav-item'><a href='/signup'>Create Account</a></div>
-	{% endif %}
+	{% endif -%}
 
 </div>

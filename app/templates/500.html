@@ -1,10 +1,10 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block content %}
+{% block content -%}
     <h1>{{ _('An unexpected error has occurred') }}</h1>
     <p>{{ _('The administrator has been notified. Sorry for the inconvenience!') }}</p>
     <p>If this continues to occur, please file an issue on the <a href="https://github.com/fake-name/wlnupdates/issues">github issue tracker</a>.
     Please include what you were doing when you ran into the issue.</p>
     <p><a href="{{ url_for('index') }}">{{ _('Back') }}</a></p>
-{% endblock %}
+{% endblock -%}

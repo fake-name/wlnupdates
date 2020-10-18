@@ -1,10 +1,10 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% set title = "Login" %}
+{% set title = "Login" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div>
 		<h3>{{ _('Please Sign In') }}</h3>
 		<form class="form" action="" method="post" name="login">
@@ -12,26 +12,26 @@
 
 			<div class="well">
 
-				{% if login_error %}
+				{% if login_error -%}
 				<h4>{{ login_error }} </h4>
-				{% endif %}
+				{% endif -%}
 
-				<div class="control-group{% if form.username.errors %} error{% endif %}">
+				<div class="control-group{% if form.username.errors -%} error{% endif -%}">
 					<label class="control-label" for="login">{{ _('Username:') }}</label>
 					<div class="controls">
 						{{ form.username(size=80, class="span4") }}
-						{% for error in form.username.errors %}
+						{% for error in form.username.errors -%}
 							<span class="help-inline">[{{ error }}]</span><br>
-						{% endfor %}
+						{% endfor -%}
 					</div>
 				</div>
-				<div class="control-group{% if form.password.errors %} error{% endif %}">
+				<div class="control-group{% if form.password.errors -%} error{% endif -%}">
 					<label class="control-label" for="password">{{ _('Password:') }}</label>
 					<div class="controls">
 						{{ form.password(size=80, class="span4") }}
-						{% for error in form.password.errors %}
+						{% for error in form.password.errors -%}
 							<span class="help-inline">[{{ error }}]</span><br>
-						{% endfor %}
+						{% endfor -%}
 					</div>
 				</div>
 				<div class="control-group">
@@ -50,4 +50,4 @@
 		</form>
 		Don't have an account? <a href='signup'>Create one!</a>
 	</div>
-{% endblock %}
+{% endblock -%}

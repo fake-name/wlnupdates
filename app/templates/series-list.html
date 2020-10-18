@@ -1,54 +1,54 @@
 <!-- extend base layout -->
 
-{% extends "__base.html" %}
-{% import "_block_paginate.html" as paginator %}
+{% extends "__base.html" -%}
+{% import "_block_paginate.html" as paginator -%}
 
-{% macro render_page_contents(pagination, access_key) %}
+{% macro render_page_contents(pagination, access_key) -%}
 
 	<table class='table-striped table table-bordered table-condensed fullwidth'>
-		{%- for page in pagination.items %}
+		{%- for page in pagination.items -%}
 			<tr>
 				<td>
 					<a href="/series-id/{{page.id}}/">{{ page[access_key] }}</a>
 
-					{% if page.tl_type == 'oel' %}
+					{% if page.tl_type == 'oel' -%}
 						<div class='pull-right'>
 							<a href='/help#what-is-oel'>
 								<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block btn-inline">OEL</button>
 							</a>
 						</div>
-					{% endif %}
+					{% endif -%}
 
-					{% if g.user.is_mod() %}
+					{% if g.user.is_mod() -%}
 						<div class='pull-right'>
 							<form class="form-inline" action="javascript:delete_ajax({{page.id}});">
 									<button style='margin-top:4px' class="btn btn-danger btn-xs btn-block btn-inline">Delete</button>
 							</form>
 						</div>
-					{% endif %}
+					{% endif -%}
 
 				</td>
 
 			</tr>
-		{%- endfor %}
+		{%- endfor -%}
 	</table>
 
-{% endmacro %}
+{% endmacro -%}
 
 
-{% macro render_alphanum_div(prefix) %}
+{% macro render_alphanum_div(prefix) -%}
 	<div class='pull-right'>
 		Prefix:
-		{%- for letter in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+		{%- for letter in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' -%}
 			<a href="/{{prefix}}/{{letter}}/1">{{ letter | upper }}</a>
-		{%- endfor %}
+		{%- endfor -%}
 	</div>
-{% endmacro %}
+{% endmacro -%}
 
-{% set title = title_prefix + " Series Listing" %}
+{% set title = title_prefix + " Series Listing" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div  style="min-height: 140px;">
 		<div>
 			<div class='pull-right'>
@@ -60,34 +60,34 @@
 					<h2 style='display: inline-block;'>{{title_prefix}}Book Titles</h2>
 					<h4 style='display: inline-block;'> - Starting with "{{letter | upper}}"</h4>
 				</div>
-			{% else %}
+			{% else -%}
 				<h2>{{title_prefix}}Book Titles</h2>
-			{% endif %}
+			{% endif -%}
 
 			{{ render_alphanum_div(path_name) }}
 
 		</div>
 
-		{% if series_entries.items %}
+		{% if series_entries.items -%}
 
 			<div>
 				{{ render_page_contents(series_entries, name_key) }}
 			</div>
 			{{ paginator.render_pagination(series_entries) }}
-		{% else %}
+		{% else -%}
 			<h4>No items found!</h4>
-		{% endif %}
+		{% endif -%}
 
 
 
 	</div>
 
 	</ul>
-{% endblock %}
+{% endblock -%}
 
 
 
-{% block footer %}
+{% block footer -%}
 	<script>
 		function delete_ajax(seriesid)
 		{
@@ -113,4 +113,4 @@
 		}
 	</script>
 
-{% endblock %}
+{% endblock -%}

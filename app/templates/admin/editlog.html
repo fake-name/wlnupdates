@@ -1,19 +1,19 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
-{% import "_block_paginate.html" as paginator %}
+{% extends "__base.html" -%}
+{% import "_block_paginate.html" as paginator -%}
 
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div class="well well-large" style="min-height: 140px;">
 		<div>
 			<h2>Series Releases:</h2>
 		</div>
 
-		{% set release_items = sequence_item.items %}
-		{% set chunk = true %}
+		{% set release_items = sequence_item.items -%}
+		{% set chunk = true -%}
 		<div>
-			{% include '_block_releases.html' %}
+			{% include '_block_releases.html' -%}
 		</div>
 
 		{{ paginator.render_pagination(sequence_item) }}
@@ -22,6 +22,6 @@
 
 	</div>
 
-{% endblock %}
+{% endblock -%}
 
 

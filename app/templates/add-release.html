@@ -1,18 +1,18 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block footer %}
+{% block footer -%}
 <link rel="stylesheet" type="text/css" href="/static/css/jquery.datetimepicker.css"/>
 <script src="/static/js/jquery.datetimepicker.js"></script>
 <script>
 	$('#datetimepicker').datetimepicker({value:'{{date_now()}}',step:10});
 </script>
-{% endblock %}
+{% endblock -%}
 
-{% set title = "Add a Release" %}
+{% set title = "Add a Release" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div class="well well-large" style="min-height: 140px;">
 		<h2>Add a new release for {{series.title}}:</h2>
 
@@ -33,13 +33,13 @@
 							{{ form.volume(size=6, class='form-control') }}
 							<span class='light-grey'>Leave empty if there is no volume number</span>
 
-							{% if form.volume.errors %}
+							{% if form.volume.errors -%}
 								<ul class="errors">
-									{% for error in form.volume.errors %}
+									{% for error in form.volume.errors -%}
 										<li>{{ error }}</li>
-									{% endfor %}
+									{% endfor -%}
 								</ul>
-							{% endif %}
+							{% endif -%}
 						</td>
 					</tr>
 					<tr>
@@ -48,13 +48,13 @@
 						</td>
 						<td>
 							{{ form.chapter(size=6, class='form-control') }}
-							{% if form.chapter.errors %}
+							{% if form.chapter.errors -%}
 								<ul class="errors">
-									{% for error in form.chapter.errors %}
+									{% for error in form.chapter.errors -%}
 										<li>{{ error }}</li>
-									{% endfor %}
+									{% endfor -%}
 								</ul>
-							{% endif %}
+							{% endif -%}
 						</td>
 					</tr>
 
@@ -67,13 +67,13 @@
 							{{ form.subChap(size=6, class='form-control') }}
 							<span class='light-grey'>Use for partial chapters, leave empty otherwise.</span>
 
-							{% if form.subChap.errors %}
+							{% if form.subChap.errors -%}
 								<ul class="errors">
-									{% for error in form.subChap.errors %}
+									{% for error in form.subChap.errors -%}
 										<li>{{ error }}</li>
-									{% endfor %}
+									{% endfor -%}
 								</ul>
-							{% endif %}
+							{% endif -%}
 						</td>
 					</tr>
 
@@ -86,13 +86,13 @@
 							{{ form.postfix(size=60, class='form-control') }}
 							<span class='light-grey'>If the chapter has a name, it goes here..</span>
 
-							{% if form.postfix.errors %}
+							{% if form.postfix.errors -%}
 								<ul class="errors">
-									{% for error in form.postfix.errors %}
+									{% for error in form.postfix.errors -%}
 										<li>{{ error }}</li>
-									{% endfor %}
+									{% endfor -%}
 								</ul>
-							{% endif %}
+							{% endif -%}
 						</td>
 					</tr>
 
@@ -106,16 +106,16 @@
 								{{ form.release_pg(size=60, class='form-control') }}
 								<span class='light-grey'>Web Address where the release is available</span>
 							</div>
-							{% if form.release_pg.errors %}
+							{% if form.release_pg.errors -%}
 								<ul class="errors">
-									{% for error in form.release_pg.errors %}
+									{% for error in form.release_pg.errors -%}
 										<li>{{ error }}</li>
-									{% endfor %}
+									{% endfor -%}
 								</ul>
-							{% endif %}
+							{% endif -%}
 						</td>
 					</tr>
-					{% if form.is_oel.data != 'oel' %}
+					{% if form.is_oel.data != 'oel' -%}
 						<tr>
 							<td>
 
@@ -128,21 +128,21 @@
 								<span class='light-grey'>Translator group. If the group is not present, you must <a href='/add/group/'>add it first.</a></span>
 								</div>
 
-								{% if form.group.errors %}
+								{% if form.group.errors -%}
 									<ul class="errors">
-										{% for error in form.group.errors %}
+										{% for error in form.group.errors -%}
 											<li>{{ error }}</li>
-										{% endfor %}
+										{% endfor -%}
 									</ul>
-								{% endif %}
+								{% endif -%}
 							</td>
 						</tr>
-					{% else %}
+					{% else -%}
 						<!-- This is a horrible mess to work around broken WTForms validation -->
 						<div style="display:none;">
 							<input id="group" name="group" type="hidden" value="1">
 						</div>
-					{% endif %}
+					{% endif -%}
 
 					<tr>
 						<td>
@@ -157,13 +157,13 @@
 								</span>
 							</div>
 
-							{% if form.releasetime.errors %}
+							{% if form.releasetime.errors -%}
 								<ul class="errors">
-									{% for error in form.releasetime.errors %}
+									{% for error in form.releasetime.errors -%}
 										<li>{{ error }}</li>
-									{% endfor %}
+									{% endfor -%}
 								</ul>
-							{% endif %}
+							{% endif -%}
 						</td>
 					</tr>
 
@@ -176,4 +176,4 @@
 		</form>
 	</div>
 
-{% endblock %}
+{% endblock -%}

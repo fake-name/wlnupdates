@@ -1,25 +1,25 @@
 <!-- extend base layout -->
 
-{% macro quick_watch(sid, watchstate) %}
+{% macro quick_watch(sid, watchstate) -%}
 	<div class='pull-right'>
-		{% if g.user.is_authenticated() %}
-			{% set itemid = 'watch-link-%s' % sid %}
-			{% if not watchstate %}
+		{% if g.user.is_authenticated() -%}
+			{% set itemid = 'watch-link-%s' % sid -%}
+			{% if not watchstate -%}
 				<a href='#' onclick="toggle_watch('.{{itemid}}', mangaId={{sid}}, callback=callbackIIFE('{{itemid}}'));return false;" class='{{itemid}}'>Add Watch</a>
-			{% else %}
+			{% else -%}
 				<a href='#' onclick="toggle_watch('.{{itemid}}', mangaId={{sid}}, callback=callbackIIFE('{{itemid}}'));return false;" class='{{itemid}}'>Remove Watch</a>
-			{% endif %}
-		{% endif %}
+			{% endif -%}
+		{% endif -%}
 	</div>
 
-{% endmacro %}
+{% endmacro -%}
 
 
-{% macro render_page_contents(results) %}
-	{% if results %}
-		{% for key, value in results.items() %}
+{% macro render_page_contents(results) -%}
+	{% if results -%}
+		{% for key, value in results.items() -%}
 			<table class='table table-bordered table-condensed fullwidth' style='margin-bottom: 5px;'>
-				{% for series, cleanname, name, similarity in value['results'] %}
+				{% for series, cleanname, name, similarity in value['results'] -%}
 					<tr>
 						<td>
 							<a href="/series-id/{{key}}/">{{ name }}</a>
@@ -27,33 +27,33 @@
 							{{ quick_watch(key, value['watch']) }}
 						</td>
 					</tr>
-				{% endfor %}
+				{% endfor -%}
 			</table>
-		{% endfor %}
-	{% else %}
+		{% endfor -%}
+	{% else -%}
 		<div class="well well-med" >
 			No results found!
 		</div>
-	{% endif %}
+	{% endif -%}
 
-{% endmacro %}
+{% endmacro -%}
 
 
 
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div style="min-height: 140px;">
 		<h2>Search of {{ searchTarget }} for "{{ searchValue }}"</h2>
 		<div>
 			{{ render_page_contents(results) }}
 		</div>
 	</div>
-{% endblock %}
+{% endblock -%}
 
 
-{% block footer %}
+{% block footer -%}
 	<script src="/static/js/editable.js"></script>
 	<script>
 
@@ -92,4 +92,4 @@
 		}
 	</script>
 
-{% endblock %}
+{% endblock -%}

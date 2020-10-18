@@ -1,16 +1,16 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
-{% import "_block_paginate.html" as paginator %}
+{% extends "__base.html" -%}
+{% import "_block_paginate.html" as paginator -%}
 
 
-{% block content %}
-	{% include '_block_flash.html' %}
-	{% if g.user.is_admin() %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
+	{% if g.user.is_admin() -%}
 		<div>
 			<h3>Levenshtein Series Merge Interface</h3>
 		</div>
-		{% for matchitem in matches %}
-			{% if matchitem['r1'] and matchitem['r2'] %}
+		{% for matchitem in matches -%}
+			{% if matchitem['r1'] and matchitem['r2'] -%}
 				<div class="spair-{{min(matchitem['r1'].id, matchitem['r2'].id)}}-{{max(matchitem['r1'].id, matchitem['r2'].id)}}" class="well well-large" style="min-height: 140px;">
 					<hr>
 					<div>
@@ -28,16 +28,16 @@
 
 						<div>S1 Names</div>
 						<ul>
-							{% for altn in matchitem['r1'].alt_names %}
+							{% for altn in matchitem['r1'].alt_names -%}
 								<li>{{altn.name}}</li>
-							{% endfor %}
+							{% endfor -%}
 							<li>{{matchitem['r1'].name}}</li>
 						</ul>
 						<div>S2 Names</div>
 						<ul>
-							{% for altn in matchitem['r2'].alt_names %}
+							{% for altn in matchitem['r2'].alt_names -%}
 								<li>{{altn.name}}</li>
-							{% endfor %}
+							{% endfor -%}
 							<li>{{matchitem['r2'].name}}</li>
 						</ul>
 
@@ -56,15 +56,15 @@
 
 						<div>S1 Series</div>
 						<ul>
-							{% for seriesn in matchitem['ser1'] %}
+							{% for seriesn in matchitem['ser1'] -%}
 								<li>{{seriesn}}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 						<div>S2 Series</div>
 						<ul>
-							{% for seriesn in matchitem['ser2'] %}
+							{% for seriesn in matchitem['ser2'] -%}
 								<li>{{seriesn}}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 
 {#
@@ -74,15 +74,15 @@
 
 					</div>
 				</div>
-			{% endif %}
-		{% endfor %}
+			{% endif -%}
+		{% endfor -%}
 
-	{% endif %}
+	{% endif -%}
 
-{% endblock %}
+{% endblock -%}
 
 
-{% block footer %}
+{% block footer -%}
 
 	<script>
 
@@ -175,4 +175,4 @@
 
 	</script>
 
-{% endblock %}
+{% endblock -%}

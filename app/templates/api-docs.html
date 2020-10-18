@@ -1,12 +1,12 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% set title = "API Documentation" %}
+{% set title = "API Documentation" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div class="well">
 		{{markdown_content | markdown}}
 	</div>
 
-{% endblock %}
+{% endblock -%}

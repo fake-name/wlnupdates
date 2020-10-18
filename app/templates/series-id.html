@@ -14,7 +14,7 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro singleItemNonEditable(name, value, width=3) -%}
 	<div class="well well-tny info-item">
@@ -22,21 +22,21 @@
 			<div class="col-md-12">
 				List Stats:
 				<span style='float:right'>
-					{% if not value: %}
+					{% if not value: -%}
 						Not on anyone's reading list.
-					{% elif value == 1: %}
+					{% elif value == 1: -%}
 						{{value}} person follows this series.
-					{% elif value > 1: %}
+					{% elif value > 1: -%}
 						{{value}} people follow this series.
-					{% else %}
+					{% else -%}
 						Wat? (On {{value}} reading lists)
-					{% endif %}
+					{% endif -%}
 
 				</span>
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro ratingBlock(rating_value, overall_rating) -%}
 	<css>
@@ -76,7 +76,7 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro multiItemLink(name, value, valId, width=3, extra_cls='') -%}
 	<div class="well well-tny info-item">
@@ -90,13 +90,13 @@
 			</div>
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				{%- if value -%}
-					{% set links = value.split('\n') %}
+					{% set links = value.split('\n') -%}
 
 					<span class='singleitem {{extra_cls}}' style='display: none;'>{{ value }}</span>
 					<span class='singleitem'>
-						{% for linkurl in links %}
-							<a href='{{linkurl}}'>{{ linkurl }}</a>{% if not loop.last %}<br>{% endif %}
-						{% endfor %}
+						{% for linkurl in links -%}
+							<a href='{{linkurl}}'>{{ linkurl }}</a>{% if not loop.last -%}<br>{% endif -%}
+						{% endfor -%}
 					</span>
 				{%- else -%}
 					<span class='singleitem {{extra_cls}}'>N/A</span>
@@ -104,12 +104,12 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 {% macro lastUpdateBlock(value, width=5, extra_cls='') -%}
 
-	{% set staleness = staleness_factor(value) %}
+	{% set staleness = staleness_factor(value) -%}
 
 	<div class="well well-tny info-item {{staleness}}">
 		<div class="row singleitem">
@@ -117,25 +117,25 @@
 				Last Update:
 			</div>
 			<div class="col-md-{{12-width}} rowContents">
-				{% if value %}
-					{% if staleness == "updating-never" %}
+				{% if value -%}
+					{% if staleness == "updating-never" -%}
 						<span class='singleitem'>Never!</span>
-					{% else %}
+					{% else -%}
 						<span class='singleitem'>{{ terse_ago(value) }} ago</span>
-					{% endif %}
-					{% if staleness == "updating-stale" %}
+					{% endif -%}
+					{% if staleness == "updating-stale" -%}
 						<span style='float:right'>Possibly stalled!</span>
-					{% endif %}
-					{% if staleness == "updating-stalled" %}
+					{% endif -%}
+					{% if staleness == "updating-stalled" -%}
 						<span style='float:right'>Probably stalled or dropped!</span>
-					{% endif %}
-				{% else %}
+					{% endif -%}
+				{% else -%}
 					<span class='singleitem'>Never!</span>
-				{% endif %}
+				{% endif -%}
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 {% macro singleItemBlockDropbox(name, value, valId, values, width=3) -%}
@@ -153,9 +153,9 @@
 					<span class='dropitem-text'>{{ values[value] | safe }}</span>
 					<span class='dropitem-box' style='display: none; width:90%'>
 						<select>
-							{% for key, val in values.items() %}
+							{% for key, val in values.items() -%}
 								<option value='{{key}}' {{'selected="selected"' if key == value else ''}} >{{val}}</option>
-							{% endfor %}
+							{% endfor -%}
 						</select>
 					</span>
 				</div>
@@ -163,7 +163,7 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro multiItemBlock(name, inList, itemKey, valId, link_base, width=3) -%}
 	<div class="well well-tny info-item">
@@ -176,16 +176,16 @@
 				</span>
 			</div>
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
-				{% for item in inList %}
-					<span class='multiitem' id='{{valId}}'><a href="/{{link_base}}/{{item.id}}/">{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
-				{% else %}
+				{% for item in inList -%}
+					<span class='multiitem' id='{{valId}}'><a href="/{{link_base}}/{{item.id}}/">{{ item[itemKey] }}</a>{% if not loop.last -%},{% endif -%}</span>
+				{% else -%}
 					<span class='multiitem' id='{{valId}}'>N/A</span>
-				{% endfor %}
+				{% endfor -%}
 
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 
@@ -200,7 +200,7 @@
 				</span>
 			</div>
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
-				{% for item in inList %}
+				{% for item in inList -%}
 					<span class='multiitem' id='{{valId}}'><a href="/search?json= {{
 							{
 								'series-type' : {},
@@ -210,15 +210,15 @@
 								'chapter-limits' : [0, false]
 							} | tojson | urlencode
 						}}">
-						{{ item[itemKey] }}</a>{% if not loop.last %},{% endif %}</span>
-				{% else %}
+						{{ item[itemKey] }}</a>{% if not loop.last -%},{% endif -%}</span>
+				{% else -%}
 					<span class='multiitem' id='{{valId}}'>N/A</span>
-				{% endfor %}
+				{% endfor -%}
 
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 
@@ -234,16 +234,16 @@
 				</span>
 			</div>
 			<div class="col-md-{{12-5}} rowContents" id='tag'>
-				{% for item in inList %}
-					<span class='multiitem' id='tag'><a href="/search?json= {{ {'series-type' : {}, 'tag-category' : {item['tag']:'included'}, 'sort-mode' : "update", 'title-search-text' : "", 'chapter-limits' : [0, false]} | tojson | urlencode }}">{{ item['tag'] }}</a>{% if not loop.last %},{% endif %}</span>
-				{% else %}
+				{% for item in inList -%}
+					<span class='multiitem' id='tag'><a href="/search?json= {{ {'series-type' : {}, 'tag-category' : {item['tag']:'included'}, 'sort-mode' : "update", 'title-search-text' : "", 'chapter-limits' : [0, false]} | tojson | urlencode }}">{{ item['tag'] }}</a>{% if not loop.last -%},{% endif -%}</span>
+				{% else -%}
 					<span class='multiitem' id='tag'>N/A</span>
-				{% endfor %}
+				{% endfor -%}
 
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 
@@ -259,17 +259,17 @@
 			</div>
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				<ul>
-					{% for item in inList %}
+					{% for item in inList -%}
 					<li><span class='multilist' id='{{valId}}'>{{ item[itemKey] }}</span></li>
-					{% endfor %}
-					{% if not inList %}
+					{% endfor -%}
+					{% if not inList -%}
 						<span class='multilist' id='{{valId}}'></span>
-					{% endif %}
+					{% endif -%}
 				</ul>
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro altNameList(name, baseSeriesName, inList, itemKey, valId, link_base, watch, link=True, width=3) -%}
 	<div class="well well-tny info-item">
@@ -283,16 +283,16 @@
 			</div>
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				<ul>
-					{% for item in inList %}
-						{% if watch.watch_as_name %}
+					{% for item in inList -%}
+						{% if watch.watch_as_name -%}
 							<li><input onclick="javascript:new_watch_as('watch-alt-name')" type="radio" name="watch-alt-name" {{ "checked" if item[itemKey] == watch.watch_as_name else "" }} data-name='{{ item[itemKey] | escape }}'><span class='multilist' id='{{valId}}'>{{ item[itemKey] }}</span></li>
-						{% else %}
+						{% else -%}
 							<li><input onclick="javascript:new_watch_as('watch-alt-name')" type="radio" name="watch-alt-name" {{ "checked" if item[itemKey] == baseSeriesName else "" }} data-name='{{ item[itemKey] | escape }}'><span class='multilist' id='{{valId}}'>{{ item[itemKey] }}</span></li>
-						{% endif %}
-					{% endfor %}
-					{% if not inList %}
+						{% endif -%}
+					{% endfor -%}
+					{% if not inList -%}
 						<span class='multilist' id='{{valId}}'></span>
-					{% endif %}
+					{% endif -%}
 				</ul>
 
 			</div>
@@ -301,7 +301,7 @@
 	<script>
 
 	</script>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro dateBlock(name, value, valId, width=3, extra_cls='') -%}
 	<div class="well well-tny info-item">
@@ -318,7 +318,7 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 
@@ -339,7 +339,7 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro admin_view(series_val) -%}
 
@@ -354,14 +354,14 @@
 					<div class="col-md-9 rowTitle">
 
 						<select id='sort-mode-select' class="list-select form-control" onchange="edit_sort_mode();return false;">
-							{% if series_val.sort_mode == 'parsed_title_order' %}
+							{% if series_val.sort_mode == 'parsed_title_order' -%}
 								<option value='parsed_title_order' selected="selected">Parsed Numeric Order</option>
 								<option value='chronological_order'>Chronological Order</option>
-							{% else %}
+							{% else -%}
 								<option value='parsed_title_order'>Parsed Numeric Order</option>
 								<option value='chronological_order' selected="selected">Chronological Order</option>
 
-							{% endif %}
+							{% endif -%}
 						</select>
 
 					</div>
@@ -405,14 +405,14 @@
 					</div>
 				</form>
 
-				{% if g.user.is_admin() %}
+				{% if g.user.is_admin() -%}
 					<form class="form-inline" action="javascript:delete_series_spammer({{series_id}});">
 						<div class="col-md-3 rowTitle">
 							<button style='margin-top:4px' class="btn btn-primary btn-xs btn-block">Delete Spam Series</button>
 						</div>
 					</form>
 
-				{% endif %}
+				{% endif -%}
 			</div>
 		</div>
 		<hr />
@@ -431,7 +431,7 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro similarSeriesBlock(similar_series) -%}
 
@@ -440,34 +440,34 @@
 		</a>
 		<strong>Similar series</strong>
 
-		{% if similar_series %}
+		{% if similar_series -%}
 			<ul>
-				{% for item_name, item_id in similar_series %}
+				{% for item_name, item_id in similar_series -%}
 					<li>
 						<a href="/series-id/{{item_id}}/">{{item_name}}</a>
 					</li>
-				{% endfor %}
+				{% endfor -%}
 			</ul>
-		{% else %}
+		{% else -%}
 			<br>No results found! Does this series not have any tags?
-		{% endif %}
+		{% endif -%}
 
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro coversBlock(series, covers) -%}
 
-	{% if covers %}
+	{% if covers -%}
 		<div class='imgDiv'>
-			{% for cover in covers %}
+			{% for cover in covers -%}
 				<div id="cover-item" style="display: none;">
 					<img class='coverimg' src='/cover-img/{{ cover.id }}'>
-					{% if cover.description %}
+					{% if cover.description -%}
 						<h4>{{cover.description}}</h4>
-					{% else %}
+					{% else -%}
 						<h5>No Description</h5>
-					{% endif %}
+					{% endif -%}
 				</div>
-			{% endfor %}
+			{% endfor -%}
 
 			<p id='cover-offset' style=""></p>
 
@@ -475,15 +475,15 @@
 				<a id='editlink' href="/series-id/edit-covers/{{ series.id }}/">[edit covers]</a>
 
 			</div>
-			{% if covers|length > 1 %}
+			{% if covers|length > 1 -%}
 				<div class='cvr-btn-div'>
 					<button class="btn btn-default btn-prev" onclick="prev_cover();"><i class="glyphicon glyphicon-chevron-left"></i></button>
 					<button class="btn btn-default btn-next" onclick="next_cover();"><i class="glyphicon glyphicon-chevron-right"></i></button>
 				</div>
-			{% endif %}
+			{% endif -%}
 
 		</div>
-	{% else %}
+	{% else -%}
 		<style>
 
 
@@ -533,7 +533,7 @@
 				</p>
 			</div>
 		</div>
-	{% endif %}
+	{% endif -%}
 
 	<style>
 
@@ -610,7 +610,7 @@
 
 
 	</style>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 {% macro watchBlock(watches, watchlists, progress, latest_dict) -%}
@@ -630,28 +630,28 @@
 						<select id='watch-list-select' class="list-select form-control" onchange="edit_watch('#watch-list-select');return false;">
 
 							<option disabled>Current lists:</option>
-							{% if watchlists %}
-								{% for listname in watchlists %}
-									{% if watches.listname == listname %}
+							{% if watchlists -%}
+								{% for listname in watchlists -%}
+									{% if watches.listname == listname -%}
 										<option value='{{listname | safe}}' selected="selected">{{listname | safe}}</option>
-									{% else %}
+									{% else -%}
 										<option value='{{listname | safe}}'>{{listname | safe}}</option>
-									{% endif %}
-								{% endfor %}
+									{% endif -%}
+								{% endfor -%}
 								<option disabled>──────────</option>
-							{% endif %}
+							{% endif -%}
 							<option value='new-list'>{{"<new list>" | e}}</option>
-							{% if watches.listname %}
+							{% if watches.listname -%}
 								<option value='-0-0-0-0-0-0-0-no-list-0-0-0-0-0-0-0-0-'>{{"<remove item>" | e}}</option>
-							{% else %}
+							{% else -%}
 								<option selected="selected" value='-0-0-0-0-0-0-0-no-list-0-0-0-0-0-0-0-0-'>{{"<not watched>" | e}}</option>
-							{% endif %}
+							{% endif -%}
 						</select>
 					</div>
 				</div>
 			</div>
 			<div class="rowContents"  style="float: right; padding-right: 20px;">
-				{% if watches and watchlists %}
+				{% if watches and watchlists -%}
 					<div id='spinner-div' style='display: inline-block; float:right;'>
 						<form class="form-inline">
 							<div class="form-group form-group-sm btn-xs chap-btn">
@@ -668,11 +668,11 @@
 							</div>
 						</form>
 					</div>
-				{% endif %}
+				{% endif -%}
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 
@@ -686,24 +686,24 @@
 			<div class="col-md-{{12-width}} rowContents" id='{{valId}}'>
 				{%- if value -%}
 
-					{% if g.user.id == 2 %}
-						{% set links = value.split('\n') %}
+					{% if g.user.id == 2 -%}
+						{% set links = value.split('\n') -%}
 						<span class='singleitem'>
-							{% for linkurl in links %}
-								<a href='http://10.1.1.60:5001/view?url={{linkurl | urlencode}}'>R-View - {{ linkurl }}</a>{% if not loop.last %}<br>{% endif %}
-							{% endfor %}
+							{% for linkurl in links -%}
+								<a href='http://10.1.1.60:5001/view?url={{linkurl | urlencode}}'>R-View - {{ linkurl }}</a>{% if not loop.last -%}<br>{% endif -%}
+							{% endfor -%}
 						</span>
 
-					{% else %}
+					{% else -%}
 						<a href='{{value}}'>{{ value }}</a>
-					{% endif %}
+					{% endif -%}
 				{%- else -%}
 					<span class='singleitem {{extra_cls}}'>N/A</span>
 				{%- endif -%}
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro stagingLinkBlock(name, itemid, valId, width=3, extra_cls='') -%}
 	<div class="well well-tny info-item">
@@ -716,18 +716,18 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block header %}
+{% block header -%}
 
 
 	<meta name="manga-id" content="{{ series_id }}">
 
-{% endblock %}
+{% endblock -%}
 
-{% block footer %}
+{% block footer -%}
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
 	<script src="/static/js/bootstrap-number-input.js"></script>
@@ -1074,12 +1074,12 @@
 		}
 	</style>
 
-{% endblock %}
+{% endblock -%}
 
-{% set title = series.title if not watch.watch_as_name else watch.watch_as_name %}
+{% set title = series.title if not watch.watch_as_name else watch.watch_as_name -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 
 
 	<div>
@@ -1139,7 +1139,7 @@
 
 
 
-			{% if series.tl_type == 'translated' %}
+			{% if series.tl_type == 'translated' -%}
 
 				{{singleItemBlockDropbox("Country of Origin",
 									series.origin_loc,
@@ -1180,13 +1180,13 @@
 								)
 				}}
 
-				{% if series.license_en == True %}
+				{% if series.license_en == True -%}
 					{% set lic_state = 'True'%}
-				{% elif series.license_en == False %}
+				{% elif series.license_en == False -%}
 					{% set lic_state = 'False'%}
-				{% else %}
+				{% else -%}
 					{% set lic_state = 'unknown'%}
-				{% endif %}
+				{% endif -%}
 				{{singleItemBlockDropbox("Licensed (in english)",
 									lic_state,
 									'license_en',
@@ -1198,7 +1198,7 @@
 									width=5
 								)
 				}}
-			{% endif %}
+			{% endif -%}
 
 			{{multiItemBlock("Author(s)",
 							series.author,
@@ -1209,7 +1209,7 @@
 							)
 			}}
 
-			{% if series.tl_type == 'translated' %}
+			{% if series.tl_type == 'translated' -%}
 				{{multiItemBlock("Illustrator(s)",
 									series.illustrators,
 									'name',
@@ -1234,7 +1234,7 @@
 									width=5
 								)
 				}}
-			{% endif %}
+			{% endif -%}
 
 			{{tagItemBlock(series.tags)}}
 
@@ -1250,7 +1250,7 @@
 			{{lastUpdateBlock(most_recent)}}
 
 
-			{% if g.user.is_authenticated() and watch.listname %}
+			{% if g.user.is_authenticated() and watch.listname -%}
 
 				{{altNameList("Alternate Names",
 									series.title,
@@ -1262,7 +1262,7 @@
 									width=5
 								)
 				}}
-			{% else %}
+			{% else -%}
 				{{multiItemList("Alternate Names",
 									series.alternatenames,
 									'name',
@@ -1271,7 +1271,7 @@
 									width=5
 								)
 				}}
-			{% endif %}
+			{% endif -%}
 
 			{{multiItemLink("Homepage",
 								series.website,
@@ -1281,7 +1281,7 @@
 			}}
 
 
-			{% if g.user.is_mod() %}
+			{% if g.user.is_mod() -%}
 				<hr class='padded-rule'>
 
 				{{singleItemBlock("Change Title",
@@ -1290,7 +1290,7 @@
 								)
 				}}
 
-				{% if g.user.id == 2 %}
+				{% if g.user.id == 2 -%}
 
 					{{localLinkBlock("Homepage",
 									series.website,
@@ -1305,11 +1305,11 @@
 								)
 					}}
 					{{dbAdminItem()}}
-				{% endif %}
+				{% endif -%}
 
 
 				{{admin_view(series)}}
-			{% endif %}
+			{% endif -%}
 
 
 			<div style="clear: both;"></div>
@@ -1318,7 +1318,7 @@
 	</div>
 
 
-	{% set release_items = releases %}
+	{% set release_items = releases -%}
 	<div>
 		<div style='float:right'>
 			<sup>Releases found: {{ release_items | length }}</sup>
@@ -1331,8 +1331,8 @@
 			<h3 >Series Releases: </h3>
 			<h5 >Latest release - {{latest_str}}</h5>
 		</span>
-		{% include '_block_releases.html' %}
+		{% include '_block_releases.html' -%}
 	</div>
 
 	</ul>
-{% endblock %}
+{% endblock -%}

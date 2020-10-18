@@ -1,16 +1,16 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
-{% import "_block_paginate.html" as paginator %}
+{% extends "__base.html" -%}
+{% import "_block_paginate.html" as paginator -%}
 
 
-{% block content %}
-	{% include '_block_flash.html' %}
-	{% if g.user.is_admin() %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
+	{% if g.user.is_admin() -%}
 		<div>
 			<h3>Levenshtein Series Merge Interface</h3>
 		</div>
-		{% for matchitem in matches %}
-			{% if matchitem['r1'] and matchitem['r2'] %}
+		{% for matchitem in matches -%}
+			{% if matchitem['r1'] and matchitem['r2'] -%}
 				<div class="spair-{{min(matchitem['r1'].id, matchitem['r2'].id)}}-{{max(matchitem['r1'].id, matchitem['r2'].id)}}" class="well well-large" style="min-height: 140px;">
 					<hr>
 					<div>
@@ -28,41 +28,41 @@
 
 						<div>S1 Names</div>
 						<ul>
-							{% for altn in matchitem['r1'].alternatenames %}
+							{% for altn in matchitem['r1'].alternatenames -%}
 								<li>{{altn.name}}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 						<div>S2 Names</div>
 						<ul>
-							{% for altn in matchitem['r2'].alternatenames %}
+							{% for altn in matchitem['r2'].alternatenames -%}
 								<li>{{altn.name}}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 
 						<div>S1 Authors</div>
 						<ul>
-							{% for altn in matchitem['r1'].author %}
+							{% for altn in matchitem['r1'].author -%}
 								<li>{{altn.name}}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 						<div>S2 Authors</div>
 						<ul>
-							{% for altn in matchitem['r2'].author %}
+							{% for altn in matchitem['r2'].author -%}
 								<li>{{altn.name}}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 
 						<div>S1 Illustrators</div>
 						<ul>
-							{% for altn in matchitem['r1'].illustrators %}
+							{% for altn in matchitem['r1'].illustrators -%}
 								<li>{{altn.name}}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 						<div>S2 Illustrators</div>
 						<ul>
-							{% for altn in matchitem['r2'].illustrators %}
+							{% for altn in matchitem['r2'].illustrators -%}
 								<li>{{altn.name}}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 
 						<div>Type</div>
@@ -79,15 +79,15 @@
 
 					</div>
 				</div>
-			{% endif %}
-		{% endfor %}
+			{% endif -%}
+		{% endfor -%}
 
-	{% endif %}
+	{% endif -%}
 
-{% endblock %}
+{% endblock -%}
 
 
-{% block footer %}
+{% block footer -%}
 
 	<script>
 
@@ -179,4 +179,4 @@
 
 	</script>
 
-{% endblock %}
+{% endblock -%}

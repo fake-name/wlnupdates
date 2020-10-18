@@ -1,47 +1,45 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		{% if title %}
+		{% if title -%}
 			<title>{{ title }} - WLN Updates</title>
-		{% else %}
+		{% else -%}
 			<title>WLN Updates</title>
-		{% endif %}
+		{% endif -%}
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 
 		<link rel="preload" href="/static/fonts/glyphicons-halflings-regular.woff2" as="font" crossorigin="anonymous">
 		<link rel="preload" href="/static/fonts/fa-regular-400.woff2" as="font" crossorigin="anonymous">
 
-		{% assets "darkside_css" %}
+		{% assets "darkside_css" -%}
 			<link href="{{ ASSET_URL }}" rel="preload" as="style">
-		{% endassets %}
-		{% assets "lightside_css" %}
+		{% endassets -%}
+		{% assets "lightside_css" -%}
 			<link href="{{ ASSET_URL }}" rel="preload" as="style">
-		{% endassets %}
+		{% endassets -%}
 
-		{% assets "most_css" %}
+		{% assets "most_css" -%}
 			<link href="{{ ASSET_URL }}" rel="preload" as="style">
-		{% endassets %}
+		{% endassets -%}
 
-		{% assets "all_jerberscript" %}
+		{% assets "all_jerberscript" -%}
 			<link href="{{ ASSET_URL }}"  rel="preload" as="script">
-		{% endassets %}
+		{% endassets -%}
 
-
-		{{request.cookies.get("page_theme", "light") }}
-		{% assets "darkside_css" %}
+		{% assets "darkside_css" -%}
 			<link href="{{ ASSET_URL }}" rel="stylesheet alternative" media="screen" id="dark-style"  {{ "disabled" if request.cookies.get("page_theme", "light") == "light" else "" }} >
-		{% endassets %}
-		{% assets "lightside_css" %}
+		{% endassets -%}
+		{% assets "lightside_css" -%}
 			<link href="{{ ASSET_URL }}" rel="stylesheet"             media="screen" id="light-style"  {{ "disabled" if request.cookies.get("page_theme", "light") == "dark" else "" }} >
-		{% endassets %}
+		{% endassets -%}
 
-		{% assets "most_css" %}
+		{% assets "most_css" -%}
 			<link href="{{ ASSET_URL }}" rel="stylesheet" type="text/css" media="screen">
-		{% endassets %}
+		{% endassets -%}
 
 
-		{% block header %}{% endblock %}
+		{% block header -%}{% endblock -%}
 	</head>
 	<body>
 		<div id='segment_container'>
@@ -72,11 +70,11 @@
 						<div class="col-md-10">
 
 
-							{% block body %}{% endblock %}
-							{% block content %}{% endblock %}
+							{% block body -%}{% endblock -%}
+							{% block content -%}{% endblock -%}
 						</div>
 						<div class="col-md-2">
-							{% include '_block_nav.html' %}
+							{% include '_block_nav.html' -%}
 						</div>
 					</div>
 
@@ -104,9 +102,9 @@
 
 	</body>
 
-	{% assets "all_jerberscript" %}
+	{% assets "all_jerberscript" -%}
 		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-	{% endassets %}
+	{% endassets -%}
 
 
 	<script>
@@ -169,8 +167,8 @@
 
 	</script>
 
-	{% block footer %}{% endblock %}
-	{% if g.user.is_mod() %}
-		{% include '_block_admin_scripts.html' %}
-	{% endif %}
+	{% block footer -%}{% endblock -%}
+	{% if g.user.is_mod() -%}
+		{% include '_block_admin_scripts.html' -%}
+	{% endif -%}
 </html>

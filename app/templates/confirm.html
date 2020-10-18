@@ -1,16 +1,16 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% set title = "Please confirm your registration!" %}
+{% set title = "Please confirm your registration!" -%}
 
-{% block content %}
+{% block content -%}
 	<style>
 		div.error
 		{
 			background-color: #Fcc !important;
 		}
 	</style>
-	{% include '_block_flash.html' %}
+	{% include '_block_flash.html' -%}
 	<div class="well">
 		<h3>{{ _('Please confirm your registration.') }}</h3>
 		<p>
@@ -38,4 +38,4 @@
 			so it can be fixed.
 
 	</div>
-{% endblock %}
+{% endblock -%}

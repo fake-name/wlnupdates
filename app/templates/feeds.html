@@ -1,21 +1,21 @@
 <!-- extend base layout -->
 
-{% import "_block_paginate.html" as paginator %}
+{% import "_block_paginate.html" as paginator -%}
 
 
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% set title = "RSS Feeds" %}
+{% set title = "RSS Feeds" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div style="min-height: 140px;">
 		<h2>RSS Feed Items:</h2>
 
 
-		{% set raw_feeds = sequence_item.items %}
+		{% set raw_feeds = sequence_item.items -%}
 		<div>
-			{% include '_block_feeds.html' %}
+			{% include '_block_feeds.html' -%}
 		</div>
 
 		{{ paginator.render_pagination(sequence_item) }}
@@ -25,4 +25,4 @@
 	</div>
 
 	</ul>
-{% endblock %}
+{% endblock -%}

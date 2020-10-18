@@ -1,14 +1,14 @@
 <!-- extend base layout -->
 
-{% macro text_search() %}
+{% macro text_search() -%}
 	<div class="flex form-inline">
 		<div class='chapter-filter-entry col-md-12'>
 			<input type='text' class="form-control col-md-12" id='title-search-input' placeholder=" Title Search" style='width: 100% !important;'/>
 		</div>
 	</div>
-{% endmacro %}
+{% endmacro -%}
 
-{% macro render_chapter_count() %}
+{% macro render_chapter_count() -%}
 	<div class="flex">
 		<div class='chapter-filter-entry col-md-12'>
 			<span><label>Minimum chapter count</label><span class='pull-right' id='min-chapter-readout'>0</span> <input  data-type='chapter-number' id='min-chapter' type="range"  min="0" max="100" value="0" /></span>
@@ -19,9 +19,9 @@
 			<span><label>Maximum chapter count</label><span class='pull-right' id='max-chapter-readout'>N/A</span> <input  data-type='chapter-number' id='max-chapter' type="range"  min="0" max="101" value="101" /></span>
 		</div>
 	</div>
-{% endmacro %}
+{% endmacro -%}
 
-{% macro render_series_type() %}
+{% macro render_series_type() -%}
 	<div class="flex">
 		<div class='filter-entry category-filter-entry col-md-6' data-type='series-type'>
 			<div class="filter-mode">❍</div>
@@ -33,33 +33,33 @@
 		</div>
 	</div>
 
-{% endmacro %}
+{% endmacro -%}
 
 
 
-{% macro render_tag_categories(cats) %}
+{% macro render_tag_categories(cats) -%}
 	<div class="flex">
-		{% for category in cats %}
+		{% for category in cats -%}
 			<div class='filter-entry mode-filter-entry col-md-3' data-type='tag-category'>
 				<div class="filter-mode">❍</div>
 				<div class="filter-mode-label">{{category.tag}}</div>
 			</div>
-		{% endfor %}
+		{% endfor -%}
 	</div>
-{% endmacro %}
+{% endmacro -%}
 
-{% macro render_genre_categories(cats) %}
+{% macro render_genre_categories(cats) -%}
 	<div class="flex">
-		{% for category in cats %}
+		{% for category in cats -%}
 			<div class='filter-entry mode-filter-entry col-md-3' data-type='genre-category'>
 				<div class="filter-mode">❍</div>
 				<div class="filter-mode-label">{{category.genre}}</div>
 			</div>
-		{% endfor %}
+		{% endfor -%}
 	</div>
-{% endmacro %}
+{% endmacro -%}
 
-{% macro order_by() %}
+{% macro order_by() -%}
 	<div class="flex">
 			<div class='col-md-3'>
 				Order by:
@@ -75,15 +75,15 @@
 			</div>
 	</div>
 
-{% endmacro %}
+{% endmacro -%}
 
 
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% set title = "Advanced Search" %}
+{% set title = "Advanced Search" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div style="min-height: 140px;">
 		<h2>Advanced Search</h2>
 		<!--
@@ -142,10 +142,10 @@
 			<button type="button" id='permalink-button' class="btn btn-primary">Results Permalink</button>
 		</div>
 	</div>
-{% endblock %}
+{% endblock -%}
 
 
-{% block footer %}
+{% block footer -%}
 
 	<style>
 		.flex {
@@ -344,4 +344,4 @@
 		$( ".filter-entry" ).click(handle_input_update);
 	</script>
 
-{% endblock %}
+{% endblock -%}

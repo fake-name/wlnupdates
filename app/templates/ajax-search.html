@@ -1,8 +1,8 @@
 
-{% block content %}
+{% block content -%}
 	<div style="min-height: 40px;">
-		{% if series %}
-			<h6>{% if series | length >= 100 %}At least{% endif %} {{ series | length }} results found</h6>
+		{% if series -%}
+			<h6>{% if series | length >= 100 -%}At least{% endif -%} {{ series | length }} results found</h6>
 
 			<table class='table-striped table table-bordered table-condensed fullwidth'>
 
@@ -20,7 +20,7 @@
 						Last Release
 					</th>
 				</tr>
-				{%- for series_id, series_title, latest_rel, relcnt, extra_metadata in series %}
+				{%- for series_id, series_title, latest_rel, relcnt, extra_metadata in series -%}
 					<tr>
 						<td>
 							<a href='/series-id/{{ series_id }}/'>
@@ -29,10 +29,10 @@
 
 								{%- if extra_metadata and extra_metadata.get("is_yaoi") -%}
 									<span class='pull-right fa fa-mars-double' title="This series contains Yaoi content"></span>
-								{% endif %}
+								{% endif -%}
 								{%- if extra_metadata and extra_metadata.get("is_yuri") -%}
 									<span class='pull-right fa fa-venus-double' title="This series contains Yuri content"></span>
-								{% endif %}
+								{% endif -%}
 
 						</td>
 						<td>
@@ -42,10 +42,10 @@
 							<span class='{{staleness_factor(latest_rel)}}'>{{terse_ago(latest_rel)}} ago</span>
 						</td>
 					</tr>
-				{%- endfor %}
+				{%- endfor -%}
 			</table>
-		{% else %}
+		{% else -%}
 			<h6>No results! Try a less limited search?</h6>
-		{% endif %}
+		{% endif -%}
 	</div>
-{% endblock %}
+{% endblock -%}

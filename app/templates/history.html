@@ -17,7 +17,7 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 {% macro createMultiRow(entry1, entry2, entry3, entry4, entry5) -%}
@@ -38,132 +38,132 @@
 				{{entry5}}
 			</div>
 		</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro legendRowShort() -%}
 	{{ createRow("Time of change", "Change type", "Change value", "User") }}
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro legendRowLong() -%}
 	<div class="well well-tny info-item">
 		{{ createMultiRow("Time of change", "Change type", "Item", "Change value", "User") }}
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro mainHistory(cType, rows) -%}
 	<p>{{ cType }}</p>
 	{{ legendRowLong() }}
-	{% if not rows %}
+	{% if not rows -%}
 		<div>No history for item!</div>
-	{% endif %}
-	{% for changeset in rows %}
+	{% endif -%}
+	{% for changeset in rows -%}
 		<div class="well well-tny info-item">
-			{% for change in changeset %}
+			{% for change in changeset -%}
 
-				{% if change.operation == "I" %}
-					{% set op = "Added:" %}
-				{% elif change.operation == "U" %}
-					{% set op = "Modified:" %}
-				{% elif change.operation == "D" %}
-					{% set op = "Deleted:" %}
-				{% endif %}
+				{% if change.operation == "I" -%}
+					{% set op = "Added:" -%}
+				{% elif change.operation == "U" -%}
+					{% set op = "Modified:" -%}
+				{% elif change.operation == "D" -%}
+					{% set op = "Deleted:" -%}
+				{% endif -%}
 				{{ createMultiRow(change.changetime.strftime('%Y-%m-%d %H:%M'), op, change.item, change.value, getUserId(idNo=change['changeuser'])) }}
-			{% endfor %}
+			{% endfor -%}
 		</div>
-	{% endfor %}
-{%- endmacro %}
+	{% endfor -%}
+{%- endmacro -%}
 
 
 {% macro multiItemHistory(cType, rows, accesskey) -%}
 	<p>{{ cType }}</p>
 	{{ legendRowShort() }}
 
-	{% if not rows %}
+	{% if not rows -%}
 		<div>No history for item!</div>
-	{% endif %}
-	{% for row in rows %}
-		{% if row.operation == "I" %}
-			{% set op = "Added:" %}
-		{% elif row.operation == "U" %}
-			{% set op = "Modified:" %}
-		{% elif row.operation == "D" %}
-			{% set op = "Deleted:" %}
-		{% endif %}
+	{% endif -%}
+	{% for row in rows -%}
+		{% if row.operation == "I" -%}
+			{% set op = "Added:" -%}
+		{% elif row.operation == "U" -%}
+			{% set op = "Modified:" -%}
+		{% elif row.operation == "D" -%}
+			{% set op = "Deleted:" -%}
+		{% endif -%}
 
 		{{ createRow(row.changetime.strftime('%Y-%m-%d %H:%M'), op, row[accesskey], getUserId(idNo=row.changeuser)) }}
-	{% endfor %}
+	{% endfor -%}
 
-{%- endmacro %}
+{%- endmacro -%}
 
 
 {% macro creatorHistory(cType, rows) -%}
 	<p>{{ cType }}</p>
 	{{ legendRowShort() }}
 
-	{% if not rows %}
+	{% if not rows -%}
 		<div>No history for item!</div>
-	{% endif %}
-	{% for row in rows %}
-		{% if row.operation == "I" %}
-			{% set op = "Added:" %}
-		{% elif row.operation == "U" %}
-			{% set op = "Modified:" %}
-		{% elif row.operation == "D" %}
-			{% set op = "Deleted:" %}
-		{% endif %}
+	{% endif -%}
+	{% for row in rows -%}
+		{% if row.operation == "I" -%}
+			{% set op = "Added:" -%}
+		{% elif row.operation == "U" -%}
+			{% set op = "Modified:" -%}
+		{% elif row.operation == "D" -%}
+			{% set op = "Deleted:" -%}
+		{% endif -%}
 		{{ createRow(row.changetime, op, row.name, getUserId(idNo=row.changeuser)) }}
-	{% endfor %}
-{%- endmacro %}
+	{% endfor -%}
+{%- endmacro -%}
 
 
 
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block header %}
+{% block header -%}
 	<meta name="manga-id" content="{{ series_id }}">
 
-{% endblock %}
+{% endblock -%}
 
-{% block footer %}
+{% block footer -%}
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
-{% endblock %}
+{% endblock -%}
 
-{% set title = "Series Change History" %}
+{% set title = "Series Change History" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 
 
 	<div>
 		<h2>Edit History:</h2>
 
-			{% if seriesHist   != None %}
+			{% if seriesHist   != None -%}
 				{{ mainHistory("Entry data history:",      seriesHist) }}
-			{% elif authorHist != None %}
+			{% elif authorHist != None -%}
 				{{ creatorHistory("Author entries history:",      authorHist) }}
-			{% elif illustHist != None %}
+			{% elif illustHist != None -%}
 				{{ creatorHistory("Illustrator entries history:", illustHist) }}
-			{% elif tagHist    != None    %}
+			{% elif tagHist    != None    -%}
 				{{ multiItemHistory("", tagHist,   'tag') }}
-			{% elif genreHist  != None  %}
+			{% elif genreHist  != None  -%}
 				{{ multiItemHistory("", genreHist, 'genre') }}
-			{% elif pubHist    != None  %}
+			{% elif pubHist    != None  -%}
 				{{ multiItemHistory("", pubHist,   'name') }}
-			{% elif nameHist   != None  %}
+			{% elif nameHist   != None  -%}
 				{{ multiItemHistory("", nameHist,  'name') }}
-			{% elif pubHist    != None  %}
+			{% elif pubHist    != None  -%}
 				{{ multiItemHistory("", pubHist,  'name') }}
-			{% elif pubHist    != None  %}
+			{% elif pubHist    != None  -%}
 				{{ multiItemHistory("", pubHist,  'name') }}
-			{% elif groupAltNames != None  %}
+			{% elif groupAltNames != None  -%}
 				{{ multiItemHistory("Group Alternate Names", groupAltNames,  'name') }}
-			{% else %}
+			{% else -%}
 				<div>No history log found! Is that a valid history target?</div>
-			{% endif %}
+			{% endif -%}
 
 			<div style="clear: both;"></div>
 
 	</div>
 
-{% endblock %}
+{% endblock -%}

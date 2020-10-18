@@ -3,19 +3,19 @@
 
 
 
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block header %}
+{% block header -%}
 	<meta name="wiki-id" content="{{ wiki.id }}">
 
-{% endblock %}
+{% endblock -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div style="min-height: 140px;">
-		{%- if wiki %}
+		{%- if wiki -%}
 			Page Exists!
-		{%- else %}
+		{%- else -%}
 			<h2>Editing page for '{{ slug }}'</h2>
 
 			<div class="well well-sm">
@@ -26,21 +26,21 @@
 					</div>
 				</div>
 			</div>
-			{% if wiki %}
+			{% if wiki -%}
 				{{ wiki | safe }}
-			{% endif %}
+			{% endif -%}
 
-		{%- endif %}
+		{%- endif -%}
 
 	</div>
 
 
 
-{% endblock %}
+{% endblock -%}
 
 
 
-{% block footer %}
+{% block footer -%}
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
 	<script src="/static/js/bootstrap-number-input.js"></script>
@@ -83,5 +83,5 @@
 
 	</script>
 
-{% endblock %}
+{% endblock -%}
 

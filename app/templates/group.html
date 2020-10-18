@@ -1,21 +1,21 @@
 <!-- extend base layout -->
 
-{% import "_block_paginate.html" as paginator %}
+{% import "_block_paginate.html" as paginator -%}
 
-{% macro render_page_contents(series) %}
+{% macro render_page_contents(series) -%}
 
 	<table class='table-striped table table-bordered table-condensed fullwidth'>
-		{%- for page in series %}
+		{%- for page in series -%}
 			<tr>
 				<td>
 					<a href="/series-id/{{page.id}}/">{{ page.title }}</a>
 				</td>
 
 			</tr>
-		{%- endfor %}
+		{%- endfor -%}
 	</table>
 
-{% endmacro %}
+{% endmacro -%}
 
 
 {% macro deleteItem(valId) -%}
@@ -47,19 +47,19 @@
 			</div>
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block header %}
+{% block header -%}
 	<meta name="group-id" content="{{ group.id }}">
 
-{% endblock %}
+{% endblock -%}
 
-{% set title = "Translation Group " + group.name %}
+{% set title = "Translation Group " + group.name -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div style="min-height: 140px;">
 		<h2>Group {{ group.name }}</h2>
 
@@ -75,9 +75,9 @@
 
 					<div class="col-md-9 rowContents" id='altnames'>
 						<ul>
-							{% for item in group.alt_names %}
+							{% for item in group.alt_names -%}
 								<li><span class='multilist' id='altnames'>{{item.name}}</span></li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
 
 					</div>
@@ -90,7 +90,7 @@
 			</div>
 		</div>
 
-		{% if g.user.is_mod() %}
+		{% if g.user.is_mod() -%}
 			<hr class='padded-rule'>
 			<div class="well well-tny info-item">
 				<div class="row multilist" id="{{valId}}-container">
@@ -114,43 +114,43 @@
 
 			{{deleteItem(group.id)}}
 
-		{% endif %}
+		{% endif -%}
 
 
 	</div>
 
 	<hr class='padded-rule'>
-	{% set release_items = releases_sequence_item.items %}
+	{% set release_items = releases_sequence_item.items -%}
 	<div>
 		<sub class='pull-right'>Releases found: {{ releases_sequence_item.total }}</sub><h3>Group Releases:</h3>
 		<div class='clearfix'></div>
-		{% if releases_sequence_item %}
-			{% include '_block_releases.html' %}
+		{% if releases_sequence_item -%}
+			{% include '_block_releases.html' -%}
 			{{ paginator.render_pagination(releases_sequence_item) }}
-		{% else %}
+		{% else -%}
 			<center><h5>No more group releases!</h5></center>
-		{% endif %}
+		{% endif -%}
 	</div>
 
 
 	<hr class='padded-rule'>
-	{% set raw_feeds = feed_sequence_item.items %}
+	{% set raw_feeds = feed_sequence_item.items -%}
 	<div>
 		<sub class='pull-right'>Rss entries found: {{ feed_sequence_item.total }}</sub><h3>Group RSS Entries:</h3>
 		<div class='clearfix'></div>
-		{% if feed_sequence_item %}
-			{% include '_block_feeds.html' %}
+		{% if feed_sequence_item -%}
+			{% include '_block_feeds.html' -%}
 			{{ paginator.render_pagination(feed_sequence_item) }}
-		{% else %}
+		{% else -%}
 				<center><h5>No more group feeds!</h5></center>
-		{% endif %}
+		{% endif -%}
 	</div>
 
-{% endblock %}
+{% endblock -%}
 
 
 
-{% block footer %}
+{% block footer -%}
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
 	<script src="/static/js/bootstrap-number-input.js"></script>
@@ -241,5 +241,5 @@
 
 	</script>
 
-{% endblock %}
+{% endblock -%}
 

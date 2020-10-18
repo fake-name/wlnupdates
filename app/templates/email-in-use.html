@@ -1,7 +1,7 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block content %}
+{% block content -%}
     <h1>That e-mail address has already been registered</h1>
     <p>E-Mail address: <code>{{email}}</code>.</p>
     <p>If you just registered, you still need to click the account confirmation
@@ -10,4 +10,4 @@
     <p>If you never receive your confirmation, please file an issue on the
     <a href="https://github.com/fake-name/wlnupdates/issues">github issue tracker</a>.</p>
     <p><a href="{{ url_for('index') }}">{{ _('Back') }}</a></p>
-{% endblock %}
+{% endblock -%}

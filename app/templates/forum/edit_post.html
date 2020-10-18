@@ -1,12 +1,12 @@
-{% extends '__base.html' %}
-{% import 'forum/macros.html' as m %}
-{% import 'forum/post_editor.html' as e %}
+{% extends '__base.html' -%}
+{% import 'forum/macros.html' as m -%}
+{% import 'forum/post_editor.html' as e -%}
 
-{% block title %}Edit post in "{{ thread.name }}"{% endblock %}
+{% block title -%}Edit post in "{{ thread.name }}"{% endblock -%}
 
 
 
-{% block body %}
+{% block body -%}
 	<h1>{{ thread.name }}</h1>
 
 	{{ m.breadcrumbs(board, thread) }}
@@ -16,8 +16,8 @@
 		<colgroup>
 			<col width="150px">
 		</colgroup>
-		{% for p in thread.posts %}
-			{% if edit_post.id == p.id %}
+		{% for p in thread.posts -%}
+			{% if edit_post.id == p.id -%}
 				</table>
 				<div class='fullwidth'>
 
@@ -29,7 +29,7 @@
 					<colgroup>
 						<col width="150px">
 					</colgroup>
-			{% else %}
+			{% else -%}
 				<tr>
 					<td>
 						<a href="{{ url_for('.user', id=p.author_id) }}">{{ p.author.nickname }}</a><br>
@@ -39,16 +39,16 @@
 					</td>
 					<td>
 						{{ p.content|markdown }}
-						{% if p.author_id == current_user.id %}<a href="{{ url_for('.edit_post', slug=board.slug, thread_id=thread.id, post_id=p.id) }}">[edit]</a>{% endif %}
+						{% if p.author_id == current_user.id -%}<a href="{{ url_for('.edit_post', slug=board.slug, thread_id=thread.id, post_id=p.id) }}">[edit]</a>{% endif -%}
 					</td>
 				</tr>
-			{% endif %}
-		{% endfor %}
+			{% endif -%}
+		{% endfor -%}
 	</table>
 
-{% endblock %}
+{% endblock -%}
 
 
-{% block footer %}
+{% block footer -%}
 	{{ e.post_edit_footer() }}
-{% endblock %}
+{% endblock -%}

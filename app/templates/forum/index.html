@@ -1,9 +1,9 @@
-{% extends '__base.html' %}
-{% import 'forum/macros.html' as m %}
+{% extends '__base.html' -%}
+{% import 'forum/macros.html' as m -%}
 
-{% block title %}Forum{% endblock %}
+{% block title -%}Forum{% endblock -%}
 
-{% block body %}
+{% block body -%}
 	<h1>WLN Updates Forums</h1>
 	{{ m.breadcrumbs(board) }}
 
@@ -12,7 +12,7 @@
 			<col>
 			<col style='width:30%'>
 		</colgroup>
-		{% for b in boards %}
+		{% for b in boards -%}
 			<tr>
 				<td>
 					<h2><a href="{{ url_for('.board', slug=b.slug) }}">{{ b.name }}</a></h2>
@@ -20,15 +20,15 @@
 				</td>
 				<td>
 					{% set latest_thread = b.threads[0]%}
-					{% if latest_thread: %}
+					{% if latest_thread: -%}
 						Last active thread:<br>
 							<a href="{{ url_for('forum.thread', slug=b.slug, id=latest_thread.id) }}">{{ latest_thread.name }}</a><br>
 						At {{latest_thread.readable_date(latest_thread.updated)}}
-					{% else %}
+					{% else -%}
 						No Threads
-					{% endif %}
+					{% endif -%}
 				</td>
 			</tr>
-		{% endfor %}
+		{% endfor -%}
 	</table>
-{% endblock %}
+{% endblock -%}

@@ -1,9 +1,9 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
 
 
-{% macro consolidator() %}
+{% macro consolidator() -%}
 	<div class="well well-large">
 		<div class="well well-sm">
 			Consolidate duplicate series-pages by URL.
@@ -23,26 +23,26 @@
 		</div>
 	</div>
 
-{% endmacro %}
+{% endmacro -%}
 
 
 
-{% block content %}
-	{% include '_block_flash.html' %}
-	{% if g.user.is_admin() %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
+	{% if g.user.is_admin() -%}
 		<div class="well well-large">
 			<div>
 				<h2>System management tools</h2>
 			</div>
 		</div>
 		{{consolidator()}}
-	{% endif %}
+	{% endif -%}
 
-{% endblock %}
+{% endblock -%}
 
 
-{% block footer %}
-	{% if g.user.is_mod() %}
+{% block footer -%}
+	{% if g.user.is_mod() -%}
 
 		<script>
 			function handle_success(data, textStatus, jqXHR)
@@ -88,6 +88,6 @@
 				do_post(post_data)
 			});
 		</script>
-	{% endif %}
-{% endblock %}
+	{% endif -%}
+{% endblock -%}
 

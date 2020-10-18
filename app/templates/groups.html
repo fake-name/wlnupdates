@@ -1,35 +1,35 @@
 <!-- extend base layout -->
 
 
-{% extends "__base.html" %}
-{% import "_block_paginate.html" as paginator %}
+{% extends "__base.html" -%}
+{% import "_block_paginate.html" as paginator -%}
 
-{% macro render_alphanum_div(prefix) %}
+{% macro render_alphanum_div(prefix) -%}
 	<div class='pull-right'>
 		Prefix:
-		{%- for letter in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+		{%- for letter in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' -%}
 			<a href="/{{prefix}}/{{letter}}/1">{{ letter | upper }}</a>
-		{%- endfor %}
+		{%- endfor -%}
 	</div>
-{% endmacro %}
+{% endmacro -%}
 
-{% set title = "Translation Groups" %}
+{% set title = "Translation Groups" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div style="min-height: 140px;">
-		{% if add_new %}
+		{% if add_new -%}
 			<div class='pull-right'>
 				<h4><a href='/add/{{add_new}}/'>{{add_new_text}}</a></h4>
 			</div>
-		{% endif %}
+		{% endif -%}
 		<h2>Translation Groups:</h2>
 		{{ render_alphanum_div("groups") }}
 
 
-		{% set release_items = sequence_item.items %}
+		{% set release_items = sequence_item.items -%}
 		<div>
-			{% include '_block_groups.html' %}
+			{% include '_block_groups.html' -%}
 		</div>
 
 		{{ paginator.render_pagination(sequence_item) }}
@@ -39,4 +39,4 @@
 	</div>
 
 	</ul>
-{% endblock %}
+{% endblock -%}

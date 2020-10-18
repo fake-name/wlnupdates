@@ -1,25 +1,25 @@
-{% extends '__base.html' %}
-{% import 'forum/macros.html' as m %}
-{% import 'forum/post_editor.html' as e %}
+{% extends '__base.html' -%}
+{% import 'forum/macros.html' as m -%}
+{% import 'forum/post_editor.html' as e -%}
 
-{% block title %}{% endblock %}
+{% block title -%}{% endblock -%}
 
-{% block body %}
+{% block body -%}
 <h1>{{ board.name }}</h1>
 {{ m.breadcrumbs(board) }}
-{% include '_block_flash.html' %}
+{% include '_block_flash.html' -%}
 <form method="POST" action="">
 		{{ form.csrf_token }}
 	<div class="form-group">
 		<label>Thread title:</label>
 		{{ form.name(class_="form-control") }}
-		{% if form.name.errors %}
+		{% if form.name.errors -%}
 			<ul class="errors">
-				{% for error in form.name.errors %}
+				{% for error in form.name.errors -%}
 					<li>{{ error }}</li>
-				{% endfor %}
+				{% endfor -%}
 			</ul>
-		{% endif %}
+		{% endif -%}
 
 	</div>
 	<div class='fullwidth'>
@@ -29,8 +29,8 @@
 		{{ form.submit(class_="btn btn-success") }}
 	</div>
 </form>
-{% endblock %}
+{% endblock -%}
 
-{% block footer %}
+{% block footer -%}
 	{{ e.post_edit_footer() }}
-{% endblock %}
+{% endblock -%}

@@ -1,27 +1,27 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% import "_block_paginate.html" as paginator %}
+{% import "_block_paginate.html" as paginator -%}
 
-{% set title = tl_type + "Releases" %}
+{% set title = tl_type + "Releases" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div   style="min-height: 140px;">
 		<div>
 			<h2>{{tl_type}}Series Releases:</h2>
 		</div>
 
 
-		{% set release_items = sequence_item.items %}
-		{% set chunk = true %}
+		{% set release_items = sequence_item.items -%}
+		{% set chunk = true -%}
 
 		<div>
-			{% include '_block_releases.html' %}
+			{% include '_block_releases.html' -%}
 		</div>
 
 		{{ paginator.render_pagination(sequence_item) }}
 
 	</div>
 
-{% endblock %}
+{% endblock -%}

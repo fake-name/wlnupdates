@@ -1,50 +1,50 @@
 <!-- extend base layout -->
 
-{% extends "__base.html" %}
-{% import "_block_paginate.html" as paginator %}
+{% extends "__base.html" -%}
+{% import "_block_paginate.html" as paginator -%}
 
-{% macro render_page_contents(prefix, pagination, access_key) %}
+{% macro render_page_contents(prefix, pagination, access_key) -%}
 
 	<table class='table-striped table table-bordered table-condensed fullwidth'>
-		{%- for page in pagination.items %}
+		{%- for page in pagination.items -%}
 			<tr>
 				<td>
 					<a href="/{{prefix}}/{{page.id}}/">{{ page[access_key] }}</a>
 				</td>
 
 			</tr>
-		{%- endfor %}
+		{%- endfor -%}
 	</table>
 
-{% endmacro %}
+{% endmacro -%}
 
-{% set title = "Search Results" %}
+{% set title = "Search Results" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div style="min-height: 140px;">
 		<h2>Search of {{ searchTarget }} for "{{ searchValue }}"</h2>
 
 <!--
-		{% if wiki: %}
+		{% if wiki: -%}
 			{{ wiki | safe }}
-		{% endif %}
+		{% endif -%}
 -->
 
-		{% if sequence_item.items %}
+		{% if sequence_item.items -%}
 			<div>
 				{{ render_page_contents(page_url_prefix, sequence_item, name_key) }}
 			</div>
 			{{ paginator.render_pagination(sequence_item) }}
-		{% else %}
+		{% else -%}
 			<div>
 				<strong>No items found!</strong>
 			</div>
-		{% endif %}
+		{% endif -%}
 
 
 
 	</div>
 
 
-{% endblock %}
+{% endblock -%}

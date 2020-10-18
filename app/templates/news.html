@@ -1,34 +1,34 @@
 <!-- extend base layout -->
 
-{% extends "__base.html" %}
-{% import "_block_paginate.html" as paginator %}
+{% extends "__base.html" -%}
+{% import "_block_paginate.html" as paginator -%}
 
-{% block header %}
+{% block header -%}
 	<meta name="manga-id" content="{{ series_id }}">
-{% endblock %}
+{% endblock -%}
 
-{% block footer %}
+{% block footer -%}
 	<script src="/static/js/editable.js"></script>
 	<script src="/static/js/autogrow.js"></script>
 	<script src="/static/js/bootstrap-number-input.js"></script>
-{% endblock %}
+{% endblock -%}
 
-{% set title = "Site News" %}
+{% set title = "Site News" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 
 
 	<div>
-		{% if add_new %}
+		{% if add_new -%}
 			<div class='pull-right'>
 				<h4><a href='/add/{{add_new}}/'>{{add_new_text}}</a></h4>
 			</div>
-		{% endif %}
+		{% endif -%}
 		<h2>News Posts</h2>
 
 		<div style="clear: both;"></div>
-		{% for post in posts.items %}
+		{% for post in posts.items -%}
 
 			<div class="well">
 				<div style='float:right'>
@@ -38,9 +38,9 @@
 
 				{{post.body | safe}}
 			</div>
-		{% endfor %}
+		{% endfor -%}
 
 		{{ paginator.render_pagination(posts) }}
 	</div>
 
-{% endblock %}
+{% endblock -%}

@@ -1,10 +1,10 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% set title = "Add a Series" %}
+{% set title = "Add a Series" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 	<div class="well well-large" style="min-height: 140px;">
 		<h2>Add a new {{add_name}}:</h2>
 
@@ -14,24 +14,24 @@
 					{{ form.hidden_tag() }}
 					{{ form.name.label }}
 					{{ form.name(size=60) }}
-					{% if form.name.errors %}
+					{% if form.name.errors -%}
 						<ul class="errors">
-							{% for error in form.name.errors %}
+							{% for error in form.name.errors -%}
 								<li>{{ error }}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
-					{% endif %}
+					{% endif -%}
 				</div>
 				<div class="form-group">
 					{{ form.type.label }}
 					{{ form.type() }}
-					{% if form.type.errors %}
+					{% if form.type.errors -%}
 						<ul class="errors">
-							{% for error in form.type.errors %}
+							{% for error in form.type.errors -%}
 								<li>{{ error }}</li>
-							{% endfor %}
+							{% endfor -%}
 						</ul>
-					{% endif %}
+					{% endif -%}
 				</div>
 				<div>
 					<p>
@@ -53,7 +53,7 @@
 		</form>
 	</div>
 
-{% endblock %}
+{% endblock -%}
 
 
 

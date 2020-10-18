@@ -8,23 +8,23 @@
 			<div class="col-md-6 attrs">
 				<div style='padding: 5px'>
 					<strong>Title:</strong>
-					{% if cover.description == None %}
-						{% set desc = '' %}
-					{% else %}
-						{% set desc = cover.description %}
-					{% endif %}
-					{% if g.user.is_authenticated() %}
+					{% if cover.description == None -%}
+						{% set desc = '' -%}
+					{% else -%}
+						{% set desc = cover.description -%}
+					{% endif -%}
+					{% if g.user.is_authenticated() -%}
 						<textarea id='new-cover-title' name='c-input-{{cover.id}}' style='width: 100%'>{{ desc }}</textarea>
 						<textarea id='old-cover-title' name='c-orig-input-{{cover.id}}' style='visibility: hidden'>{{ desc }}</textarea>
-					{% else %}
+					{% else -%}
 						<span>{{ cover.description }}</span>
-					{% endif %}
+					{% endif -%}
 				</div>
 			</div>
 
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 {% macro image_upload_block(series) -%}
@@ -39,17 +39,17 @@
 
 		</div>
 	</div>
-{%- endmacro %}
+{%- endmacro -%}
 
 
 
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
-{% block header %}
+{% block header -%}
 	<meta name="manga-id" content="{{ series.id }}">
-{% endblock %}
+{% endblock -%}
 
-{% block footer %}
+{% block footer -%}
 
 
 	<script src="/static/js/editable.js"></script>
@@ -58,10 +58,10 @@
 
 	<script>
 
-		{% if not g.user.is_authenticated() %}
+		{% if not g.user.is_authenticated() -%}
 			$(".save-changes-button").each(function(){$(this).prop('disabled', true).text("Requires an account.")});
 			$("#new-image-id").each(function(){$(this).prop('disabled', true).removeAttr('onchange')});
-		{% else %}
+		{% else -%}
 
 			var csrftoken = $('meta[name=csrf-token]').attr('content')
 
@@ -184,30 +184,30 @@
 
 			}
 
-		{% endif %}
+		{% endif -%}
 		$('textarea').autogrow({onInitialize:true});
 	</script>
 
-{% endblock %}
+{% endblock -%}
 
-{% set title = "Edit covers for " + series.title %}
+{% set title = "Edit covers for " + series.title -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 
 	<div class="well well-large">
 		<form action="submit">
 			<button type="button" onclick="save_covers()" class="pull-right save-changes-button" style='width:160px'>Save changes</button>
 			<h2>{{ series.title }} - Covers </h2>
-			{% if series.covers %}
-				{% for cover in series.covers %}
+			{% if series.covers -%}
+				{% for cover in series.covers -%}
 					{{cover_block(
 										cover,
 										series
 									)
 					}}
-				{% endfor %}
-			{% endif %}
+				{% endfor -%}
+			{% endif -%}
 			{{ image_upload_block(series) }}
 			<div style='width: 100%;'>
 				<button type="button" onclick="save_covers()" class="pull-right save-changes-button" style='width:160px'>Save changes</button>
@@ -220,4 +220,4 @@
 	</div>
 
 
-{% endblock %}
+{% endblock -%}

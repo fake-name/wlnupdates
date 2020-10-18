@@ -1,12 +1,12 @@
 {# Breadcrumb navigation #}
-{% macro breadcrumbs(board=none, thread=none) %}
+{% macro breadcrumbs(board=none, thread=none) -%}
 <div class="breadcrumbs well well-tny">
 	<a href="{{ url_for('forum.index') }}">Forum</a> &raquo;
-	{% if board %}
+	{% if board -%}
 		<a href="{{ url_for('forum.board', slug=board.slug) }}">{{ board.name }}</a>
-		{% if thread %}
+		{% if thread -%}
 		&raquo; <a href="{{ url_for('forum.thread', slug=board.slug, id=thread.id) }}">{{ thread.name }}</a>
-		{% endif %}
-	{% endif %}
+		{% endif -%}
+	{% endif -%}
 </div>
-{% endmacro %}
+{% endmacro -%}

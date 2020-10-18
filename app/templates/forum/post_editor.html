@@ -1,6 +1,6 @@
 
 
-{% macro post_editor(form, label="Post Content:") %}
+{% macro post_editor(form, label="Post Content:") -%}
 	<div id='post-entry'></div>
 		{{ form.csrf_token }}
 		<div class="form-group">
@@ -10,13 +10,13 @@
 			<div class="wmd-panel" style='width: 100%;'>
 				{{ form.content(class_="form-control wmd-input", rows='12', id="wmd-input") }}
 			</div>
-			{% if form.content.errors %}
+			{% if form.content.errors -%}
 				<ul class="errors">
-					{% for error in form.content.errors %}
+					{% for error in form.content.errors -%}
 						<li>{{ error }}</li>
-					{% endfor %}
+					{% endfor -%}
 				</ul>
-			{% endif %}
+			{% endif -%}
 
 			Preview:
 			<div id="wmd-preview" class="wmd-panel wmd-preview well"></div>
@@ -26,10 +26,10 @@
 		</div>
 	<div class='clearfix'></div>
 
-{% endmacro %}
+{% endmacro -%}
 
 
-{% macro post_edit_footer() %}
+{% macro post_edit_footer() -%}
 	<style>
 
 		.wmd-input {
@@ -170,4 +170,4 @@
 		})();
 
 	</script>
-{% endmacro %}
+{% endmacro -%}

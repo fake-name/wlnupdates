@@ -1,17 +1,17 @@
-{% extends '__base.html' %}
-{% import 'forum/macros.html' as m %}
+{% extends '__base.html' -%}
+{% import 'forum/macros.html' as m -%}
 
-{% macro thread_row(t) %}
+{% macro thread_row(t) -%}
 	<tr>
 		<td><a href="{{ url_for('.thread', slug=board.slug, id=t.id) }}">{{ t.name }}</a></td>
 		<td>{{ t.length }}</td>
 		<td>{{ t.readable_date(t.updated) }}</td>
 	</tr>
-{% endmacro %}
+{% endmacro -%}
 
-{% block title %}{{ board.name }}{% endblock %}
+{% block title -%}{{ board.name }}{% endblock -%}
 
-{% block body %}
+{% block body -%}
 	<h1>{{ board.name }}</h1>
 	{{ m.breadcrumbs(board) }}
 
@@ -28,16 +28,16 @@
 			<th>Posts</th>
 			<th>Last updated</th>
 		</tr>
-		{% if threads: %}
-			{% for t in threads %}
+		{% if threads: -%}
+			{% for t in threads -%}
 				{{ thread_row(t) }}
-			{% endfor %}
-		{% endif %}
+			{% endfor -%}
+		{% endif -%}
 	</table>
-	{% if not threads: %}
+	{% if not threads: -%}
 		<div>
 			<center>No threads....</center>
 		</div><br>
-	{% endif %}
+	{% endif -%}
 	<a href="{{ url_for('.create_thread', slug=board.slug) }}" class="btn btn-info" role="button" style='margin-bottom: 5px;'>New thread</a>
-{% endblock %}
+{% endblock -%}

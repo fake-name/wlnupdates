@@ -1,16 +1,16 @@
-{% if mode_read_only %}
+{% if mode_read_only -%}
 <div class="alert alert-danger">
     {{ mode_read_only_msg | safe }}
 </div>
-{% endif %}
+{% endif -%}
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
+{% with messages = get_flashed_messages() -%}
+{% if messages -%}
+{% for message in messages -%}
 <div class="alert alert-info">
     <button type="button" class="close" data-dismiss="alert">&times;</button>
     {{ message | safe }}
 </div>
-{% endfor %}
-{% endif %}
-{% endwith %}
+{% endfor -%}
+{% endif -%}
+{% endwith -%}

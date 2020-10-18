@@ -1,57 +1,57 @@
 <!-- extend base layout -->
-{% extends "__base.html" %}
+{% extends "__base.html" -%}
 
 {% macro singleItemBlock(series, read, latest, watch_as) -%}
-	{% if latest['agg'] > read['agg'] %}
+	{% if latest['agg'] > read['agg'] -%}
 		<tr class="row singleitem red-highlight"  data-availvol='{{latest['vol']}}' data-availchp='{{latest['chp']}}' data-availfrag='{{latest['frag']}}'>
-	{% elif latest['agg'] < read['agg'] and read['agg'] %}
+	{% elif latest['agg'] < read['agg'] and read['agg'] -%}
 		<tr class="row singleitem yellow-highlight"  data-availvol='{{latest['vol']}}' data-availchp='{{latest['chp']}}' data-availfrag='{{latest['frag']}}'>
-	{% elif latest['agg'] == read['agg'] and read['agg'] %}
+	{% elif latest['agg'] == read['agg'] and read['agg'] -%}
 		<tr class="row singleitem green-highlight"  data-availvol='{{latest['vol']}}' data-availchp='{{latest['chp']}}' data-availfrag='{{latest['frag']}}'>
-	{% else %}
+	{% else -%}
 		<tr class="row singleitem "  data-availvol='{{latest['vol']}}' data-availchp='{{latest['chp']}}' data-availfrag='{{latest['frag']}}'>
-	{% endif %}
+	{% endif -%}
 		<td class="col-md-8 rowTitle">
 			<a href='/series-id/{{ series.id }}/'>
-				{% if watch_as: %}
+				{% if watch_as: -%}
 					{{ watch_as }}
-				{% else %}
+				{% else -%}
 					{{ series.title }}
-				{% endif %}
+				{% endif -%}
 			</a>
-			{% if latest['date'] %}
+			{% if latest['date'] -%}
 
 
 				<span class='pull-right light-text {{staleness_factor(latest['date'])}}'>{{terse_ago(latest['date'])}} ago</span>
-			{% else %}
+			{% else -%}
 				<span class='pull-right light-text'>Never Updated</span>
-			{% endif %}
+			{% endif -%}
 		</td>
 		<td class="col-md-2 rowContents" id='avail-series-{{series.id}}'>
-			{% if latest['vol'] >= 0 or latest['chp'] >= 0 or latest['frag'] >= 0 %}
-				{% if latest['vol'] >= 0 %}v{{ ( latest['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
-				{% if latest['chp'] >= 0 %}c{{ ( latest['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
-				{% if latest['frag'] > 0 %}p{{ ( latest['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif %}
-				{% if latest['agg'] > read['agg'] %}
+			{% if latest['vol'] >= 0 or latest['chp'] >= 0 or latest['frag'] >= 0 -%}
+				{% if latest['vol'] >= 0 -%}v{{ ( latest['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif -%}
+				{% if latest['chp'] >= 0 -%}c{{ ( latest['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif -%}
+				{% if latest['frag'] > 0 -%}p{{ ( latest['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}{% endif -%}
+				{% if latest['agg'] > read['agg'] -%}
 					<span class='pull-right'><a href='/series-id-unread/{{ series.id }}/'><i class="glyphicon glyphicon-eye-open"></i></a></span>
-				{% endif %}
-			{% else %}
+				{% endif -%}
+			{% else -%}
 				No Releases!
-			{% endif %}
+			{% endif -%}
 
 		</td>
 		<td class="col-md-2 rowContents" id='read-series-{{series.id}}'>
-			{% if read['vol'] >= 0 or read['chp'] >= 0 or read['frag'] >= 0 %}
-				{% if read['vol'] >= 0 %}<a class='read-component volume'   href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('vol', 'read-series-{{series.id}}', {{series.id}});return false;">v{{ ( read['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif %}
-				{% if read['chp'] >= 0 %}<a class='read-component chapter'  href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('chp', 'read-series-{{series.id}}', {{series.id}});return false;">c{{ ( read['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif %}
-				{% if read['frag'] > 0 %}<a class='read-component fragment' href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('frg', 'read-series-{{series.id}}', {{series.id}});return false;">p{{ ( read['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif %}
-			{% else %}
+			{% if read['vol'] >= 0 or read['chp'] >= 0 or read['frag'] >= 0 -%}
+				{% if read['vol'] >= 0 -%}<a class='read-component volume'   href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('vol', 'read-series-{{series.id}}', {{series.id}});return false;">v{{ ( read['vol'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif -%}
+				{% if read['chp'] >= 0 -%}<a class='read-component chapter'  href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('chp', 'read-series-{{series.id}}', {{series.id}});return false;">c{{ ( read['chp'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif -%}
+				{% if read['frag'] > 0 -%}<a class='read-component fragment' href="javascript:void(0)" data-vol='{{read['vol']}}'  data-chp='{{read['chp']}}' data-frg='{{read['frag']}}' onclick="increment_progress('frg', 'read-series-{{series.id}}', {{series.id}});return false;">p{{ ( read['frag'] | float |round(2)|string).rstrip('0').rstrip('.') }}</a>{% endif -%}
+			{% else -%}
 				Unread!
-			{% endif %}
+			{% endif -%}
 
 		</td>
 	</tr>
-{%- endmacro %}
+{%- endmacro -%}
 
 {% macro headerBlock() -%}
 
@@ -66,12 +66,12 @@
 			Read
 		</td>
 	</tr>
-{%- endmacro %}
+{%- endmacro -%}
 
-{% set title = "Watched Series" %}
+{% set title = "Watched Series" -%}
 
-{% block content %}
-	{% include '_block_flash.html' %}
+{% block content -%}
+	{% include '_block_flash.html' -%}
 
 	<div >
 		<div class="pull-right">
@@ -81,29 +81,29 @@
 		<div class="pull-right">
 			<font color="#666">To delete a list, remove all items from it.</font>
 		</div>
-		{% if watches %}
-			{% for listname in lists %}
+		{% if watches -%}
+			{% for listname in lists -%}
 				<h4>List: {{listname | title}}</h4>
 				<table class='table-striped table table-bordered table-condensed fullwidth'>
 					{{ headerBlock() }}
-					{% for series, read_progress, avail_progress, watch_as in watches[listname] %}
+					{% for series, read_progress, avail_progress, watch_as in watches[listname] -%}
 						{{singleItemBlock(series, read_progress, avail_progress, watch_as)}}
-					{% endfor %}
+					{% endfor -%}
 				</table>
-			{% endfor %}
+			{% endfor -%}
 
-		{% else %}
+		{% else -%}
 			<p>No watched items? <a href='/series/'>Add a few?</a></p>
-		{% endif %}
+		{% endif -%}
 
 		<div style="clear: both;"></div>
 
 	</div>
-{% endblock %}
+{% endblock -%}
 
 
 
-{% block footer %}
+{% block footer -%}
 	<script src="/static/js/editable.js"></script>
 	<script>
 
@@ -325,5 +325,5 @@
 
 	</script>
 
-{% endblock %}
+{% endblock -%}
 

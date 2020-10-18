@@ -1,9 +1,9 @@
-{% extends '__base.html' %}
-{% import 'forum/macros.html' as m %}
+{% extends '__base.html' -%}
+{% import 'forum/macros.html' as m -%}
 
-{% block title %}{{ thread.name }}{% endblock %}
+{% block title -%}{{ thread.name }}{% endblock -%}
 
-{% block body %}
+{% block body -%}
 	<h1>Thread: {{ thread.name }}</h1>
 	{{ m.breadcrumbs(board, thread) }}
 
@@ -11,23 +11,23 @@
 		<colgroup>
 			<col width="150px">
 		</colgroup>
-		{% for p in posts %}
+		{% for p in posts -%}
 		<tr>
 			<td>
 				<a href="{{ url_for('.user', id=p.author_id) }}">{{ p.author.nickname }}</a><br>
 				posted on<br>
 				{{ p.readable_date(p.created) }}
-				{% if g.user.is_admin() %}
+				{% if g.user.is_admin() -%}
 					<a href="#" onclick="delete_spammer({{p.author_id}});return false;">[Delete Spammer]</a>
-				{% endif %}
+				{% endif -%}
 
 			</td>
 			<td>
 				{{ p.content|markdown }}
-				{% if p.author_id == current_user.id %}<a href="{{ url_for('.edit_post', slug=board.slug, thread_id=thread.id, post_id=p.id) }}">[edit]</a>{% endif %}
+				{% if p.author_id == current_user.id -%}<a href="{{ url_for('.edit_post', slug=board.slug, thread_id=thread.id, post_id=p.id) }}">[edit]</a>{% endif -%}
 			</td>
 		</tr>
-		{% endfor %}
+		{% endfor -%}
 	</table>
 
 	<div style='margin-bottom: 15px;' class='pull-right'>
@@ -35,4 +35,4 @@
 	</div>
 	<div class='clearfix'></div>
 
-{% endblock %}
+{% endblock -%}

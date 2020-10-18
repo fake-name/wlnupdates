@@ -1,10 +1,10 @@
-{% extends '__base.html' %}
-{% import 'forum/macros.html' as m %}
+{% extends '__base.html' -%}
+{% import 'forum/macros.html' as m -%}
 
-{% block title %}{{ user.email }}{% endblock %}
+{% block title -%}{{ user.email }}{% endblock -%}
 
-{% block body %}
+{% block body -%}
 	{{ m.breadcrumbs() }}
 	<h1>User: {{ user.nickname }}</h1>
 	(Nothing yet)
-{% endblock %}
+{% endblock -%}
