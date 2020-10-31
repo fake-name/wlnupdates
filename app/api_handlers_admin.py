@@ -686,9 +686,8 @@ def delete_duplicate_releases(data, admin_override=False):
 
 	match_num = 0
 	mismatches = set()
-	for website, number in dups:
-		# print(website, number)
-		matches = Releases.query.filter(Releases.srcurl==website).all()
+	for release_url, number in dups:
+		matches = Releases.query.filter(Releases.srcurl==release_url).all()
 		zipped = list(zip(matches, matches[1:]))
 		for m1, m2 in zipped:
 			if m1.series != m2.series:
@@ -700,11 +699,13 @@ def delete_duplicate_releases(data, admin_override=False):
 				match_num += 1
 				# print(m1.series, m2.series)
 
-				# ~~~Sort by change-time, since we care more about~~~
-				# ~~~the latest change (since it'll probably be more accurate)~~~
-				# Edit: Now picks the older version, since untimed duplicates keep
+				# Pick the older version, since untimed duplicates keep
 				# cropping up from japtem.
-				if m1.changetime < m2.changetime:
+				# However, if a newer release has a postfix, go with that instead.
+				if m2.postfix and m2.postfix != m1.postfix:
+					older = m2
+					newer = m1
+				elif m1.changetime < m2.changetime:
 					older = m1
 					newer = m2
 				else:
@@ -722,7 +723,7 @@ def delete_duplicate_releases(data, admin_override=False):
 	# print(list(dups))
 
 	with open("rrl_match_items.json", "w") as fp:
-		json.dump(mismatches, fp=fp, indent=4)
+		json.dump(list(mismatches), fp=fp, indent=4)
 
 
 	return getResponse("%s Items merged." % match_num, error=False)

@@ -264,10 +264,18 @@ class ConnectorManager:
 
 		with self.rx_timeout_lock:
 			self.last_message_received = time.time()
+
+		count = 0
+		while self.response_queue.qsize() > 500:
+			time.sleep(0.1)
+			count += 1
+			if count > 100:
+				self.log.info("AMQP Connector sleeping while queue is processed.")
+
 		self.response_queue.put(message.body)
 		message.ack()
 
-		self.log.info("Message packet received! %s", len(message.body))
+		self.log.info("Message packet received: %s. Queue size: %s", len(message.body), self.response_queue.qsize())
 
 
 	def __start_consume(self):
