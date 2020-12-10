@@ -721,9 +721,10 @@ def delete_duplicate_releases(data, admin_override=False):
 
 	# print(dups)
 	# print(list(dups))
+	mismatches = list(mismatches)
 
 	with open("rrl_match_items.json", "w") as fp:
-		json.dump(list(mismatches), fp=fp, indent=4)
+		json.dump(mismatches, fp=fp, indent=4)
 
 
 	return getResponse("%s Items merged." % match_num, error=False)
