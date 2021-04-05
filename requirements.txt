@@ -3,7 +3,7 @@ alembic==1.5.8
 amqp==5.0.6
 APScheduler==3.7.0
 awesome-slugify==1.6.5
-Babel==2.8.0
+Babel==2.9.0
 beautifulsoup4==4.9.0
 bleach==3.1.4
 blinker==1.4
