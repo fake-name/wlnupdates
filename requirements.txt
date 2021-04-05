@@ -21,7 +21,7 @@ coverage==5.5
 datasketch==1.5.3
 decorator==5.0.5
 defusedxml==0.7.1
-fastnumbers==2.2.1
+fastnumbers==3.1.0
 Flask==1.1.2
 Flask-Admin==1.5.6
 Flask-Assets==2.0
