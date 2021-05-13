@@ -735,13 +735,26 @@ def update_series_info(item):
 		if len(newd.strip()):
 			series.description = newd
 
-	if 'homepage' in item  and item['homepage'] and (
+	if 'homepage' in item  and item['homepage']:
+		cleaned_homepage = bleach.clean(item['homepage']).lower().strip()
+		if (
 			not series.website or
-			(bleach.clean(item['homepage']) != series.website and changeable['website'])
+			(cleaned_homepage not in series.website.lower() and changeable['website'])
 		):
-		neww = bleach.clean(item['homepage'])
-		if  len(neww.strip()):
-			series.website = neww
+
+			have_pages = series.website.lower().split("\n") if series.website else []
+
+			have_pages = [pg.strip() for pg in have_pages if pg.strip()]
+			have_pages = set(have_pages)
+
+
+			if len(cleaned_homepage):
+				have_pages.add(cleaned_homepage)
+
+				have_pages = list(have_pages)
+				have_pages.sort()                # Order resulting site list.
+
+				series.website = "\n".join(have_pages)
 
 	if 'coostate' in item  and item['coostate']:
 		if not series.orig_status or (item['coostate'] != series.orig_status and changeable['orig_status']):
