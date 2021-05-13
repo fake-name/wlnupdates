@@ -8,6 +8,9 @@ except:
 	traceback.print_exc()
 	pass
 
+
+import sys
+
 from app import app
 import threading
 import concurrent.futures
@@ -18,7 +21,7 @@ import FeedFeeder.FeedFeeder
 import flags
 
 
-def amqp_thread_run():
+def amqp_thread_run(silence_exceptions=True):
 	print("AMQP Thread running.")
 	interface = None
 
@@ -39,12 +42,15 @@ def amqp_thread_run():
 			break
 
 		except Exception:
-			with open("threading error %s.txt" % time.time(), 'w') as fp:
-				fp.write("Error!\n\n")
-				fp.write(traceback.format_exc())
-			traceback.print_exc()
-			interface = None
-			time.sleep(10)
+			if silence_exceptions:
+				with open("threading error %s.txt" % time.time(), 'w') as fp:
+					fp.write("Error!\n\n")
+					fp.write(traceback.format_exc())
+				traceback.print_exc()
+				interface = None
+				time.sleep(10)
+			else:
+				raise
 
 
 		time.sleep(1)
@@ -64,7 +70,7 @@ def startBackgroundThreads():
 	return [amqp_bk_thread, scheduler_bk_thread]
 
 
-def go():
+def go_old():
 
 	bk_threads = startBackgroundThreads()
 
@@ -81,6 +87,19 @@ def go():
 		bk_thread.join()
 
 	print("Thread halted. App exiting.")
+
+
+def go():
+
+	if "feeder" in sys.argv:
+		amqp_thread_run(silence_exceptions=False)
+	elif "scheduler" in sys.argv:
+		maintenance_scheduler.run_scheduler()
+	else:
+		raise RuntimeError("Invalid run mode!")
+
+
+
 
 if __name__ == "__main__":
 	started = False
