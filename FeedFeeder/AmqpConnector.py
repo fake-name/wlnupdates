@@ -56,6 +56,7 @@ class ConnectorManager:
 		self.had_exception      = multiprocessing.Value("i", 0)
 		self.threads_live       = multiprocessing.Value("i", 1)
 
+		self.thread_management_lock = threading.Lock()
 
 
 		self.info_printerval        = time.time()
@@ -479,6 +480,7 @@ class Connector:
 		assert args == (), "All arguments must be passed as keyword arguments. Positional arguments: '%s'" % (args, )
 
 		self.log = logging.getLogger("Main.Connector")
+		self.thread_management_lock = threading.Lock()
 
 		self.log.info("Setting up AqmpConnector!")
 
@@ -557,43 +559,51 @@ class Connector:
 
 		self.forwarded = 0
 
-		self.thread = None
+		with self.thread_management_lock:
+			self.thread = None
 		self.__config = config
 		self.checkLaunchThread()
 
 	def checkLaunchThread(self):
 		queue_overfull = self.taskQueue.qsize() > 10000
 
-		if self.thread and self.thread.isAlive() and not queue_overfull:
-			return
+		with self.thread_management_lock:
+			if self.thread and self.thread.isAlive() and not queue_overfull:
+				return
 		if queue_overfull:
 			self.runstate.value = 0
 			for dummy_x in range(30):
-				if self.thread.isAlive():
-					time.sleep(1)
-				else:
-					self.thread.join()
-					self.thread = None
-					break
+
+				with self.thread_management_lock:
+					if not self.thread.isAlive():
+						self.thread.join()
+						self.thread = None
+						break
+				time.sleep(1)
 
 
+		with self.thread_management_lock:
 
-		if self.thread and not self.thread.isAlive():
-			self.thread.join()
-			self.log.error("")
-			self.log.error("")
-			self.log.error("")
-			self.log.error("Thread has died!")
-			self.log.error("")
-			self.log.error("")
-			self.log.error("")
+			if self.thread and not self.thread.isAlive():
+				self.thread.join()
+				self.log.error("")
+				self.log.error("")
+				self.log.error("")
+				self.log.error("Thread has died!")
+				self.log.error("")
+				self.log.error("")
+				self.log.error("")
 
-		self.thread = threading.Thread(
-			target=ConnectorManager.run_fetcher,
-			args=(self.__config, self.runstate, self.taskQueue, self.responseQueue),
-			daemon=True,
-			name="RMQ: {}".format(self.__config['virtual_host']))
-		self.thread.start()
+			self.thread = threading.Thread(
+				target=ConnectorManager.run_fetcher,
+				args=(self.__config, self.runstate, self.taskQueue, self.responseQueue),
+				daemon=True,
+				name="RMQ: {}".format(self.__config['virtual_host']))
+
+			self.thread.start()
+			while not self.thread.isAlive():
+				time.sleep(1)
+				self.log.info("Waiting for thread to start")
 
 
 
@@ -661,7 +671,10 @@ class Connector:
 
 		self.log.info("%s remaining outgoing AMQP items. Joining on thread.", resp_q.qsize())
 
-		self.thread.join()
+
+		with self.thread_management_lock:
+			self.thread.join()
+
 		self.log.info("AMQP interface thread halted.")
 
 	def __del__(self):

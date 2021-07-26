@@ -15,7 +15,7 @@ set -e
 # fi
 
 echo "Fetching db dump from remote server";
-ssh client@ks1 'sudo -u postgres pg_dump --clean --format c -d wlndb' | pv -cN Db-Fetch-Progress > /media/Storage/Scripts/dbBak/wln_db_dump_$(date +%Y-%m-%d).sqlb
+ssh client@ks3 'sudo -u postgres pg_dump --clean --format c -d wlndb' | pv -cN Db-Fetch-Progress > /media/Storage/Scripts/dbBak/wln_db_dump_$(date +%Y-%m-%d).sqlb
 echo "Updating local database from dump file";
 xz -d /media/Storage/Scripts/dbBak/wln_db_dump_$(date +%Y-%m-%d).sqlb -c | pv -c | ssh wlnuser@10.1.1.61 -t "pg_restore --clean --format c -d wlndb"
 echo "Synchronizing cover folder!"
