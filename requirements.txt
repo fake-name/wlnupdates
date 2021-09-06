@@ -4,7 +4,7 @@ amqp==5.0.6
 APScheduler==3.7.0
 awesome-slugify==1.6.5
 Babel==2.9.1
-beautifulsoup4==4.9.0
+beautifulsoup4==4.9.3
 bleach==3.3.0
 blinker==1.4
 cffi==1.14.0
