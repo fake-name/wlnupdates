@@ -319,7 +319,7 @@ def merge_series_ids(m1, m2):
 
 
 	if itm_from.website and not itm_to.website:
-		itm_to.website = itm_from.website.lower
+		itm_to.website = itm_from.website.lower()
 
 	# Merge item links
 	elif itm_from.website and itm_to.website:
