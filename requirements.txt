@@ -40,7 +40,7 @@ Flask-Principal==0.4.0
 Flask-Redis==0.4.0
 Flask-Script==2.0.6
 Flask-Security==3.0.0
-Flask-SQLAlchemy==2.4.1
+Flask-SQLAlchemy==3.0.2
 Flask-Themes2==0.1.4
 Flask-WhooshAlchemy==0.56
 Flask-WTF==0.14.3
