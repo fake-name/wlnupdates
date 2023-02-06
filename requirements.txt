@@ -73,7 +73,7 @@ pycparser==2.21
 Pygments==2.14.0
 pyparsing==3.0.9
 pytest==7.2.1
-pytest-cov==2.8.1
+pytest-cov==4.0.0
 pytest-random==0.2
 python-dateutil==2.8.1
 python-editor==1.0.4
