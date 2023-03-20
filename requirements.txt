@@ -100,7 +100,7 @@ validators==0.20.0
 vine==5.0.0
 webassets==2.0
 webencodings==0.5.1
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 Whoosh==2.7.4
 WTForms==2.3.1
 WTForms-JSON==0.3.3
