@@ -45,7 +45,7 @@ Flask-Themes2==1.0.0
 Flask-WhooshAlchemy==0.56
 Flask-WTF==1.1.1
 flipflop==1.0
-ftfy==5.7
+ftfy==6.1.1
 gevent==20.4.0
 greenlet==0.4.15
 guess-language==0.2
