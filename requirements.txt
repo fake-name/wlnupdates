@@ -19,7 +19,7 @@ colorama==0.4.6
 cov-core==1.15.0
 coverage==7.2.3
 datasketch==1.5.9
-decorator==4.4.2
+decorator==5.1.1
 defusedxml==0.6.0
 fastnumbers==2.2.1
 Flask==1.1.2
