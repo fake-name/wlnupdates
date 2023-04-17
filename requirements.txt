@@ -92,7 +92,7 @@ sqlalchemy-gevent==0.2
 sqlalchemy-migrate==0.13.0
 SQLAlchemy-Searchable==1.4.1
 SQLAlchemy-Utils==0.41.0
-sqlparse==0.3.1
+sqlparse==0.4.3
 Tempita==0.5.2
 tqdm==4.45.0
 tzlocal==2.0.0
