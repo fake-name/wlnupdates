@@ -43,7 +43,7 @@ Flask-Security==3.0.0
 Flask-SQLAlchemy==3.0.5
 Flask-Themes2==1.0.0
 Flask-WhooshAlchemy==0.56
-Flask-WTF==0.14.3
+Flask-WTF==1.1.1
 flipflop==1.0
 ftfy==5.7
 gevent==20.4.0
