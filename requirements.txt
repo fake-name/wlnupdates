@@ -51,7 +51,7 @@ greenlet==2.0.2
 guess-language==0.2
 guess-language-spirit==0.5.3
 gunicorn==21.2.0
-html5lib==1.0.1
+html5lib==1.1
 itsdangerous==1.1.0
 Jinja2==2.11.3
 Mako==1.1.2
