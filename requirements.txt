@@ -90,7 +90,7 @@ SQLAlchemy==2.0.21
 sqlalchemy-citext==1.8.0
 sqlalchemy-gevent==0.2
 sqlalchemy-migrate==0.13.0
-SQLAlchemy-Searchable==1.1.0
+SQLAlchemy-Searchable==2.0.0
 SQLAlchemy-Utils==0.36.3
 sqlparse==0.3.1
 Tempita==0.5.2
