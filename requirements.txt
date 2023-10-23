@@ -102,7 +102,7 @@ webassets==2.0
 webencodings==0.5.1
 Werkzeug==3.0.0
 Whoosh==2.7.4
-WTForms==2.3.1
+WTForms==3.1.0
 WTForms-JSON==0.3.3
 
 jsmin==2.2.2
