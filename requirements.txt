@@ -25,7 +25,7 @@ fastnumbers==5.1.0
 Flask==3.0.0
 Flask-Admin==1.6.1
 Flask-Assets==2.1.0
-Flask-Babel==1.0.0
+Flask-Babel==4.0.0
 Flask-BabelEx==0.9.4
 bcrypt==3.1.7
 Flask-Cache==0.13.1
