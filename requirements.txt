@@ -20,7 +20,7 @@ cov-core==1.15.0
 coverage==7.4.0
 datasketch==1.6.4
 decorator==5.1.1
-defusedxml==0.6.0
+defusedxml==0.7.1
 fastnumbers==2.2.1
 Flask==1.1.2
 Flask-Admin==1.5.6
