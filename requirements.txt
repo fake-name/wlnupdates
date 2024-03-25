@@ -111,7 +111,7 @@ slimit==0.8.1
 
 
 flask_sessionstore==0.4.5
-flask-session-captcha==1.2.0
+flask-session-captcha==1.4.1
 
 
 email_validator
