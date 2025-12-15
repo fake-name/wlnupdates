@@ -6,7 +6,7 @@ awesome-slugify==1.6.5
 Babel==2.8.0
 beautifulsoup4==4.9.0
 bleach==3.3.0
-blinker==1.4
+blinker==1.9.0
 cffi==1.14.0
 ## I'm still running py3.4 on Ubuntu 14.04 in a few places. 
 ## TODO: Upgrade to 18.04
