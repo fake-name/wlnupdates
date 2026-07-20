@@ -93,7 +93,7 @@ sqlalchemy-migrate==0.13.0
 SQLAlchemy-Searchable==3.0.0
 SQLAlchemy-Utils==0.42.1
 sqlparse==0.5.5
-Tempita==0.5.2
+Tempita==0.6.0
 tqdm==4.45.0
 tzlocal==2.0.0
 validators==0.14.3
