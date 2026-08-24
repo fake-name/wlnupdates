@@ -99,7 +99,7 @@ tzlocal==5.4.4
 validators==0.35.0
 vine==5.1.0
 webassets==2.0
-webencodings==0.5.1
+webencodings==0.6.1
 Werkzeug==1.0.1
 Whoosh==2.7.4
 WTForms==2.3.1
