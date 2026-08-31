@@ -64,7 +64,7 @@ nltk==3.10.3
 numpy==2.5.2
 pamqp==4.0.1
 passlib==1.7.4
-pbr==5.4.5
+pbr==7.1.2
 pstat==0.0.1
 psutil==5.7.0
 psycopg2-binary==2.8.5
